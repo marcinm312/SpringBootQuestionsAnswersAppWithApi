@@ -25,7 +25,7 @@ public class ExcelGenerator {
 	public File generateAnswersExcelFile(List<Answer> answersList, Question question) throws IOException {
 		String filePath = "files\\Odpowiedzi.xlsx";
 
-		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji" };
+		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();
 
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook, true, 14, IndexedColors.RED.getIndex());
@@ -55,6 +55,8 @@ public class ExcelGenerator {
 			Cell modificationDateCell = row.createCell(3);
 			modificationDateCell.setCellValue(answer.getUpdatedAtAsString());
 			modificationDateCell.setCellStyle(dateCellStyle);
+
+			row.createCell(4).setCellValue(answer.getUser().getUsername());
 		}
 
 		for (int i = 0; i < columns.length; i++) {
@@ -99,6 +101,12 @@ public class ExcelGenerator {
 		cellB5.setCellValue(question.getUpdatedAtAsString());
 		cellB5.setCellStyle(dateCellStyle);
 
+		Row row6 = questionSheet.createRow(5);
+		Cell cellA6 = row6.createCell(0);
+		cellA6.setCellValue("Użytkownik");
+		cellA6.setCellStyle(headerCellStyle);
+		row6.createCell(1).setCellValue(question.getUser().getUsername());
+
 		questionSheet.autoSizeColumn(0);
 		questionSheet.autoSizeColumn(1);
 
@@ -115,7 +123,7 @@ public class ExcelGenerator {
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
 		String filePath = "files\\Pytania.xlsx";
 
-		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji" };
+		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("Pytania");
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook, true, 14, IndexedColors.RED.getIndex());
@@ -145,6 +153,8 @@ public class ExcelGenerator {
 			Cell modificationDateCell = row.createCell(4);
 			modificationDateCell.setCellValue(question.getUpdatedAtAsString());
 			modificationDateCell.setCellStyle(dateCellStyle);
+
+			row.createCell(5).setCellValue(question.getUser().getUsername());
 		}
 
 		for (int i = 0; i < columns.length; i++) {

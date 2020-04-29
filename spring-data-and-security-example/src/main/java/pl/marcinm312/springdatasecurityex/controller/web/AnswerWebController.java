@@ -11,6 +11,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -25,8 +26,10 @@ import com.lowagie.text.DocumentException;
 
 import pl.marcinm312.springdatasecurityex.model.Answer;
 import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
+import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
@@ -38,85 +41,105 @@ public class AnswerWebController {
 	private AnswerManager answerManager;
 	private PdfGenerator pdfGenerator;
 	private ExcelGenerator excelGenerator;
+	private UserManager userManager;
 
 	@Autowired
 	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,
-			ExcelGenerator excelGenerator) {
+			ExcelGenerator excelGenerator, UserManager userManager) {
 		this.questionManager = questionManager;
 		this.answerManager = answerManager;
 		this.pdfGenerator = pdfGenerator;
 		this.excelGenerator = excelGenerator;
+		this.userManager = userManager;
 	}
 
 	@GetMapping
-	public String answersGet(Model model, @PathVariable Long questionId) {
+	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		List<Answer> answerList = answerManager.getAnswersByQuestionId(questionId);
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("answerList", answerList);
 		model.addAttribute("question", question);
+		model.addAttribute("userlogin", userName);
 		return "answers";
 	}
 
 	@PostMapping("/new")
 	public String createAnswer(@ModelAttribute("answer") @Validated Answer answer, BindingResult bindingResult,
-			Model model, @PathVariable Long questionId) {
+			Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Question question = questionManager.getQuestion(questionId);
 			model.addAttribute("question", question);
 			model.addAttribute("answer", answer);
+			model.addAttribute("userlogin", userName);
 			return "createAnswer";
 		} else {
-			answerManager.addAnswer(questionId, answer);
+			User user = userManager.getUserByAuthentication(authentication);
+			answerManager.addAnswer(questionId, answer, user);
 			return "redirect:..";
 		}
 	}
 
 	@GetMapping("/new")
-	public String createAnswerView(Model model, @PathVariable Long questionId) {
+	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("question", question);
 		model.addAttribute("answer", new Answer());
+		model.addAttribute("userlogin", userName);
 		return "createAnswer";
 	}
 
 	@PostMapping("/{answerId}/edit")
 	public String editAnswer(@ModelAttribute("answer") @Validated Answer answer, BindingResult bindingResult,
-			Model model, @PathVariable Long questionId, @PathVariable Long answerId) {
+			Model model, @PathVariable Long questionId, @PathVariable Long answerId, Authentication authentication) {
+		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Answer oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			Question question = questionManager.getQuestion(questionId);
 			model.addAttribute("question", question);
 			model.addAttribute("oldAnswer", oldAnswer);
 			model.addAttribute("answer", answer);
+			model.addAttribute("userlogin", userName);
 			return "editAnswer";
 		} else {
-			answerManager.updateAnswer(questionId, answerId, answer);
+			User user = userManager.getUserByAuthentication(authentication);
+			answerManager.updateAnswer(questionId, answerId, answer, user);
 			return "redirect:../..";
 		}
 	}
 
 	@GetMapping("/{answerId}/edit")
-	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId) {
+	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
+			Authentication authentication) {
+		String userName = authentication.getName();
 		Answer answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("question", question);
 		model.addAttribute("oldAnswer", answer);
 		model.addAttribute("answer", answer);
+		model.addAttribute("userlogin", userName);
 		return "editAnswer";
 	}
 
 	@PostMapping("/{answerId}/delete")
-	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId) {
-		answerManager.deleteAnswer(questionId, answerId);
+	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
+			Authentication authentication) {
+		User user = userManager.getUserByAuthentication(authentication);
+		answerManager.deleteAnswer(questionId, answerId, user);
 		return "redirect:../..";
 	}
 
 	@GetMapping("/{answerId}/delete")
-	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId) {
+	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
+			Authentication authentication) {
+		String userName = authentication.getName();
 		Answer answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("answer", answer);
 		model.addAttribute("question", question);
+		model.addAttribute("userlogin", userName);
 		return "deleteAnswer";
 	}
 

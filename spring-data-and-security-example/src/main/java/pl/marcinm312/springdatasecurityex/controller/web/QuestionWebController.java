@@ -11,6 +11,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,7 +25,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.lowagie.text.DocumentException;
 
 import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
+import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
@@ -35,72 +38,89 @@ public class QuestionWebController {
 	private QuestionManager questionManager;
 	private PdfGenerator pdfGenerator;
 	private ExcelGenerator excelGenerator;
+	private UserManager userManager;
 
 	@Autowired
 	public QuestionWebController(QuestionManager questionManager, PdfGenerator pdfGenerator,
-			ExcelGenerator excelGenerator) {
+			ExcelGenerator excelGenerator, UserManager userManager) {
 		this.questionManager = questionManager;
 		this.pdfGenerator = pdfGenerator;
 		this.excelGenerator = excelGenerator;
+		this.userManager = userManager;
 	}
 
 	@GetMapping
-	public String questionsGet(Model model) {
+	public String questionsGet(Model model, Authentication authentication) {
+		String userName = authentication.getName();
 		List<Question> questionList = questionManager.getQuestions();
 		model.addAttribute("questionList", questionList);
+		model.addAttribute("userlogin", userName);
 		return "questions";
 	}
 
 	@PostMapping("/new")
 	public String createQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
-			Model model) {
+			Model model, Authentication authentication) {
+		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("question", question);
+			model.addAttribute("userlogin", userName);
 			return "createQuestion";
 		} else {
-			questionManager.createQuestion(question);
+			User user = userManager.getUserByAuthentication(authentication);
+			questionManager.createQuestion(question, user);
 			return "redirect:..";
 		}
 	}
 
 	@GetMapping("/new")
-	public String createQuestionView(Model model) {
+	public String createQuestionView(Model model, Authentication authentication) {
+		String userName = authentication.getName();
 		model.addAttribute("question", new Question());
+		model.addAttribute("userlogin", userName);
 		return "createQuestion";
 	}
 
 	@PostMapping("/{questionId}/edit")
 	public String editQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
-			Model model, @PathVariable Long questionId) {
+			Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Question oldQuestion = questionManager.getQuestion(questionId);
 			model.addAttribute("oldQuestion", oldQuestion);
 			model.addAttribute("question", question);
+			model.addAttribute("userlogin", userName);
 			return "editQuestion";
 		} else {
-			questionManager.updateQuestion(questionId, question);
+			User user = userManager.getUserByAuthentication(authentication);
+			questionManager.updateQuestion(questionId, question, user);
 			return "redirect:../..";
 		}
 	}
 
 	@GetMapping("/{questionId}/edit")
-	public String editQuestionView(Model model, @PathVariable Long questionId) {
+	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("oldQuestion", question);
 		model.addAttribute("question", question);
+		model.addAttribute("userlogin", userName);
 		return "editQuestion";
 	}
 
 	@PostMapping("/{questionId}/delete")
-	public String removeQuestion(@PathVariable Long questionId) {
-		questionManager.deleteQuestion(questionId);
+	public String removeQuestion(@PathVariable Long questionId, Authentication authentication) {
+		User user = userManager.getUserByAuthentication(authentication);
+		questionManager.deleteQuestion(questionId, user);
 		return "redirect:../..";
 	}
 
 	@GetMapping("/{questionId}/delete")
-	public String removeQuestionView(Model model, @PathVariable Long questionId) {
+	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
+		String userName = authentication.getName();
 		Question question = questionManager.getQuestion(questionId);
 		model.addAttribute("question", question);
+		model.addAttribute("userlogin", userName);
 		return "deleteQuestion";
 	}
 

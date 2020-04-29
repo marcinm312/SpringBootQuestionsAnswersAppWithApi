@@ -19,6 +19,7 @@
 </head>
 <body onload="sortTableDesc()">
 	<div style="margin: 30px">
+		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = '../..'">Wróć do listy pytań</button>
 		<button class="btn btn-primary"
@@ -27,10 +28,13 @@
 			onclick="window.location.href = 'pdf-export/'">Eksportuj dane do pliku PDF</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'excel-export/'">Eksportuj dane do pliku Excel</button>
+		<button class="btn btn-primary"
+			onclick="window.location.href = '../../../../logout'">Wyloguj się</button>
 		<br /> <br />
 		<h1>Pytanie:</h1>
 		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
 		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
+		<br /> <strong>Użytkownik:</strong> <br /> ${question.user.username} <br />
 		<br />
 		<h1>Lista odpowiedzi na pytanie:</h1>
 		<br />
@@ -52,6 +56,8 @@
 								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col" onclick="sortTable(3)">Data modyfikacji <i
 								class="fa fa-fw fa-sort"></i></th>
+							<th scope="col" onclick="sortTable(4)">Użytkownik <i
+								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col">Opcje</th>
 						</tr>
 					</thead>
@@ -62,6 +68,7 @@
 								<td>${answer.text}</td>
 								<td>${answer.createdAtAsString}</td>
 								<td>${answer.updatedAtAsString}</td>
+								<td>${answer.user.username}</td>
 								<td><div class="btn-group btn-group-sm" role="group"
 										aria-label="...">
 										<button type="button" class="btn btn-secondary btn-sm"

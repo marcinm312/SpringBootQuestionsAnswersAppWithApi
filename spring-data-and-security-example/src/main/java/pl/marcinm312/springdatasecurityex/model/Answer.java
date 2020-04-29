@@ -36,6 +36,12 @@ public class Answer extends AuditModel {
 	@JsonIgnore
 	private Question question;
 
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnore
+	private User user;
+
 	public Long getId() {
 		return id;
 	}
@@ -58,5 +64,13 @@ public class Answer extends AuditModel {
 
 	public void setQuestion(Question question) {
 		this.question = question;
+	}
+
+	public User getUser() {
+		return user;
+	}
+
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

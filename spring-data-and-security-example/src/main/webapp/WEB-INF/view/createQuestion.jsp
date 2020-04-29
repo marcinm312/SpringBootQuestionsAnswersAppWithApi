@@ -16,6 +16,7 @@
 </head>
 <body>
 	<div style="margin: 30px">
+		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
 		<h1>Tworzenie nowego pytania</h1>
 		<br />
 		<form:form method="post" modelAttribute="question">

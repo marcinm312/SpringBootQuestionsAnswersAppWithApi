@@ -16,6 +16,7 @@
 </head>
 <body>
 	<div style="margin: 30px">
+		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
 		<h1>Usuwanie pytania o id: ${question.id}</h1>
 		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
 		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />

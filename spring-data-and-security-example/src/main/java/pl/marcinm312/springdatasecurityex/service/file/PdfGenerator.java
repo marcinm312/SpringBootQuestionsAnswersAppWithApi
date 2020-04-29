@@ -38,12 +38,13 @@ public class PdfGenerator {
 		title.setAlignment(Element.ALIGN_CENTER);
 		document.add(title);
 		document.add(Chunk.NEWLINE);
-		PdfPTable table = new PdfPTable(5);
+		PdfPTable table = new PdfPTable(6);
 		createAndAddCellToTable("Id", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Tytuł", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Opis", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data utworzenia", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data modyfikacji", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Użytkownik", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		for (Question question : questionsList) {
 			createAndAddCellToTable(question.getId().toString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(question.getTitle(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
@@ -52,8 +53,10 @@ public class PdfGenerator {
 					table);
 			createAndAddCellToTable(question.getUpdatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
+			createAndAddCellToTable(question.getUser().getUsername(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+					table);
 		}
-		int[] szerokosci = { 40, 210, 210, 120, 120 };
+		int[] szerokosci = { 40, 150, 150, 120, 120, 120 };
 		table.setWidths(szerokosci);
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);
@@ -80,19 +83,24 @@ public class PdfGenerator {
 		document.add(questionTitle);
 		Paragraph questionDescription = new Paragraph("Opis: " + question.getDescription(), helvetica12);
 		document.add(questionDescription);
+		Paragraph questionUser = new Paragraph("Użytkownik: " + question.getUser().getUsername(), helvetica12);
+		document.add(questionUser);
 		document.add(Chunk.NEWLINE);
-		PdfPTable table = new PdfPTable(4);
+		PdfPTable table = new PdfPTable(5);
 		createAndAddCellToTable("Id", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Treść odpowiedzi", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data utworzenia", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data modyfikacji", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Użytkownik", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		for (Answer answer : answersList) {
 			createAndAddCellToTable(answer.getId().toString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getText(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getCreatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getUpdatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(answer.getUser().getUsername(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+					table);
 		}
-		int[] szerokosci = { 40, 420, 120, 120 };
+		int[] szerokosci = { 40, 300, 120, 120, 120 };
 		table.setWidths(szerokosci);
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);

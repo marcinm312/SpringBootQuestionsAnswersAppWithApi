@@ -16,9 +16,11 @@
 </head>
 <body>
 	<div style="margin: 30px">
+		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
 		<h1>Pytanie:</h1>
 		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
 		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
+		<br /> <strong>Użytkownik:</strong> <br /> ${question.user.username} <br />
 		<br />
 		<h1>Edytowanie odpowiedzi o id: ${oldAnswer.id}</h1>
 		<br />

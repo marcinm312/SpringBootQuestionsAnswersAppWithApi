@@ -18,5 +18,8 @@
 	<div style="margin: 30px">
 		<button class="btn btn-primary" onclick="window.location.href = 'app/questions/'">Przejdź do listy pytań</button>
 	</div>
+	<div style="margin: 30px">
+		<button class="btn btn-primary" onclick="window.location.href = 'register'">Zarejestruj się</button>
+	</div>
 </body>
 </html>

@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import pl.marcinm312.springdatasecurityex.enums.Roles;
+import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Answer;
+import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 
@@ -35,30 +38,39 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
 
-	public Answer addAnswer(Long questionId, Answer answer) {
+	public Answer addAnswer(Long questionId, Answer answer, User user) {
 		return questionRepository.findById(questionId).map(question -> {
 			answer.setQuestion(question);
+			answer.setUser(user);
 			return answerRepository.save(answer);
 		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
 	}
 
-	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest) {
+	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest, User user) {
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException("Question not found with id " + questionId);
 		}
 		return answerRepository.findById(answerId).map(answer -> {
-			answer.setText(answerRequest.getText());
-			return answerRepository.save(answer);
+			if (answer.getUser().getId() == user.getId() || user.getRole().equals(Roles.ROLE_ADMIN.name())) {
+				answer.setText(answerRequest.getText());
+				return answerRepository.save(answer);
+			} else {
+				throw new ChangeNotAllowedException("Change not allowed!");
+			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
 
-	public boolean deleteAnswer(Long questionId, Long answerId) {
+	public boolean deleteAnswer(Long questionId, Long answerId, User user) {
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException("Question not found with id " + questionId);
 		}
 		return answerRepository.findById(answerId).map(answer -> {
-			answerRepository.delete(answer);
-			return true;
+			if (answer.getUser().getId() == user.getId() || user.getRole().equals(Roles.ROLE_ADMIN.name())) {
+				answerRepository.delete(answer);
+				return true;
+			} else {
+				throw new ChangeNotAllowedException("Change not allowed!");
+			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
 }

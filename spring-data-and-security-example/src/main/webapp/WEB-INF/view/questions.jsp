@@ -19,12 +19,15 @@
 </head>
 <body onload="sortTableDesc()">
 	<div style="margin: 30px">
+		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'new/'">Utwórz nowe pytanie</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'pdf-export/'">Eksportuj dane do pliku PDF</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'excel-export/'">Eksportuj dane do pliku Excel</button>
+		<button class="btn btn-primary"
+			onclick="window.location.href = '../../logout'">Wyloguj się</button>
 		<br /> <br />
 		<h1>Lista pytań:</h1>
 		<br />
@@ -48,6 +51,8 @@
 								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col" onclick="sortTable(4)">Data modyfikacji <i
 								class="fa fa-fw fa-sort"></i></th>
+							<th scope="col" onclick="sortTable(5)">Użytkownik <i
+								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col">Opcje</th>
 						</tr>
 					</thead>
@@ -59,6 +64,7 @@
 								<td>${question.description}</td>
 								<td>${question.createdAtAsString}</td>
 								<td>${question.updatedAtAsString}</td>
+								<td>${question.user.username}</td>
 								<td><div class="btn-group btn-group-sm" role="group"
 										aria-label="...">
 										<button type="button" class="btn btn-secondary btn-sm"
