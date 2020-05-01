@@ -54,8 +54,8 @@ public class MultiHttpSecurityCustomConfig {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/**").authorizeRequests().antMatchers("/", "/register", "/register/").permitAll()
-					.anyRequest().authenticated().and().formLogin().permitAll().and().logout().permitAll();
+			http.antMatcher("/**").authorizeRequests().antMatchers("/", "/register", "/register/", "/token", "/token/")
+					.permitAll().anyRequest().authenticated().and().formLogin().permitAll().and().logout().permitAll();
 		}
 
 	}
