@@ -21,8 +21,8 @@ public class TrailingSlashRedirectingFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (!request.getRequestURI().endsWith("/") && !request.getRequestURI().contains("api")
-				&& !request.getRequestURI().contains("login") && !request.getRequestURI().contains("logout")) {
+		if (!request.getRequestURI().endsWith("/")
+				&& (request.getRequestURI().contains("app") || request.getRequestURI().contains("register"))) {
 			ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromRequest(request);
 			builder.replacePath(String.format("%s/", builder.build().getPath()));
 			response.setStatus(HttpStatus.MOVED_PERMANENTLY.value());

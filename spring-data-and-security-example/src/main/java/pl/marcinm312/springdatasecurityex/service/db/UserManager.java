@@ -46,6 +46,13 @@ public class UserManager {
 		sendToken(user);
 	}
 
+	public void activateUser(String tokenValue) {
+		Token token = tokenRepo.findByValue(tokenValue);
+		User user = token.getUser();
+		user.setEnabled(true);
+		userRepo.save(user);
+	}
+
 	private void sendToken(User user) {
 		String tokenValue = UUID.randomUUID().toString();
 		Token token = new Token();
@@ -62,7 +69,7 @@ public class UserManager {
 
 	private String generateEmailContent(User user, String tokenValue) {
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("<br/>Witaj " + user.getFirstName() + " " + user.getLastName());
+		stringBuilder.append("Witaj " + user.getFirstName() + " " + user.getLastName() + ",");
 		stringBuilder.append("<br/><br/>Potwierdź swój adres email, klikając w poniższy link:");
 		stringBuilder.append("<br/><a href=\"http://localhost:8080/token?value=" + tokenValue + "\">Aktywuj konto</a>");
 		return stringBuilder.toString();

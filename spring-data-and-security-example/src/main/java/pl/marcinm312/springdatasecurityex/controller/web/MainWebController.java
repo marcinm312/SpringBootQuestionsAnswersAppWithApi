@@ -11,10 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import pl.marcinm312.springdatasecurityex.model.Token;
 import pl.marcinm312.springdatasecurityex.model.User;
-import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
-import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 
 @Controller
@@ -22,14 +19,10 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 public class MainWebController {
 
 	private UserManager userManager;
-	private TokenRepo tokenRepo;
-	private UserRepo userRepo;
 
 	@Autowired
-	public MainWebController(UserManager userManager, TokenRepo tokenRepo, UserRepo userRepo) {
+	public MainWebController(UserManager userManager) {
 		this.userManager = userManager;
-		this.tokenRepo = tokenRepo;
-		this.userRepo = userRepo;
 	}
 
 	@GetMapping
@@ -56,10 +49,7 @@ public class MainWebController {
 
 	@GetMapping("/token")
 	public String activateUser(@RequestParam String value) {
-		Token token = tokenRepo.findByValue(value);
-		User user = token.getUser();
-		user.setEnabled(true);
-		userRepo.save(user);
+		userManager.activateUser(value);
 		return "userActivation";
 	}
 }
