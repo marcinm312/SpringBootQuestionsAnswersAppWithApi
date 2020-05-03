@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
@@ -34,6 +35,9 @@ public class User extends AuditModel implements UserDetails {
 	@NotBlank(message = "Pole to musi być wypełnione!")
 	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
 	private String password;
+
+	@Transient
+	private String confirmPassword;
 
 	private String role;
 	private boolean isEnabled;
@@ -133,5 +137,13 @@ public class User extends AuditModel implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
+	}
+
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
+
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
 	}
 }

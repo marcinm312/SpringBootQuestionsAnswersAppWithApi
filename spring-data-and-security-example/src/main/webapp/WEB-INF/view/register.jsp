@@ -34,6 +34,13 @@
 					class="form-text text-muted" />
 			</div>
 			<div class="form-group">
+				<label>Potwierdź hasło</label>
+				<form:input path="confirmPassword" placeholder="Potwierdź hasło" type="password"
+					class="form-control" />
+				<form:errors path="confirmPassword" style="color:red"
+					class="form-text text-muted" />
+			</div>
+			<div class="form-group">
 				<label>Imię</label>
 				<form:input path="firstName" placeholder="Imię" type="text"
 					class="form-control" />
