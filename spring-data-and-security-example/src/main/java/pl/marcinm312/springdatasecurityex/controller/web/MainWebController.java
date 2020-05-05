@@ -1,5 +1,7 @@
 package pl.marcinm312.springdatasecurityex.controller.web;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -41,12 +43,16 @@ public class MainWebController {
 	}
 
 	@PostMapping("/register")
-	public String createUser(@ModelAttribute("user") @Validated User user, BindingResult bindingResult, Model model) {
+	public String createUser(@ModelAttribute("user") @Validated User user, BindingResult bindingResult, Model model,
+			HttpServletRequest request) {
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("user", user);
 			return "register";
 		} else {
-			userManager.addUser(user, false);
+			String requestURL = request.getRequestURL().toString();
+			String servletPath = request.getServletPath();
+			String appURL = requestURL.replace(servletPath, "");
+			userManager.addUser(user, false, appURL);
 			return "redirect:..";
 		}
 	}

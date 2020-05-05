@@ -38,12 +38,12 @@ public class UserManager {
 		return userRepo.findByUsername(userName).get();
 	}
 
-	public void addUser(User user, boolean isEnabled) {
+	public void addUser(User user, boolean isEnabled, String appURL) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(isEnabled);
 		user.setRole(Roles.ROLE_USER.name());
 		userRepo.save(user);
-		sendToken(user);
+		sendToken(user, appURL);
 	}
 
 	public void activateUser(String tokenValue) {
@@ -53,13 +53,13 @@ public class UserManager {
 		userRepo.save(user);
 	}
 
-	private void sendToken(User user) {
+	private void sendToken(User user, String appURL) {
 		String tokenValue = UUID.randomUUID().toString();
 		Token token = new Token();
 		token.setValue(tokenValue);
 		token.setUser(user);
 		tokenRepo.save(token);
-		String emailContent = generateEmailContent(user, tokenValue);
+		String emailContent = generateEmailContent(user, tokenValue, appURL);
 		try {
 			mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 		} catch (MessagingException e) {
@@ -67,11 +67,11 @@ public class UserManager {
 		}
 	}
 
-	private String generateEmailContent(User user, String tokenValue) {
+	private String generateEmailContent(User user, String tokenValue, String appURL) {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Witaj " + user.getFirstName() + " " + user.getLastName() + ",");
 		stringBuilder.append("<br/><br/>Potwierdź swój adres email, klikając w poniższy link:");
-		stringBuilder.append("<br/><a href=\"http://localhost:8080/token?value=" + tokenValue + "\">Aktywuj konto</a>");
+		stringBuilder.append("<br/><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>");
 		return stringBuilder.toString();
 	}
 }
