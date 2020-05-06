@@ -25,9 +25,9 @@
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'new/'">Dodaj odpowiedź</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'pdf-export/'">Eksportuj dane do pliku PDF</button>
+			onclick="window.location.href = 'pdf-export/'">Eksportuj do pliku PDF</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'excel-export/'">Eksportuj dane do pliku Excel</button>
+			onclick="window.location.href = 'excel-export/'">Eksportuj do pliku Excel</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = '../../../../logout'">Wyloguj się</button>
 		<br /> <br />
