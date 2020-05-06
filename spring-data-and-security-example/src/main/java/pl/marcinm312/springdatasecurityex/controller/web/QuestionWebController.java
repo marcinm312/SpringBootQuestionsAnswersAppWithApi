@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.lowagie.text.DocumentException;
 
+import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -93,7 +95,12 @@ public class QuestionWebController {
 			return "editQuestion";
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
-			questionManager.updateQuestion(questionId, question, user);
+			try {
+				questionManager.updateQuestion(questionId, question, user);
+			} catch (ChangeNotAllowedException e) {
+				model.addAttribute("userlogin", userName);
+				return "changeNotAllowed";
+			}
 			return "redirect:../..";
 		}
 	}
@@ -101,7 +108,14 @@ public class QuestionWebController {
 	@GetMapping("/{questionId}/edit")
 	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question = questionManager.getQuestion(questionId);
+		Question question;
+		try {
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("oldQuestion", question);
 		model.addAttribute("question", question);
 		model.addAttribute("userlogin", userName);
@@ -109,16 +123,29 @@ public class QuestionWebController {
 	}
 
 	@PostMapping("/{questionId}/delete")
-	public String removeQuestion(@PathVariable Long questionId, Authentication authentication) {
+	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model) {
 		User user = userManager.getUserByAuthentication(authentication);
-		questionManager.deleteQuestion(questionId, user);
+		try {
+			questionManager.deleteQuestion(questionId, user);
+		} catch (ChangeNotAllowedException e) {
+			String userName = authentication.getName();
+			model.addAttribute("userlogin", userName);
+			return "changeNotAllowed";
+		}
 		return "redirect:../..";
 	}
 
 	@GetMapping("/{questionId}/delete")
 	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question = questionManager.getQuestion(questionId);
+		Question question;
+		try {
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("question", question);
 		model.addAttribute("userlogin", userName);
 		return "deleteQuestion";

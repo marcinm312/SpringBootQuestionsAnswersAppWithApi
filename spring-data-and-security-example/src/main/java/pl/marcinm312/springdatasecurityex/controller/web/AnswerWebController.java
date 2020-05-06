@@ -9,6 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.lowagie.text.DocumentException;
 
+import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Answer;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.model.User;
@@ -56,8 +59,16 @@ public class AnswerWebController {
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		List<Answer> answerList = answerManager.getAnswersByQuestionId(questionId);
-		Question question = questionManager.getQuestion(questionId);
+		List<Answer> answerList;
+		Question question;
+		try {
+			answerList = answerManager.getAnswersByQuestionId(questionId);
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("answerList", answerList);
 		model.addAttribute("question", question);
 		model.addAttribute("userlogin", userName);
@@ -84,7 +95,14 @@ public class AnswerWebController {
 	@GetMapping("/new")
 	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question = questionManager.getQuestion(questionId);
+		Question question;
+		try {
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("question", question);
 		model.addAttribute("answer", new Answer());
 		model.addAttribute("userlogin", userName);
@@ -105,7 +123,12 @@ public class AnswerWebController {
 			return "editAnswer";
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
-			answerManager.updateAnswer(questionId, answerId, answer, user);
+			try {
+				answerManager.updateAnswer(questionId, answerId, answer, user);
+			} catch (ChangeNotAllowedException e) {
+				model.addAttribute("userlogin", userName);
+				return "changeNotAllowed";
+			}
 			return "redirect:../..";
 		}
 	}
@@ -114,8 +137,16 @@ public class AnswerWebController {
 	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 			Authentication authentication) {
 		String userName = authentication.getName();
-		Answer answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
-		Question question = questionManager.getQuestion(questionId);
+		Answer answer;
+		Question question;
+		try {
+			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("question", question);
 		model.addAttribute("oldAnswer", answer);
 		model.addAttribute("answer", answer);
@@ -125,9 +156,15 @@ public class AnswerWebController {
 
 	@PostMapping("/{answerId}/delete")
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
-			Authentication authentication) {
+			Authentication authentication, Model model) {
 		User user = userManager.getUserByAuthentication(authentication);
-		answerManager.deleteAnswer(questionId, answerId, user);
+		try {
+			answerManager.deleteAnswer(questionId, answerId, user);
+		} catch (ChangeNotAllowedException e) {
+			String userName = authentication.getName();
+			model.addAttribute("userlogin", userName);
+			return "changeNotAllowed";
+		}
 		return "redirect:../..";
 	}
 
@@ -135,8 +172,16 @@ public class AnswerWebController {
 	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 			Authentication authentication) {
 		String userName = authentication.getName();
-		Answer answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
-		Question question = questionManager.getQuestion(questionId);
+		Answer answer;
+		Question question;
+		try {
+			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			model.addAttribute("userlogin", userName);
+			model.addAttribute("message", e.getMessage());
+			return "resourceNotFound";
+		}
 		model.addAttribute("answer", answer);
 		model.addAttribute("question", question);
 		model.addAttribute("userlogin", userName);
@@ -145,8 +190,14 @@ public class AnswerWebController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<?> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
-		Question question = questionManager.getQuestion(questionId);
-		List<Answer> answersList = answerManager.getAnswersByQuestionId(questionId);
+		Question question;
+		List<Answer> answersList;
+		try {
+			question = questionManager.getQuestion(questionId);
+			answersList = answerManager.getAnswersByQuestionId(questionId);
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		Path path = file.toPath();
 		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
@@ -158,8 +209,14 @@ public class AnswerWebController {
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<?> downloadExcel(@PathVariable Long questionId) throws IOException {
-		Question question = questionManager.getQuestion(questionId);
-		List<Answer> answersList = answerManager.getAnswersByQuestionId(questionId);
+		Question question;
+		List<Answer> answersList;
+		try {
+			question = questionManager.getQuestion(questionId);
+			answersList = answerManager.getAnswersByQuestionId(questionId);
+		} catch (ResourceNotFoundException e) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+		}
 		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
 		Path path = file.toPath();
 		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(path));
