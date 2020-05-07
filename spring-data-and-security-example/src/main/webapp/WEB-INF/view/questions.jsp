@@ -19,15 +19,17 @@
 </head>
 <body onload="sortTableDesc()">
 	<div style="margin: 30px">
-		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
+		<span style='float:right'>
+			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
+			<button class="btn btn-primary"
+				onclick="window.location.href = '../../logout'">Wyloguj się</button>
+		</span><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'new/'">Utwórz nowe pytanie</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'pdf-export/'">Eksportuj do pliku PDF</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'excel-export/'">Eksportuj do pliku Excel</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = '../../logout'">Wyloguj się</button>
 		<br /> <br />
 		<h1>Lista pytań:</h1>
 		<br />

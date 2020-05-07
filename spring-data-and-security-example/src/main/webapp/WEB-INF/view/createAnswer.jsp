@@ -16,7 +16,11 @@
 </head>
 <body>
 	<div style="margin: 30px">
-		<span style='float:right'><b>Zalogowany jako:</b> ${userlogin}</span><br/>
+		<span style='float:right'>
+			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
+			<button class="btn btn-primary"
+				onclick="window.location.href = '../../../../../logout'">Wyloguj się</button>
+		</span><br/>
 		<h1>Pytanie:</h1>
 		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
 		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
