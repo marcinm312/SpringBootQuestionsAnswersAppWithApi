@@ -22,6 +22,8 @@
 		<span style='float:right'>
 			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
 			<button class="btn btn-primary"
+				onclick="window.location.href = '../myprofile/'">Mój profil</button>
+			<button class="btn btn-primary"
 				onclick="window.location.href = '../../logout'">Wyloguj się</button>
 		</span><br/>
 		<button class="btn btn-primary"

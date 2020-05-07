@@ -12,28 +12,26 @@
 	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
 	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
 	crossorigin="anonymous">
-<title>Usuwanie pytania o id: ${question.id}</title>
+<link
+	href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+	rel="stylesheet">
+<title>Mój profil</title>
 </head>
 <body>
 	<div style="margin: 30px">
 		<span style='float:right'>
 			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
 			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../myprofile/'">Mój profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../logout'">Wyloguj się</button>
+				onclick="window.location.href = '../../logout'">Wyloguj się</button>
 		</span><br/>
-		<h1>Usuwanie pytania o id: ${question.id}</h1>
-		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
-		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
-		<br />
-		<form:form method="post" modelAttribute="question">
-			<form:button type="submit" class="btn btn-success">Usuń</form:button>
-		</form:form>
-		<br />
-		<button class="btn btn-danger"
-			onclick="window.location.href = '../..'">Anuluj</button>
+		<button class="btn btn-primary"
+			onclick="window.location.href = '../questions'">Przejdź do listy pytań</button>
+		<br /> <br />
+		<h1>Mój profil:</h1>
+		<br /> <strong>Login:</strong> <br /> ${user.username} <br />
+		<br /> <strong>Imię:</strong> <br /> ${user.firstName} <br />
+		<br /> <strong>Nazwisko:</strong> <br /> ${user.lastName} <br />
+		<br /> <strong>Email:</strong> <br /> ${user.email} <br />
 	</div>
-
 </body>
 </html>
