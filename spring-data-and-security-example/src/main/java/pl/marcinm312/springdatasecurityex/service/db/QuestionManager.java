@@ -44,7 +44,7 @@ public class QuestionManager {
 				question.setDescription(questionRequest.getDescription());
 				return questionRepository.save(question);
 			} else {
-				throw new ChangeNotAllowedException("Change not allowed!");
+				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
 	}
@@ -55,7 +55,7 @@ public class QuestionManager {
 				questionRepository.delete(question);
 				return true;
 			} else {
-				throw new ChangeNotAllowedException("Change not allowed!");
+				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
 	}

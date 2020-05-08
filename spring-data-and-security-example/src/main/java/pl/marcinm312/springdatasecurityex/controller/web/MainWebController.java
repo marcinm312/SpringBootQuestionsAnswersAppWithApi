@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.validator.UserValidator;
@@ -65,7 +66,11 @@ public class MainWebController {
 
 	@GetMapping("/token")
 	public String activateUser(@RequestParam String value) {
-		userManager.activateUser(value);
+		try {
+			userManager.activateUser(value);
+		} catch (TokenNotFoundException e) {
+			return "tokenNotFound";
+		}
 		return "userActivation";
 	}
 }

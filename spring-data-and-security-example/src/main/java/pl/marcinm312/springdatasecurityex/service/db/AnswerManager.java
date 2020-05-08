@@ -82,7 +82,7 @@ public class AnswerManager {
 				}
 				return savedAnswer;
 			} else {
-				throw new ChangeNotAllowedException("Change not allowed!");
+				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
@@ -96,7 +96,7 @@ public class AnswerManager {
 				answerRepository.delete(answer);
 				return true;
 			} else {
-				throw new ChangeNotAllowedException("Change not allowed!");
+				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}

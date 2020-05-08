@@ -1,5 +1,6 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
@@ -10,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import pl.marcinm312.springdatasecurityex.enums.Roles;
+import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Token;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
@@ -46,18 +48,32 @@ public class UserManager {
 		sendToken(user, appURL);
 	}
 
-	public void activateUser(String tokenValue) {
-		Token token = tokenRepo.findByValue(tokenValue);
-		User user = token.getUser();
+	public void updateUserData(User user, Authentication authentication) {
+		User oldUser = getUserByAuthentication(authentication);
+		user.setId(oldUser.getId());
+		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
 		userRepo.save(user);
+	}
+
+	public void activateUser(String tokenValue) {
+		Optional<Token> optionalToken = tokenRepo.findByValue(tokenValue);
+		if (optionalToken.isPresent()) {
+			Token token = optionalToken.get();
+			User user = token.getUser();
+			user.setEnabled(true);
+			userRepo.save(user);
+			tokenRepo.delete(token);
+		} else {
+			throw new TokenNotFoundException();
+		}
 	}
 
 	private void sendToken(User user, String appURL) {
 		String tokenValue = UUID.randomUUID().toString();
 		Token token = new Token();
-		token.setValue(tokenValue);
 		token.setUser(user);
+		token.setValue(tokenValue);
 		tokenRepo.save(token);
 		String emailContent = generateEmailContent(user, tokenValue, appURL);
 		try {
