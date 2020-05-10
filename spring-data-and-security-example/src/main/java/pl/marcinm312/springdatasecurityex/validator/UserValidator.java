@@ -1,5 +1,7 @@
 package pl.marcinm312.springdatasecurityex.validator;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -28,8 +30,11 @@ public class UserValidator implements Validator {
 		User user = (User) target;
 
 		String username = user.getUsername();
-		if (userRepo.findByUsername(username).isPresent()) {
-			errors.rejectValue("username", "user_exists_error", "Użytkownik o takim loginie już istnieje!");
+		Optional<User> foundUser = userRepo.findByUsername(username);
+		if (foundUser.isPresent()) {
+			if (!foundUser.get().getId().equals(user.getId())) {
+				errors.rejectValue("username", "user_exists_error", "Użytkownik o takim loginie już istnieje!");
+			}
 		}
 
 		String password = user.getPassword();

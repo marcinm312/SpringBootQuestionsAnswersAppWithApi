@@ -25,6 +25,12 @@
 		<br />
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
+				<form:input path="id" placeholder="Id" type="hidden"
+					class="form-control" />
+				<form:errors path="id" style="color:red"
+					class="form-text text-muted" />
+			</div>
+			<div class="form-group">
 				<form:input path="username" placeholder="Login" type="hidden"
 					class="form-control" />
 				<form:errors path="username" style="color:red"
@@ -32,13 +38,13 @@
 			</div>
 			<div class="form-group">
 				<form:input path="password" placeholder="Hasło" type="hidden"
-					class="form-control" />
+					class="form-control" value="password"/>
 				<form:errors path="password" style="color:red"
 					class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<form:input path="confirmPassword" placeholder="Potwierdź hasło" type="hidden"
-					class="form-control" />
+					class="form-control" value="password"/>
 				<form:errors path="confirmPassword" style="color:red"
 					class="form-text text-muted" />
 			</div>
