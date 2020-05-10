@@ -1,12 +1,16 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
 import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +21,7 @@ import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
+import pl.marcinm312.springdatasecurityex.service.SessionUtils;
 
 @Service
 public class UserManager {
@@ -25,14 +30,16 @@ public class UserManager {
 	private PasswordEncoder passwordEncoder;
 	private TokenRepo tokenRepo;
 	private MailService mailService;
+	private SessionUtils sessionUtils;
 
 	@Autowired
-	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo,
-			MailService mailService) {
+	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
+			SessionUtils sessionUtils) {
 		this.userRepo = userRepo;
 		this.passwordEncoder = passwordEncoder;
 		this.tokenRepo = tokenRepo;
 		this.mailService = mailService;
+		this.sessionUtils = sessionUtils;
 	}
 
 	public User getUserByAuthentication(Authentication authentication) {
@@ -50,12 +57,22 @@ public class UserManager {
 
 	public void updateUserData(User user, Authentication authentication) {
 		User oldUser = getUserByAuthentication(authentication);
+		String oldUserName = oldUser.getUsername();
 		user.setId(oldUser.getId());
 		user.setPassword(oldUser.getPassword());
 		user.setConfirmPassword(oldUser.getPassword());
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
 		userRepo.save(user);
+		if (!oldUserName.equals(user.getUsername())) {
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			Collection<? extends GrantedAuthority> updatedAuthorities = user.getAuthorities();
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(), auth.getCredentials(),
+					updatedAuthorities);
+			SecurityContextHolder.getContext().setAuthentication(newAuth);
+			sessionUtils.expireUserSessionsExceptTheCurrentOne(oldUserName);
+			sessionUtils.expireUserSessionsExceptTheCurrentOne(user.getUsername());
+		}
 	}
 
 	public void activateUser(String tokenValue) {

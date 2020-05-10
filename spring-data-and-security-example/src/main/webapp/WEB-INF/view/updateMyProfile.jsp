@@ -31,7 +31,8 @@
 					class="form-text text-muted" />
 			</div>
 			<div class="form-group">
-				<form:input path="username" placeholder="Login" type="hidden"
+				<label>Login</label>
+				<form:input path="username" placeholder="Login" type="text"
 					class="form-control" />
 				<form:errors path="username" style="color:red"
 					class="form-text text-muted" />
