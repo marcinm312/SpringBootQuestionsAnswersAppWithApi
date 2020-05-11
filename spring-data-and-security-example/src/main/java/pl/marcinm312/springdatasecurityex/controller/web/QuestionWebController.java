@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -55,7 +56,10 @@ public class QuestionWebController {
 	public String questionsGet(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		List<Question> questionList = questionManager.getQuestions();
-		model.addAttribute("questionList", questionList);
+		List<Question> sortedQuestionList = questionList.stream()
+				.sorted((q1, q2) -> Long.compare(q2.getId(), q1.getId())).collect(Collectors.toList());
+		questionList.clear();
+		model.addAttribute("questionList", sortedQuestionList);
 		model.addAttribute("userlogin", userName);
 		return "questions";
 	}

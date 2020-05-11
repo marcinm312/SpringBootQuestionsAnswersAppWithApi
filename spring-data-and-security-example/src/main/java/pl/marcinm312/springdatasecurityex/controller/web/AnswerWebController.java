@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
@@ -69,7 +70,10 @@ public class AnswerWebController {
 			model.addAttribute("message", e.getMessage());
 			return "resourceNotFound";
 		}
-		model.addAttribute("answerList", answerList);
+		List<Answer> sortedAnswerList = answerList.stream().sorted((a1, a2) -> Long.compare(a2.getId(), a1.getId()))
+				.collect(Collectors.toList());
+		answerList.clear();
+		model.addAttribute("answerList", sortedAnswerList);
 		model.addAttribute("question", question);
 		model.addAttribute("userlogin", userName);
 		return "answers";

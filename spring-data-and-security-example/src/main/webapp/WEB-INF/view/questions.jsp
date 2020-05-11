@@ -17,7 +17,7 @@
 	rel="stylesheet">
 <title>Lista pytań</title>
 </head>
-<body onload="sortTableDesc()">
+<body>
 	<div style="margin: 30px">
 		<span style='float:right'>
 			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
@@ -118,32 +118,6 @@
 			} else {
 				if (switchcount == 0 && dir == "asc") {
 					dir = "desc";
-					switching = true;
-				}
-			}
-		}
-	}
-</script>
-<script type="text/javascript">
-	function sortTableDesc() {
-		var table, rows, switching, i, x, y, shouldSwitch;
-		table = document.getElementById("questionsTable");
-		if (typeof(table) != 'undefined' && table != null){
-			switching = true;
-			while (switching) {
-				switching = false;
-				rows = table.rows;
-				for (i = 1; i < (rows.length - 1); i++) {
-					shouldSwitch = false;
-					x = rows[i].getElementsByTagName("TD")[0];
-					y = rows[i + 1].getElementsByTagName("TD")[0];
-					if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-						shouldSwitch = true;
-						break;
-					}
-				}
-				if (shouldSwitch) {
-					rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
 					switching = true;
 				}
 			}
