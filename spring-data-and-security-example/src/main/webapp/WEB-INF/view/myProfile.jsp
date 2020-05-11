@@ -28,6 +28,8 @@
 			onclick="window.location.href = '../questions/'">Przejdź do listy pytań</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'update/'">Edytuj profil</button>
+		<button class="btn btn-primary"
+			onclick="window.location.href = 'endOtherSessions/'">Wyloguj mnie z innych urządzeń</button>
 		<br /> <br />
 		<h1>Mój profil:</h1>
 		<br /> <strong>Login:</strong> <br /> ${user.username} <br />
