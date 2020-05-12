@@ -60,7 +60,6 @@ public class UserManager {
 		String oldUserName = oldUser.getUsername();
 		user.setId(oldUser.getId());
 		user.setPassword(oldUser.getPassword());
-		user.setConfirmPassword(oldUser.getPassword());
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
 		userRepo.save(user);
@@ -73,6 +72,15 @@ public class UserManager {
 			sessionUtils.expireUserSessionsExceptTheCurrentOne(oldUserName);
 			sessionUtils.expireUserSessionsExceptTheCurrentOne(user.getUsername());
 		}
+	}
+
+	public void updateUserPassword(User user, Authentication authentication) {
+		User oldUser = getUserByAuthentication(authentication);
+		user.setId(oldUser.getId());
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setRole(oldUser.getRole());
+		user.setEnabled(true);
+		userRepo.save(user);
 	}
 
 	public void activateUser(String tokenValue) {

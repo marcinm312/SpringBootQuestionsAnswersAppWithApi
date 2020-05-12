@@ -32,6 +32,9 @@ public class User extends AuditModel implements UserDetails {
 	@Size(min = 3, max = 50, message = "Pole to musi zawierać od 3 do 50 znaków")
 	private String username;
 
+	@Transient
+	private String currentPassword;
+
 	@NotBlank(message = "Pole to musi być wypełnione!")
 	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
 	private String password;
@@ -146,4 +149,13 @@ public class User extends AuditModel implements UserDetails {
 	public void setConfirmPassword(String confirmPassword) {
 		this.confirmPassword = confirmPassword;
 	}
+
+	public String getCurrentPassword() {
+		return currentPassword;
+	}
+
+	public void setCurrentPassword(String currentPassword) {
+		this.currentPassword = currentPassword;
+	}
+
 }

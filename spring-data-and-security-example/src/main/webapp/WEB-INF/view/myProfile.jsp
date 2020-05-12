@@ -29,6 +29,8 @@
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'update/'">Edytuj profil</button>
 		<button class="btn btn-primary"
+			onclick="window.location.href = 'updatePassword/'">Zmień hasło</button>
+		<button class="btn btn-primary"
 			onclick="window.location.href = 'endOtherSessions/'">Wyloguj mnie z innych urządzeń</button>
 		<br /> <br />
 		<h1>Mój profil:</h1>
