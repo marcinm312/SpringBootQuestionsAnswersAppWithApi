@@ -17,29 +17,21 @@ public class SessionUtils {
 		this.sessionRegistry = sessionRegistry;
 	}
 
-	public void expireUserSessionsExceptTheCurrentOne(String username) {
+	public void expireUserSessions(String username, boolean expireCurrentSession) {
 		for (Object principal : sessionRegistry.getAllPrincipals()) {
 			if (principal instanceof UserDetails) {
 				UserDetails userDetails = (UserDetails) principal;
 				if (userDetails.getUsername().equals(username)) {
 					for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(userDetails, true)) {
-						String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-						if (!sessionInformation.getSessionId().equals(currentSessionId)) {
+						if (expireCurrentSession) {
 							sessionInformation.expireNow();
+						} else {
+							String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+							if (!sessionInformation.getSessionId().equals(currentSessionId)) {
+								sessionInformation.expireNow();
+							}
 						}
-					}
-				}
-			}
-		}
-	}
 
-	public void expireAllUserSessions(String username) {
-		for (Object principal : sessionRegistry.getAllPrincipals()) {
-			if (principal instanceof UserDetails) {
-				UserDetails userDetails = (UserDetails) principal;
-				if (userDetails.getUsername().equals(username)) {
-					for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(userDetails, true)) {
-						sessionInformation.expireNow();
 					}
 				}
 			}

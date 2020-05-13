@@ -69,8 +69,8 @@ public class UserManager {
 			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(), auth.getCredentials(),
 					updatedAuthorities);
 			SecurityContextHolder.getContext().setAuthentication(newAuth);
-			sessionUtils.expireUserSessionsExceptTheCurrentOne(oldUserName);
-			sessionUtils.expireUserSessionsExceptTheCurrentOne(user.getUsername());
+			sessionUtils.expireUserSessions(oldUserName, false);
+			sessionUtils.expireUserSessions(user.getUsername(), false);
 		}
 	}
 
@@ -81,6 +81,12 @@ public class UserManager {
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
 		userRepo.save(user);
+	}
+
+	public void deleteUser(Authentication authentication) {
+		User user = getUserByAuthentication(authentication);
+		userRepo.delete(user);
+		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
 	public void activateUser(String tokenValue) {

@@ -105,7 +105,21 @@ public class MyProfileWebController {
 	@GetMapping("/endOtherSessions")
 	public String endOtherSessions(Authentication authentication) {
 		String userName = authentication.getName();
-		sessionUtils.expireUserSessionsExceptTheCurrentOne(userName);
+		sessionUtils.expireUserSessions(userName, false);
 		return "redirect:..";
+	}
+
+	@PostMapping("/delete")
+	public String deleteUser(Authentication authentication) {
+		userManager.deleteUser(authentication);
+		return "redirect:../../..";
+	}
+
+	@GetMapping("/delete")
+	public String deleteUserConfirmation(Model model, Authentication authentication) {
+		String userName = authentication.getName();
+		model.addAttribute("userlogin", userName);
+		model.addAttribute("user", userManager.getUserByAuthentication(authentication));
+		return "deleteMyProfile";
 	}
 }
