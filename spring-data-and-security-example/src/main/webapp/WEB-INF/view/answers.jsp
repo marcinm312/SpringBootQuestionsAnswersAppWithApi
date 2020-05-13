@@ -36,9 +36,9 @@
 			onclick="window.location.href = 'excel-export/'">Eksportuj do pliku Excel</button>
 		<br /> <br />
 		<h1>Pytanie:</h1>
-		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
-		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
-		<br /> <strong>Użytkownik:</strong> <br /> ${question.user.username} <br />
+		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br />
+		<br /> <b>Opis:</b> <br /> ${question.description} <br />
+		<br /> <b>Użytkownik:</b> <br /> ${question.user.username} <br />
 		<br />
 		<h1>Lista odpowiedzi na pytanie:</h1>
 		<br />

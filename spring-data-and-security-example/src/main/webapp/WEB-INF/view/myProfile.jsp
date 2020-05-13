@@ -12,9 +12,6 @@
 	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
 	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
 	crossorigin="anonymous">
-<link
-	href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
-	rel="stylesheet">
 <title>Mój profil</title>
 </head>
 <body>
@@ -36,10 +33,10 @@
 			onclick="window.location.href = 'delete/'">Usuń moje konto</button>
 		<br /> <br />
 		<h1>Mój profil:</h1>
-		<br /> <strong>Login:</strong> <br /> ${user.username} <br />
-		<br /> <strong>Imię:</strong> <br /> ${user.firstName} <br />
-		<br /> <strong>Nazwisko:</strong> <br /> ${user.lastName} <br />
-		<br /> <strong>Email:</strong> <br /> ${user.email} <br />
+		<br /> <b>Login:</b> <br /> ${user.username} <br />
+		<br /> <b>Imię:</b> <br /> ${user.firstName} <br />
+		<br /> <b>Nazwisko:</b> <br /> ${user.lastName} <br />
+		<br /> <b>Email:</b> <br /> ${user.email} <br />
 	</div>
 </body>
 </html>

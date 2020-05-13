@@ -24,12 +24,14 @@
 				onclick="window.location.href = '../../../../../../logout'">Wyloguj się</button>
 		</span><br/>
 		<h1>Pytanie:</h1>
-		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
-		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
-		<br /> <strong>Użytkownik:</strong> <br /> ${question.user.username} <br />
+		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br />
+		<br /> <b>Opis:</b> <br /> ${question.description} <br />
+		<br /> <b>Użytkownik:</b> <br /> ${question.user.username} <br />
 		<br />
 		<h1>Edytowanie odpowiedzi o id: ${oldAnswer.id}</h1>
 		<br />
+		Autor pytania otrzyma powiadomienie mailowe o każdej Twojej zaktualizowanej odpowiedzi.
+		<br /><br />
 		<form:form method="post" modelAttribute="answer">
 			<div class="form-group">
 				<label>Odpowiedź:</label>

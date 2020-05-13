@@ -18,6 +18,8 @@
 	<div style="margin: 30px">
 		<h1>Utwórz nowe konto</h1>
 		<br />
+		Po rejestracji, otrzymasz maila, dzięki któremu będziesz mógł aktywować swoje konto. Bez aktywacji konta, zalogowanie się na nowe konto nie jest możliwe.
+		<br /><br />
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
 				<label>Login</label>

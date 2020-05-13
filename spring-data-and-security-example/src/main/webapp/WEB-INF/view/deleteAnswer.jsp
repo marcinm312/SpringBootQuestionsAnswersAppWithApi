@@ -24,12 +24,12 @@
 				onclick="window.location.href = '../../../../../../logout'">Wyloguj się</button>
 		</span><br/>
 		<h1>Pytanie:</h1>
-		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
-		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
-		<br /> <strong>Użytkownik:</strong> <br /> ${question.user.username} <br />
+		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br />
+		<br /> <b>Opis:</b> <br /> ${question.description} <br />
+		<br /> <b>Użytkownik:</b> <br /> ${question.user.username} <br />
 		<br />
 		<h1>Usuwanie odpowiedzi o id: ${answer.id}</h1>
-		<br /> <strong>Odpowiedź:</strong> <br /> ${answer.text} <br /> <br />
+		<br /> <b>Odpowiedź:</b> <br /> ${answer.text} <br /> <br />
 		<form:form method="post" modelAttribute="answer">
 			<form:button type="submit" class="btn btn-success">Usuń</form:button>
 		</form:form>

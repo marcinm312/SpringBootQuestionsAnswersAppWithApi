@@ -25,6 +25,8 @@
 		</span><br/>
 		<h1>Tworzenie nowego pytania</h1>
 		<br />
+		Za każdym razem, kiedy ktoś opublikuje lub zmieni odpowiedź na Twoje pytanie, zostaniesz powiadomiony o tym mailowo.
+		<br /><br />
 		<form:form method="post" modelAttribute="question">
 			<div class="form-group">
 				<label>Tytuł pytania:</label>

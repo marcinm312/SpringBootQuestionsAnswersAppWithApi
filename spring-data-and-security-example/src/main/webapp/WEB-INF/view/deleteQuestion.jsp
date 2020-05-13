@@ -24,8 +24,8 @@
 				onclick="window.location.href = '../../../../logout'">Wyloguj się</button>
 		</span><br/>
 		<h1>Usuwanie pytania o id: ${question.id}</h1>
-		<br /> <strong>Tytuł pytania:</strong> <br /> ${question.title} <br />
-		<br /> <strong>Opis:</strong> <br /> ${question.description} <br />
+		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br />
+		<br /> <b>Opis:</b> <br /> ${question.description} <br />
 		<br />
 		<form:form method="post" modelAttribute="question">
 			<form:button type="submit" class="btn btn-success">Usuń</form:button>
