@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.lowagie.text.Chunk;
@@ -26,7 +27,11 @@ import pl.marcinm312.springdatasecurityex.model.Question;
 @Service
 public class PdfGenerator {
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
+		log.info("Starting generatng questions PDF file");
+		log.info("questionsList.size()=" + questionsList.size());
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);
@@ -63,11 +68,14 @@ public class PdfGenerator {
 		document.add(table);
 		document.close();
 		File file = new File(filePath);
+		log.info("Questions PDF file generated");
 		return file;
 	}
 
 	public File generateAnswersPdfFile(List<Answer> answersList, Question question)
 			throws DocumentException, IOException {
+		log.info("Starting generating answers PDF file for question = " + question.toString());
+		log.info("answersList.size()=" + answersList.size());
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);
@@ -107,6 +115,7 @@ public class PdfGenerator {
 		document.add(table);
 		document.close();
 		File file = new File(filePath);
+		log.info("Answers PDF file generated");
 		return file;
 	}
 

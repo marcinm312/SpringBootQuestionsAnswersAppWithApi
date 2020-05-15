@@ -73,4 +73,9 @@ public class Answer extends AuditModel {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	@Override
+	public String toString() {
+		return "Answer [id=" + id + ", text=" + text + ", question=" + question + ", user=" + user + "]";
+	}
 }

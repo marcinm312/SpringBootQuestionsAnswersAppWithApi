@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import pl.marcinm312.springdatasecurityex.model.Answer;
@@ -22,7 +23,12 @@ import pl.marcinm312.springdatasecurityex.model.Question;
 @Service
 public class ExcelGenerator {
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	public File generateAnswersExcelFile(List<Answer> answersList, Question question) throws IOException {
+		log.info("Starting generating answers Excel file for question = " + question.toString());
+		log.info("answersList.size()=" + answersList.size());
+
 		String filePath = "files\\Odpowiedzi.xlsx";
 
 		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
@@ -64,8 +70,6 @@ public class ExcelGenerator {
 		}
 
 		Sheet questionSheet = workbook.createSheet("Pytanie");
-
-		// question.repairDates();
 
 		Row row1 = questionSheet.createRow(0);
 		Cell cellA1 = row1.createCell(0);
@@ -117,10 +121,13 @@ public class ExcelGenerator {
 		workbook.close();
 
 		File file = new File(filePath);
+		log.info("Answers Excel file generated");
 		return file;
 	}
 
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
+		log.info("Starting generatng questions Excel file");
+		log.info("questionsList.size()=" + questionsList.size());
 		String filePath = "files\\Pytania.xlsx";
 
 		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
@@ -168,6 +175,7 @@ public class ExcelGenerator {
 		workbook.close();
 
 		File file = new File(filePath);
+		log.info("Questions Excel file generated");
 		return file;
 	}
 

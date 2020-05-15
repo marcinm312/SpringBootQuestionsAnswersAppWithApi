@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import javax.mail.MessagingException;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +33,8 @@ public class UserManager {
 	private MailService mailService;
 	private SessionUtils sessionUtils;
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
 			SessionUtils sessionUtils) {
@@ -44,6 +47,7 @@ public class UserManager {
 
 	public User getUserByAuthentication(Authentication authentication) {
 		String userName = authentication.getName();
+		log.info("Loading user by authentication name = " + userName);
 		return userRepo.findByUsername(userName).get();
 	}
 
@@ -51,18 +55,24 @@ public class UserManager {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(isEnabled);
 		user.setRole(Roles.ROLE_USER.name());
+		log.info("Creating user = " + user.toString());
 		userRepo.save(user);
 		sendToken(user, appURL);
+		log.info("User created");
 	}
 
 	public void updateUserData(User user, Authentication authentication) {
+		log.info("Updating user");
 		User oldUser = getUserByAuthentication(authentication);
+		log.info("Old user = " + oldUser.toString());
 		String oldUserName = oldUser.getUsername();
 		user.setId(oldUser.getId());
 		user.setPassword(oldUser.getPassword());
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
+		log.info("New user = " + user);
 		userRepo.save(user);
+		log.info("User updated");
 		if (!oldUserName.equals(user.getUsername())) {
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			Collection<? extends GrantedAuthority> updatedAuthorities = user.getAuthorities();
@@ -75,17 +85,23 @@ public class UserManager {
 	}
 
 	public void updateUserPassword(User user, Authentication authentication) {
+		log.info("Updating user");
 		User oldUser = getUserByAuthentication(authentication);
+		log.info("Old user = " + oldUser.toString());
 		user.setId(oldUser.getId());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
+		log.info("New user = " + user);
 		userRepo.save(user);
+		log.info("User updated");
 	}
 
 	public void deleteUser(Authentication authentication) {
 		User user = getUserByAuthentication(authentication);
+		log.info("Deleting user = " + user.toString());
 		userRepo.delete(user);
+		log.info("User deleted");
 		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
@@ -94,9 +110,11 @@ public class UserManager {
 		if (optionalToken.isPresent()) {
 			Token token = optionalToken.get();
 			User user = token.getUser();
+			log.info("Activating user = " + user.toString());
 			user.setEnabled(true);
 			userRepo.save(user);
 			tokenRepo.delete(token);
+			log.info("User activated");
 		} else {
 			throw new TokenNotFoundException();
 		}

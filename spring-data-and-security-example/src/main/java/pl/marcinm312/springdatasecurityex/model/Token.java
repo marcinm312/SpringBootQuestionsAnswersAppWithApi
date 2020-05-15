@@ -46,4 +46,9 @@ public class Token extends AuditModel {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+	@Override
+	public String toString() {
+		return "Token [id=" + id + ", value=" + value + ", user=" + user + "]";
+	}
 }

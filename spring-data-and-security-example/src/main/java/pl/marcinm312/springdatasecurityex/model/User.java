@@ -158,4 +158,9 @@ public class User extends AuditModel implements UserDetails {
 		this.currentPassword = currentPassword;
 	}
 
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
+				+ ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
+	}
 }

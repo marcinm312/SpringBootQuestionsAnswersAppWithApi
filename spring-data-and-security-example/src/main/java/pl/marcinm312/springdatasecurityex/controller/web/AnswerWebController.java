@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +48,8 @@ public class AnswerWebController {
 	private ExcelGenerator excelGenerator;
 	private UserManager userManager;
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,
 			ExcelGenerator excelGenerator, UserManager userManager) {
@@ -59,11 +62,13 @@ public class AnswerWebController {
 
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
+		log.info("Loading answers page for question.id = " + questionId);
 		String userName = authentication.getName();
 		List<Answer> answerList;
 		Question question;
 		try {
 			answerList = answerManager.getAnswersByQuestionId(questionId);
+			log.info("answerList.size()=" + answerList.size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			model.addAttribute("userlogin", userName);

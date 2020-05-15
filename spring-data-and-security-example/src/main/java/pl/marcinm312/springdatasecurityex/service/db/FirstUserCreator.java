@@ -1,5 +1,6 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -23,6 +24,8 @@ public class FirstUserCreator {
 	private UserRepo userRepo;
 	private PasswordEncoder passwordEncoder;
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	public FirstUserCreator(UserRepo userRepo, PasswordEncoder passwordEncoder) {
 		this.userRepo = userRepo;
@@ -42,6 +45,7 @@ public class FirstUserCreator {
 			user.setLastName("Admin");
 			user.setEmail(email);
 			userRepo.save(user);
+			log.info("First user created");
 		}
 	}
 }

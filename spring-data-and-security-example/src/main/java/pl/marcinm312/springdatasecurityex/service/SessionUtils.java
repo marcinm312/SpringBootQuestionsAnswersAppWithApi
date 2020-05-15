@@ -1,5 +1,6 @@
 package pl.marcinm312.springdatasecurityex.service;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
@@ -11,6 +12,8 @@ import org.springframework.web.context.request.RequestContextHolder;
 public class SessionUtils {
 
 	private SessionRegistry sessionRegistry;
+
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public SessionUtils(SessionRegistry sessionRegistry) {
@@ -25,10 +28,14 @@ public class SessionUtils {
 					for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(userDetails, true)) {
 						if (expireCurrentSession) {
 							sessionInformation.expireNow();
+							log.info("Session " + sessionInformation.getSessionId() + " of user " + username
+									+ " has expired");
 						} else {
 							String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
 							if (!sessionInformation.getSessionId().equals(currentSessionId)) {
 								sessionInformation.expireNow();
+								log.info("Session " + sessionInformation.getSessionId() + " of user " + username
+										+ " has expired");
 							}
 						}
 

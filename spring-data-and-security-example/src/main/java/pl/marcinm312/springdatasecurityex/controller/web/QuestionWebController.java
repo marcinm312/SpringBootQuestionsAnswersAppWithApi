@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -43,6 +44,8 @@ public class QuestionWebController {
 	private ExcelGenerator excelGenerator;
 	private UserManager userManager;
 
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	@Autowired
 	public QuestionWebController(QuestionManager questionManager, PdfGenerator pdfGenerator,
 			ExcelGenerator excelGenerator, UserManager userManager) {
@@ -54,8 +57,10 @@ public class QuestionWebController {
 
 	@GetMapping
 	public String questionsGet(Model model, Authentication authentication) {
+		log.info("Loading questions page");
 		String userName = authentication.getName();
 		List<Question> questionList = questionManager.getQuestions();
+		log.info("questionList.size()=" + questionList.size());
 		List<Question> sortedQuestionList = questionList.stream()
 				.sorted((q1, q2) -> Long.compare(q2.getId(), q1.getId())).collect(Collectors.toList());
 		questionList.clear();

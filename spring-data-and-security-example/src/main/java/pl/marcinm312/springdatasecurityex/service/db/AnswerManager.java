@@ -4,6 +4,7 @@ import java.util.List;
 
 import javax.mail.MessagingException;
 
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +24,8 @@ public class AnswerManager {
 	private AnswerRepository answerRepository;
 	private QuestionRepository questionRepository;
 	private MailService mailService;
+
+	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionRepository questionRepository,
@@ -49,6 +52,7 @@ public class AnswerManager {
 		return questionRepository.findById(questionId).map(question -> {
 			answer.setQuestion(question);
 			answer.setUser(user);
+			log.info("Adding answer = " + answer.toString());
 			Answer savedAnswer = answerRepository.save(answer);
 			try {
 				String email = question.getUser().getEmail();
@@ -56,6 +60,7 @@ public class AnswerManager {
 				String content = generateEmailContent(question, savedAnswer, true);
 				mailService.sendMail(email, subject, content, true);
 			} catch (MessagingException e) {
+				log.error("An error occurred while sending the email");
 				e.printStackTrace();
 			}
 			return savedAnswer;
@@ -64,12 +69,22 @@ public class AnswerManager {
 	}
 
 	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest, User user) {
+		log.info("Updating answer");
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException("Question not found with id " + questionId);
 		}
 		return answerRepository.findById(answerId).map(answer -> {
-			if (answer.getUser().getId() == user.getId() || user.getRole().equals(Roles.ROLE_ADMIN.name())) {
+			Long answerUserId = answer.getUser().getId();
+			Long currentUserId = user.getId();
+			String currentUserRole = user.getRole();
+			log.info("answerUserId=" + answerUserId);
+			log.info("currentUserId=" + currentUserId);
+			log.info("currentUserRole=" + currentUserRole);
+			if (answerUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+				log.info("Permitted user");
 				answer.setText(answerRequest.getText());
+				log.info("Old answer = " + answer.toString());
+				log.info("New answer = " + answerRequest.toString());
 				Answer savedAnswer = answerRepository.save(answer);
 				try {
 					Question question = savedAnswer.getQuestion();
@@ -78,24 +93,35 @@ public class AnswerManager {
 					String content = generateEmailContent(question, savedAnswer, false);
 					mailService.sendMail(email, subject, content, true);
 				} catch (MessagingException e) {
+					log.error("An error occurred while sending the email");
 					e.printStackTrace();
 				}
 				return savedAnswer;
 			} else {
+				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, User user) {
+		log.info("Deleting answer.id = " + answerId);
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException("Question not found with id " + questionId);
 		}
 		return answerRepository.findById(answerId).map(answer -> {
-			if (answer.getUser().getId() == user.getId() || user.getRole().equals(Roles.ROLE_ADMIN.name())) {
+			Long answerUserId = answer.getUser().getId();
+			Long currentUserId = user.getId();
+			String currentUserRole = user.getRole();
+			log.info("answerUserId=" + answerUserId);
+			log.info("currentUserId=" + currentUserId);
+			log.info("currentUserRole=" + currentUserRole);
+			if (answerUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+				log.info("Permitted user");
 				answerRepository.delete(answer);
 				return true;
 			} else {
+				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
