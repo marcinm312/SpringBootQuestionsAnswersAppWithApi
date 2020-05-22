@@ -5,6 +5,7 @@ import javax.mail.internet.MimeMessage;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,9 @@ public class MailService {
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
+	@Value("${spring.mail.username}")
+	private String emailFrom;
+
 	@Autowired
 	public MailService(JavaMailSender javaMailSender) {
 		this.javaMailSender = javaMailSender;
@@ -25,6 +29,7 @@ public class MailService {
 		log.info("Starting creating an email");
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+		mimeMessageHelper.setFrom(emailFrom);
 		mimeMessageHelper.setTo(to);
 		mimeMessageHelper.setSubject(subject);
 		mimeMessageHelper.setText(text, isHtmlContent);

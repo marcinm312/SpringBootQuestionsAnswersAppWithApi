@@ -74,10 +74,9 @@ public class UserManager {
 		userRepo.save(user);
 		log.info("User updated");
 		if (!oldUserName.equals(user.getUsername())) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 			Collection<? extends GrantedAuthority> updatedAuthorities = user.getAuthorities();
-			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(), auth.getCredentials(),
-					updatedAuthorities);
+			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(),
+					authentication.getCredentials(), updatedAuthorities);
 			SecurityContextHolder.getContext().setAuthentication(newAuth);
 			sessionUtils.expireUserSessions(oldUserName, false);
 			sessionUtils.expireUserSessions(user.getUsername(), false);
@@ -95,6 +94,7 @@ public class UserManager {
 		log.info("New user = " + user);
 		userRepo.save(user);
 		log.info("User updated");
+		sessionUtils.expireUserSessions(user.getUsername(), false);
 	}
 
 	public void deleteUser(Authentication authentication) {
