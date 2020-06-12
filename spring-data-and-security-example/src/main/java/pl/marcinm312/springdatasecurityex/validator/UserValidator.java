@@ -13,7 +13,7 @@ import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 @Component
 public class UserValidator implements Validator {
 
-	private UserRepo userRepo;
+	private final UserRepo userRepo;
 
 	@Autowired
 	public UserValidator(UserRepo userRepo) {

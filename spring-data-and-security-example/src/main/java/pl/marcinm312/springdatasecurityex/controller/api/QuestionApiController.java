@@ -24,8 +24,8 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 @RequestMapping("/api/questions")
 public class QuestionApiController {
 
-	private QuestionManager questionManager;
-	private UserManager userManager;
+	private final QuestionManager questionManager;
+	private final UserManager userManager;
 
 	@Autowired
 	public QuestionApiController(QuestionManager questionManager, UserManager userManager) {

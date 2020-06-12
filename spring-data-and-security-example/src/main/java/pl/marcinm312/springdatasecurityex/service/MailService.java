@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MailService {
 
-	private JavaMailSender javaMailSender;
+	private final JavaMailSender javaMailSender;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 

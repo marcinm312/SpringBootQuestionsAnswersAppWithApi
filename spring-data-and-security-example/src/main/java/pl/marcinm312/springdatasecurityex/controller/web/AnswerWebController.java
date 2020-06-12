@@ -42,11 +42,11 @@ import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
 
-	private QuestionManager questionManager;
-	private AnswerManager answerManager;
-	private PdfGenerator pdfGenerator;
-	private ExcelGenerator excelGenerator;
-	private UserManager userManager;
+	private final QuestionManager questionManager;
+	private final AnswerManager answerManager;
+	private final PdfGenerator pdfGenerator;
+	private final ExcelGenerator excelGenerator;
+	private final UserManager userManager;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 

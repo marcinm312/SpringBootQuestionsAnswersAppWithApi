@@ -14,8 +14,8 @@ import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 @Component
 public class PasswordUpdateValidator implements Validator {
 
-	private UserRepo userRepo;
-	private PasswordEncoder passwordEncoder;
+	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public PasswordUpdateValidator(UserRepo userRepo, PasswordEncoder passwordEncoder) {
@@ -33,9 +33,9 @@ public class PasswordUpdateValidator implements Validator {
 		User user = (User) target;
 
 		String username = user.getUsername();
-		Optional<User> foundUser = userRepo.findByUsername(username);
-		if (foundUser.isPresent()) {
-			if (!foundUser.get().getId().equals(user.getId())) {
+		Optional<User> optionalUser = userRepo.findByUsername(username);
+		if (optionalUser.isPresent()) {
+			if (!optionalUser.get().getId().equals(user.getId())) {
 				errors.rejectValue("username", "user_exists_error", "Użytkownik o takim loginie już istnieje!");
 			}
 		}
@@ -44,12 +44,16 @@ public class PasswordUpdateValidator implements Validator {
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
 
-		if (currentPassword.length() > 0 == false) {
+		if (currentPassword.length() <= 0) {
 			errors.rejectValue("currentPassword", "confirm_password_error", "Pole to musi być wypełnione!");
 		}
 
-		if (!passwordEncoder.matches(currentPassword, foundUser.get().getPassword())) {
-			errors.rejectValue("currentPassword", "current_password_error", "Podano nieprawidłowe hasło");
+		if (optionalUser.isPresent()) {
+			if (!passwordEncoder.matches(currentPassword, optionalUser.get().getPassword())) {
+				errors.rejectValue("currentPassword", "current_password_error", "Podano nieprawidłowe hasło");
+			}
+		} else {
+			errors.rejectValue("currentPassword", "user_not_exists", "Użytkownik nie istnieje!");
 		}
 
 		if (currentPassword.equals(password)) {

@@ -27,11 +27,11 @@ import pl.marcinm312.springdatasecurityex.service.SessionUtils;
 @Service
 public class UserManager {
 
-	private UserRepo userRepo;
-	private PasswordEncoder passwordEncoder;
-	private TokenRepo tokenRepo;
-	private MailService mailService;
-	private SessionUtils sessionUtils;
+	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
+	private final TokenRepo tokenRepo;
+	private final MailService mailService;
+	private final SessionUtils sessionUtils;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -48,7 +48,8 @@ public class UserManager {
 	public User getUserByAuthentication(Authentication authentication) {
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = " + userName);
-		return userRepo.findByUsername(userName).get();
+		Optional<User> optionalUser = userRepo.findByUsername(userName);
+		return optionalUser.orElse(null);
 	}
 
 	public void addUser(User user, boolean isEnabled, String appURL) {

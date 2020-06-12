@@ -24,8 +24,8 @@ import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 @RequestMapping("/")
 public class MainWebController {
 
-	private UserManager userManager;
-	private UserValidator userValidator;
+	private final UserManager userManager;
+	private final UserValidator userValidator;
 
 	@Autowired
 	public MainWebController(UserManager userManager, UserValidator userValidator) {

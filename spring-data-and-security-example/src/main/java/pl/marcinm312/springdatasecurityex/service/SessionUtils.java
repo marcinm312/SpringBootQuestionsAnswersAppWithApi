@@ -11,7 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 @Service
 public class SessionUtils {
 
-	private SessionRegistry sessionRegistry;
+	private final SessionRegistry sessionRegistry;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -38,7 +38,6 @@ public class SessionUtils {
 										+ " has expired");
 							}
 						}
-
 					}
 				}
 			}

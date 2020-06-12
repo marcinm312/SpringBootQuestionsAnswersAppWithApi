@@ -16,7 +16,7 @@ import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 @Service
 public class QuestionManager {
 
-	private QuestionRepository questionRepository;
+	private final QuestionRepository questionRepository;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -30,9 +30,8 @@ public class QuestionManager {
 	}
 
 	public Question getQuestion(Long questionId) {
-		return questionRepository.findById(questionId).map(question -> {
-			return question;
-		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
+		return questionRepository.findById(questionId)
+				.orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
 	}
 
 	public Question createQuestion(Question question, User user) {
@@ -50,7 +49,7 @@ public class QuestionManager {
 			log.info("questionUserId=" + questionUserId);
 			log.info("currentUserId=" + currentUserId);
 			log.info("currentUserRole=" + currentUserRole);
-			if (questionUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
@@ -73,7 +72,7 @@ public class QuestionManager {
 			log.info("questionUserId=" + questionUserId);
 			log.info("currentUserId=" + currentUserId);
 			log.info("currentUserRole=" + currentUserRole);
-			if (questionUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				questionRepository.delete(question);
 				return true;

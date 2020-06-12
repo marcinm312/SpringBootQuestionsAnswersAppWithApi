@@ -31,7 +31,7 @@ public class MultiHttpSecurityCustomConfig {
 	@Order(1)
 	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-		private UserDetailsServiceImpl userDetailsService;
+		private final UserDetailsServiceImpl userDetailsService;
 
 		@Autowired
 		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService) {
@@ -53,7 +53,7 @@ public class MultiHttpSecurityCustomConfig {
 	@Order(2)
 	public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
-		private UserDetailsServiceImpl userDetailsService;
+		private final UserDetailsServiceImpl userDetailsService;
 
 		@Autowired
 		public FormLoginWebSecurityConfigurerAdapter(UserDetailsServiceImpl userDetailsService) {

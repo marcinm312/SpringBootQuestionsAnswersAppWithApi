@@ -35,7 +35,7 @@ public class ExcelGenerator {
 		Workbook workbook = new XSSFWorkbook();
 
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook, true, 14, IndexedColors.RED.getIndex());
-		CellStyle dateCellStyle = getDateCellStyle(workbook, "yyyy-MM-dd hh:mm:ss");
+		CellStyle dateCellStyle = getDateCellStyle(workbook);
 
 		Sheet answersSheet = workbook.createSheet("Odpowiedzi");
 
@@ -126,7 +126,7 @@ public class ExcelGenerator {
 	}
 
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
-		log.info("Starting generatng questions Excel file");
+		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()=" + questionsList.size());
 		String filePath = "files\\Pytania.xlsx";
 
@@ -143,7 +143,7 @@ public class ExcelGenerator {
 			cell.setCellStyle(headerCellStyle);
 		}
 
-		CellStyle dateCellStyle = getDateCellStyle(workbook, "yyyy-MM-dd hh:mm:ss");
+		CellStyle dateCellStyle = getDateCellStyle(workbook);
 
 		int rowNum = 1;
 		for (Question question : questionsList) {
@@ -179,10 +179,10 @@ public class ExcelGenerator {
 		return file;
 	}
 
-	private CellStyle getDateCellStyle(Workbook workbook, String dateTimeFormat) {
+	private CellStyle getDateCellStyle(Workbook workbook) {
 		CreationHelper createHelper = workbook.getCreationHelper();
 		CellStyle dateCellStyle = workbook.createCellStyle();
-		dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat(dateTimeFormat));
+		dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd hh:mm:ss"));
 		return dateCellStyle;
 	}
 

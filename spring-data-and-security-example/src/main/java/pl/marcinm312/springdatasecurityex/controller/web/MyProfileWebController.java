@@ -23,10 +23,10 @@ import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 @RequestMapping("/app/myprofile")
 public class MyProfileWebController {
 
-	private UserManager userManager;
-	private UserValidator userValidator;
-	private PasswordUpdateValidator passwordUpdateValidator;
-	private SessionUtils sessionUtils;
+	private final UserManager userManager;
+	private final UserValidator userValidator;
+	private final PasswordUpdateValidator passwordUpdateValidator;
+	private final SessionUtils sessionUtils;
 
 	@Autowired
 	public MyProfileWebController(UserManager userManager, UserValidator userValidator,

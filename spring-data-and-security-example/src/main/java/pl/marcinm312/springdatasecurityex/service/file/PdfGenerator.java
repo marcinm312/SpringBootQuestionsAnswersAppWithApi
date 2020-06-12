@@ -30,7 +30,7 @@ public class PdfGenerator {
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
-		log.info("Starting generatng questions PDF file");
+		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()=" + questionsList.size());
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);

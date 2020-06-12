@@ -21,8 +21,8 @@ public class FirstUserCreator {
 	@Value("${admin.default.email}")
 	private String email;
 
-	private UserRepo userRepo;
-	private PasswordEncoder passwordEncoder;
+	private final UserRepo userRepo;
+	private final PasswordEncoder passwordEncoder;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 

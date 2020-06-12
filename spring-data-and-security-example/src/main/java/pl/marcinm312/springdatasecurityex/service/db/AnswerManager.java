@@ -21,9 +21,9 @@ import pl.marcinm312.springdatasecurityex.service.MailService;
 @Service
 public class AnswerManager {
 
-	private AnswerRepository answerRepository;
-	private QuestionRepository questionRepository;
-	private MailService mailService;
+	private final AnswerRepository answerRepository;
+	private final QuestionRepository questionRepository;
+	private final MailService mailService;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -43,9 +43,8 @@ public class AnswerManager {
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException("Question not found with id " + questionId);
 		}
-		return answerRepository.findById(answerId).map(answer -> {
-			return answer;
-		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
+		return answerRepository.findById(answerId)
+				.orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
 	}
 
 	public Answer addAnswer(Long questionId, Answer answer, User user) {
@@ -80,7 +79,7 @@ public class AnswerManager {
 			log.info("answerUserId=" + answerUserId);
 			log.info("currentUserId=" + currentUserId);
 			log.info("currentUserRole=" + currentUserRole);
-			if (answerUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				answer.setText(answerRequest.getText());
 				log.info("Old answer = " + answer.toString());
@@ -116,7 +115,7 @@ public class AnswerManager {
 			log.info("answerUserId=" + answerUserId);
 			log.info("currentUserId=" + currentUserId);
 			log.info("currentUserRole=" + currentUserRole);
-			if (answerUserId == currentUserId || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				answerRepository.delete(answer);
 				return true;

@@ -15,7 +15,7 @@ import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-	private UserRepo userRepo;
+	private final UserRepo userRepo;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 

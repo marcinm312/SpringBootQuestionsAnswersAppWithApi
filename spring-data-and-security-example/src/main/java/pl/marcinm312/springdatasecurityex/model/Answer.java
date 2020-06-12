@@ -26,7 +26,7 @@ public class Answer extends AuditModel {
 	private Long id;
 
 	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 3, message = "Pole to musi zawierać minumum 3 znaki")
+	@Size(min = 3, message = "Pole to musi zawierać minimum 3 znaki")
 	@Column(columnDefinition = "text")
 	private String text;
 
