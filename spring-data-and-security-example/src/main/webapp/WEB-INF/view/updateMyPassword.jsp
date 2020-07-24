@@ -14,7 +14,7 @@
 	crossorigin="anonymous">
 <title>Edycja profilu</title>
 </head>
-<body onload="clearForm()">
+<body onload="clearChangePasswordForm()">
 	<div style="margin: 30px">
 		<span style='float:right'>
 			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
@@ -82,14 +82,5 @@
 		<button class="btn btn-danger" onclick="window.location.href = '..'">Anuluj</button>
 	</div>
 </body>
-<script type="text/javascript">
-	function clearForm(){
-		var currentPassword = document.getElementById("currentPassword");
-		var password = document.getElementById("password");
-		var confirmPassword = document.getElementById("confirmPassword");
-		currentPassword.value = "";
-		password.value = "";
-		confirmPassword.value = "";
-	}
-</script>
+<script type="text/javascript" src="/js/clearChangePasswordForm.js"></script>
 </html>

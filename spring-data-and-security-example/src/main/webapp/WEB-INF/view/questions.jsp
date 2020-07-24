@@ -45,17 +45,17 @@
 				<table id="questionsTable" class="table table-bordered">
 					<thead class="thead-dark">
 						<tr>
-							<th scope="col" onclick="sortTable(0)">Id <i
+							<th scope="col" onclick="sortTable(0,'questionsTable')">Id <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(1)">Tytuł <i
+							<th scope="col" onclick="sortTable(1,'questionsTable')">Tytuł <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(2)">Opis <i
+							<th scope="col" onclick="sortTable(2,'questionsTable')">Opis <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(3)">Data utworzenia <i
+							<th scope="col" onclick="sortTable(3,'questionsTable')">Data utworzenia <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(4)">Data modyfikacji <i
+							<th scope="col" onclick="sortTable(4,'questionsTable')">Data modyfikacji <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(5)">Użytkownik <i
+							<th scope="col" onclick="sortTable(5,'questionsTable')">Użytkownik <i
 								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col">Opcje</th>
 						</tr>
@@ -86,42 +86,5 @@
 		</c:choose>
 	</div>
 </body>
-<script type="text/javascript">
-	function sortTable(n) {
-		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-		table = document.getElementById("questionsTable");
-		switching = true;
-		dir = "asc";
-		while (switching) {
-			switching = false;
-			rows = table.rows;
-			for (i = 1; i < (rows.length - 1); i++) {
-				shouldSwitch = false;
-				x = rows[i].getElementsByTagName("TD")[n];
-				y = rows[i + 1].getElementsByTagName("TD")[n];
-				if (dir == "asc") {
-					if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-						shouldSwitch = true;
-						break;
-					}
-				} else if (dir == "desc") {
-					if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-						shouldSwitch = true;
-						break;
-					}
-				}
-			}
-			if (shouldSwitch) {
-				rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-				switching = true;
-				switchcount++;
-			} else {
-				if (switchcount == 0 && dir == "asc") {
-					dir = "desc";
-					switching = true;
-				}
-			}
-		}
-	}
-</script>
+<script type="text/javascript" src="/js/sortTable.js"></script>
 </html>

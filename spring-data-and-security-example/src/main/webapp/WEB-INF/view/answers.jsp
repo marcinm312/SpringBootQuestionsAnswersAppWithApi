@@ -52,15 +52,15 @@
 				<table id="answersTable" class="table table-bordered">
 					<thead class="thead-dark">
 						<tr>
-							<th scope="col" onclick="sortTable(0)">Id <i
+							<th scope="col" onclick="sortTable(0,'answersTable')">Id <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(1)">Treść odpowiedzi <i
+							<th scope="col" onclick="sortTable(1,'answersTable')">Treść odpowiedzi <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(2)">Data utworzenia <i
+							<th scope="col" onclick="sortTable(2,'answersTable')">Data utworzenia <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(3)">Data modyfikacji <i
+							<th scope="col" onclick="sortTable(3,'answersTable')">Data modyfikacji <i
 								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(4)">Użytkownik <i
+							<th scope="col" onclick="sortTable(4,'answersTable')">Użytkownik <i
 								class="fa fa-fw fa-sort"></i></th>
 							<th scope="col">Opcje</th>
 						</tr>
@@ -89,42 +89,5 @@
 
 	</div>
 </body>
-<script type="text/javascript">
-	function sortTable(n) {
-		var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-		table = document.getElementById("answersTable");
-		switching = true;
-		dir = "asc";
-		while (switching) {
-			switching = false;
-			rows = table.rows;
-			for (i = 1; i < (rows.length - 1); i++) {
-				shouldSwitch = false;
-				x = rows[i].getElementsByTagName("TD")[n];
-				y = rows[i + 1].getElementsByTagName("TD")[n];
-				if (dir == "asc") {
-					if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-						shouldSwitch = true;
-						break;
-					}
-				} else if (dir == "desc") {
-					if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-						shouldSwitch = true;
-						break;
-					}
-				}
-			}
-			if (shouldSwitch) {
-				rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-				switching = true;
-				switchcount++;
-			} else {
-				if (switchcount == 0 && dir == "asc") {
-					dir = "desc";
-					switching = true;
-				}
-			}
-		}
-	}
-</script>
+<script type="text/javascript" src="/js/sortTable.js"></script>
 </html>
