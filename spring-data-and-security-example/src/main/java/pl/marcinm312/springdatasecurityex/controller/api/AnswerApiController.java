@@ -1,24 +1,15 @@
 package pl.marcinm312.springdatasecurityex.controller.api;
 
-import java.util.List;
-
-import javax.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.model.Answer;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+
+import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions/{questionId}/answers")
@@ -58,9 +49,9 @@ public class AnswerApiController {
 	}
 
 	@DeleteMapping("/{answerId}")
-	public void deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
+	public boolean deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 			Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
-		answerManager.deleteAnswer(questionId, answerId, user);
+		return answerManager.deleteAnswer(questionId, answerId, user);
 	}
 }
