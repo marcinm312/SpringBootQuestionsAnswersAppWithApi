@@ -20,7 +20,7 @@ import pl.marcinm312.springdatasecurityex.validator.PasswordUpdateValidator;
 import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 
 @Controller
-@RequestMapping("/app/myprofile")
+@RequestMapping("/app/myProfile")
 public class MyProfileWebController {
 
 	private final UserManager userManager;
@@ -51,7 +51,7 @@ public class MyProfileWebController {
 	public String myProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
-		model.addAttribute("userlogin", userName);
+		model.addAttribute("userLogin", userName);
 		model.addAttribute("user", user);
 		return "myProfile";
 	}
@@ -61,7 +61,7 @@ public class MyProfileWebController {
 			Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("userlogin", userName);
+			model.addAttribute("userLogin", userName);
 			model.addAttribute("user", user);
 			return "updateMyProfile";
 		} else {
@@ -74,7 +74,7 @@ public class MyProfileWebController {
 	public String updateMyProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
-		model.addAttribute("userlogin", userName);
+		model.addAttribute("userLogin", userName);
 		model.addAttribute("user", user);
 		return "updateMyProfile";
 	}
@@ -84,7 +84,7 @@ public class MyProfileWebController {
 			Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("userlogin", userName);
+			model.addAttribute("userLogin", userName);
 			model.addAttribute("user2", user);
 			return "updateMyPassword";
 		} else {
@@ -97,7 +97,7 @@ public class MyProfileWebController {
 	public String updateMyPasswordView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
-		model.addAttribute("userlogin", userName);
+		model.addAttribute("userLogin", userName);
 		model.addAttribute("user2", user);
 		return "updateMyPassword";
 	}
@@ -118,7 +118,7 @@ public class MyProfileWebController {
 	@GetMapping("/delete")
 	public String deleteUserConfirmation(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		model.addAttribute("userlogin", userName);
+		model.addAttribute("userLogin", userName);
 		model.addAttribute("user", userManager.getUserByAuthentication(authentication));
 		return "deleteMyProfile";
 	}

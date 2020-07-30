@@ -8,21 +8,16 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <!-- Bootstrap CSS -->
-<link rel="stylesheet"
-	href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-	integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-	crossorigin="anonymous">
-<link
-	href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
-	rel="stylesheet">
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <title>Lista pytań</title>
 </head>
 <body>
 	<div style="margin: 30px">
 		<span style='float:right'>
-			<b>Zalogowany jako:</b> ${userlogin} &nbsp;
+			<b>Zalogowany jako:</b> ${userLogin} &nbsp;
 			<button class="btn btn-primary"
-				onclick="window.location.href = '../myprofile/'">Mój profil</button>
+				onclick="window.location.href = '../myProfile/'">Mój profil</button>
 			<button class="btn btn-primary"
 				onclick="window.location.href = '../../logout'">Wyloguj się</button>
 		</span><br/>
