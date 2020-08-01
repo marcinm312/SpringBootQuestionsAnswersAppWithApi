@@ -27,9 +27,9 @@
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'updatePassword/'">Zmień hasło</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'endOtherSessions/'">Wyloguj mnie z innych urządzeń</button>
+            onclick="window.location.href = 'delete/'">Usuń moje konto</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'delete/'">Usuń moje konto</button>
+			onclick="window.location.href = 'endOtherSessions/'">Wyloguj mnie z innych urządzeń</button>
 		<br /> <br />
 		<h1>Mój profil:</h1>
 		<br /> <b>Login:</b> <br /> ${user.username} <br />
