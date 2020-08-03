@@ -15,7 +15,7 @@
 </head>
 <body>
 	<div style="margin: 30px">
-		<span style='float:right'><b>Zalogowany jako:</b> ${userLogin}</span><br/>
+		<span style='float:right'><b>Zalogowany jako:</b> ${userLogin}</span><br/><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = '../..'">Wróć</button>
 			<br /> <br />

@@ -1,17 +1,16 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.List;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
+
+import java.util.List;
 
 @Service
 public class QuestionManager {
@@ -51,10 +50,10 @@ public class QuestionManager {
 			log.info("currentUserRole=" + currentUserRole);
 			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
+				log.info("Old question = " + question.toString());
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
-				log.info("Old question = " + question.toString());
-				log.info("New question = " + questionRequest.toString());
+				log.info("New question = " + question.toString());
 				return questionRepository.save(question);
 			} else {
 				log.info("User is not permitted");

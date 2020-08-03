@@ -1,11 +1,5 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.mail.MessagingException;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.enums.Roles;
+import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Token;
 import pl.marcinm312.springdatasecurityex.model.User;
@@ -23,6 +17,11 @@ import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.SessionUtils;
+
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserManager {
@@ -52,17 +51,18 @@ public class UserManager {
 		return optionalUser.orElse(null);
 	}
 
-	public void addUser(User user, boolean isEnabled, String appURL) {
+	public User addUser(User user, String appURL) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setEnabled(isEnabled);
+		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
 		log.info("Creating user = " + user.toString());
-		userRepo.save(user);
+		User savedUser = userRepo.save(user);
 		sendToken(user, appURL);
 		log.info("User created");
+		return savedUser;
 	}
 
-	public void updateUserData(User user, Authentication authentication) {
+	public User updateUserData(User user, Authentication authentication) {
 		log.info("Updating user");
 		User oldUser = getUserByAuthentication(authentication);
 		log.info("Old user = " + oldUser.toString());
@@ -72,7 +72,7 @@ public class UserManager {
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
 		log.info("New user = " + user);
-		userRepo.save(user);
+		User savedUser = userRepo.save(user);
 		log.info("User updated");
 		if (!oldUserName.equals(user.getUsername())) {
 			Collection<? extends GrantedAuthority> updatedAuthorities = user.getAuthorities();
@@ -82,20 +82,30 @@ public class UserManager {
 			sessionUtils.expireUserSessions(oldUserName, false);
 			sessionUtils.expireUserSessions(user.getUsername(), false);
 		}
+		return savedUser;
 	}
 
-	public void updateUserPassword(User user, Authentication authentication) {
-		log.info("Updating user");
+	public User updateUserPassword(User user, Authentication authentication) {
+		log.info("Updating user password");
 		User oldUser = getUserByAuthentication(authentication);
 		log.info("Old user = " + oldUser.toString());
 		user.setId(oldUser.getId());
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setRole(oldUser.getRole());
-		user.setEnabled(true);
-		log.info("New user = " + user);
-		userRepo.save(user);
-		log.info("User updated");
-		sessionUtils.expireUserSessions(user.getUsername(), false);
+		if (oldUser.getUsername().equals(user.getUsername())) {
+			user.setPassword(passwordEncoder.encode(user.getPassword()));
+			user.setFirstName(oldUser.getFirstName());
+			user.setLastName(oldUser.getLastName());
+			user.setEmail(oldUser.getEmail());
+			user.setRole(oldUser.getRole());
+			user.setEnabled(true);
+			log.info("New user = " + user);
+			User savedUser = userRepo.save(user);
+			log.info("User password updated");
+			sessionUtils.expireUserSessions(user.getUsername(), false);
+			return savedUser;
+		} else {
+			log.error("Illegal login change!");
+			throw new IllegalLoginChange();
+		}
 	}
 
 	public void deleteUser(Authentication authentication) {
@@ -106,16 +116,17 @@ public class UserManager {
 		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
-	public void activateUser(String tokenValue) {
+	public User activateUser(String tokenValue) {
 		Optional<Token> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isPresent()) {
 			Token token = optionalToken.get();
 			User user = token.getUser();
 			log.info("Activating user = " + user.toString());
 			user.setEnabled(true);
-			userRepo.save(user);
+			User savedUser = userRepo.save(user);
 			tokenRepo.delete(token);
 			log.info("User activated");
+			return savedUser;
 		} else {
 			throw new TokenNotFoundException();
 		}
@@ -131,15 +142,14 @@ public class UserManager {
 		try {
 			mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 		} catch (MessagingException e) {
+			log.error("An error occurred while sending the email");
 			e.printStackTrace();
 		}
 	}
 
 	private String generateEmailContent(User user, String tokenValue, String appURL) {
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Witaj " + user.getFirstName() + " " + user.getLastName() + ",");
-		stringBuilder.append("<br/><br/>Potwierdź swój adres email, klikając w poniższy link:");
-		stringBuilder.append("<br/><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>");
-		return stringBuilder.toString();
+		return "Witaj " + user.getFirstName() + " " + user.getLastName() + "," +
+				"<br/><br/>Potwierdź swój adres email, klikając w poniższy link:" +
+				"<br/><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
 	}
 }

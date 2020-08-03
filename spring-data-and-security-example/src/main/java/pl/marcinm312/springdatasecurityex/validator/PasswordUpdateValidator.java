@@ -1,15 +1,14 @@
 package pl.marcinm312.springdatasecurityex.validator;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+
+import java.util.Optional;
 
 @Component
 public class PasswordUpdateValidator implements Validator {
@@ -34,11 +33,6 @@ public class PasswordUpdateValidator implements Validator {
 
 		String username = user.getUsername();
 		Optional<User> optionalUser = userRepo.findByUsername(username);
-		if (optionalUser.isPresent()) {
-			if (!optionalUser.get().getId().equals(user.getId())) {
-				errors.rejectValue("username", "user_exists_error", "Użytkownik o takim loginie już istnieje!");
-			}
-		}
 
 		String currentPassword = user.getCurrentPassword();
 		String password = user.getPassword();

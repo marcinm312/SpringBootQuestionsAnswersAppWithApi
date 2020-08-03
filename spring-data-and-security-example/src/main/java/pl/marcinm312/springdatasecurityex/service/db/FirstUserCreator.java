@@ -33,7 +33,7 @@ public class FirstUserCreator {
 	}
 
 	@EventListener(ApplicationReadyEvent.class)
-	public void addFirstUser() {
+	public User addFirstUser() {
 		String login = "administrator";
 		if (!userRepo.findByUsername(login).isPresent()) {
 			User user = new User();
@@ -44,8 +44,11 @@ public class FirstUserCreator {
 			user.setFirstName("System");
 			user.setLastName("Admin");
 			user.setEmail(email);
-			userRepo.save(user);
+			User savedUser = userRepo.save(user);
 			log.info("First user created");
+			return savedUser;
+		} else {
+			return null;
 		}
 	}
 }

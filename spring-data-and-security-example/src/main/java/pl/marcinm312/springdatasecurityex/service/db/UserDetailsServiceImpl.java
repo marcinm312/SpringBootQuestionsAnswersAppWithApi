@@ -1,16 +1,15 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.Optional;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+
+import java.util.Optional;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -32,6 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			log.info("Loading user = " + user.toString());
 			return user;
 		} else {
+			log.error("User not found!");
 			throw new UsernameNotFoundException("User not found");
 		}
 	}

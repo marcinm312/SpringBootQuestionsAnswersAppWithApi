@@ -16,6 +16,8 @@
 <body>
 	<div style="margin: 30px">
 		<h1>Nie znaleziono tokenu</h1>
+		<br />
+        <button class="btn btn-primary" onclick="window.location.href = '..'">Przejdź do strony głównej</button>
 	</div>
 </body>
 </html>

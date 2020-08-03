@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.service.SessionUtils;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
@@ -88,7 +89,12 @@ public class MyProfileWebController {
 			model.addAttribute("user2", user);
 			return "updateMyPassword";
 		} else {
-			userManager.updateUserPassword(user, authentication);
+			try {
+				userManager.updateUserPassword(user, authentication);
+			} catch (IllegalLoginChange e) {
+				model.addAttribute("userLogin", userName);
+				return "illegalLoginChange";
+			}
 			return "redirect:..";
 		}
 	}
@@ -97,6 +103,7 @@ public class MyProfileWebController {
 	public String updateMyPasswordView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
+		user.setPassword("");
 		model.addAttribute("userLogin", userName);
 		model.addAttribute("user2", user);
 		return "updateMyPassword";

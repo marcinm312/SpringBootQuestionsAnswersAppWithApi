@@ -42,7 +42,7 @@ public class UserRegistrationWebController {
             String requestURL = request.getRequestURL().toString();
             String servletPath = request.getServletPath();
             String appURL = requestURL.replace(servletPath, "");
-            userManager.addUser(user, false, appURL);
+            userManager.addUser(user, appURL);
             return "redirect:..";
         }
     }

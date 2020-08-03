@@ -45,7 +45,7 @@
 			<div class="form-group">
 				<label>Hasło</label>
 				<form:input id="password" path="password" placeholder="Hasło" type="password"
-					class="form-control" />
+					class="form-control" value="" />
 				<form:errors path="password" style="color:red"
 					class="form-text text-muted" />
 			</div>

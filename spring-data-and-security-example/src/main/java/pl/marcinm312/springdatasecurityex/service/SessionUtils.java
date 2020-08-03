@@ -21,6 +21,7 @@ public class SessionUtils {
 	}
 
 	public void expireUserSessions(String username, boolean expireCurrentSession) {
+		log.info("Starting expiring user sessions");
 		for (Object principal : sessionRegistry.getAllPrincipals()) {
 			if (principal instanceof UserDetails) {
 				UserDetails userDetails = (UserDetails) principal;
@@ -42,5 +43,6 @@ public class SessionUtils {
 				}
 			}
 		}
+		log.info("User sessions expired");
 	}
 }

@@ -1,13 +1,8 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.List;
-
-import javax.mail.MessagingException;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
@@ -17,6 +12,9 @@ import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.service.MailService;
+
+import javax.mail.MessagingException;
+import java.util.List;
 
 @Service
 public class AnswerManager {
@@ -81,9 +79,9 @@ public class AnswerManager {
 			log.info("currentUserRole=" + currentUserRole);
 			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
-				answer.setText(answerRequest.getText());
 				log.info("Old answer = " + answer.toString());
-				log.info("New answer = " + answerRequest.toString());
+				answer.setText(answerRequest.getText());
+				log.info("New answer = " + answer.toString());
 				Answer savedAnswer = answerRepository.save(answer);
 				try {
 					Question question = savedAnswer.getQuestion();
@@ -130,17 +128,15 @@ public class AnswerManager {
 		User questionUser = question.getUser();
 		User answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Witaj " + questionUser.getFirstName() + " " + questionUser.getLastName() + ",");
+		stringBuilder.append("Witaj ").append(questionUser.getFirstName()).append(" ").append(questionUser.getLastName()).append(",");
 		if (isNewAnswer) {
-			stringBuilder.append("<br/><br/>Użytkownik <b>" + answerUser.getUsername()
-					+ "</b> opublikował odpowiedź na Twoje pytanie:");
+			stringBuilder.append("<br/><br/>Użytkownik <b>").append(answerUser.getUsername()).append("</b> opublikował odpowiedź na Twoje pytanie:");
 		} else {
-			stringBuilder.append("<br/><br/>Użytkownik <b>" + answerUser.getUsername()
-					+ "</b> zaktualizował odpowiedź na Twoje pytanie:");
+			stringBuilder.append("<br/><br/>Użytkownik <b>").append(answerUser.getUsername()).append("</b> zaktualizował odpowiedź na Twoje pytanie:");
 		}
-		stringBuilder.append("<br/><br/><b>Tytuł:</b><br/>" + question.getTitle());
-		stringBuilder.append("<br/><br/><b>Opis:</b><br/>" + question.getDescription());
-		stringBuilder.append("<br/><br/><br/><b>Treść odpowiedzi:</b><br/>" + answer.getText().replace("\n", "<br/>"));
+		stringBuilder.append("<br/><br/><b>Tytuł:</b><br/>").append(question.getTitle());
+		stringBuilder.append("<br/><br/><b>Opis:</b><br/>").append(question.getDescription());
+		stringBuilder.append("<br/><br/><br/><b>Treść odpowiedzi:</b><br/>").append(answer.getText().replace("\n", "<br/>"));
 		return stringBuilder.toString();
 	}
 }

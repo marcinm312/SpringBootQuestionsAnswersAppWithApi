@@ -1,24 +1,16 @@
 package pl.marcinm312.springdatasecurityex.service.file;
 
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import pl.marcinm312.springdatasecurityex.model.Answer;
+import pl.marcinm312.springdatasecurityex.model.Question;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.CreationHelper;
-import org.apache.poi.ss.usermodel.Font;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
 
 @Service
 public class ExcelGenerator {
@@ -34,7 +26,7 @@ public class ExcelGenerator {
 		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();
 
-		CellStyle headerCellStyle = getHeaderCellStyle(workbook, true, 14, IndexedColors.RED.getIndex());
+		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
 		CellStyle dateCellStyle = getDateCellStyle(workbook);
 
 		Sheet answersSheet = workbook.createSheet("Odpowiedzi");
@@ -133,7 +125,7 @@ public class ExcelGenerator {
 		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("Pytania");
-		CellStyle headerCellStyle = getHeaderCellStyle(workbook, true, 14, IndexedColors.RED.getIndex());
+		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
 
 		Row headerRow = sheet.createRow(0);
 
@@ -186,11 +178,11 @@ public class ExcelGenerator {
 		return dateCellStyle;
 	}
 
-	private CellStyle getHeaderCellStyle(Workbook workbook, boolean bold, int fontSize, short color) {
+	private CellStyle getHeaderCellStyle(Workbook workbook) {
 		Font headerFont = workbook.createFont();
-		headerFont.setBold(bold);
-		headerFont.setFontHeightInPoints((short) fontSize);
-		headerFont.setColor(color);
+		headerFont.setBold(true);
+		headerFont.setFontHeightInPoints((short) 14);
+		headerFont.setColor(IndexedColors.RED.getIndex());
 		CellStyle headerCellStyle = workbook.createCellStyle();
 		headerCellStyle.setFont(headerFont);
 		return headerCellStyle;

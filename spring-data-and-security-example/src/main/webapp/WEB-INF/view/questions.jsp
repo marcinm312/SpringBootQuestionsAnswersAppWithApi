@@ -21,13 +21,13 @@
 				onclick="window.location.href = '../myProfile/'">Mój profil</button>
 			<button class="btn btn-primary"
 				onclick="window.location.href = '../../logout'">Wyloguj się</button>
-		</span><br/>
+		</span><br/><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'new/'">Utwórz nowe pytanie</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'pdf-export/'">Eksportuj do pliku PDF</button>
+			onclick="window.location.href = 'pdf-export/'">Eksportuj do PDF</button>
 		<button class="btn btn-primary"
-			onclick="window.location.href = 'excel-export/'">Eksportuj do pliku Excel</button>
+			onclick="window.location.href = 'excel-export/'">Eksportuj do Excel</button>
 		<br /> <br />
 		<h1>Lista pytań:</h1>
 		<br />

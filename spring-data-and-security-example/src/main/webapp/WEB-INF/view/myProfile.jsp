@@ -19,7 +19,7 @@
 			<b>Zalogowany jako:</b> ${userLogin} &nbsp;
 			<button class="btn btn-primary"
 				onclick="window.location.href = '../../logout'">Wyloguj się</button>
-		</span><br/>
+		</span><br/><br/>
 		<button class="btn btn-primary"
 			onclick="window.location.href = '../questions/'">Przejdź do listy pytań</button>
 		<button class="btn btn-primary"
