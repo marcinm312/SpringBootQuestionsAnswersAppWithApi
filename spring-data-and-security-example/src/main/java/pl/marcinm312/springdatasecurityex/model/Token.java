@@ -23,6 +23,15 @@ public class Token extends AuditModel {
 	@OneToOne
 	private User user;
 
+	public Token() {
+	}
+
+	public Token(Long id, String value, User user) {
+		this.id = id;
+		this.value = value;
+		this.user = user;
+	}
+
 	public Long getId() {
 		return id;
 	}
