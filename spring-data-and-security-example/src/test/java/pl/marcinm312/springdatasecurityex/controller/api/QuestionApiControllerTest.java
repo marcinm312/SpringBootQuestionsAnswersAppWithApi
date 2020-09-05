@@ -20,6 +20,7 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.BDDMockito.any;
@@ -86,6 +87,20 @@ public class QuestionApiControllerTest {
 
         Assert.assertEquals(expectedTitle, responseQuestion.getTitle());
         Assert.assertEquals(expectedDescription, responseQuestion.getDescription());
+    }
+
+    @Test
+    public void getQuestion_questionNotExists_notFound() throws Exception {
+        given(questionRepository.findById(2000L)).willReturn(Optional.empty());
+        String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(get("/api/questions/2000"))
+                .andDo(print())
+                .andExpect(status().isNotFound())
+                .andReturn()
+                .getResolvedException())
+                .getMessage();
+
+        String expectedErrorMessage = "Question not found with id 2000";
+        Assert.assertEquals(expectedErrorMessage, receivedErrorMessage);
     }
 
     @Test
