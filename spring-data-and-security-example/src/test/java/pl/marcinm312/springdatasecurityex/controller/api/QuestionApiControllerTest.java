@@ -9,9 +9,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.marcinm312.springdatasecurityex.model.Question;
@@ -51,7 +50,7 @@ public class QuestionApiControllerTest {
     @Before
     public void setup() {
         given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
-        given(userManager.getUserByAuthentication(null)).willReturn(UserDataProvider.prepareExampleGoodUser());
+        given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(UserDataProvider.prepareExampleGoodUser());
         this.mockMvc = MockMvcBuilders.standaloneSetup(new QuestionApiController(questionManager, userManager)).build();
     }
 
