@@ -22,6 +22,8 @@
 		</span><br/>
 		<h1>Edycja profilu</h1>
 		<br />
+		<b>Zmiana loginu spowoduje wylogowanie użytkownika!</b>
+        <br /><br />
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
 				<form:input path="id" placeholder="Id" type="hidden"

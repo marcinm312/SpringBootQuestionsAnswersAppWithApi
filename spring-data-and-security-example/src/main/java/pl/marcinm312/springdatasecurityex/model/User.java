@@ -10,6 +10,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -169,5 +170,25 @@ public class User extends AuditModel implements UserDetails {
     public String toString() {
         return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
                 + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return isEnabled == user.isEnabled &&
+                id.equals(user.id) &&
+                username.equals(user.username) &&
+                password.equals(user.password) &&
+                role.equals(user.role) &&
+                firstName.equals(user.firstName) &&
+                lastName.equals(user.lastName) &&
+                email.equals(user.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, password, role, isEnabled, firstName, lastName, email);
     }
 }

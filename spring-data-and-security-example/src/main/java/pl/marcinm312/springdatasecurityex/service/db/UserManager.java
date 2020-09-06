@@ -79,8 +79,8 @@ public class UserManager {
 			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(),
 					authentication.getCredentials(), updatedAuthorities);
 			SecurityContextHolder.getContext().setAuthentication(newAuth);
-			sessionUtils.expireUserSessions(oldUserName, false);
-			sessionUtils.expireUserSessions(user.getUsername(), false);
+			sessionUtils.expireUserSessions(oldUserName, true);
+			sessionUtils.expireUserSessions(user.getUsername(), true);
 		}
 		return savedUser;
 	}
@@ -113,6 +113,7 @@ public class UserManager {
 		log.info("Deleting user = " + user.toString());
 		userRepo.delete(user);
 		log.info("User deleted");
+		log.info("Expiring session for user: " + authentication.getName());
 		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
