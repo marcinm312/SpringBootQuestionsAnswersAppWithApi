@@ -19,19 +19,27 @@ public class QuestionDataProvider {
         return new Question(1000L, "bbbb", "bbbb", UserDataProvider.prepareExampleGoodUser());
     }
 
-    public static Question prepareGoodQuestionToRequestBody() {
+    public static Question prepareGoodQuestionToRequest() {
         return new Question(null, "bbb", "bbbb", null);
     }
 
-    public static Question prepareGoodQuestionWithEmptyDescriptionToRequestBody() {
+    public static Question prepareGoodQuestionWithNullDescriptionToRequest() {
         return new Question(null, "bbb", null, null);
     }
 
-    public static Question prepareQuestionWithTooShortTitleToRequestBody() {
+    public static Question prepareGoodQuestionWithEmptyDescriptionToRequest() {
+        return new Question(null, "bbb", "", null);
+    }
+
+    public static Question prepareQuestionWithTooShortTitleToRequest() {
         return new Question(null, "bb", "bbbb", null);
     }
 
-    public static Question prepareQuestionWithNullTitleToRequestBody() {
+    public static Question prepareQuestionWithNullTitleToRequest() {
         return new Question(null, null, "bbbb", null);
+    }
+
+    public static Question prepareQuestionWithEmptyTitleToRequest() {
+        return new Question(null, "", "bbbb", null);
     }
 }
