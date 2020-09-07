@@ -10,10 +10,10 @@ public class UserDataProvider {
     }
 
     public static User prepareUserWithConfirmPasswordErrorToRequest() {
-        return new User(null, "user", null, "password", "anotherPassword", Roles.ROLE_USER.name(), false, "User", "Test", "test@abc.pl");
+        return new User(null, "user", null, "password", "anotherPassword", null, false, "User", "Test", "test@abc.pl");
     }
 
     public static User prepareGoodUserToRequest() {
-        return new User(null, "user", null, "password", "password", Roles.ROLE_USER.name(), false, "User", "Test", "test@abc.pl");
+        return new User(null, "user", null, "password", "password", null, false, "User", "Test", "test@abc.pl");
     }
 }

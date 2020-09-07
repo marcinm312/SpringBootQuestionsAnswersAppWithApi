@@ -1,5 +1,6 @@
 package pl.marcinm312.springdatasecurityex.controller.web;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
+import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.model.Token;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
@@ -20,6 +22,7 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 
 import javax.mail.MessagingException;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -69,7 +72,7 @@ public class UserRegistrationWebControllerTest {
         User userToRequest = UserDataProvider.prepareGoodUserToRequest();
         given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
         given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", userToRequest));
-        mockMvc.perform(post("/register")
+        User receivedUser = (User) Objects.requireNonNull(mockMvc.perform(post("/register")
                 .param("username", userToRequest.getUsername())
                 .param("password", userToRequest.getPassword())
                 .param("confirmPassword", userToRequest.getConfirmPassword())
@@ -79,7 +82,17 @@ public class UserRegistrationWebControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl(".."))
                 .andExpect(view().name("redirect:.."))
-                .andExpect(model().hasNoErrors());
+                .andExpect(model().hasNoErrors())
+                .andReturn()
+                .getModelAndView())
+                .getModelMap()
+                .getAttribute("user");
+
+        assert receivedUser != null;
+        Assert.assertEquals(userToRequest.getUsername(), receivedUser.getUsername());
+        Assert.assertEquals("encodedPassword", receivedUser.getPassword());
+        Assert.assertFalse(receivedUser.isEnabled());
+        Assert.assertEquals(Roles.ROLE_USER.name(), receivedUser.getRole());
     }
 
     @Test
