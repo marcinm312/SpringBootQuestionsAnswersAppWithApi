@@ -1,14 +1,13 @@
 package pl.marcinm312.springdatasecurityex.validator;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+
+import java.util.Optional;
 
 @Component
 public class UserValidator implements Validator {
@@ -40,7 +39,7 @@ public class UserValidator implements Validator {
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
 		if (!password.equals(confirmPassword)) {
-			errors.rejectValue("password", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
+			errors.rejectValue("confirmPassword", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
 		}
 	}
 

@@ -108,6 +108,6 @@ public class UserRegistrationWebControllerTest {
                 .param("email", userToRequest.getEmail()))
                 .andExpect(view().name("register"))
                 .andExpect(model().hasErrors())
-                .andExpect(model().attributeHasFieldErrors("user", "password"));
+                .andExpect(model().attributeHasFieldErrors("user", "confirmPassword"));
     }
 }

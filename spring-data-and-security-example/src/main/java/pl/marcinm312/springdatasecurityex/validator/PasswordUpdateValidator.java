@@ -55,7 +55,7 @@ public class PasswordUpdateValidator implements Validator {
 		}
 
 		if (!password.equals(confirmPassword)) {
-			errors.rejectValue("password", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
+			errors.rejectValue("confirmPassword", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
 		}
 	}
 }
