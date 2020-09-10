@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
+import java.util.Date;
 
 @Entity
 @Table(name = "questions")
@@ -37,6 +38,15 @@ public class Question extends AuditModel {
         this.title = title;
         this.description = description;
         this.user = user;
+    }
+
+    public Question(Long id, String title, String description, User user, Date createdAt, Date updatedAt) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.user = user;
+        this.setCreatedAt(createdAt);
+        this.setUpdatedAt(updatedAt);
     }
 
     public Long getId() {
