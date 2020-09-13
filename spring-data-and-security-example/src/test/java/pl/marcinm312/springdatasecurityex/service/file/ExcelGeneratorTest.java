@@ -12,6 +12,7 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExcelGeneratorTest {
@@ -54,6 +55,23 @@ public class ExcelGeneratorTest {
         checkCellStringValue(sheet, evaluator, "B4", questionsList.get(2).getTitle());
         checkCellStringValue(sheet, evaluator, "C4", questionsList.get(2).getDescription());
         checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser().getUsername());
+    }
+
+    @Test
+    public void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException {
+        File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
+
+        FileInputStream fis = new FileInputStream(questionsExcelFile);
+        Workbook wb = new XSSFWorkbook(fis);
+        Sheet sheet = wb.getSheetAt(0);
+        FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+
+        checkCellStringValue(sheet, evaluator, "A1", "Id");
+        checkCellStringValue(sheet, evaluator, "B1", "Tytuł");
+        checkCellStringValue(sheet, evaluator, "C1", "Opis");
+        checkCellStringValue(sheet, evaluator, "D1", "Data utworzenia");
+        checkCellStringValue(sheet, evaluator, "E1", "Data modyfikacji");
+        checkCellStringValue(sheet, evaluator, "F1", "Użytkownik");
     }
 
     private void checkCellStringValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, String expectedValue) {
