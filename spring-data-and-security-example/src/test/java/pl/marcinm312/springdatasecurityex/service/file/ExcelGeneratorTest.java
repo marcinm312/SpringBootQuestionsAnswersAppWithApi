@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 
@@ -19,7 +19,7 @@ public class ExcelGeneratorTest {
 
     ExcelGenerator excelGenerator;
 
-    @Before
+    @BeforeEach
     public void setup() {
         excelGenerator = new ExcelGenerator();
     }

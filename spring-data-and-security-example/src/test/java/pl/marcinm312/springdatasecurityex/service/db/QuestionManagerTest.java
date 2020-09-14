@@ -3,13 +3,15 @@ package pl.marcinm312.springdatasecurityex.service.db;
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.Question;
@@ -20,12 +22,12 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 
-@RunWith(MockitoJUnitRunner.class)
 public class QuestionManagerTest {
 
     @Mock
@@ -34,8 +36,9 @@ public class QuestionManagerTest {
     @InjectMocks
     QuestionManager questionManager;
 
-    @Before
+    @BeforeEach
     public void setUp() {
+        MockitoAnnotations.initMocks(this);
         given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
         doNothing().when(questionRepository).delete(isA(Question.class));
     }
@@ -59,20 +62,17 @@ public class QuestionManagerTest {
         Assert.assertEquals(expectedDescription, questionResult.getDescription());
     }
 
-    @Test
-    public void deleteQuestion_userDeletesHisOwnQuestion_success() {
+    @ParameterizedTest
+    @MethodSource("successfullyDeletedQuestionData")
+    public void deleteQuestion_withDataFromMethod_success(User user) {
         Question question = QuestionDataProvider.prepareExampleQuestion();
         given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
-        User user = UserDataProvider.prepareExampleGoodUser();
         Assert.assertTrue(questionManager.deleteQuestion(1000L, user));
     }
 
-    @Test
-    public void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() {
-        Question question = QuestionDataProvider.prepareExampleQuestion();
-        given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
-        User user = UserDataProvider.prepareExampleGoodAdministrator();
-        Assert.assertTrue(questionManager.deleteQuestion(1000L, user));
+    private static Stream<Arguments> successfullyDeletedQuestionData() {
+        return Stream.of(Arguments.of(UserDataProvider.prepareExampleGoodUser()),
+                Arguments.of(UserDataProvider.prepareExampleGoodAdministrator()));
     }
 
     @Test

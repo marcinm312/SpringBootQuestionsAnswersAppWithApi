@@ -1,13 +1,13 @@
 package pl.marcinm312.springdatasecurityex.controller.web;
 
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.marcinm312.springdatasecurityex.model.Question;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class QuestionWebControllerTest {
 
     private MockMvc mockMvc;
@@ -46,7 +46,7 @@ public class QuestionWebControllerTest {
     Authentication authentication;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         User user = UserDataProvider.prepareExampleGoodUser();
         given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());

@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.service.file;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
@@ -9,24 +9,24 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import java.util.ArrayList;
 import java.util.List;
 
-class PdfGeneratorTest {
+public class PdfGeneratorTest {
 
-    private static PdfGenerator pdfGenerator;
+    PdfGenerator pdfGenerator;
 
-    @BeforeAll
-    static void setup(){
+    @BeforeEach
+    public void setup(){
         pdfGenerator = new PdfGenerator();
     }
 
     @Test
-    void generateQuestionsPdfFile_simpleCase_success(){
+    public void generateQuestionsPdfFile_simpleCase_success(){
         List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
         Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
         Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
     }
 
     @Test
-    void generateQuestionsPdfFile_emptyQuestionsList_success() {
+    public void generateQuestionsPdfFile_emptyQuestionsList_success() {
         Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
         Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
     }

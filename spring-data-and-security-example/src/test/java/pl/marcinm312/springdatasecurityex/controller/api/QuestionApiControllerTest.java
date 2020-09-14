@@ -3,14 +3,14 @@ package pl.marcinm312.springdatasecurityex.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import pl.marcinm312.springdatasecurityex.model.Question;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class QuestionApiControllerTest {
 
     private MockMvc mockMvc;
@@ -53,7 +53,7 @@ public class QuestionApiControllerTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
         doNothing().when(questionRepository).delete(isA(Question.class));
