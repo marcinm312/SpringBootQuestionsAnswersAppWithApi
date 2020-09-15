@@ -1,8 +1,7 @@
 package pl.marcinm312.springdatasecurityex.controller.api;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,7 +71,7 @@ public class QuestionApiControllerTest {
         Question[] responseQuestionList = mapper.readValue(response, Question[].class);
         int arrayExpectedSize = 3;
         int arrayResultSize = responseQuestionList.length;
-        Assert.assertEquals(arrayExpectedSize, arrayResultSize);
+        Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
     }
 
     @Test
@@ -89,8 +88,8 @@ public class QuestionApiControllerTest {
                 .getContentAsString();
         Question responseQuestion = mapper.readValue(response, Question.class);
 
-        Assert.assertEquals(expectedTitle, responseQuestion.getTitle());
-        Assert.assertEquals(expectedDescription, responseQuestion.getDescription());
+        Assertions.assertEquals(expectedTitle, responseQuestion.getTitle());
+        Assertions.assertEquals(expectedDescription, responseQuestion.getDescription());
     }
 
     @Test
@@ -103,7 +102,7 @@ public class QuestionApiControllerTest {
                 .getMessage();
 
         String expectedErrorMessage = "Question not found with id 2000";
-        Assert.assertEquals(expectedErrorMessage, receivedErrorMessage);
+        Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
     }
 
     @Test
@@ -122,8 +121,8 @@ public class QuestionApiControllerTest {
                 .getResponse()
                 .getContentAsString();
         Question responseQuestion = mapper.readValue(response, Question.class);
-        Assert.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-        Assert.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+        Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
+        Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
     }
 
     @Test
@@ -142,8 +141,8 @@ public class QuestionApiControllerTest {
                 .getResponse()
                 .getContentAsString();
         Question responseQuestion = mapper.readValue(response, Question.class);
-        Assert.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-        Assert.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+        Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
+        Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
     }
 
     @Test
@@ -180,7 +179,7 @@ public class QuestionApiControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        Assert.assertEquals("true", response);
+        Assertions.assertEquals("true", response);
     }
 
     @Test
@@ -195,7 +194,7 @@ public class QuestionApiControllerTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-        Assert.assertEquals("true", response);
+        Assertions.assertEquals("true", response);
     }
 
     @Test
@@ -212,7 +211,7 @@ public class QuestionApiControllerTest {
                 .getMessage();
 
         String expectedErrorMessage = "Change not allowed!";
-        Assert.assertEquals(expectedErrorMessage, receivedErrorMessage);
+        Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
     }
 
     @Test
@@ -228,6 +227,6 @@ public class QuestionApiControllerTest {
                 .getMessage();
 
         String expectedErrorMessage = "Question not found with id 2000";
-        Assert.assertEquals(expectedErrorMessage, receivedErrorMessage);
+        Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
     }
 }

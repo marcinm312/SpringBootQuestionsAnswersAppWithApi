@@ -3,7 +3,7 @@ package pl.marcinm312.springdatasecurityex.service.file;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.model.Question;
@@ -81,7 +81,7 @@ public class ExcelGeneratorTest {
 
         CellValue cellValue = evaluator.evaluate(cell);
         String stringValue = cellValue.getStringValue();
-        Assert.assertEquals(expectedValue, stringValue);
+        Assertions.assertEquals(expectedValue, stringValue);
     }
 
     private void checkCellNumberValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, Long expectedValue) {
@@ -91,6 +91,6 @@ public class ExcelGeneratorTest {
 
         CellValue cellValue = evaluator.evaluate(cell);
         Long numberValue = (long) cellValue.getNumberValue();
-        Assert.assertEquals(expectedValue, numberValue);
+        Assertions.assertEquals(expectedValue, numberValue);
     }
 }

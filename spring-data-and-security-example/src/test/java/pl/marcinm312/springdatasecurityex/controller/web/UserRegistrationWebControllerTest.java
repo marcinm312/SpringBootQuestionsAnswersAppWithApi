@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.controller.web;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -89,10 +89,10 @@ public class UserRegistrationWebControllerTest {
                 .getAttribute("user");
 
         assert receivedUser != null;
-        Assert.assertEquals(userToRequest.getUsername(), receivedUser.getUsername());
-        Assert.assertEquals("encodedPassword", receivedUser.getPassword());
-        Assert.assertFalse(receivedUser.isEnabled());
-        Assert.assertEquals(Roles.ROLE_USER.name(), receivedUser.getRole());
+        Assertions.assertEquals(userToRequest.getUsername(), receivedUser.getUsername());
+        Assertions.assertEquals("encodedPassword", receivedUser.getPassword());
+        Assertions.assertFalse(receivedUser.isEnabled());
+        Assertions.assertEquals(Roles.ROLE_USER.name(), receivedUser.getRole());
     }
 
     @Test

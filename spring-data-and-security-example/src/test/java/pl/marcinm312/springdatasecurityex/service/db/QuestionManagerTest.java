@@ -2,7 +2,6 @@ package pl.marcinm312.springdatasecurityex.service.db;
 
 import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,8 +57,8 @@ public class QuestionManagerTest {
         String expectedDescription = question.getDescription();
         Question questionResult = questionManager.getQuestion(1000L);
 
-        Assert.assertEquals(expectedTitle, questionResult.getTitle());
-        Assert.assertEquals(expectedDescription, questionResult.getDescription());
+        Assertions.assertEquals(expectedTitle, questionResult.getTitle());
+        Assertions.assertEquals(expectedDescription, questionResult.getDescription());
     }
 
     @ParameterizedTest(name = "{index} ''{1}''")
@@ -67,7 +66,7 @@ public class QuestionManagerTest {
     public void deleteQuestion_withDataFromMethod_success(User user, String nameOfTestCase) {
         Question question = QuestionDataProvider.prepareExampleQuestion();
         given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
-        Assert.assertTrue(questionManager.deleteQuestion(1000L, user));
+        Assertions.assertTrue(questionManager.deleteQuestion(1000L, user));
     }
 
     private static Stream<Arguments> successfullyDeletedQuestionData() {
@@ -81,7 +80,7 @@ public class QuestionManagerTest {
         given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
         User user = UserDataProvider.prepareExampleSecondGoodUser();
         Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class, () -> questionManager.deleteQuestion(1000L, user));
-        Assert.assertEquals("Change not allowed!", exception.getMessage());
+        Assertions.assertEquals("Change not allowed!", exception.getMessage());
     }
 
     @Test
@@ -89,6 +88,6 @@ public class QuestionManagerTest {
         given(questionRepository.findById(2000L)).willReturn(Optional.empty());
         User user = UserDataProvider.prepareExampleGoodUser();
         Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> questionManager.deleteQuestion(2000L, user));
-        Assert.assertEquals("Question not found with id 2000", exception.getMessage());
+        Assertions.assertEquals("Question not found with id 2000", exception.getMessage());
     }
 }

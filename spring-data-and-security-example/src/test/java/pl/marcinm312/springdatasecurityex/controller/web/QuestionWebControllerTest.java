@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.controller.web;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -76,9 +76,9 @@ public class QuestionWebControllerTest {
                 .getModelMap()
                 .getAttribute("question");
         assert receivedQuestion != null;
-        Assert.assertEquals(expectedUser, receivedQuestion.getUser());
-        Assert.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
-        Assert.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
+        Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
+        Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
+        Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
     }
 
     @Test
@@ -98,9 +98,9 @@ public class QuestionWebControllerTest {
                 .getModelMap()
                 .getAttribute("question");
         assert receivedQuestion != null;
-        Assert.assertEquals(expectedUser, receivedQuestion.getUser());
-        Assert.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
-        Assert.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
+        Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
+        Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
+        Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
     }
 
     @Test
