@@ -62,17 +62,17 @@ public class QuestionManagerTest {
         Assert.assertEquals(expectedDescription, questionResult.getDescription());
     }
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index} ''{1}''")
     @MethodSource("successfullyDeletedQuestionData")
-    public void deleteQuestion_withDataFromMethod_success(User user) {
+    public void deleteQuestion_withDataFromMethod_success(User user, String nameOfTestCase) {
         Question question = QuestionDataProvider.prepareExampleQuestion();
         given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
         Assert.assertTrue(questionManager.deleteQuestion(1000L, user));
     }
 
     private static Stream<Arguments> successfullyDeletedQuestionData() {
-        return Stream.of(Arguments.of(UserDataProvider.prepareExampleGoodUser()),
-                Arguments.of(UserDataProvider.prepareExampleGoodAdministrator()));
+        return Stream.of(Arguments.of(UserDataProvider.prepareExampleGoodUser(), "deleteQuestion_userDeletesHisOwnQuestion_success"),
+                Arguments.of(UserDataProvider.prepareExampleGoodAdministrator(), "deleteQuestion_administratorDeletesAnotherUsersQuestion_success"));
     }
 
     @Test
