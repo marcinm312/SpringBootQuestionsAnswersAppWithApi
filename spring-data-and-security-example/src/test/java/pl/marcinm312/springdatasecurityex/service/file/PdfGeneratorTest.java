@@ -9,25 +9,25 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PdfGeneratorTest {
+class PdfGeneratorTest {
 
-    PdfGenerator pdfGenerator;
+	PdfGenerator pdfGenerator;
 
-    @BeforeEach
-    public void setup(){
-        pdfGenerator = new PdfGenerator();
-    }
+	@BeforeEach
+	void setup() {
+		pdfGenerator = new PdfGenerator();
+	}
 
-    @Test
-    public void generateQuestionsPdfFile_simpleCase_success(){
-        List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
-        Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
-        Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
-    }
+	@Test
+	void generateQuestionsPdfFile_simpleCase_success() {
+		List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
+		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
+	}
 
-    @Test
-    public void generateQuestionsPdfFile_emptyQuestionsList_success() {
-        Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
-        Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
-    }
+	@Test
+	void generateQuestionsPdfFile_emptyQuestionsList_success() {
+		Assertions.assertAll(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
+		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
+	}
 }

@@ -29,101 +29,101 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-public class QuestionWebControllerTest {
+class QuestionWebControllerTest {
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @Mock
-    QuestionRepository questionRepository;
+	@Mock
+	QuestionRepository questionRepository;
 
-    @Mock
-    UserManager userManager;
+	@Mock
+	UserManager userManager;
 
-    @InjectMocks
-    QuestionManager questionManager;
+	@InjectMocks
+	QuestionManager questionManager;
 
-    @Mock
-    Authentication authentication;
+	@Mock
+	Authentication authentication;
 
 
-    @BeforeEach
-    public void setup() {
-        User user = UserDataProvider.prepareExampleGoodUser();
-        given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
-        given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(user);
-        given(authentication.getName()).willReturn(user.getUsername());
+	@BeforeEach
+	void setup() {
+		User user = UserDataProvider.prepareExampleGoodUser();
+		given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(user);
+		given(authentication.getName()).willReturn(user.getUsername());
 
-        ExcelGenerator excelGenerator = new ExcelGenerator();
-        PdfGenerator pdfGenerator = new PdfGenerator();
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new QuestionWebController(questionManager, pdfGenerator, excelGenerator, userManager))
-                .alwaysDo(print()).build();
-    }
+		ExcelGenerator excelGenerator = new ExcelGenerator();
+		PdfGenerator pdfGenerator = new PdfGenerator();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new QuestionWebController(questionManager, pdfGenerator, excelGenerator, userManager))
+				.alwaysDo(print()).build();
+	}
 
-    @Test
-    public void createQuestion_simpleCase_success() throws Exception {
-        Question expectedQuestion = QuestionDataProvider.prepareGoodQuestionToRequest();
-        User expectedUser = UserDataProvider.prepareExampleGoodUser();
-        Question receivedQuestion = (Question) Objects.requireNonNull(mockMvc.perform(post("/app/questions/new")
-                .param("title", expectedQuestion.getTitle())
-                .param("description", expectedQuestion.getDescription())
-                .principal(authentication))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(".."))
-                .andExpect(view().name("redirect:.."))
-                .andExpect(model().hasNoErrors())
-                .andReturn()
-                .getModelAndView())
-                .getModelMap()
-                .getAttribute("question");
-        assert receivedQuestion != null;
-        Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
-        Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
-        Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
-    }
+	@Test
+	void createQuestion_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareGoodQuestionToRequest();
+		User expectedUser = UserDataProvider.prepareExampleGoodUser();
+		Question receivedQuestion = (Question) Objects.requireNonNull(mockMvc.perform(post("/app/questions/new")
+				.param("title", expectedQuestion.getTitle())
+				.param("description", expectedQuestion.getDescription())
+				.principal(authentication))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andReturn()
+				.getModelAndView())
+				.getModelMap()
+				.getAttribute("question");
+		assert receivedQuestion != null;
+		Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
+		Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
+	}
 
-    @Test
-    public void createQuestion_emptyDescription_success() throws Exception {
-        Question expectedQuestion = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
-        User expectedUser = UserDataProvider.prepareExampleGoodUser();
-        Question receivedQuestion = (Question) Objects.requireNonNull(mockMvc.perform(post("/app/questions/new")
-                .param("title", expectedQuestion.getTitle())
-                .param("description", expectedQuestion.getDescription())
-                .principal(authentication))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(".."))
-                .andExpect(view().name("redirect:.."))
-                .andExpect(model().hasNoErrors())
-                .andReturn()
-                .getModelAndView())
-                .getModelMap()
-                .getAttribute("question");
-        assert receivedQuestion != null;
-        Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
-        Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
-        Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
-    }
+	@Test
+	void createQuestion_emptyDescription_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
+		User expectedUser = UserDataProvider.prepareExampleGoodUser();
+		Question receivedQuestion = (Question) Objects.requireNonNull(mockMvc.perform(post("/app/questions/new")
+				.param("title", expectedQuestion.getTitle())
+				.param("description", expectedQuestion.getDescription())
+				.principal(authentication))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andReturn()
+				.getModelAndView())
+				.getModelMap()
+				.getAttribute("question");
+		assert receivedQuestion != null;
+		Assertions.assertEquals(expectedUser, receivedQuestion.getUser());
+		Assertions.assertEquals(expectedQuestion.getTitle(), receivedQuestion.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), receivedQuestion.getDescription());
+	}
 
-    @Test
-    public void createQuestion_tooShortTitle_validationErrors() throws Exception {
-        Question question = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
-        mockMvc.perform(post("/app/questions/new")
-                .param("title",question.getTitle())
-                .param("description", question.getDescription())
-                .principal(authentication))
-                .andExpect(view().name("createQuestion"))
-                .andExpect(model().hasErrors())
-                .andExpect(model().attributeHasFieldErrors("question", "title"));
-    }
+	@Test
+	void createQuestion_tooShortTitle_validationErrors() throws Exception {
+		Question question = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
+		mockMvc.perform(post("/app/questions/new")
+				.param("title", question.getTitle())
+				.param("description", question.getDescription())
+				.principal(authentication))
+				.andExpect(view().name("createQuestion"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("question", "title"));
+	}
 
-    @Test
-    public void createQuestion_emptyTitle_validationErrors() throws Exception {
-        Question question = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
-        mockMvc.perform(post("/app/questions/new")
-                .param("title",question.getTitle())
-                .param("description", question.getDescription())
-                .principal(authentication))
-                .andExpect(view().name("createQuestion"))
-                .andExpect(model().hasErrors())
-                .andExpect(model().attributeHasFieldErrors("question", "title"));
-    }
+	@Test
+	void createQuestion_emptyTitle_validationErrors() throws Exception {
+		Question question = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
+		mockMvc.perform(post("/app/questions/new")
+				.param("title", question.getTitle())
+				.param("description", question.getDescription())
+				.principal(authentication))
+				.andExpect(view().name("createQuestion"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("question", "title"));
+	}
 }

@@ -34,80 +34,80 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-public class UserRegistrationWebControllerTest {
+class UserRegistrationWebControllerTest {
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @Mock
-    MailService mailService;
+	@Mock
+	MailService mailService;
 
-    @Mock
-    UserRepo userRepo;
+	@Mock
+	UserRepo userRepo;
 
-    @Mock
-    TokenRepo tokenRepo;
+	@Mock
+	TokenRepo tokenRepo;
 
-    @Mock
-    PasswordEncoder passwordEncoder;
+	@Mock
+	PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    UserManager userManager;
+	@InjectMocks
+	UserManager userManager;
 
-    @InjectMocks
-    UserValidator userValidator;
+	@InjectMocks
+	UserValidator userValidator;
 
-    @BeforeEach
-    public void setup() throws MessagingException {
-        InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
-        viewResolver.setPrefix("/WEB-INF/view/");
-        viewResolver.setSuffix(".jsp");
-        doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
-        given(passwordEncoder.encode(any(CharSequence.class))).willReturn("encodedPassword");
-        this.mockMvc = MockMvcBuilders.standaloneSetup(new UserRegistrationWebController(userManager, userValidator))
-                .setViewResolvers(viewResolver).alwaysDo(print()).build();
-    }
+	@BeforeEach
+	void setup() throws MessagingException {
+		InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
+		viewResolver.setPrefix("/WEB-INF/view/");
+		viewResolver.setSuffix(".jsp");
+		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
+		given(passwordEncoder.encode(any(CharSequence.class))).willReturn("encodedPassword");
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new UserRegistrationWebController(userManager, userValidator))
+				.setViewResolvers(viewResolver).alwaysDo(print()).build();
+	}
 
-    @Test
-    public void createUser_simpleCase_success() throws Exception {
-        User userToRequest = UserDataProvider.prepareGoodUserToRequest();
-        given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-        given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", userToRequest));
-        User receivedUser = (User) Objects.requireNonNull(mockMvc.perform(post("/register")
-                .param("username", userToRequest.getUsername())
-                .param("password", userToRequest.getPassword())
-                .param("confirmPassword", userToRequest.getConfirmPassword())
-                .param("firstName", userToRequest.getFirstName())
-                .param("lastName", userToRequest.getLastName())
-                .param("email", userToRequest.getEmail()))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl(".."))
-                .andExpect(view().name("redirect:.."))
-                .andExpect(model().hasNoErrors())
-                .andReturn()
-                .getModelAndView())
-                .getModelMap()
-                .getAttribute("user");
+	@Test
+	void createUser_simpleCase_success() throws Exception {
+		User userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", userToRequest));
+		User receivedUser = (User) Objects.requireNonNull(mockMvc.perform(post("/register")
+				.param("username", userToRequest.getUsername())
+				.param("password", userToRequest.getPassword())
+				.param("confirmPassword", userToRequest.getConfirmPassword())
+				.param("firstName", userToRequest.getFirstName())
+				.param("lastName", userToRequest.getLastName())
+				.param("email", userToRequest.getEmail()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andReturn()
+				.getModelAndView())
+				.getModelMap()
+				.getAttribute("user");
 
-        assert receivedUser != null;
-        Assertions.assertEquals(userToRequest.getUsername(), receivedUser.getUsername());
-        Assertions.assertEquals("encodedPassword", receivedUser.getPassword());
-        Assertions.assertFalse(receivedUser.isEnabled());
-        Assertions.assertEquals(Roles.ROLE_USER.name(), receivedUser.getRole());
-    }
+		assert receivedUser != null;
+		Assertions.assertEquals(userToRequest.getUsername(), receivedUser.getUsername());
+		Assertions.assertEquals("encodedPassword", receivedUser.getPassword());
+		Assertions.assertFalse(receivedUser.isEnabled());
+		Assertions.assertEquals(Roles.ROLE_USER.name(), receivedUser.getRole());
+	}
 
-    @Test
-    public void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
-        User userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
-        given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-        mockMvc.perform(post("/register")
-                .param("username", userToRequest.getUsername())
-                .param("password", userToRequest.getPassword())
-                .param("confirmPassword", userToRequest.getConfirmPassword())
-                .param("firstName", userToRequest.getFirstName())
-                .param("lastName", userToRequest.getLastName())
-                .param("email", userToRequest.getEmail()))
-                .andExpect(view().name("register"))
-                .andExpect(model().hasErrors())
-                .andExpect(model().attributeHasFieldErrors("user", "confirmPassword"));
-    }
+	@Test
+	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
+		User userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		mockMvc.perform(post("/register")
+				.param("username", userToRequest.getUsername())
+				.param("password", userToRequest.getPassword())
+				.param("confirmPassword", userToRequest.getConfirmPassword())
+				.param("firstName", userToRequest.getFirstName())
+				.param("lastName", userToRequest.getLastName())
+				.param("email", userToRequest.getEmail()))
+				.andExpect(view().name("register"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"));
+	}
 }
