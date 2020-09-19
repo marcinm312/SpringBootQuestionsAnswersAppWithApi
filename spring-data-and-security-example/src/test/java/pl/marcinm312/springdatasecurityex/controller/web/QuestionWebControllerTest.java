@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,7 +25,7 @@ import java.util.Objects;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -125,5 +126,25 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"));
+	}
+
+	@Test
+	void downloadPdf_simpleCase_success() throws Exception {
+		mockMvc.perform(get("/app/questions/pdf-export")
+				.principal(authentication))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.pdf\""))
+				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	@Test
+	void downloadExcel_simpleCase_success() throws Exception {
+		mockMvc.perform(get("/app/questions/excel-export")
+				.principal(authentication))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.xlsx\""))
+				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
 }
