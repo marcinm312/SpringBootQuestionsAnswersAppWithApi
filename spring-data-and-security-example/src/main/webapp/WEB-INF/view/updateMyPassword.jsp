@@ -57,18 +57,6 @@
 					class="form-text text-muted" />
 			</div>
 			<div class="form-group">
-				<form:input path="firstName" placeholder="Imię" type="hidden"
-					class="form-control" />
-				<form:errors path="firstName" style="color:red"
-					class="form-text text-muted" />
-			</div>
-			<div class="form-group">
-				<form:input path="lastName" placeholder="Nazwisko" type="hidden"
-					class="form-control" />
-				<form:errors path="lastName" style="color:red"
-					class="form-text text-muted" />
-			</div>
-			<div class="form-group">
 				<form:input path="email" placeholder="Email" type="hidden"
 					class="form-control" />
 				<form:errors path="email" style="color:red"

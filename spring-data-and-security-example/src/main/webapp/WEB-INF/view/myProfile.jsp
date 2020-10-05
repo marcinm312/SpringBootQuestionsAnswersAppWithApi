@@ -33,8 +33,6 @@
 		<br /> <br />
 		<h1>Mój profil:</h1>
 		<br /> <b>Login:</b> <br /> ${user.username} <br />
-		<br /> <b>Imię:</b> <br /> ${user.firstName} <br />
-		<br /> <b>Nazwisko:</b> <br /> ${user.lastName} <br />
 		<br /> <b>Email:</b> <br /> ${user.email} <br />
 	</div>
 </body>

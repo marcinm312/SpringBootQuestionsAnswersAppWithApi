@@ -16,192 +16,164 @@ import java.util.Objects;
 @Table(name = "users")
 public class User extends AuditModel implements UserDetails {
 
-    @Id
-    @GeneratedValue(generator = "user_generator")
-    @SequenceGenerator(name = "user_generator", sequenceName = "user_sequence", initialValue = 1000)
-    private Long id;
+	@Id
+	@GeneratedValue(generator = "user_generator")
+	@SequenceGenerator(name = "user_generator", sequenceName = "user_sequence", initialValue = 1000)
+	private Long id;
 
-    @Column(unique = true)
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    @Size(min = 3, max = 50, message = "Pole to musi zawierać od 3 do 50 znaków")
-    private String username;
+	@Column(unique = true)
+	@NotBlank(message = "Pole to musi być wypełnione!")
+	@Size(min = 3, max = 50, message = "Pole to musi zawierać od 3 do 50 znaków")
+	private String username;
 
-    @Transient
-    private String currentPassword;
+	@Transient
+	private String currentPassword;
 
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    @Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
-    private String password;
+	@NotBlank(message = "Pole to musi być wypełnione!")
+	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
+	private String password;
 
-    @Transient
-    private String confirmPassword;
+	@Transient
+	private String confirmPassword;
 
-    private String role;
-    private boolean isEnabled;
+	private String role;
+	private boolean isEnabled;
 
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    private String firstName;
+	@NotBlank(message = "Pole to musi być wypełnione!")
+	@Email(message = "Niepoprawny adres email!")
+	private String email;
 
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    private String lastName;
+	public User() {
+	}
 
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    @Email(message = "Niepoprawny adres email!")
-    private String email;
+	public User(Long id, String username, String password, String role, boolean isEnabled, String email) {
+		this.id = id;
+		this.username = username;
+		this.password = password;
+		this.role = role;
+		this.isEnabled = isEnabled;
+		this.email = email;
+	}
 
-    public User() {
-    }
+	public User(Long id, String username, String currentPassword, String password, String confirmPassword, String role, boolean isEnabled, String email) {
+		this.id = id;
+		this.username = username;
+		this.currentPassword = currentPassword;
+		this.password = password;
+		this.confirmPassword = confirmPassword;
+		this.role = role;
+		this.isEnabled = isEnabled;
+		this.email = email;
+	}
 
-    public User(Long id, String username, String password, String role, boolean isEnabled, String firstName, String lastName, String email) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.role = role;
-        this.isEnabled = isEnabled;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public User(Long id, String username, String currentPassword, String password, String confirmPassword, String role, boolean isEnabled, String firstName, String lastName, String email) {
-        this.id = id;
-        this.username = username;
-        this.currentPassword = currentPassword;
-        this.password = password;
-        this.confirmPassword = confirmPassword;
-        this.role = role;
-        this.isEnabled = isEnabled;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public void setUsername(String username) {
+		this.username = username;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public void setPassword(String password) {
+		this.password = password;
+	}
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+	public String getRole() {
+		return role;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void setRole(String role) {
+		this.role = role;
+	}
 
-    public String getRole() {
-        return role;
-    }
+	public void setEnabled(boolean isEnabled) {
+		this.isEnabled = isEnabled;
+	}
 
-    public void setRole(String role) {
-        this.role = role;
-    }
+	public String getEmail() {
+		return email;
+	}
 
-    public void setEnabled(boolean isEnabled) {
-        this.isEnabled = isEnabled;
-    }
+	public void setEmail(String email) {
+		this.email = email;
+	}
 
-    public String getFirstName() {
-        return firstName;
-    }
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return Collections.singleton(new SimpleGrantedAuthority(role));
+	}
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
+	@Override
+	public String getPassword() {
+		return password;
+	}
 
-    public String getLastName() {
-        return lastName;
-    }
+	@Override
+	public String getUsername() {
+		return username;
+	}
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
+	@Override
+	public boolean isAccountNonExpired() {
+		return true;
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	@Override
+	public boolean isAccountNonLocked() {
+		return true;
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+	@Override
+	public boolean isCredentialsNonExpired() {
+		return true;
+	}
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role));
-    }
+	@Override
+	public boolean isEnabled() {
+		return isEnabled;
+	}
 
-    @Override
-    public String getPassword() {
-        return password;
-    }
+	public String getConfirmPassword() {
+		return confirmPassword;
+	}
 
-    @Override
-    public String getUsername() {
-        return username;
-    }
+	public void setConfirmPassword(String confirmPassword) {
+		this.confirmPassword = confirmPassword;
+	}
 
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
+	public String getCurrentPassword() {
+		return currentPassword;
+	}
 
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
+	public void setCurrentPassword(String currentPassword) {
+		this.currentPassword = currentPassword;
+	}
 
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
+				+ ", email=" + email + "]";
+	}
 
-    @Override
-    public boolean isEnabled() {
-        return isEnabled;
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		User user = (User) o;
+		return isEnabled == user.isEnabled &&
+				id.equals(user.id) &&
+				username.equals(user.username) &&
+				password.equals(user.password) &&
+				role.equals(user.role) &&
+				email.equals(user.email);
+	}
 
-    public String getConfirmPassword() {
-        return confirmPassword;
-    }
-
-    public void setConfirmPassword(String confirmPassword) {
-        this.confirmPassword = confirmPassword;
-    }
-
-    public String getCurrentPassword() {
-        return currentPassword;
-    }
-
-    public void setCurrentPassword(String currentPassword) {
-        this.currentPassword = currentPassword;
-    }
-
-    @Override
-    public String toString() {
-        return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
-                + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email + "]";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return isEnabled == user.isEnabled &&
-                id.equals(user.id) &&
-                username.equals(user.username) &&
-                password.equals(user.password) &&
-                role.equals(user.role) &&
-                firstName.equals(user.firstName) &&
-                lastName.equals(user.lastName) &&
-                email.equals(user.email);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, password, role, isEnabled, firstName, lastName, email);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(id, username, password, role, isEnabled, email);
+	}
 }

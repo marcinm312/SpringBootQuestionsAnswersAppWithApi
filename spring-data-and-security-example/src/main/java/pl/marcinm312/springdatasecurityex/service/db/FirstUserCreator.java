@@ -41,8 +41,6 @@ public class FirstUserCreator {
 			user.setPassword(passwordEncoder.encode(password));
 			user.setRole(Roles.ROLE_ADMIN.name());
 			user.setEnabled(true);
-			user.setFirstName("System");
-			user.setLastName("Admin");
 			user.setEmail(email);
 			User savedUser = userRepo.save(user);
 			log.info("First user created");

@@ -27,7 +27,7 @@ public class AnswerManager {
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionRepository questionRepository,
-			MailService mailService) {
+						 MailService mailService) {
 		this.answerRepository = answerRepository;
 		this.questionRepository = questionRepository;
 		this.mailService = mailService;
@@ -128,7 +128,7 @@ public class AnswerManager {
 		User questionUser = question.getUser();
 		User answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Witaj ").append(questionUser.getFirstName()).append(" ").append(questionUser.getLastName()).append(",");
+		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",");
 		if (isNewAnswer) {
 			stringBuilder.append("<br/><br/>Użytkownik <b>").append(answerUser.getUsername()).append("</b> opublikował odpowiedź na Twoje pytanie:");
 		} else {

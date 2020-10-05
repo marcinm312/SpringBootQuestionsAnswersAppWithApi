@@ -42,20 +42,6 @@
 					class="form-text text-muted" />
 			</div>
 			<div class="form-group">
-				<label>Imię</label>
-				<form:input path="firstName" placeholder="Imię" type="text"
-					class="form-control" />
-				<form:errors path="firstName" style="color:red"
-					class="form-text text-muted" />
-			</div>
-			<div class="form-group">
-				<label>Nazwisko</label>
-				<form:input path="lastName" placeholder="Nazwisko" type="text"
-					class="form-control" />
-				<form:errors path="lastName" style="color:red"
-					class="form-text text-muted" />
-			</div>
-			<div class="form-group">
 				<label>Email</label>
 				<form:input path="email" placeholder="Email" type="text"
 					class="form-control" />

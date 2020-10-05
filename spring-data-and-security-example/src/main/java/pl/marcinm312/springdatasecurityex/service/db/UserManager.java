@@ -36,7 +36,7 @@ public class UserManager {
 
 	@Autowired
 	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
-			SessionUtils sessionUtils) {
+					   SessionUtils sessionUtils) {
 		this.userRepo = userRepo;
 		this.passwordEncoder = passwordEncoder;
 		this.tokenRepo = tokenRepo;
@@ -92,8 +92,6 @@ public class UserManager {
 		user.setId(oldUser.getId());
 		if (oldUser.getUsername().equals(user.getUsername())) {
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			user.setFirstName(oldUser.getFirstName());
-			user.setLastName(oldUser.getLastName());
 			user.setEmail(oldUser.getEmail());
 			user.setRole(oldUser.getRole());
 			user.setEnabled(true);
@@ -149,7 +147,7 @@ public class UserManager {
 	}
 
 	private String generateEmailContent(User user, String tokenValue, String appURL) {
-		return "Witaj " + user.getFirstName() + " " + user.getLastName() + "," +
+		return "Witaj " + user.getUsername() + "," +
 				"<br/><br/>Potwierdź swój adres email, klikając w poniższy link:" +
 				"<br/><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
 	}
