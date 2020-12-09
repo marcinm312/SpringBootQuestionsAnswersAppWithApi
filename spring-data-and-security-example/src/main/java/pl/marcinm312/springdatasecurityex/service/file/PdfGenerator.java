@@ -1,28 +1,19 @@
 package pl.marcinm312.springdatasecurityex.service.file;
 
-import java.awt.Color;
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.BaseFont;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import pl.marcinm312.springdatasecurityex.model.Answer;
+import pl.marcinm312.springdatasecurityex.model.Question;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
-
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import com.lowagie.text.Chunk;
-import com.lowagie.text.Document;
-import com.lowagie.text.DocumentException;
-import com.lowagie.text.Element;
-import com.lowagie.text.Font;
-import com.lowagie.text.PageSize;
-import com.lowagie.text.Paragraph;
-import com.lowagie.text.pdf.BaseFont;
-import com.lowagie.text.pdf.PdfPCell;
-import com.lowagie.text.pdf.PdfPTable;
-import com.lowagie.text.pdf.PdfWriter;
-
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
 
 @Service
 public class PdfGenerator {
@@ -44,24 +35,24 @@ public class PdfGenerator {
 		document.add(title);
 		document.add(Chunk.NEWLINE);
 		PdfPTable table = new PdfPTable(6);
-		createAndAddCellToTable("Id", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Tytuł", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Opis", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Data utworzenia", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Data modyfikacji", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Użytkownik", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Id", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Tytuł", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Opis", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Data utworzenia", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Data modyfikacji", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Użytkownik", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		for (Question question : questionsList) {
-			createAndAddCellToTable(question.getId().toString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(question.getTitle(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(question.getDescription(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(question.getCreatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(question.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(question.getTitle(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(question.getDescription(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(question.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
-			createAndAddCellToTable(question.getUpdatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(question.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
-			createAndAddCellToTable(question.getUser().getUsername(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(question.getUser().getUsername(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
 		}
-		int[] szerokosci = { 40, 150, 150, 120, 120, 120 };
+		int[] szerokosci = {40, 150, 150, 120, 120, 120};
 		table.setWidths(szerokosci);
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);
@@ -95,20 +86,20 @@ public class PdfGenerator {
 		document.add(questionUser);
 		document.add(Chunk.NEWLINE);
 		PdfPTable table = new PdfPTable(5);
-		createAndAddCellToTable("Id", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Treść odpowiedzi", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Data utworzenia", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Data modyfikacji", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable("Użytkownik", Color.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Id", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Treść odpowiedzi", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Data utworzenia", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Data modyfikacji", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		createAndAddCellToTable("Użytkownik", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		for (Answer answer : answersList) {
-			createAndAddCellToTable(answer.getId().toString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(answer.getText(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(answer.getCreatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(answer.getUpdatedAtAsString(), Color.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(answer.getUser().getUsername(), Color.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(answer.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(answer.getText(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(answer.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(answer.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
+			createAndAddCellToTable(answer.getUser().getUsername(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
 		}
-		int[] szerokosci = { 40, 300, 120, 120, 120 };
+		int[] szerokosci = {40, 300, 120, 120, 120};
 		table.setWidths(szerokosci);
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);
@@ -119,7 +110,7 @@ public class PdfGenerator {
 		return file;
 	}
 
-	private void createAndAddCellToTable(String text, Color color, int alignment, Font font, PdfPTable table) {
+	private void createAndAddCellToTable(String text, BaseColor color, int alignment, Font font, PdfPTable table) {
 		PdfPCell cell = new PdfPCell(new Paragraph(text, font));
 		cell.setBackgroundColor(color);
 		cell.setHorizontalAlignment(alignment);

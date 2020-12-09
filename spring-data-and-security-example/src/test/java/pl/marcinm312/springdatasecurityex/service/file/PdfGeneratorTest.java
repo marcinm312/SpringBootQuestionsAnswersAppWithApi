@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.service.file;
 
-import com.lowagie.text.DocumentException;
+import com.itextpdf.text.DocumentException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
