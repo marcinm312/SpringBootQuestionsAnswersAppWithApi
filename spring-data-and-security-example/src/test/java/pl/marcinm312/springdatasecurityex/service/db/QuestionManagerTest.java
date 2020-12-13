@@ -37,8 +37,9 @@ class QuestionManagerTest {
 
 	@BeforeEach
 	void setUp() {
-		MockitoAnnotations.initMocks(this);
-		given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		MockitoAnnotations.openMocks(this);
+		given(questionRepository.findAllByOrderByIdDesc())
+				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 		doNothing().when(questionRepository).delete(isA(Question.class));
 	}
 
@@ -69,8 +70,11 @@ class QuestionManagerTest {
 	}
 
 	private static Stream<Arguments> successfullyDeletedQuestionData() {
-		return Stream.of(Arguments.of(UserDataProvider.prepareExampleGoodUser(), "deleteQuestion_userDeletesHisOwnQuestion_success"),
-				Arguments.of(UserDataProvider.prepareExampleGoodAdministrator(), "deleteQuestion_administratorDeletesAnotherUsersQuestion_success"));
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareExampleGoodUser(),
+						"deleteQuestion_userDeletesHisOwnQuestion_success"),
+				Arguments.of(UserDataProvider.prepareExampleGoodAdministrator(),
+						"deleteQuestion_administratorDeletesAnotherUsersQuestion_success"));
 	}
 
 	@Test
@@ -78,7 +82,8 @@ class QuestionManagerTest {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		User user = UserDataProvider.prepareExampleSecondGoodUser();
-		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class, () -> questionManager.deleteQuestion(1000L, user));
+		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class,
+				() -> questionManager.deleteQuestion(1000L, user));
 		Assertions.assertEquals("Change not allowed!", exception.getMessage());
 	}
 
@@ -86,7 +91,8 @@ class QuestionManagerTest {
 	void deleteQuestion_questionNotExists_throwsResourceNotFoundException() {
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		User user = UserDataProvider.prepareExampleGoodUser();
-		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class, () -> questionManager.deleteQuestion(2000L, user));
+		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class,
+				() -> questionManager.deleteQuestion(2000L, user));
 		Assertions.assertEquals("Question not found with id 2000", exception.getMessage());
 	}
 }

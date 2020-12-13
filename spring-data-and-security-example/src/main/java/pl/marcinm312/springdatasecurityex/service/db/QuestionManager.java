@@ -25,7 +25,7 @@ public class QuestionManager {
 	}
 
 	public List<Question> getQuestions() {
-		return questionRepository.findAll();
+		return questionRepository.findAllByOrderByIdDesc();
 	}
 
 	public Question getQuestion(Long questionId) {

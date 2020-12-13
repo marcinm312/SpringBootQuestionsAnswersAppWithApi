@@ -1,7 +1,7 @@
 function clearChangePasswordForm() {
-	var currentPassword = document.getElementById("currentPassword");
-	var password = document.getElementById("password");
-	var confirmPassword = document.getElementById("confirmPassword");
+	let currentPassword = document.getElementById("currentPassword");
+	let password = document.getElementById("password");
+	let confirmPassword = document.getElementById("confirmPassword");
 	currentPassword.value = "";
 	password.value = "";
 	confirmPassword.value = "";

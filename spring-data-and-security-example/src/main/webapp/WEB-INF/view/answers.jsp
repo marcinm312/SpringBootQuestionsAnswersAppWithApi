@@ -3,61 +3,74 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="pl">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<!-- Bootstrap CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link href="/css/custom.css" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+<script src="https://kit.fontawesome.com/5fab29723f.js"
+	crossorigin="anonymous"></script>
+<link rel="stylesheet"
+	href="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.css">
+<link rel="stylesheet"
+	href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
+	crossorigin="anonymous">
+<link href="/css/style.css" rel="stylesheet">
 <title>Odpowiedzi na pytanie o id: ${question.id}</title>
 </head>
 <body>
 	<div style="margin: 30px">
-		<span style='float:right'>
-			<b>Zalogowany jako:</b> ${userLogin} &nbsp;
+		<span style='float: right'> <b>Zalogowany jako:</b>
+			${userLogin} &nbsp;
 			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../myProfile/'">Mój profil</button>
+				onclick="window.location.href = '../../../myProfile/'">Mój
+				profil</button>
 			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../logout'">Wyloguj się</button>
-		</span><br/><br/>
-		<button class="btn btn-primary"
-			onclick="window.location.href = '../..'">Wróć do listy pytań</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'new/'">Dodaj odpowiedź</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'pdf-export/'">Eksportuj do PDF</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'excel-export/'">Eksportuj do Excel</button>
-		<br /> <br />
+				onclick="window.location.href = '../../../../logout'">Wyloguj
+				się</button>
+		</span><br />
 		<h1>Pytanie:</h1>
-		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br />
-		<br /> <b>Opis:</b> <br /> ${question.description} <br />
-		<br /> <b>Użytkownik:</b> <br /> ${question.user.username} <br />
-		<br />
+		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br /> <br />
+		<b>Opis:</b> <br /> ${question.description} <br /> <br /> <b>Użytkownik:</b>
+		<br /> ${question.user.username} <br /> <br />
 		<h1>Lista odpowiedzi na pytanie:</h1>
 		<br />
+		<div id="toolbar">
+			<button class="btn btn-primary"
+				onclick="window.location.href = '../..'">Wróć do listy
+				pytań</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'new/'">Dodaj odpowiedź</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'pdf-export/'">Eksportuj do
+				PDF</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'excel-export/'">Eksportuj
+				do Excel</button>
+		</div>
 		<c:choose>
 			<c:when test="${empty answerList}">
+				<br />
 				<h5>
 					<font color="red">Brak odpowiedzi na pytanie</font>
 				</h5>
 			</c:when>
 			<c:otherwise>
-				<table id="answersTable" class="table table-bordered">
+				<table data-toggle="table" data-page-size="5" data-pagination="true"
+					data-toolbar="#toolbar" data-page-list="[5,10,20,50]"
+					data-search="true" data-show-columns="true" data-locale="pl-PL"
+					data-show-columns-toggle-all="true"
+					data-show-pagination-switch="true">
 					<thead class="thead-dark">
 						<tr>
-							<th scope="col" onclick="sortTable(0,'answersTable')">Id <i
-								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(1,'answersTable')">Treść odpowiedzi <i
-								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(2,'answersTable')">Data utworzenia <i
-								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(3,'answersTable')">Data modyfikacji <i
-								class="fa fa-fw fa-sort"></i></th>
-							<th scope="col" onclick="sortTable(4,'answersTable')">Użytkownik <i
-								class="fa fa-fw fa-sort"></i></th>
+							<th scope="col" data-sortable="true">Id</th>
+							<th scope="col" data-sortable="true">Treść odpowiedzi</th>
+							<th scope="col" data-sortable="true">Data utworzenia</th>
+							<th scope="col" data-sortable="true">Data modyfikacji</th>
+							<th scope="col" data-sortable="true">Użytkownik</th>
 							<th scope="col">Opcje</th>
 						</tr>
 					</thead>
@@ -81,8 +94,22 @@
 				</table>
 			</c:otherwise>
 		</c:choose>
-
 	</div>
+
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+		crossorigin="anonymous"></script>
+	<script
+		src="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js"></script>
+	<script
+		src="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table-locale-all.min.js"></script>
 </body>
-<script type="text/javascript" src="/js/sortTable.js"></script>
 </html>

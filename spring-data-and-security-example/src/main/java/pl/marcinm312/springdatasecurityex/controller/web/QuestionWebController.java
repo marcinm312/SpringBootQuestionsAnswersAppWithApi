@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/app/questions")
@@ -52,8 +51,7 @@ public class QuestionWebController {
 	public String questionsGet(Model model, Authentication authentication) {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		List<Question> questionList = questionManager.getQuestions().stream()
-				.sorted((q1, q2) -> Long.compare(q2.getId(), q1.getId())).collect(Collectors.toList());
+		List<Question> questionList = questionManager.getQuestions();
 		log.info("questionList.size()=" + questionList.size());
 		model.addAttribute("questionList", questionList);
 		model.addAttribute("userLogin", userName);

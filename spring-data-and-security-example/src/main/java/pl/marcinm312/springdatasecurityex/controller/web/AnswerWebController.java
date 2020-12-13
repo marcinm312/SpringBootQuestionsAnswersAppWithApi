@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
@@ -60,8 +59,7 @@ public class AnswerWebController {
 		List<Answer> answerList;
 		Question question;
 		try {
-			answerList = answerManager.getAnswersByQuestionId(questionId).stream().sorted((a1, a2) -> Long.compare(a2.getId(), a1.getId()))
-					.collect(Collectors.toList());
+			answerList = answerManager.getAnswersByQuestionId(questionId);
 			log.info("answerList.size()=" + answerList.size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
