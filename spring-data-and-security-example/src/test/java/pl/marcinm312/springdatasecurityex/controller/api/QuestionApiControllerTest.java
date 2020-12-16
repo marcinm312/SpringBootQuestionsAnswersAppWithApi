@@ -17,6 +17,8 @@ import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 
@@ -29,8 +31,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @ExtendWith(SpringExtension.class)
 class QuestionApiControllerTest {
@@ -56,7 +58,10 @@ class QuestionApiControllerTest {
 		given(questionRepository.findAllByOrderByIdDesc())
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 		doNothing().when(questionRepository).delete(isA(Question.class));
-		this.mockMvc = MockMvcBuilders.standaloneSetup(new QuestionApiController(questionManager, userManager))
+
+		ExcelGenerator excelGenerator = new ExcelGenerator();
+		PdfGenerator pdfGenerator = new PdfGenerator();
+		this.mockMvc = MockMvcBuilders.standaloneSetup(new QuestionApiController(questionManager, pdfGenerator, excelGenerator, userManager))
 				.alwaysDo(print()).build();
 	}
 
@@ -197,5 +202,25 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@Test
+	void downloadPdf_simpleCase_success() throws Exception {
+		mockMvc.perform(get("/api/questions/pdf-export")
+				.principal(authentication))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.pdf\""))
+				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	@Test
+	void downloadExcel_simpleCase_success() throws Exception {
+		mockMvc.perform(get("/api/questions/excel-export")
+				.principal(authentication))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.xlsx\""))
+				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
 }

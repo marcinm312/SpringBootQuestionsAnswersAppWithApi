@@ -3,10 +3,7 @@ package pl.marcinm312.springdatasecurityex.controller.web;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,11 +20,11 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.service.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 @Controller
@@ -197,11 +194,7 @@ public class AnswerWebController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
-		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
-		return ResponseEntity.ok().contentLength(file.length())
-				.contentType(MediaType.parseMediaType("application/octet-stream"))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-				.body(resource);
+		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
@@ -215,10 +208,6 @@ public class AnswerWebController {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
-		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
-		return ResponseEntity.ok().contentLength(file.length())
-				.contentType(MediaType.parseMediaType("application/octet-stream"))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
-				.body(resource);
+		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 }
