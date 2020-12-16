@@ -18,46 +18,39 @@
 <title>Rejestracja użytkownika</title>
 </head>
 <body>
-	<div style="margin: 30px">
+	<div class="wrapper">
 		<h1>Utwórz nowe konto</h1>
-		<br /> Po rejestracji, otrzymasz maila, dzięki któremu będziesz mógł
-		aktywować swoje konto. Bez aktywacji konta, zalogowanie się na nowe
-		konto nie jest możliwe. <br />
-		<br />
+		<p class="message">Po rejestracji, otrzymasz maila, dzięki któremu
+			będziesz mógł aktywować swoje konto. Bez aktywacji konta, zalogowanie
+			się na nowe konto nie jest możliwe.</p>
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
 				<label>Login</label>
-				<form:input path="username" placeholder="Login" type="text"
-					class="form-control" />
-				<form:errors path="username" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="username" type="text" class="form-control" />
+				<form:errors path="username" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Hasło</label>
-				<form:input path="password" placeholder="Hasło" type="password"
-					class="form-control" />
-				<form:errors path="password" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="password" type="password" class="form-control" />
+				<form:errors path="password" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Potwierdź hasło</label>
-				<form:input path="confirmPassword" placeholder="Potwierdź hasło"
-					type="password" class="form-control" />
-				<form:errors path="confirmPassword" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="confirmPassword" type="password"
+					class="form-control" />
+				<form:errors path="confirmPassword" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Email</label>
-				<form:input path="email" placeholder="Email" type="text"
-					class="form-control" />
-				<form:errors path="email" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="email" type="text" class="form-control" />
+				<form:errors path="email" class="form-text text-muted" />
 			</div>
-			<br />
-			<form:button type="submit" class="btn btn-success">Utwórz</form:button>
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Utwórz</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '..'">Anuluj</button>
+			</div>
 		</form:form>
-		<br />
-		<button class="btn btn-danger" onclick="window.location.href = '..'">Anuluj</button>
 	</div>
 </body>
 </html>

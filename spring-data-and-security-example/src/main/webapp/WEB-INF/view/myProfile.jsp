@@ -18,29 +18,44 @@
 <title>Mój profil</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
+		<h1>Mój profil</h1>
+		<div class="toolbar">
 			<button class="btn btn-primary"
-				onclick="window.location.href = '../../logout'">Wyloguj się</button>
-		</span><br />
-		<h1>Mój profil:</h1>
-		<br />
-		<button class="btn btn-primary"
-			onclick="window.location.href = '../questions/'">Przejdź do
-			listy pytań</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'update/'">Edytuj profil</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'updatePassword/'">Zmień
-			hasło</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'delete/'">Usuń moje konto</button>
-		<button class="btn btn-primary"
-			onclick="window.location.href = 'endOtherSessions/'">Wyloguj
-			mnie z innych urządzeń</button>
-		<br /> <br /> <b>Login:</b> <br /> ${user.username} <br /> <br />
-		<b>Email:</b> <br /> ${user.email} <br />
+				onclick="window.location.href = '../questions/'">Przejdź do
+				listy pytań</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'update/'">Edytuj profil</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'updatePassword/'">Zmień
+				hasło</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'delete/'">Usuń moje konto</button>
+			<button class="btn btn-primary"
+				onclick="window.location.href = 'endOtherSessions/'">Wyloguj
+				mnie z innych urządzeń</button>
+		</div>
+		<div class="section">
+			<p>
+				<span class="bold">Login:</span><br> ${user.username}
+			</p>
+			<p>
+				<span class="bold">Email:</span><br> ${user.email}
+			</p>
+		</div>
 	</div>
 </body>
 </html>

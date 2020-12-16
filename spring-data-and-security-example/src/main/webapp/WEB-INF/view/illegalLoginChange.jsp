@@ -18,12 +18,18 @@
 <title>Niedozwolona zmiana loginu</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'><b>Zalogowany jako:</b> ${userLogin}</span><br />
-		<br />
-		<button class="btn btn-primary" onclick="window.location.href = '..'">Wróć</button>
-		<br /> <br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+			</div>
+		</div>
 		<h1>Niedozwolona zmiana loginu użytkownika!</h1>
+		<div class="messagebuttons">
+			<button class="btn btn-primary" onclick="window.location.href = '..'">Wróć</button>
+		</div>
 	</div>
 </body>
 </html>

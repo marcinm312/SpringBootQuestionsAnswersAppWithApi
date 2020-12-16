@@ -22,22 +22,37 @@
 <title>Odpowiedzi na pytanie o id: ${question.id}</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../myProfile/'">Mój
-				profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../logout'">Wyloguj
-				się</button>
-		</span><br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../myProfile/'">Mój
+						profil</button>
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
 		<h1>Pytanie:</h1>
-		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br /> <br />
-		<b>Opis:</b> <br /> ${question.description} <br /> <br /> <b>Użytkownik:</b>
-		<br /> ${question.user.username} <br /> <br />
-		<h1>Lista odpowiedzi na pytanie:</h1>
-		<br />
+		<div class="section">
+			<p>
+				<span class="bold">Tytuł pytania:</span><br> ${question.title}
+			</p>
+			<p>
+				<span class="bold">Opis:</span><br> ${question.description}
+			</p>
+			<p>
+				<span class="bold">Użytkownik:</span><br>
+				${question.user.username}
+			</p>
+		</div>
+		<h1>Lista odpowiedzi:</h1>
 		<div id="toolbar">
 			<button class="btn btn-primary"
 				onclick="window.location.href = '../..'">Wróć do listy
@@ -53,10 +68,7 @@
 		</div>
 		<c:choose>
 			<c:when test="${empty answerList}">
-				<br />
-				<h5>
-					<font color="red">Brak odpowiedzi na pytanie</font>
-				</h5>
+				<p class="empty">Brak odpowiedzi na pytanie</p>
 			</c:when>
 			<c:otherwise>
 				<table data-toggle="table" data-page-size="5" data-pagination="true"

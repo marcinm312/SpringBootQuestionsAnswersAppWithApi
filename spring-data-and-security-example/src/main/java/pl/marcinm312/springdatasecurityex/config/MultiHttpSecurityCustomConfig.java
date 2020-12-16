@@ -18,50 +18,43 @@ import org.springframework.security.web.session.HttpSessionEventPublisher;
 @EnableWebSecurity
 public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+	@Bean
+	public PasswordEncoder getPasswordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
 
-    @Configuration
-    @Order(1)
-    public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	@Configuration
+	@Order(1)
+	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-        protected void configure(HttpSecurity http) throws Exception {
-            http.
-                    antMatcher("/api/**").authorizeRequests()
-                    .anyRequest().authenticated()
-                    .and().httpBasic()
-                    .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                    .and().csrf().disable();
-        }
-    }
+		protected void configure(HttpSecurity http) throws Exception {
+			http.antMatcher("/api/**").authorizeRequests().anyRequest().authenticated().and().httpBasic().and()
+					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
+		}
+	}
 
-    @Configuration
-    @Order(2)
-    public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	@Configuration
+	@Order(2)
+	public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
-        @Override
-        protected void configure(HttpSecurity http) throws Exception {
-            http
-                    .antMatcher("/**").authorizeRequests()
-                    .antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/").permitAll()
-                    .anyRequest().authenticated()
-                    .and().formLogin().permitAll()
-                    .and().logout().permitAll()
-                    .logoutSuccessUrl("/")
-                    .and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false)
-                    .expiredUrl("/login").sessionRegistry(sessionRegistry());
-        }
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			http.antMatcher("/**").authorizeRequests()
+					.antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/",
+							"/css/style.css")
+					.permitAll().anyRequest().authenticated().and().formLogin().permitAll().and().logout().permitAll()
+					.logoutSuccessUrl("/").and().sessionManagement().maximumSessions(10000)
+					.maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
+		}
 
-        @Bean
-        SessionRegistry sessionRegistry() {
-            return new SessionRegistryImpl();
-        }
+		@Bean
+		SessionRegistry sessionRegistry() {
+			return new SessionRegistryImpl();
+		}
 
-        @Bean
-        public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
-            return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
-        }
-    }
+		@Bean
+		public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
+			return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
+		}
+	}
 }

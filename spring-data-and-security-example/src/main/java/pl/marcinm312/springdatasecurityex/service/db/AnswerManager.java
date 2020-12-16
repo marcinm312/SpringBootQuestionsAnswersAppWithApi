@@ -1,8 +1,13 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
+import java.util.List;
+
+import javax.mail.MessagingException;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
@@ -12,9 +17,6 @@ import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.service.MailService;
-
-import javax.mail.MessagingException;
-import java.util.List;
 
 @Service
 public class AnswerManager {
@@ -27,7 +29,7 @@ public class AnswerManager {
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionRepository questionRepository,
-						 MailService mailService) {
+			MailService mailService) {
 		this.answerRepository = answerRepository;
 		this.questionRepository = questionRepository;
 		this.mailService = mailService;
@@ -131,16 +133,15 @@ public class AnswerManager {
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",");
 		if (isNewAnswer) {
-			stringBuilder.append("<br/><br/>Użytkownik <b>").append(answerUser.getUsername())
+			stringBuilder.append("<br><br>Użytkownik <b>").append(answerUser.getUsername())
 					.append("</b> opublikował odpowiedź na Twoje pytanie:");
 		} else {
-			stringBuilder.append("<br/><br/>Użytkownik <b>").append(answerUser.getUsername())
+			stringBuilder.append("<br><br>Użytkownik <b>").append(answerUser.getUsername())
 					.append("</b> zaktualizował odpowiedź na Twoje pytanie:");
 		}
-		stringBuilder.append("<br/><br/><b>Tytuł:</b><br/>").append(question.getTitle());
-		stringBuilder.append("<br/><br/><b>Opis:</b><br/>").append(question.getDescription());
-		stringBuilder.append("<br/><br/><br/><b>Treść odpowiedzi:</b><br/>")
-				.append(answer.getText().replace("\n", "<br/>"));
+		stringBuilder.append("<br><br><b>Tytuł:</b><br>").append(question.getTitle());
+		stringBuilder.append("<br><br><b>Opis:</b><br>").append(question.getDescription());
+		stringBuilder.append("<br><br><br><b>Treść odpowiedzi:</b><br>").append(answer.getText().replace("\n", "<br>"));
 		return stringBuilder.toString();
 	}
 }

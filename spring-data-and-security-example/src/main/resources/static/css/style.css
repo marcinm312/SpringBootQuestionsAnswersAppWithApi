@@ -1,3 +1,95 @@
-button {
-    margin: 2px;
+.clearfix::after {
+    content: "";
+    display: block;
+    clear: both;
 }
+
+.bold {
+	font-weight: bold;
+}
+
+button.btn-primary {
+    margin-bottom: 4px;
+}
+
+div.wrapper {
+	margin: 30px;
+}
+
+div.usertoolbar {
+	margin-bottom: 5px;
+}
+
+h1 {
+	margin-bottom: 20px;
+}
+
+body {
+	line-height: 1.25;
+}
+
+p.message {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+div.messagebuttons {
+	margin-top: 30px;
+}
+
+.right {
+	float: right;
+}
+
+div.group {
+	display: inline-block;
+}
+
+div.usertoolbar p {
+	margin-right: 4px;
+	display: inline-block;
+}
+
+div.toolbar {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#toolbar {
+	margin-right: 4px;
+}
+
+div.section {
+	margin-top: 20px;
+}
+
+form {
+	max-width: 600px;
+}
+
+p.empty {
+	margin-top: 20px;
+	font-size: 20px;
+	color: red;
+}
+
+div.deleteuser {
+	margin-top: 20px;
+}
+
+div.formbuttons {
+	margin-top: 30px;
+}
+
+@media (max-width:414px) {
+	div.wrapper {
+		margin: 10px;
+	}
+}
+
+@media (max-width:320px) {
+	div.wrapper {
+		margin: 5px;
+	}
+}
+	

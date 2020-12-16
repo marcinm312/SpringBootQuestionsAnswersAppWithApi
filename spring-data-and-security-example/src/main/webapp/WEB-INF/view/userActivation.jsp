@@ -18,11 +18,12 @@
 <title>Aktywacja użytkownika</title>
 </head>
 <body>
-	<div style="margin: 30px">
+	<div class="wrapper">
 		<h1>Użytkownik został aktywowany</h1>
-		<br />
-		<button class="btn btn-primary" onclick="window.location.href = '..'">Przejdź
-			do strony głównej</button>
+		<div class="messagebuttons">
+			<button class="btn btn-primary" onclick="window.location.href = '..'">Przejdź
+				do strony głównej</button>
+		</div>
 	</div>
 </body>
 </html>

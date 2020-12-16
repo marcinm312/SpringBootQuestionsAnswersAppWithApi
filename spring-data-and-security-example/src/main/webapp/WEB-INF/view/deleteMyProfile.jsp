@@ -18,23 +18,35 @@
 <title>Usuwanie konta</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../logout'">Wyloguj
-				się</button>
-		</span><br />
-		<h1>Usuwanie konta</h1>
-		<br />Czy na pewno chcesz usunąć swoje konto użytkownika? <br /> <br />
-		<b>Czynność jest nieodwracalna i spowoduje usunięcie wszystkich
-			Twoich wpisów!</b> <br /> <br />
-		<form:form method="post" modelAttribute="user">
-			<form:button type="submit" class="btn btn-success">Usuń</form:button>
-		</form:form>
-		<br />
-		<button class="btn btn-danger" onclick="window.location.href = '..'">Anuluj</button>
-	</div>
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
 
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
+		<h1>Usuwanie konta</h1>
+		<div class="deleteuser">
+			<p>Czy na pewno chcesz usunąć swoje konto użytkownika?</p>
+			<p>
+				<span class="bold">Czynność jest nieodwracalna i spowoduje
+					usunięcie wszystkich Twoich wpisów!</span>
+			</p>
+		</div>
+		<form:form method="post" modelAttribute="user">
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Usuń</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '..'">Anuluj</button>
+			</div>
+		</form:form>
+	</div>
 </body>
 </html>

@@ -1,5 +1,11 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.mail.MessagingException;
+
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
@@ -17,11 +24,6 @@ import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.SessionUtils;
-
-import javax.mail.MessagingException;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
 
 @Service
 public class UserManager {
@@ -36,7 +38,7 @@ public class UserManager {
 
 	@Autowired
 	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
-					   SessionUtils sessionUtils) {
+			SessionUtils sessionUtils) {
 		this.userRepo = userRepo;
 		this.passwordEncoder = passwordEncoder;
 		this.tokenRepo = tokenRepo;
@@ -147,8 +149,7 @@ public class UserManager {
 	}
 
 	private String generateEmailContent(User user, String tokenValue, String appURL) {
-		return "Witaj " + user.getUsername() + "," +
-				"<br/><br/>Potwierdź swój adres email, klikając w poniższy link:" +
-				"<br/><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
+		return "Witaj " + user.getUsername() + "," + "<br><br>Potwierdź swój adres email, klikając w poniższy link:"
+				+ "<br><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
 	}
 }

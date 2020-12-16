@@ -18,11 +18,16 @@
 <title>Nie znaleziono</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'><b>Zalogowany jako:</b> ${userLogin}</span><br />
-		<br /> <br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+			</div>
+		</div>
 		<h1>Nie znaleziono zasobu</h1>
-		<br />${message}
+		<p class="message">${message}</p>
 	</div>
 </body>
 </html>

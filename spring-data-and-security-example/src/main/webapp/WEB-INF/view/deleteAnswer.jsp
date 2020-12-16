@@ -18,29 +18,47 @@
 <title>Usuwanie odpowiedzi o id: ${answer.id}</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../../myProfile/'">Mój
-				profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../../../logout'">Wyloguj
-				się</button>
-		</span><br />
-		<h1>Pytanie:</h1>
-		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br /> <br />
-		<b>Opis:</b> <br /> ${question.description} <br /> <br /> <b>Użytkownik:</b>
-		<br /> ${question.user.username} <br /> <br />
-		<h1>Usuwanie odpowiedzi o id: ${answer.id}</h1>
-		<br /> <b>Odpowiedź:</b> <br /> ${answer.text} <br /> <br />
-		<form:form method="post" modelAttribute="answer">
-			<form:button type="submit" class="btn btn-success">Usuń</form:button>
-		</form:form>
-		<br />
-		<button class="btn btn-danger"
-			onclick="window.location.href = '../..'">Anuluj</button>
-	</div>
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
 
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../../myProfile/'">Mój
+						profil</button>
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
+		<h1>Pytanie:</h1>
+		<div class="section">
+			<p>
+				<span class="bold">Tytuł pytania:</span><br> ${question.title}
+			</p>
+			<p>
+				<span class="bold">Opis:</span><br> ${question.description}
+			</p>
+			<p>
+				<span class="bold">Użytkownik:</span><br>
+				${question.user.username}
+			</p>
+		</div>
+		<h1>Usuwanie odpowiedzi o id: ${answer.id}</h1>
+		<p>
+			<span class="bold">Odpowiedź:</span><br> ${answer.text}
+		</p>
+		<form:form method="post" modelAttribute="answer">
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Usuń</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '../..'">Anuluj</button>
+			</div>
+		</form:form>
+	</div>
 </body>
 </html>

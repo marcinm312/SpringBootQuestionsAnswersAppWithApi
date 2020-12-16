@@ -18,54 +18,56 @@
 <title>Edycja profilu</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../logout'">Wyloguj
-				się</button>
-		</span><br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
 		<h1>Edycja profilu</h1>
-		<br /> <b>Zmiana loginu spowoduje wylogowanie użytkownika!</b> <br />
-		<br />
+		<p class="message">
+			<span class="bold">Zmiana loginu spowoduje wylogowanie
+				użytkownika!</span>
+		</p>
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
-				<form:input path="id" placeholder="Id" type="hidden"
-					class="form-control" />
-				<form:errors path="id" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="id" type="hidden" class="form-control" />
+				<form:errors path="id" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Login</label>
-				<form:input path="username" placeholder="Login" type="text"
-					class="form-control" />
-				<form:errors path="username" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="username" type="text" class="form-control" />
+				<form:errors path="username" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
-				<form:input path="password" placeholder="Hasło" type="hidden"
+				<form:input path="password" type="hidden" class="form-control"
+					value="password" />
+				<form:errors path="password" class="form-text text-muted" />
+			</div>
+			<div class="form-group">
+				<form:input path="confirmPassword" type="hidden"
 					class="form-control" value="password" />
-				<form:errors path="password" style="color:red"
-					class="form-text text-muted" />
-			</div>
-			<div class="form-group">
-				<form:input path="confirmPassword" placeholder="Potwierdź hasło"
-					type="hidden" class="form-control" value="password" />
-				<form:errors path="confirmPassword" style="color:red"
-					class="form-text text-muted" />
+				<form:errors path="confirmPassword" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Email</label>
-				<form:input path="email" placeholder="Email" type="text"
-					class="form-control" />
-				<form:errors path="email" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="email" type="text" class="form-control" />
+				<form:errors path="email" class="form-text text-muted" />
 			</div>
-			<br />
-			<form:button type="submit" class="btn btn-success">Zapisz</form:button>
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Zapisz</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '..'">Anuluj</button>
+			</div>
 		</form:form>
-		<br />
-		<button class="btn btn-danger" onclick="window.location.href = '..'">Anuluj</button>
 	</div>
 </body>
 </html>

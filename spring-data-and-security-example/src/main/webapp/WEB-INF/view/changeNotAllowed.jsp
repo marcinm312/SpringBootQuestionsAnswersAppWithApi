@@ -18,14 +18,21 @@
 <title>Brak uprawnień</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'><b>Zalogowany jako:</b> ${userLogin}</span><br />
-		<br />
-		<button class="btn btn-primary"
-			onclick="window.location.href = '../..'">Wróć</button>
-		<br /> <br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+			</div>
+		</div>
 		<h1>Brak uprawnień do wykonania operacji</h1>
-		<br />Użytkownik może modyfikować lub usuwać tylko swoje wpisy
+		<p class="message">Użytkownik może modyfikować lub usuwać
+			tylko swoje wpisy</p>
+		<div class="messagebuttons">
+			<button class="btn btn-primary"
+				onclick="window.location.href = '../..'">Wróć</button>
+		</div>
 	</div>
 </body>
 </html>

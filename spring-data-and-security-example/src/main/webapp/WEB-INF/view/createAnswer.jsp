@@ -18,37 +18,51 @@
 <title>Dodawanie odpowiedzi na pytanie o id: ${question.id}</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../myProfile/'">Mój
-				profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../../logout'">Wyloguj
-				się</button>
-		</span><br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../myProfile/'">Mój
+						profil</button>
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
 		<h1>Pytanie:</h1>
-		<br /> <b>Tytuł pytania:</b> <br /> ${question.title} <br /> <br />
-		<b>Opis:</b> <br /> ${question.description} <br /> <br /> <b>Użytkownik:</b>
-		<br /> ${question.user.username} <br /> <br />
+		<div class="section">
+			<p>
+				<span class="bold">Tytuł pytania:</span><br> ${question.title}
+			</p>
+			<p>
+				<span class="bold">Opis:</span><br> ${question.description}
+			</p>
+			<p>
+				<span class="bold">Użytkownik:</span><br>
+				${question.user.username}
+			</p>
+		</div>
 		<h1>Twoja odpowiedź:</h1>
-		<br /> Autor pytania otrzyma powiadomienie mailowe o każdej Twojej
-		opublikowanej odpowiedzi. <br />
-		<br />
+		<p class="message">Autor pytania otrzyma powiadomienie mailowe o
+			każdej Twojej opublikowanej odpowiedzi.</p>
 		<form:form method="post" modelAttribute="answer">
 			<div class="form-group">
 				<label>Odpowiedź:</label>
-				<form:textarea path="text" placeholder="Odpowiedź" type="text"
-					class="form-control" rows="3" />
-				<form:errors path="text" style="color:red"
-					class="form-text text-muted" />
+				<form:textarea path="text" type="text" class="form-control" rows="3" />
+				<form:errors path="text" class="form-text text-muted" />
 			</div>
-			<br />
-			<form:button type="submit" class="btn btn-success">Dodaj</form:button>
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Dodaj</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '..'">Anuluj</button>
+			</div>
 		</form:form>
-		<br />
-		<button class="btn btn-danger" onclick="window.location.href = '..'">Anuluj</button>
 	</div>
 </body>
 </html>

@@ -22,16 +22,24 @@
 <title>Lista pytań</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../myProfile/'">Mój profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../logout'">Wyloguj się</button>
-		</span><br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../myProfile/'">Mój
+						profil</button>
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
 		<h1>Lista pytań:</h1>
-		<br />
 		<div id="toolbar">
 			<button class="btn btn-primary"
 				onclick="window.location.href = 'new/'">Utwórz nowe pytanie</button>
@@ -44,10 +52,7 @@
 		</div>
 		<c:choose>
 			<c:when test="${empty questionList}">
-				<br />
-				<h5>
-					<font color="red">Brak pytań</font>
-				</h5>
+				<p class="empty">Brak pytań</p>
 			</c:when>
 			<c:otherwise>
 				<table data-toggle="table" data-page-size="5" data-pagination="true"

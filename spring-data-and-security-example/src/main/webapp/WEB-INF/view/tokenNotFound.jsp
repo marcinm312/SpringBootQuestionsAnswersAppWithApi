@@ -18,11 +18,12 @@
 <title>Nie znaleziono tokenu</title>
 </head>
 <body>
-	<div style="margin: 30px">
+	<div class="wrapper">
 		<h1>Nie znaleziono tokenu</h1>
-		<br />
-		<button class="btn btn-primary" onclick="window.location.href = '..'">Przejdź
-			do strony głównej</button>
+		<div class="messagebuttons">
+			<button class="btn btn-primary" onclick="window.location.href = '..'">Przejdź
+				do strony głównej</button>
+		</div>
 	</div>
 </body>
 </html>

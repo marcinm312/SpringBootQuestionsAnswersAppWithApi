@@ -18,39 +18,44 @@
 <title>Edytowanie pytania o id: ${oldQuestion.id}</title>
 </head>
 <body>
-	<div style="margin: 30px">
-		<span style='float: right'> <b>Zalogowany jako:</b>
-			${userLogin} &nbsp;
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../myProfile/'">Mój
-				profil</button>
-			<button class="btn btn-primary"
-				onclick="window.location.href = '../../../../logout'">Wyloguj
-				się</button>
-		</span><br />
+	<div class="wrapper">
+		<div class="usertoolbar clearfix">
+			<div class="right">
+				<p>
+					<span class="bold">Zalogowany jako:</span> ${userLogin}
+				</p>
+
+				<div class="group">
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../myProfile/'">Mój
+						profil</button>
+					<button class="btn btn-primary"
+						onclick="window.location.href = '../../../../logout'">Wyloguj
+						się</button>
+				</div>
+			</div>
+		</div>
 		<h1>Edytowanie pytania o id: ${oldQuestion.id}</h1>
-		<br /> Za każdym razem, kiedy ktoś opublikuje lub zmieni odpowiedź na
-		Twoje pytanie, zostaniesz powiadomiony o tym mailowo. <br />
-		<br />
+		<p class="message">Za każdym razem, kiedy ktoś opublikuje lub
+			zmieni odpowiedź na Twoje pytanie, zostaniesz powiadomiony o tym
+			mailowo.</p>
 		<form:form method="post" modelAttribute="question">
 			<div class="form-group">
 				<label>Tytuł pytania:</label>
-				<form:input path="title" placeholder="Tytuł pytania" type="text"
-					class="form-control" />
-				<form:errors path="title" style="color:red"
-					class="form-text text-muted" />
+				<form:input path="title" type="text" class="form-control" />
+				<form:errors path="title" class="form-text text-muted" />
 			</div>
 			<div class="form-group">
 				<label>Opis pytania:</label>
-				<form:textarea path="description" placeholder="Opis pytania"
-					type="text" class="form-control" rows="3" />
+				<form:textarea path="description" type="text" class="form-control"
+					rows="3" />
 			</div>
-			<br />
-			<form:button type="submit" class="btn btn-success">Zapisz</form:button>
+			<div class="formbuttons">
+				<form:button type="submit" class="btn btn-success">Zapisz</form:button>
+				<button type="button" class="btn btn-danger"
+					onclick="window.location.href = '../..'">Anuluj</button>
+			</div>
 		</form:form>
-		<br />
-		<button class="btn btn-danger"
-			onclick="window.location.href = '../..'">Anuluj</button>
 	</div>
 </body>
 </html>

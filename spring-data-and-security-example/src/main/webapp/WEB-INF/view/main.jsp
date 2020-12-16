@@ -18,15 +18,17 @@
 <title>Strona główna</title>
 </head>
 <body>
-	<div style="margin: 30px">
+	<div class="wrapper">
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'app/questions/'">Przejdź do
 			listy pytań</button>
 		<button class="btn btn-primary"
 			onclick="window.location.href = 'register'">Zarejestruj się</button>
-		<br />
-		<br /> Aby przejść do listy pytań, niezbędne będzie zalogowanie się.
-		Jeżeli nie posiadasz konta, kliknij przycisk <b>Zarejestruj się</b>
+		<p class="message">
+			Aby przejść do listy pytań, niezbędne będzie zalogowanie się. Jeżeli
+			nie posiadasz konta, kliknij przycisk <span class="bold">Zarejestruj
+				się</span>
+		</p>
 	</div>
 </body>
 </html>
