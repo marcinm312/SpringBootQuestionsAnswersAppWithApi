@@ -19,7 +19,7 @@
 </head>
 <body>
 	<div class="wrapper">
-		<h1>Utwórz nowe konto</h1>
+		<h1>Rejestracja użytkownika</h1>
 		<p class="message">Po rejestracji, otrzymasz maila, dzięki któremu
 			będziesz mógł aktywować swoje konto. Bez aktywacji konta, zalogowanie
 			się na nowe konto nie jest możliwe.</p>

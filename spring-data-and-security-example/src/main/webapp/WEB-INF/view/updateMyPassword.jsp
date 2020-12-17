@@ -15,7 +15,7 @@
 	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
 	crossorigin="anonymous">
 <link href="/css/style.css" rel="stylesheet">
-<title>Edycja profilu</title>
+<title>Zmiana hasła</title>
 </head>
 <body onload="clearChangePasswordForm()">
 	<div class="wrapper">
@@ -32,7 +32,7 @@
 				</div>
 			</div>
 		</div>
-		<h1>Edycja profilu</h1>
+		<h1>Zmiana hasła</h1>
 		<form:form method="post" modelAttribute="user2">
 			<div class="form-group">
 				<form:input path="id" type="hidden" class="form-control" />

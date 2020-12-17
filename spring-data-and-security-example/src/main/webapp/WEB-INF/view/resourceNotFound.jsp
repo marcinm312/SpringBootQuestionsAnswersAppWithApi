@@ -15,7 +15,7 @@
 	integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
 	crossorigin="anonymous">
 <link href="/css/style.css" rel="stylesheet">
-<title>Nie znaleziono</title>
+<title>Nie znaleziono zasobu</title>
 </head>
 <body>
 	<div class="wrapper">
