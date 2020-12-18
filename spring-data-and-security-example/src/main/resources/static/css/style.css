@@ -81,6 +81,10 @@ div.formbuttons {
 	margin-top: 30px;
 }
 
+span.text-muted {
+    color: red !important;
+}
+
 @media (max-width:414px) {
 	div.wrapper {
 		margin: 15px;
