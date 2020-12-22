@@ -55,7 +55,7 @@
 			<div class="form-group">
 				<label>Odpowiedź:</label>
 				<form:textarea path="text" type="text" class="form-control" rows="3" />
-				<form:errors path="text" class="form-text text-muted" />
+				<form:errors path="text" class="form-text" />
 			</div>
 			<div class="formbuttons">
 				<form:button type="submit" class="btn btn-success">Zapisz</form:button>

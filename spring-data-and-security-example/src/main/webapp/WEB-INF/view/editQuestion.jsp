@@ -43,7 +43,7 @@
 			<div class="form-group">
 				<label>Tytuł pytania:</label>
 				<form:input path="title" type="text" class="form-control" />
-				<form:errors path="title" class="form-text text-muted" />
+				<form:errors path="title" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Opis pytania:</label>

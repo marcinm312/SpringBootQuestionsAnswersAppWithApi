@@ -36,33 +36,33 @@
 		<form:form method="post" modelAttribute="user2">
 			<div class="form-group">
 				<form:input path="id" type="hidden" class="form-control" />
-				<form:errors path="id" class="form-text text-muted" />
+				<form:errors path="id" class="form-text" />
 			</div>
 			<div class="form-group">
 				<form:input path="username" type="hidden" class="form-control" />
-				<form:errors path="username" class="form-text text-muted" />
+				<form:errors path="username" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Obecne hasło</label>
 				<form:input id="currentPassword" path="currentPassword"
 					type="password" class="form-control" />
-				<form:errors path="currentPassword" class="form-text text-muted" />
+				<form:errors path="currentPassword" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Hasło</label>
 				<form:input id="password" path="password" type="password"
 					class="form-control" value="" />
-				<form:errors path="password" class="form-text text-muted" />
+				<form:errors path="password" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Potwierdź hasło</label>
 				<form:input id="confirmPassword" path="confirmPassword"
 					type="password" class="form-control" />
-				<form:errors path="confirmPassword" class="form-text text-muted" />
+				<form:errors path="confirmPassword" class="form-text" />
 			</div>
 			<div class="form-group">
 				<form:input path="email" type="hidden" class="form-control" />
-				<form:errors path="email" class="form-text text-muted" />
+				<form:errors path="email" class="form-text" />
 			</div>
 			<div class="formbuttons">
 				<form:button type="submit" class="btn btn-success">Zapisz</form:button>

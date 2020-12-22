@@ -27,23 +27,23 @@
 			<div class="form-group">
 				<label>Login</label>
 				<form:input path="username" type="text" class="form-control" />
-				<form:errors path="username" class="form-text text-muted" />
+				<form:errors path="username" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Hasło</label>
 				<form:input path="password" type="password" class="form-control" />
-				<form:errors path="password" class="form-text text-muted" />
+				<form:errors path="password" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Potwierdź hasło</label>
 				<form:input path="confirmPassword" type="password"
 					class="form-control" />
-				<form:errors path="confirmPassword" class="form-text text-muted" />
+				<form:errors path="confirmPassword" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Email</label>
 				<form:input path="email" type="text" class="form-control" />
-				<form:errors path="email" class="form-text text-muted" />
+				<form:errors path="email" class="form-text" />
 			</div>
 			<div class="formbuttons">
 				<form:button type="submit" class="btn btn-success">Utwórz</form:button>
