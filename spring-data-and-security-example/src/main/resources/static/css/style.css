@@ -89,11 +89,23 @@ span.form-text {
 	div.wrapper {
 		margin: 15px;
 	}
+	input.search-input {
+        width: 200px;
+    }
+}
+
+@media (max-width:360px) {
+	input.search-input {
+	    width: 180px;
+	}
 }
 
 @media (max-width:320px) {
 	div.wrapper {
 		margin: 5px;
+	}
+	input.search-input {
+	    width: 160px;
 	}
 }
 	
