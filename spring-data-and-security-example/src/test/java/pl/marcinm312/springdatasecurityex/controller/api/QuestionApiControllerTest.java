@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
@@ -24,7 +23,6 @@ import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
-import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
@@ -39,6 +37,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -49,8 +48,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(QuestionApiController.class)
-@ComponentScan(basePackages = "pl.marcinm312.springdatasecurityex.controller.api")
-@MockBeans({@MockBean(AnswerManager.class)})
+@ComponentScan(basePackageClasses = QuestionApiController.class,
+		useDefaultFilters = false,
+		includeFilters = {
+				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionApiController.class)
+		})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.ApiWebSecurityConfigurationAdapter.class})
 class QuestionApiControllerTest {
