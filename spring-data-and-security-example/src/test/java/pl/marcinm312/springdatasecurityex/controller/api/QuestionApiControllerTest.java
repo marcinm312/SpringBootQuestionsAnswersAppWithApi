@@ -54,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionApiController.class)
 		})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.ApiWebSecurityConfigurationAdapter.class})
+@Import({MultiHttpSecurityCustomConfig.class})
 class QuestionApiControllerTest {
 
 	private MockMvc mockMvc;
