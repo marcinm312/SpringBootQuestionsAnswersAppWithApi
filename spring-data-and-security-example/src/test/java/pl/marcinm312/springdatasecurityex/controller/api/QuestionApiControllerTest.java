@@ -78,6 +78,7 @@ class QuestionApiControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(Question.class));
+
 		this.mockMvc =
 				MockMvcBuilders
 						.webAppContextSetup(this.webApplicationContext)
