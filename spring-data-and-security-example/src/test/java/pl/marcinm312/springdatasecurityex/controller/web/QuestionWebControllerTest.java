@@ -50,7 +50,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = QuestionWebController.class)
 @ContextConfiguration(classes = {QuestionWebController.class})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.FormLoginWebSecurityConfigurationAdapter.class})
+@Import({MultiHttpSecurityCustomConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
 
