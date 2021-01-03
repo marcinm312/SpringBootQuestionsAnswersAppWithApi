@@ -7,17 +7,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -28,7 +26,9 @@ import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.Question;
 import pl.marcinm312.springdatasecurityex.model.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
+import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
@@ -37,6 +37,8 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -48,8 +50,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = QuestionWebController.class)
-@ContextConfiguration(classes = {QuestionWebController.class})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
+@ComponentScan(basePackageClasses = QuestionWebController.class,
+		useDefaultFilters = false,
+		includeFilters = {
+				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
+		})
+@MockBeans({@MockBean(UserRepo.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class), @SpyBean(UserDetailsServiceImpl.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
@@ -64,9 +71,6 @@ class QuestionWebControllerTest {
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
-
-	private static final String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 
 	@BeforeEach
 	void setup() {
@@ -87,13 +91,9 @@ class QuestionWebControllerTest {
 	void createQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		mockMvc.perform(
 				post("/app/questions/new")
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken())
+						.with(csrf())
 						.param("title", questionToRequest.getTitle())
 						.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
@@ -116,17 +116,27 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void createQuestion_simpleCase_success() throws Exception {
+	void createQuestion_witCsrfInvalidToken_forbidden() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
 		mockMvc.perform(
 				post("/app/questions/new")
 						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken())
+						.with(csrf().useInvalidToken())
+						.param("title", questionToRequest.getTitle())
+						.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void createQuestion_simpleCase_success() throws Exception {
+		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+
+		mockMvc.perform(
+				post("/app/questions/new")
+						.with(user("user").password("password"))
+						.with(csrf())
 						.param("title", questionToRequest.getTitle())
 						.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
@@ -141,14 +151,10 @@ class QuestionWebControllerTest {
 	void createQuestion_emptyDescription_success() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		mockMvc.perform(
 				post("/app/questions/new")
 						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken())
+						.with(csrf())
 						.param("title", questionToRequest.getTitle())
 						.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
@@ -163,14 +169,10 @@ class QuestionWebControllerTest {
 	void createQuestion_tooShortTitle_validationErrors() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		ModelAndView modelAndView = mockMvc.perform(
 				post("/app/questions/new")
 						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken())
+						.with(csrf())
 						.param("title", questionToRequest.getTitle())
 						.param("description", questionToRequest.getDescription()))
 				.andExpect(view().name("createQuestion"))
@@ -192,14 +194,10 @@ class QuestionWebControllerTest {
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		ModelAndView modelAndView = mockMvc.perform(
 				post("/app/questions/new")
 						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken())
+						.with(csrf())
 						.param("title", questionToRequest.getTitle())
 						.param("description", questionToRequest.getDescription()))
 				.andExpect(view().name("createQuestion"))
@@ -219,13 +217,9 @@ class QuestionWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		mockMvc.perform(
 				get("/app/questions/pdf-export")
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken()))
+						.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -248,13 +242,9 @@ class QuestionWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
 		mockMvc.perform(
 				get("/app/questions/excel-export")
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken()))
+						.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
