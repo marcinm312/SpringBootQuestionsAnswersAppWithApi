@@ -233,29 +233,11 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void downloadPdf_withoutCsrfToken_success() throws Exception {
+	void downloadPdf_simpleCase_success() throws Exception {
 
 		mockMvc.perform(
 				get("/app/questions/pdf-export")
 						.with(user("user").password("password")))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.pdf\""))
-				.andExpect(header().string("Accept-Ranges", "bytes"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-	}
-
-	@Test
-	@WithMockUser(username = "user")
-	void downloadPdf_simpleCase_success() throws Exception {
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
-		mockMvc.perform(
-				get("/app/questions/pdf-export")
-						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken()))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.pdf\""))
@@ -280,28 +262,10 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void downloadExcel_withoutCsrfToken_success() throws Exception {
+	void downloadExcel_simpleCase_success() throws Exception {
 		mockMvc.perform(
 				get("/app/questions/excel-export")
 						.with(user("user").password("password")))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.xlsx\""))
-				.andExpect(header().string("Accept-Ranges", "bytes"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-	}
-
-	@Test
-	@WithMockUser(username = "user")
-	void downloadExcel_simpleCase_success() throws Exception {
-		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
-		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
-
-		mockMvc.perform(
-				get("/app/questions/excel-export")
-						.with(user("user").password("password"))
-						.sessionAttr(TOKEN_ATTR_NAME, csrfToken)
-						.param(csrfToken.getParameterName(), csrfToken.getToken()))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.xlsx\""))
