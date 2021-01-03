@@ -65,6 +65,8 @@ class QuestionWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
+	private static final String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
+
 
 	@BeforeEach
 	void setup() {
@@ -84,8 +86,6 @@ class QuestionWebControllerTest {
 	@WithAnonymousUser
 	void createQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
 
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
@@ -119,8 +119,6 @@ class QuestionWebControllerTest {
 	void createQuestion_simpleCase_success() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -143,8 +141,6 @@ class QuestionWebControllerTest {
 	void createQuestion_emptyDescription_success() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -166,8 +162,6 @@ class QuestionWebControllerTest {
 	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitle_validationErrors() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
-
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
 
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
@@ -198,8 +192,6 @@ class QuestionWebControllerTest {
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
 		Question questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -227,8 +219,6 @@ class QuestionWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -258,8 +248,6 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -278,8 +266,6 @@ class QuestionWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
@@ -308,8 +294,6 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
-		String TOKEN_ATTR_NAME = "org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository.CSRF_TOKEN";
-
 		HttpSessionCsrfTokenRepository httpSessionCsrfTokenRepository = new HttpSessionCsrfTokenRepository();
 		CsrfToken csrfToken = httpSessionCsrfTokenRepository.generateToken(new MockHttpServletRequest());
 
