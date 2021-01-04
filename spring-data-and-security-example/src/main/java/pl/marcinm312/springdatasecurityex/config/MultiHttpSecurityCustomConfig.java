@@ -30,8 +30,12 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 	@Order(1)
 	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
+		private final UserDetailsServiceImpl userDetailsService;
+
 		@Autowired
-		private UserDetailsServiceImpl userDetailsService;
+		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService) {
+			this.userDetailsService = userDetailsService;
+		}
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -39,8 +43,11 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		}
 
 		protected void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/api/**").authorizeRequests().anyRequest().authenticated().and().httpBasic().and()
-					.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable();
+			http.antMatcher("/api/**")
+					.authorizeRequests().anyRequest().authenticated()
+					.and().httpBasic()
+					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and().csrf().disable();
 		}
 	}
 
@@ -48,8 +55,12 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 	@Order(2)
 	public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
+		private final UserDetailsServiceImpl userDetailsService;
+
 		@Autowired
-		private UserDetailsServiceImpl userDetailsService;
+		public FormLoginWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService) {
+			this.userDetailsService = userDetailsService;
+		}
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -58,12 +69,13 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			http.antMatcher("/**").authorizeRequests()
-					.antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-							"/css/style.css")
-					.permitAll().anyRequest().authenticated().and().formLogin().permitAll().and().logout().permitAll()
-					.logoutSuccessUrl("/").and().sessionManagement().maximumSessions(10000)
-					.maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
+			http.antMatcher("/**")
+					.authorizeRequests().antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/",
+					"/css/style.css").permitAll()
+					.anyRequest().authenticated()
+					.and().formLogin().permitAll()
+					.and().logout().permitAll().logoutSuccessUrl("/")
+					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
 		}
 
 		@Bean
