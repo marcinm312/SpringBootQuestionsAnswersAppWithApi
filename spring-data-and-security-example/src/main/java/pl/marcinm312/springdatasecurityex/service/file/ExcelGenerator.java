@@ -10,6 +10,7 @@ import pl.marcinm312.springdatasecurityex.model.Question;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.List;
 
 @Service
@@ -21,7 +22,7 @@ public class ExcelGenerator {
 		log.info("Starting generating answers Excel file for question = " + question.toString());
 		log.info("answersList.size()=" + answersList.size());
 
-		String filePath = "files\\Odpowiedzi.xlsx";
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.xlsx";
 
 		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();
@@ -120,7 +121,7 @@ public class ExcelGenerator {
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()=" + questionsList.size());
-		String filePath = "files\\Pytania.xlsx";
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.xlsx";
 
 		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
 		Workbook workbook = new XSSFWorkbook();

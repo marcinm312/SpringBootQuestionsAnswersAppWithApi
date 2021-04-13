@@ -13,6 +13,7 @@ import pl.marcinm312.springdatasecurityex.model.Question;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.util.List;
 
 @Service
@@ -26,7 +27,7 @@ public class PdfGenerator {
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);
-		String filePath = "files\\Pytania.pdf";
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.pdf";
 		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
@@ -70,7 +71,7 @@ public class PdfGenerator {
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);
-		String filePath = "files\\Odpowiedzi.pdf";
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.pdf";
 		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
