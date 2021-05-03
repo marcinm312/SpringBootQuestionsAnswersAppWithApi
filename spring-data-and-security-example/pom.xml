@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>spring-data-and-security-example</name>
     <description>Demo project for Spring Boot</description>
+    <packaging>war</packaging>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
