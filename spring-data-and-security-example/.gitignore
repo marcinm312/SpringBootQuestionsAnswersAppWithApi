@@ -33,3 +33,4 @@ build/
 /files/*.pdf
 /files/*.xlsx
 /.run/
+/logs/
