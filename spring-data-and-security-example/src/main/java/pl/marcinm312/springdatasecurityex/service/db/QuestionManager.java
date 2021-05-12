@@ -15,6 +15,8 @@ import java.util.List;
 @Service
 public class QuestionManager {
 
+	public static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
+
 	private final QuestionRepository questionRepository;
 
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
@@ -30,12 +32,12 @@ public class QuestionManager {
 
 	public Question getQuestion(Long questionId) {
 		return questionRepository.findById(questionId)
-				.orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
+				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
 	public Question createQuestion(Question question, User user) {
 		question.setUser(user);
-		log.info("Creating question = " + question.toString());
+		log.info("Creating question = {}", question);
 		return questionRepository.save(question);
 	}
 
@@ -45,32 +47,32 @@ public class QuestionManager {
 			Long questionUserId = question.getUser().getId();
 			Long currentUserId = user.getId();
 			String currentUserRole = user.getRole();
-			log.info("questionUserId=" + questionUserId);
-			log.info("currentUserId=" + currentUserId);
-			log.info("currentUserRole=" + currentUserRole);
+			log.info("questionUserId={}", questionUserId);
+			log.info("currentUserId={}", currentUserId);
+			log.info("currentUserRole={}", currentUserRole);
 			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
-				log.info("Old question = " + question.toString());
+				log.info("Old question = {}", question);
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
-				log.info("New question = " + question.toString());
+				log.info("New question = {}", question);
 				return questionRepository.save(question);
 			} else {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
 	public boolean deleteQuestion(Long questionId, User user) {
-		log.info("Deleting question.id = " + questionId);
+		log.info("Deleting question.id = {}", questionId);
 		return questionRepository.findById(questionId).map(question -> {
 			Long questionUserId = question.getUser().getId();
 			Long currentUserId = user.getId();
 			String currentUserRole = user.getRole();
-			log.info("questionUserId=" + questionUserId);
-			log.info("currentUserId=" + currentUserId);
-			log.info("currentUserRole=" + currentUserRole);
+			log.info("questionUserId={}", questionUserId);
+			log.info("currentUserId={}", currentUserId);
+			log.info("currentUserRole={}", currentUserRole);
 			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				questionRepository.delete(question);
@@ -79,6 +81,6 @@ public class QuestionManager {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 }

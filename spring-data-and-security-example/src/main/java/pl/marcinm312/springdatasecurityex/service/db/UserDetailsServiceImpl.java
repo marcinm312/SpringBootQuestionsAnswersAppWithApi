@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		Optional<User> optionalUser = userRepo.findByUsername(username);
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
-			log.info("Loading user = " + user.toString());
+			log.info("Loading user = {}", user);
 			return user;
 		} else {
 			log.error("User not found!");

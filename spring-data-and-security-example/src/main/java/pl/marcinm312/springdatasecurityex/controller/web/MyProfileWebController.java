@@ -24,6 +24,15 @@ import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 @RequestMapping("/app/myProfile")
 public class MyProfileWebController {
 
+	public static final String USER_LOGIN = "userLogin";
+	public static final String USER = "user";
+	public static final String MY_PROFILE_VIEW = "myProfile";
+	public static final String UPDATE_MY_PROFILE_VIEW = "updateMyProfile";
+	public static final String USER_2 = "user2";
+	public static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
+	public static final String ILLEGAL_LOGIN_CHANGE_VIEW = "illegalLoginChange";
+	public static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
+
 	private final UserManager userManager;
 	private final UserValidator userValidator;
 	private final PasswordUpdateValidator passwordUpdateValidator;
@@ -52,9 +61,9 @@ public class MyProfileWebController {
 	public String myProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
-		model.addAttribute("userLogin", userName);
-		model.addAttribute("user", user);
-		return "myProfile";
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(USER, user);
+		return MY_PROFILE_VIEW;
 	}
 
 	@PostMapping("/update")
@@ -62,9 +71,9 @@ public class MyProfileWebController {
 			Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("user", user);
-			return "updateMyProfile";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(USER, user);
+			return UPDATE_MY_PROFILE_VIEW;
 		} else {
 			userManager.updateUserData(user, authentication);
 			return "redirect:..";
@@ -75,9 +84,9 @@ public class MyProfileWebController {
 	public String updateMyProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
-		model.addAttribute("userLogin", userName);
-		model.addAttribute("user", user);
-		return "updateMyProfile";
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(USER, user);
+		return UPDATE_MY_PROFILE_VIEW;
 	}
 
 	@PostMapping("/updatePassword")
@@ -85,15 +94,15 @@ public class MyProfileWebController {
 			Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("user2", user);
-			return "updateMyPassword";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(USER_2, user);
+			return UPDATE_MY_PASSWORD_VIEW;
 		} else {
 			try {
 				userManager.updateUserPassword(user, authentication);
 			} catch (IllegalLoginChange e) {
-				model.addAttribute("userLogin", userName);
-				return "illegalLoginChange";
+				model.addAttribute(USER_LOGIN, userName);
+				return ILLEGAL_LOGIN_CHANGE_VIEW;
 			}
 			return "redirect:..";
 		}
@@ -104,9 +113,9 @@ public class MyProfileWebController {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
 		user.setPassword("");
-		model.addAttribute("userLogin", userName);
-		model.addAttribute("user2", user);
-		return "updateMyPassword";
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(USER_2, user);
+		return UPDATE_MY_PASSWORD_VIEW;
 	}
 
 	@GetMapping("/endOtherSessions")
@@ -125,8 +134,8 @@ public class MyProfileWebController {
 	@GetMapping("/delete")
 	public String deleteUserConfirmation(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		model.addAttribute("userLogin", userName);
-		model.addAttribute("user", userManager.getUserByAuthentication(authentication));
-		return "deleteMyProfile";
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(USER, userManager.getUserByAuthentication(authentication));
+		return DELETE_MY_PROFILE_VIEW;
 	}
 }

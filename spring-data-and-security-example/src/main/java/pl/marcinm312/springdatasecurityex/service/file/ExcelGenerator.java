@@ -16,15 +16,23 @@ import java.util.List;
 @Service
 public class ExcelGenerator {
 
+	public static final String ID_COLUMN = "Id";
+	public static final String TRESC_ODPOWIEDZI_COLUMN = "Treść odpowiedzi";
+	public static final String DATA_UTWORZENIA_COLUMN = "Data utworzenia";
+	public static final String DATA_MODYFIKACJI_COLUMN = "Data modyfikacji";
+	public static final String UZYTKOWNIK_COLUMN = "Użytkownik";
+	public static final String TYTUL_COLUMN = "Tytuł";
+	public static final String OPIS_COLUMN = "Opis";
+
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public File generateAnswersExcelFile(List<Answer> answersList, Question question) throws IOException {
-		log.info("Starting generating answers Excel file for question = " + question.toString());
-		log.info("answersList.size()=" + answersList.size());
+		log.info("Starting generating answers Excel file for question = {}", question);
+		log.info("answersList.size()={}", answersList.size());
 
 		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.xlsx";
 
-		String[] columns = { "Id", "Treść odpowiedzi", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
+		String[] columns = {ID_COLUMN, TRESC_ODPOWIEDZI_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
 
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
@@ -66,25 +74,25 @@ public class ExcelGenerator {
 
 		Row row1 = questionSheet.createRow(0);
 		Cell cellA1 = row1.createCell(0);
-		cellA1.setCellValue("Id");
+		cellA1.setCellValue(ID_COLUMN);
 		cellA1.setCellStyle(headerCellStyle);
 		row1.createCell(1).setCellValue(question.getId().toString());
 
 		Row row2 = questionSheet.createRow(1);
 		Cell cellA2 = row2.createCell(0);
-		cellA2.setCellValue("Tytuł");
+		cellA2.setCellValue(TYTUL_COLUMN);
 		cellA2.setCellStyle(headerCellStyle);
 		row2.createCell(1).setCellValue(question.getTitle());
 
 		Row row3 = questionSheet.createRow(2);
 		Cell cellA3 = row3.createCell(0);
-		cellA3.setCellValue("Opis");
+		cellA3.setCellValue(OPIS_COLUMN);
 		cellA3.setCellStyle(headerCellStyle);
 		row3.createCell(1).setCellValue(question.getDescription());
 
 		Row row4 = questionSheet.createRow(3);
 		Cell cellA4 = row4.createCell(0);
-		cellA4.setCellValue("Data utworzenia");
+		cellA4.setCellValue(DATA_UTWORZENIA_COLUMN);
 		cellA4.setCellStyle(headerCellStyle);
 		Cell cellB4 = row4.createCell(1);
 		cellB4.setCellValue(question.getCreatedAtAsString());
@@ -92,7 +100,7 @@ public class ExcelGenerator {
 
 		Row row5 = questionSheet.createRow(4);
 		Cell cellA5 = row5.createCell(0);
-		cellA5.setCellValue("Data modyfikacji");
+		cellA5.setCellValue(DATA_MODYFIKACJI_COLUMN);
 		cellA5.setCellStyle(headerCellStyle);
 		Cell cellB5 = row5.createCell(1);
 		cellB5.setCellValue(question.getUpdatedAtAsString());
@@ -100,7 +108,7 @@ public class ExcelGenerator {
 
 		Row row6 = questionSheet.createRow(5);
 		Cell cellA6 = row6.createCell(0);
-		cellA6.setCellValue("Użytkownik");
+		cellA6.setCellValue(UZYTKOWNIK_COLUMN);
 		cellA6.setCellStyle(headerCellStyle);
 		row6.createCell(1).setCellValue(question.getUser().getUsername());
 
@@ -120,10 +128,10 @@ public class ExcelGenerator {
 
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
 		log.info("Starting generating questions Excel file");
-		log.info("questionsList.size()=" + questionsList.size());
+		log.info("questionsList.size()={}", questionsList.size());
 		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.xlsx";
 
-		String[] columns = { "Id", "Tytuł", "Opis", "Data utworzenia", "Data modyfikacji", "Użytkownik" };
+		String[] columns = { ID_COLUMN, TYTUL_COLUMN, OPIS_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("Pytania");
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook);

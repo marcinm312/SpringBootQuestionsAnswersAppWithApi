@@ -12,6 +12,11 @@ import java.util.Optional;
 @Component
 public class UserValidator implements Validator {
 
+	public static final String USERNAME_FIELD = "username";
+	public static final String USER_EXISTS_ERROR = "user_exists_error";
+	public static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+	public static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
+
 	private final UserRepo userRepo;
 
 	@Autowired
@@ -30,16 +35,14 @@ public class UserValidator implements Validator {
 
 		String username = user.getUsername();
 		Optional<User> foundUser = userRepo.findByUsername(username);
-		if (foundUser.isPresent()) {
-			if (!foundUser.get().getId().equals(user.getId())) {
-				errors.rejectValue("username", "user_exists_error", "Użytkownik o takim loginie już istnieje!");
-			}
+		if (foundUser.isPresent() && !foundUser.get().getId().equals(user.getId())) {
+			errors.rejectValue(USERNAME_FIELD, USER_EXISTS_ERROR, "Użytkownik o takim loginie już istnieje!");
 		}
 
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
 		if (!password.equals(confirmPassword)) {
-			errors.rejectValue("confirmPassword", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
+			errors.rejectValue(CONFIRM_PASSWORD_FIELD, CONFIRM_PASSWORD_ERROR, "Hasła w obu polach muszą być takie same!");
 		}
 	}
 

@@ -29,14 +29,12 @@ public class SessionUtils {
 					for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(userDetails, true)) {
 						if (expireCurrentSession) {
 							sessionInformation.expireNow();
-							log.info("Session " + sessionInformation.getSessionId() + " of user " + username
-									+ " has expired");
+							log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
 						} else {
 							String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
 							if (!sessionInformation.getSessionId().equals(currentSessionId)) {
 								sessionInformation.expireNow();
-								log.info("Session " + sessionInformation.getSessionId() + " of user " + username
-										+ " has expired");
+								log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
 							}
 						}
 					}

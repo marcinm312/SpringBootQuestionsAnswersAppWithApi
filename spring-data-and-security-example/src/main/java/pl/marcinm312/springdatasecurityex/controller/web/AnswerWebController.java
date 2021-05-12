@@ -31,6 +31,18 @@ import java.util.List;
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
 
+	public static final String USER_LOGIN = "userLogin";
+	public static final String MESSAGE = "message";
+	public static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
+	public static final String ANSWER_LIST = "answerList";
+	public static final String QUESTION = "question";
+	public static final String ANSWER = "answer";
+	public static final String ANSWERS_VIEW = "answers";
+	public static final String CREATE_ANSWER_VIEW = "createAnswer";
+	public static final String OLD_ANSWER = "oldAnswer";
+	public static final String EDIT_ANSWER_VIEW = "editAnswer";
+	public static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
+
 	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
 	private final PdfGenerator pdfGenerator;
@@ -51,23 +63,23 @@ public class AnswerWebController {
 
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
-		log.info("Loading answers page for question.id = " + questionId);
+		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
 		List<Answer> answerList;
 		Question question;
 		try {
 			answerList = answerManager.getAnswersByQuestionId(questionId);
-			log.info("answerList.size()=" + answerList.size());
+			log.info("answerList.size()={}", answerList.size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("answerList", answerList);
-		model.addAttribute("question", question);
-		model.addAttribute("userLogin", userName);
-		return "answers";
+		model.addAttribute(ANSWER_LIST, answerList);
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
+		return ANSWERS_VIEW;
 	}
 
 	@PostMapping("/new")
@@ -76,10 +88,10 @@ public class AnswerWebController {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Question question = questionManager.getQuestion(questionId);
-			model.addAttribute("question", question);
-			model.addAttribute("answer", answer);
-			model.addAttribute("userLogin", userName);
-			return "createAnswer";
+			model.addAttribute(QUESTION, question);
+			model.addAttribute(ANSWER, answer);
+			model.addAttribute(USER_LOGIN, userName);
+			return CREATE_ANSWER_VIEW;
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
 			answerManager.addAnswer(questionId, answer, user);
@@ -94,14 +106,14 @@ public class AnswerWebController {
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("question", question);
-		model.addAttribute("answer", new Answer());
-		model.addAttribute("userLogin", userName);
-		return "createAnswer";
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(ANSWER, new Answer());
+		model.addAttribute(USER_LOGIN, userName);
+		return CREATE_ANSWER_VIEW;
 	}
 
 	@PostMapping("/{answerId}/edit")
@@ -111,18 +123,18 @@ public class AnswerWebController {
 		if (bindingResult.hasErrors()) {
 			Answer oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			Question question = questionManager.getQuestion(questionId);
-			model.addAttribute("question", question);
-			model.addAttribute("oldAnswer", oldAnswer);
-			model.addAttribute("answer", answer);
-			model.addAttribute("userLogin", userName);
-			return "editAnswer";
+			model.addAttribute(QUESTION, question);
+			model.addAttribute(OLD_ANSWER, oldAnswer);
+			model.addAttribute(ANSWER, answer);
+			model.addAttribute(USER_LOGIN, userName);
+			return EDIT_ANSWER_VIEW;
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
 			try {
 				answerManager.updateAnswer(questionId, answerId, answer, user);
 			} catch (ChangeNotAllowedException e) {
-				model.addAttribute("userLogin", userName);
-				return "changeNotAllowed";
+				model.addAttribute(USER_LOGIN, userName);
+				return CHANGE_NOT_ALLOWED_VIEW;
 			}
 			return "redirect:../..";
 		}
@@ -138,15 +150,15 @@ public class AnswerWebController {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("question", question);
-		model.addAttribute("oldAnswer", answer);
-		model.addAttribute("answer", answer);
-		model.addAttribute("userLogin", userName);
-		return "editAnswer";
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(OLD_ANSWER, answer);
+		model.addAttribute(ANSWER, answer);
+		model.addAttribute(USER_LOGIN, userName);
+		return EDIT_ANSWER_VIEW;
 	}
 
 	@PostMapping("/{answerId}/delete")
@@ -157,8 +169,8 @@ public class AnswerWebController {
 			answerManager.deleteAnswer(questionId, answerId, user);
 		} catch (ChangeNotAllowedException e) {
 			String userName = authentication.getName();
-			model.addAttribute("userLogin", userName);
-			return "changeNotAllowed";
+			model.addAttribute(USER_LOGIN, userName);
+			return CHANGE_NOT_ALLOWED_VIEW;
 		}
 		return "redirect:../..";
 	}
@@ -173,13 +185,13 @@ public class AnswerWebController {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("answer", answer);
-		model.addAttribute("question", question);
-		model.addAttribute("userLogin", userName);
+		model.addAttribute(ANSWER, answer);
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
 		return "deleteAnswer";
 	}
 

@@ -11,7 +11,11 @@ import java.nio.file.Files;
 
 public class FileResponseGenerator {
 
-	public static ResponseEntity<?> generateResponseWithFile(File file) throws IOException {
+	private FileResponseGenerator() {
+
+	}
+
+	public static ResponseEntity<ByteArrayResource> generateResponseWithFile(File file) throws IOException {
 		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
 		return ResponseEntity.ok().contentLength(file.length())
 				.contentType(MediaType.parseMediaType("application/octet-stream"))

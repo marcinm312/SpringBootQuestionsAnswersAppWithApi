@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.controller.web;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -28,6 +29,18 @@ import java.util.List;
 @RequestMapping("/app/questions")
 public class QuestionWebController {
 
+	public static final String QUESTION_LIST = "questionList";
+	public static final String USER_LOGIN = "userLogin";
+	public static final String QUESTIONS_VIEW = "questions";
+	public static final String QUESTION = "question";
+	public static final String CREATE_QUESTION_VIEW = "createQuestion";
+	public static final String OLD_QUESTION = "oldQuestion";
+	public static final String EDIT_QUESTION_VIEW = "editQuestion";
+	public static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
+	public static final String MESSAGE = "message";
+	public static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
+	public static final String DELETE_QUESTION_VIEW = "deleteQuestion";
+
 	private final QuestionManager questionManager;
 	private final PdfGenerator pdfGenerator;
 	private final ExcelGenerator excelGenerator;
@@ -49,10 +62,10 @@ public class QuestionWebController {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
 		List<Question> questionList = questionManager.getQuestions();
-		log.info("questionList.size()=" + questionList.size());
-		model.addAttribute("questionList", questionList);
-		model.addAttribute("userLogin", userName);
-		return "questions";
+		log.info("questionList.size()={}", questionList.size());
+		model.addAttribute(QUESTION_LIST, questionList);
+		model.addAttribute(USER_LOGIN, userName);
+		return QUESTIONS_VIEW;
 	}
 
 	@PostMapping("/new")
@@ -60,9 +73,9 @@ public class QuestionWebController {
 								 Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			model.addAttribute("question", question);
-			model.addAttribute("userLogin", userName);
-			return "createQuestion";
+			model.addAttribute(QUESTION, question);
+			model.addAttribute(USER_LOGIN, userName);
+			return CREATE_QUESTION_VIEW;
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
 			questionManager.createQuestion(question, user);
@@ -73,9 +86,9 @@ public class QuestionWebController {
 	@GetMapping("/new")
 	public String createQuestionView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		model.addAttribute("question", new Question());
-		model.addAttribute("userLogin", userName);
-		return "createQuestion";
+		model.addAttribute(QUESTION, new Question());
+		model.addAttribute(USER_LOGIN, userName);
+		return CREATE_QUESTION_VIEW;
 	}
 
 	@PostMapping("/{questionId}/edit")
@@ -84,17 +97,17 @@ public class QuestionWebController {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Question oldQuestion = questionManager.getQuestion(questionId);
-			model.addAttribute("oldQuestion", oldQuestion);
-			model.addAttribute("question", question);
-			model.addAttribute("userLogin", userName);
-			return "editQuestion";
+			model.addAttribute(OLD_QUESTION, oldQuestion);
+			model.addAttribute(QUESTION, question);
+			model.addAttribute(USER_LOGIN, userName);
+			return EDIT_QUESTION_VIEW;
 		} else {
 			User user = userManager.getUserByAuthentication(authentication);
 			try {
 				questionManager.updateQuestion(questionId, question, user);
 			} catch (ChangeNotAllowedException e) {
-				model.addAttribute("userLogin", userName);
-				return "changeNotAllowed";
+				model.addAttribute(USER_LOGIN, userName);
+				return CHANGE_NOT_ALLOWED_VIEW;
 			}
 			return "redirect:../..";
 		}
@@ -107,14 +120,14 @@ public class QuestionWebController {
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("oldQuestion", question);
-		model.addAttribute("question", question);
-		model.addAttribute("userLogin", userName);
-		return "editQuestion";
+		model.addAttribute(OLD_QUESTION, question);
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
+		return EDIT_QUESTION_VIEW;
 	}
 
 	@PostMapping("/{questionId}/delete")
@@ -124,8 +137,8 @@ public class QuestionWebController {
 			questionManager.deleteQuestion(questionId, user);
 		} catch (ChangeNotAllowedException e) {
 			String userName = authentication.getName();
-			model.addAttribute("userLogin", userName);
-			return "changeNotAllowed";
+			model.addAttribute(USER_LOGIN, userName);
+			return CHANGE_NOT_ALLOWED_VIEW;
 		}
 		return "redirect:../..";
 	}
@@ -137,24 +150,24 @@ public class QuestionWebController {
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute("userLogin", userName);
-			model.addAttribute("message", e.getMessage());
-			return "resourceNotFound";
+			model.addAttribute(USER_LOGIN, userName);
+			model.addAttribute(MESSAGE, e.getMessage());
+			return RESOURCE_NOT_FOUND_VIEW;
 		}
-		model.addAttribute("question", question);
-		model.addAttribute("userLogin", userName);
-		return "deleteQuestion";
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
+		return DELETE_QUESTION_VIEW;
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<?> downloadPdf() throws IOException, DocumentException {
+	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
 		List<Question> questionsList = questionManager.getQuestions();
 		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<?> downloadExcel() throws IOException {
+	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
 		List<Question> questionsList = questionManager.getQuestions();
 		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);

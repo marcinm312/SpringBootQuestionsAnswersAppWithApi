@@ -1,11 +1,5 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.mail.MessagingException;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +8,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
@@ -24,6 +17,11 @@ import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.SessionUtils;
+
+import javax.mail.MessagingException;
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserManager {
@@ -48,7 +46,7 @@ public class UserManager {
 
 	public User getUserByAuthentication(Authentication authentication) {
 		String userName = authentication.getName();
-		log.info("Loading user by authentication name = " + userName);
+		log.info("Loading user by authentication name = {}", userName);
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
 		return optionalUser.orElse(null);
 	}
@@ -57,7 +55,7 @@ public class UserManager {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
-		log.info("Creating user = " + user.toString());
+		log.info("Creating user = {}", user);
 		User savedUser = userRepo.save(user);
 		sendToken(user, appURL);
 		log.info("User created");
@@ -67,13 +65,13 @@ public class UserManager {
 	public User updateUserData(User user, Authentication authentication) {
 		log.info("Updating user");
 		User oldUser = getUserByAuthentication(authentication);
-		log.info("Old user = " + oldUser.toString());
+		log.info("Old user = {}", oldUser);
 		String oldUserName = oldUser.getUsername();
 		user.setId(oldUser.getId());
 		user.setPassword(oldUser.getPassword());
 		user.setRole(oldUser.getRole());
 		user.setEnabled(true);
-		log.info("New user = " + user);
+		log.info("New user = {}", user);
 		User savedUser = userRepo.save(user);
 		log.info("User updated");
 		if (!oldUserName.equals(user.getUsername())) {
@@ -90,14 +88,14 @@ public class UserManager {
 	public User updateUserPassword(User user, Authentication authentication) {
 		log.info("Updating user password");
 		User oldUser = getUserByAuthentication(authentication);
-		log.info("Old user = " + oldUser.toString());
+		log.info("Old user = {}", oldUser);
 		user.setId(oldUser.getId());
 		if (oldUser.getUsername().equals(user.getUsername())) {
 			user.setPassword(passwordEncoder.encode(user.getPassword()));
 			user.setEmail(oldUser.getEmail());
 			user.setRole(oldUser.getRole());
 			user.setEnabled(true);
-			log.info("New user = " + user);
+			log.info("New user = {}", user);
 			User savedUser = userRepo.save(user);
 			log.info("User password updated");
 			sessionUtils.expireUserSessions(user.getUsername(), false);
@@ -110,10 +108,10 @@ public class UserManager {
 
 	public void deleteUser(Authentication authentication) {
 		User user = getUserByAuthentication(authentication);
-		log.info("Deleting user = " + user.toString());
+		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
 		log.info("User deleted");
-		log.info("Expiring session for user: " + authentication.getName());
+		log.info("Expiring session for user: {}", authentication.getName());
 		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
@@ -122,7 +120,7 @@ public class UserManager {
 		if (optionalToken.isPresent()) {
 			Token token = optionalToken.get();
 			User user = token.getUser();
-			log.info("Activating user = " + user.toString());
+			log.info("Activating user = {}", user);
 			user.setEnabled(true);
 			User savedUser = userRepo.save(user);
 			tokenRepo.delete(token);

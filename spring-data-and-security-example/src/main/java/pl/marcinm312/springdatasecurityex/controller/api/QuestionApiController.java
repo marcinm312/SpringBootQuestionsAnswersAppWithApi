@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.controller.api;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -65,14 +66,14 @@ public class QuestionApiController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<?> downloadPdf() throws IOException, DocumentException {
+	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
 		List<Question> questionsList = questionManager.getQuestions();
 		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<?> downloadExcel() throws IOException {
+	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
 		List<Question> questionsList = questionManager.getQuestions();
 		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);

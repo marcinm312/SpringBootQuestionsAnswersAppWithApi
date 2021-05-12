@@ -18,6 +18,11 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/")
 public class UserRegistrationWebController {
 
+    public static final String USER = "user";
+    public static final String REGISTER_VIEW = "register";
+    public static final String TOKEN_NOT_FOUND_VIEW = "tokenNotFound";
+    public static final String USER_ACTIVATION_VIEW = "userActivation";
+    
     private final UserManager userManager;
     private final UserValidator userValidator;
 
@@ -36,8 +41,8 @@ public class UserRegistrationWebController {
     public String createUser(@ModelAttribute("user") @Validated User user, BindingResult bindingResult, Model model,
                              HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("user", user);
-            return "register";
+            model.addAttribute(USER, user);
+            return REGISTER_VIEW;
         } else {
             String requestURL = request.getRequestURL().toString();
             String servletPath = request.getServletPath();
@@ -49,8 +54,8 @@ public class UserRegistrationWebController {
 
     @GetMapping("/register")
     public String createUserView(Model model) {
-        model.addAttribute("user", new User());
-        return "register";
+        model.addAttribute(USER, new User());
+        return REGISTER_VIEW;
     }
 
     @GetMapping("/token")
@@ -58,8 +63,8 @@ public class UserRegistrationWebController {
         try {
             userManager.activateUser(value);
         } catch (TokenNotFoundException e) {
-            return "tokenNotFound";
+            return TOKEN_NOT_FOUND_VIEW;
         }
-        return "userActivation";
+        return USER_ACTIVATION_VIEW;
     }
 }

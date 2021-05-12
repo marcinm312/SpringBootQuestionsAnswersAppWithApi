@@ -13,6 +13,14 @@ import java.util.Optional;
 @Component
 public class PasswordUpdateValidator implements Validator {
 
+	public static final String CURRENT_PASSWORD_FIELD = "currentPassword";
+	public static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
+	public static final String CURRENT_PASSWORD_ERROR = "current_password_error";
+	public static final String USER_NOT_EXISTS_ERROR = "user_not_exists";
+	public static final String PASSWORD_FIELD = "password";
+	public static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
+	public static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+
 	private final UserRepo userRepo;
 	private final PasswordEncoder passwordEncoder;
 
@@ -39,23 +47,23 @@ public class PasswordUpdateValidator implements Validator {
 		String confirmPassword = user.getConfirmPassword();
 
 		if (currentPassword.length() <= 0) {
-			errors.rejectValue("currentPassword", "confirm_password_error", "Pole to musi być wypełnione!");
+			errors.rejectValue(CURRENT_PASSWORD_FIELD, CONFIRM_PASSWORD_ERROR, "Pole to musi być wypełnione!");
 		}
 
 		if (optionalUser.isPresent()) {
 			if (!passwordEncoder.matches(currentPassword, optionalUser.get().getPassword())) {
-				errors.rejectValue("currentPassword", "current_password_error", "Podano nieprawidłowe hasło");
+				errors.rejectValue(CURRENT_PASSWORD_FIELD, CURRENT_PASSWORD_ERROR, "Podano nieprawidłowe hasło");
 			}
 		} else {
-			errors.rejectValue("currentPassword", "user_not_exists", "Użytkownik nie istnieje!");
+			errors.rejectValue(CURRENT_PASSWORD_FIELD, USER_NOT_EXISTS_ERROR, "Użytkownik nie istnieje!");
 		}
 
 		if (currentPassword.equals(password)) {
-			errors.rejectValue("password", "password_without_change", "Nowe hasło musi być inne od poprzedniego!");
+			errors.rejectValue(PASSWORD_FIELD, PASSWORD_WITHOUT_CHANGE_ERROR, "Nowe hasło musi być inne od poprzedniego!");
 		}
 
 		if (!password.equals(confirmPassword)) {
-			errors.rejectValue("confirmPassword", "confirm_password_error", "Hasła w obu polach muszą być takie same!");
+			errors.rejectValue(CONFIRM_PASSWORD_FIELD, CONFIRM_PASSWORD_ERROR, "Hasła w obu polach muszą być takie same!");
 		}
 	}
 }

@@ -23,7 +23,7 @@ public class PdfGenerator {
 
 	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
 		log.info("Starting generating questions PDF file");
-		log.info("questionsList.size()=" + questionsList.size());
+		log.info("questionsList.size()={}", questionsList.size());
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);
@@ -66,8 +66,8 @@ public class PdfGenerator {
 
 	public File generateAnswersPdfFile(List<Answer> answersList, Question question)
 			throws DocumentException, IOException {
-		log.info("Starting generating answers PDF file for question = " + question.toString());
-		log.info("answersList.size()=" + answersList.size());
+		log.info("Starting generating answers PDF file for question = {}", question);
+		log.info("answersList.size()={}", answersList.size());
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		Font helvetica18 = new Font(helvetica, 18);
 		Font helvetica12 = new Font(helvetica, 12);

@@ -1,13 +1,8 @@
 package pl.marcinm312.springdatasecurityex.service.db;
 
-import java.util.List;
-
-import javax.mail.MessagingException;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
@@ -18,8 +13,14 @@ import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.service.MailService;
 
+import javax.mail.MessagingException;
+import java.util.List;
+
 @Service
 public class AnswerManager {
+
+	public static final String ANSWER_NOT_FOUND_WITH_ID = "Answer not found with id ";
+	public static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionRepository questionRepository;
@@ -43,14 +44,14 @@ public class AnswerManager {
 	public Answer getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId)
-				.orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
+				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
 	}
 
 	public Answer addAnswer(Long questionId, Answer answer, User user) {
 		return questionRepository.findById(questionId).map(question -> {
 			answer.setQuestion(question);
 			answer.setUser(user);
-			log.info("Adding answer = " + answer.toString());
+			log.info("Adding answer = {}", answer);
 			Answer savedAnswer = answerRepository.save(answer);
 			try {
 				String email = question.getUser().getEmail();
@@ -63,7 +64,7 @@ public class AnswerManager {
 			}
 			return savedAnswer;
 
-		}).orElseThrow(() -> new ResourceNotFoundException("Question not found with id " + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
 	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest, User user) {
@@ -73,14 +74,14 @@ public class AnswerManager {
 			Long answerUserId = answer.getUser().getId();
 			Long currentUserId = user.getId();
 			String currentUserRole = user.getRole();
-			log.info("answerUserId=" + answerUserId);
-			log.info("currentUserId=" + currentUserId);
-			log.info("currentUserRole=" + currentUserRole);
+			log.info("answerUserId={}", answerUserId);
+			log.info("currentUserId={}", currentUserId);
+			log.info("currentUserRole={}", currentUserRole);
 			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
-				log.info("Old answer = " + answer.toString());
+				log.info("Old answer = {}", answer);
 				answer.setText(answerRequest.getText());
-				log.info("New answer = " + answer.toString());
+				log.info("New answer = {}", answer);
 				Answer savedAnswer = answerRepository.save(answer);
 				try {
 					Question question = savedAnswer.getQuestion();
@@ -97,19 +98,19 @@ public class AnswerManager {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
+		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, User user) {
-		log.info("Deleting answer.id = " + answerId);
+		log.info("Deleting answer.id = {}", answerId);
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
 			Long answerUserId = answer.getUser().getId();
 			Long currentUserId = user.getId();
 			String currentUserRole = user.getRole();
-			log.info("answerUserId=" + answerUserId);
-			log.info("currentUserId=" + currentUserId);
-			log.info("currentUserRole=" + currentUserRole);
+			log.info("answerUserId={}", answerUserId);
+			log.info("currentUserId={}", currentUserId);
+			log.info("currentUserRole={}", currentUserRole);
 			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
 				log.info("Permitted user");
 				answerRepository.delete(answer);
@@ -118,12 +119,12 @@ public class AnswerManager {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException("Answer not found with id " + answerId));
+		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
 	}
 
 	private void checkIfQuestionExistsByQuestionId(Long questionId) {
 		if (!questionRepository.existsById(questionId)) {
-			throw new ResourceNotFoundException("Question not found with id " + questionId);
+			throw new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId);
 		}
 	}
 

@@ -1,14 +1,14 @@
 package pl.marcinm312.springdatasecurityex.service;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
-
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 
 @Service
 public class MailService {
@@ -33,10 +33,10 @@ public class MailService {
 		mimeMessageHelper.setTo(to);
 		mimeMessageHelper.setSubject(subject);
 		mimeMessageHelper.setText(text, isHtmlContent);
-		log.info("mail to = " + to);
-		log.info("mail subject = " + subject);
-		log.info("mail text = " + text);
-		log.info("mail isHtmlContent = " + isHtmlContent);
+		log.info("mail to = {}", to);
+		log.info("mail subject = {}", subject);
+		log.info("mail text = {}", text);
+		log.info("mail isHtmlContent = {}", isHtmlContent);
 		log.info("Starting sending an email");
 		javaMailSender.send(mimeMessage);
 		log.info("The mail has been sent");
