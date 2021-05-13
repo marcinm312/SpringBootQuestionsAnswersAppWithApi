@@ -30,10 +30,10 @@ public class UserDataProvider {
 	}
 
 	public static User prepareUserWithConfirmPasswordErrorToRequest() {
-		return new User(null, "user", null, "password", "anotherPassword", null, false, "test@abc.pl");
+		return new User(null, "user", "password", "anotherPassword", "test@abc.pl");
 	}
 
 	public static User prepareGoodUserToRequest() {
-		return new User(null, "user", null, "password", "password", null, false, "test@abc.pl");
+		return new User(null, "user", "password", "password", "test@abc.pl");
 	}
 }

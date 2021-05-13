@@ -27,20 +27,24 @@ public class SessionUtils {
 				UserDetails userDetails = (UserDetails) principal;
 				if (userDetails.getUsername().equals(username)) {
 					for (SessionInformation sessionInformation : sessionRegistry.getAllSessions(userDetails, true)) {
-						if (expireCurrentSession) {
-							sessionInformation.expireNow();
-							log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
-						} else {
-							String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-							if (!sessionInformation.getSessionId().equals(currentSessionId)) {
-								sessionInformation.expireNow();
-								log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
-							}
-						}
+						processSession(username, expireCurrentSession, sessionInformation);
 					}
 				}
 			}
 		}
 		log.info("User sessions expired");
+	}
+
+	private void processSession(String username, boolean expireCurrentSession, SessionInformation sessionInformation) {
+		if (expireCurrentSession) {
+			sessionInformation.expireNow();
+			log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
+		} else {
+			String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+			if (!sessionInformation.getSessionId().equals(currentSessionId)) {
+				sessionInformation.expireNow();
+				log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
+			}
+		}
 	}
 }

@@ -55,14 +55,11 @@ public class User extends AuditModel implements UserDetails {
 		this.email = email;
 	}
 
-	public User(Long id, String username, String currentPassword, String password, String confirmPassword, String role, boolean isEnabled, String email) {
+	public User(Long id, String username, String password, String confirmPassword, String email) {
 		this.id = id;
 		this.username = username;
-		this.currentPassword = currentPassword;
 		this.password = password;
 		this.confirmPassword = confirmPassword;
-		this.role = role;
-		this.isEnabled = isEnabled;
 		this.email = email;
 	}
 
