@@ -141,8 +141,7 @@ public class UserManager {
 		try {
 			mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 		} catch (MessagingException e) {
-			log.error("An error occurred while sending the email");
-			e.printStackTrace();
+			log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 		}
 	}
 

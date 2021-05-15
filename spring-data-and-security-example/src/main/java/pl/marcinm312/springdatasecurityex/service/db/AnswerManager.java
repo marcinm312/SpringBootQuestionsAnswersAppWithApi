@@ -59,8 +59,7 @@ public class AnswerManager {
 				String content = generateEmailContent(question, savedAnswer, true);
 				mailService.sendMail(email, subject, content, true);
 			} catch (MessagingException e) {
-				log.error("An error occurred while sending the email");
-				e.printStackTrace();
+				log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 			}
 			return savedAnswer;
 
@@ -90,8 +89,7 @@ public class AnswerManager {
 					String content = generateEmailContent(question, savedAnswer, false);
 					mailService.sendMail(email, subject, content, true);
 				} catch (MessagingException e) {
-					log.error("An error occurred while sending the email");
-					e.printStackTrace();
+					log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 				}
 				return savedAnswer;
 			} else {
