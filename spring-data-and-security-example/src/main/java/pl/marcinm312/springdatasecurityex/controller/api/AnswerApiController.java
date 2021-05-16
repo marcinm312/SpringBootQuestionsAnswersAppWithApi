@@ -2,7 +2,7 @@ package pl.marcinm312.springdatasecurityex.controller.api;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +33,8 @@ public class AnswerApiController {
 	private final UserManager userManager;
 
 	@Autowired
-	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator, ExcelGenerator excelGenerator, UserManager userManager) {
+	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,
+							   ExcelGenerator excelGenerator, UserManager userManager) {
 		this.questionManager = questionManager;
 		this.answerManager = answerManager;
 		this.pdfGenerator = pdfGenerator;
@@ -73,29 +74,23 @@ public class AnswerApiController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<?> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
+	public ResponseEntity<ByteArrayResource> downloadPdf(@PathVariable Long questionId)
+			throws IOException, DocumentException, ResourceNotFoundException {
 		Question question;
 		List<Answer> answersList;
-		try {
-			question = questionManager.getQuestion(questionId);
-			answersList = answerManager.getAnswersByQuestionId(questionId);
-		} catch (ResourceNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+		question = questionManager.getQuestion(questionId);
+		answersList = answerManager.getAnswersByQuestionId(questionId);
 		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<?> downloadExcel(@PathVariable Long questionId) throws IOException {
+	public ResponseEntity<ByteArrayResource> downloadExcel(@PathVariable Long questionId)
+			throws IOException, ResourceNotFoundException {
 		Question question;
 		List<Answer> answersList;
-		try {
-			question = questionManager.getQuestion(questionId);
-			answersList = answerManager.getAnswersByQuestionId(questionId);
-		} catch (ResourceNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+		question = questionManager.getQuestion(questionId);
+		answersList = answerManager.getAnswersByQuestionId(questionId);
 		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
