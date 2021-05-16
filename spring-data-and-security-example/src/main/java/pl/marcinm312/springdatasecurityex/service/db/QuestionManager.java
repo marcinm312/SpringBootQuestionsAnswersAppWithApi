@@ -44,13 +44,7 @@ public class QuestionManager {
 	public Question updateQuestion(Long questionId, Question questionRequest, User user) {
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
-			Long questionUserId = question.getUser().getId();
-			Long currentUserId = user.getId();
-			String currentUserRole = user.getRole();
-			log.info("questionUserId={}", questionUserId);
-			log.info("currentUserId={}", currentUserId);
-			log.info("currentUserRole={}", currentUserRole);
-			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (checkIfUserIsPermitted(question, user)) {
 				log.info("Permitted user");
 				log.info("Old question = {}", question);
 				question.setTitle(questionRequest.getTitle());
@@ -67,13 +61,7 @@ public class QuestionManager {
 	public boolean deleteQuestion(Long questionId, User user) {
 		log.info("Deleting question.id = {}", questionId);
 		return questionRepository.findById(questionId).map(question -> {
-			Long questionUserId = question.getUser().getId();
-			Long currentUserId = user.getId();
-			String currentUserRole = user.getRole();
-			log.info("questionUserId={}", questionUserId);
-			log.info("currentUserId={}", currentUserId);
-			log.info("currentUserRole={}", currentUserRole);
-			if (questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (checkIfUserIsPermitted(question, user)) {
 				log.info("Permitted user");
 				questionRepository.delete(question);
 				return true;
@@ -82,5 +70,15 @@ public class QuestionManager {
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+	}
+
+	private boolean checkIfUserIsPermitted (Question question, User user) {
+		Long questionUserId = question.getUser().getId();
+		Long currentUserId = user.getId();
+		String currentUserRole = user.getRole();
+		log.info("questionUserId={}", questionUserId);
+		log.info("currentUserId={}", currentUserId);
+		log.info("currentUserRole={}", currentUserRole);
+		return questionUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name());
 	}
 }

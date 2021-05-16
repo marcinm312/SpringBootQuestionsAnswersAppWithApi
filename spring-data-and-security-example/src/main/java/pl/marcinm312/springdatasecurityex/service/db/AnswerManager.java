@@ -70,13 +70,7 @@ public class AnswerManager {
 		log.info("Updating answer");
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
-			Long answerUserId = answer.getUser().getId();
-			Long currentUserId = user.getId();
-			String currentUserRole = user.getRole();
-			log.info("answerUserId={}", answerUserId);
-			log.info("currentUserId={}", currentUserId);
-			log.info("currentUserRole={}", currentUserRole);
-			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (checkIfUserIsPermitted(answer, user)) {
 				log.info("Permitted user");
 				log.info("Old answer = {}", answer);
 				answer.setText(answerRequest.getText());
@@ -103,13 +97,7 @@ public class AnswerManager {
 		log.info("Deleting answer.id = {}", answerId);
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
-			Long answerUserId = answer.getUser().getId();
-			Long currentUserId = user.getId();
-			String currentUserRole = user.getRole();
-			log.info("answerUserId={}", answerUserId);
-			log.info("currentUserId={}", currentUserId);
-			log.info("currentUserRole={}", currentUserRole);
-			if (answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name())) {
+			if (checkIfUserIsPermitted(answer, user)) {
 				log.info("Permitted user");
 				answerRepository.delete(answer);
 				return true;
@@ -118,6 +106,16 @@ public class AnswerManager {
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+	}
+
+	private boolean checkIfUserIsPermitted (Answer answer, User user) {
+		Long answerUserId = answer.getUser().getId();
+		Long currentUserId = user.getId();
+		String currentUserRole = user.getRole();
+		log.info("answerUserId={}", answerUserId);
+		log.info("currentUserId={}", currentUserId);
+		log.info("currentUserRole={}", currentUserRole);
+		return answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name());
 	}
 
 	private void checkIfQuestionExistsByQuestionId(Long questionId) {
