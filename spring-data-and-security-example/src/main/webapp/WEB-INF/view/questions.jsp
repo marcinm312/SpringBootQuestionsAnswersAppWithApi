@@ -39,7 +39,7 @@
 				</div>
 			</div>
 		</div>
-		<h1>Lista pytań:</h1>
+		<h1 id="header">Lista pytań:</h1>
 		<div id="toolbar">
 			<button class="btn btn-primary"
 				onclick="window.location.href = 'new/'">Utwórz nowe pytanie</button>
@@ -59,7 +59,7 @@
 					data-toolbar="#toolbar" data-page-list="[5,10,20,50]"
 					data-search="true" data-show-columns="true" data-locale="pl-PL"
 					data-show-columns-toggle-all="true"
-					data-show-pagination-switch="true">
+					data-show-pagination-switch="true" aria-describedby="header">
 
 					<thead class="thead-dark">
 						<tr>
