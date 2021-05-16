@@ -42,6 +42,7 @@ public class AnswerWebController {
 	public static final String OLD_ANSWER = "oldAnswer";
 	public static final String EDIT_ANSWER_VIEW = "editAnswer";
 	public static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
+	public static final String DELETE_ANSWER_VIEW = "deleteAnswer";
 
 	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
@@ -72,9 +73,7 @@ public class AnswerWebController {
 			log.info("answerList.size()={}", answerList.size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
+			return getResourceNotFoundView(model, userName, e);
 		}
 		model.addAttribute(ANSWER_LIST, answerList);
 		model.addAttribute(QUESTION, question);
@@ -106,9 +105,7 @@ public class AnswerWebController {
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
+			return getResourceNotFoundView(model, userName, e);
 		}
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(ANSWER, new Answer());
@@ -150,9 +147,7 @@ public class AnswerWebController {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
+			return getResourceNotFoundView(model, userName, e);
 		}
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(OLD_ANSWER, answer);
@@ -185,14 +180,12 @@ public class AnswerWebController {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
+			return getResourceNotFoundView(model, userName, e);
 		}
 		model.addAttribute(ANSWER, answer);
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(USER_LOGIN, userName);
-		return "deleteAnswer";
+		return DELETE_ANSWER_VIEW;
 	}
 
 	@GetMapping("/pdf-export")
@@ -221,5 +214,11 @@ public class AnswerWebController {
 		}
 		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
+	}
+
+	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(MESSAGE, e.getMessage());
+		return RESOURCE_NOT_FOUND_VIEW;
 	}
 }

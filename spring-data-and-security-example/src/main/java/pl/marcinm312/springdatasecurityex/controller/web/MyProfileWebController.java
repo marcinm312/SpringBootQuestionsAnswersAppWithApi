@@ -32,6 +32,7 @@ public class MyProfileWebController {
 	public static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
 	public static final String ILLEGAL_LOGIN_CHANGE_VIEW = "illegalLoginChange";
 	public static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
+	public static final String COMMON_REDIRECT = "redirect:..";
 
 	private final UserManager userManager;
 	private final UserValidator userValidator;
@@ -76,7 +77,7 @@ public class MyProfileWebController {
 			return UPDATE_MY_PROFILE_VIEW;
 		} else {
 			userManager.updateUserData(user, authentication);
-			return "redirect:..";
+			return COMMON_REDIRECT;
 		}
 	}
 
@@ -104,7 +105,7 @@ public class MyProfileWebController {
 				model.addAttribute(USER_LOGIN, userName);
 				return ILLEGAL_LOGIN_CHANGE_VIEW;
 			}
-			return "redirect:..";
+			return COMMON_REDIRECT;
 		}
 	}
 
@@ -122,7 +123,7 @@ public class MyProfileWebController {
 	public String endOtherSessions(Authentication authentication) {
 		String userName = authentication.getName();
 		sessionUtils.expireUserSessions(userName, false);
-		return "redirect:..";
+		return COMMON_REDIRECT;
 	}
 
 	@PostMapping("/delete")
