@@ -28,7 +28,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 
 	@Configuration
 	@Order(1)
-	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 		private final UserDetailsServiceImpl userDetailsService;
 
@@ -39,7 +39,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
+			auth.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
 		}
 
 		@Override
@@ -54,7 +54,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 
 	@Configuration
 	@Order(2)
-	public static class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
+	public class FormLoginWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 		private final UserDetailsServiceImpl userDetailsService;
 
@@ -65,7 +65,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 
 		@Override
 		public void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(userDetailsService);
+			auth.userDetailsService(userDetailsService).passwordEncoder(getPasswordEncoder());
 		}
 
 		@Override
@@ -85,7 +85,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		}
 
 		@Bean
-		public static ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
+		public ServletListenerRegistrationBean<HttpSessionEventPublisher> httpSessionEventPublisher() {
 			return new ServletListenerRegistrationBean<>(new HttpSessionEventPublisher());
 		}
 	}
