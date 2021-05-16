@@ -72,7 +72,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/**")
 					.authorizeRequests().antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-					"/css/style.css").permitAll()
+					"/css/style.css", "/favicon.ico").permitAll()
 					.anyRequest().authenticated()
 					.and().formLogin().permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/")
