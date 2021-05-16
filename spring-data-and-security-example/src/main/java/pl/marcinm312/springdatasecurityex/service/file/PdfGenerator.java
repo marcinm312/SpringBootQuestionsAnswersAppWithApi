@@ -19,14 +19,19 @@ import java.util.List;
 @Service
 public class PdfGenerator {
 
+	private final BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
+	private final Font helvetica18 = new Font(helvetica, 18);
+	private final Font helvetica12 = new Font(helvetica, 12);
+
 	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
+	public PdfGenerator() throws DocumentException, IOException {
+		// Do nothing, this is only for adding exceptions to constructor
+	}
 
 	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
-		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
-		Font helvetica18 = new Font(helvetica, 18);
-		Font helvetica12 = new Font(helvetica, 12);
 		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.pdf";
 		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));
@@ -68,9 +73,6 @@ public class PdfGenerator {
 			throws DocumentException, IOException {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
-		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
-		Font helvetica18 = new Font(helvetica, 18);
-		Font helvetica12 = new Font(helvetica, 12);
 		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.pdf";
 		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));

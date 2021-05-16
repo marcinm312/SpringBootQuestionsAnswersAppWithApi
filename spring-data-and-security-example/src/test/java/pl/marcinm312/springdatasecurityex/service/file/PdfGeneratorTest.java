@@ -17,7 +17,7 @@ class PdfGeneratorTest {
 	PdfGenerator pdfGenerator;
 
 	@BeforeEach
-	void setup() {
+	void setup() throws DocumentException, IOException {
 		pdfGenerator = new PdfGenerator();
 	}
 
