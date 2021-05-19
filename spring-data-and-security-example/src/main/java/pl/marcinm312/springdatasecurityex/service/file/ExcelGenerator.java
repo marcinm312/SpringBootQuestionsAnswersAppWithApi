@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -30,7 +32,8 @@ public class ExcelGenerator {
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.xlsx";
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi_" + fileId + ".xlsx";
 
 		String[] columns = {ID_COLUMN, TRESC_ODPOWIEDZI_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
@@ -129,7 +132,9 @@ public class ExcelGenerator {
 	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.xlsx";
+
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania_" + fileId + ".xlsx";
 
 		String[] columns = { ID_COLUMN, TYTUL_COLUMN, OPIS_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();

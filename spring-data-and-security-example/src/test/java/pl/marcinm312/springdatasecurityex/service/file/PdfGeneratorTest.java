@@ -26,13 +26,17 @@ class PdfGeneratorTest {
 		List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
 		File questionsPdfFile = pdfGenerator.generateQuestionsPdfFile(questionsList);
-		Assertions.assertEquals("Pytania.pdf", questionsPdfFile.getName());
+
+		Assertions.assertTrue(questionsPdfFile.getName().startsWith("Pytania"));
+		Assertions.assertTrue(questionsPdfFile.getName().endsWith(".pdf"));
 	}
 
 	@Test
 	void generateQuestionsPdfFile_emptyQuestionsList_success() throws IOException, DocumentException {
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
 		File questionsPdfFile = pdfGenerator.generateQuestionsPdfFile(new ArrayList<>());
-		Assertions.assertEquals("Pytania.pdf", questionsPdfFile.getName());
+
+		Assertions.assertTrue(questionsPdfFile.getName().startsWith("Pytania"));
+		Assertions.assertTrue(questionsPdfFile.getName().endsWith(".pdf"));
 	}
 }

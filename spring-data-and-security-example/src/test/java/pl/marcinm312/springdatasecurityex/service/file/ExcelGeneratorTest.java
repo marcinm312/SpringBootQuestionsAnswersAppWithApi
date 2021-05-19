@@ -56,7 +56,8 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet, evaluator, "C4", questionsList.get(2).getDescription());
 		checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser().getUsername());
 
-		Assertions.assertEquals("Pytania.xlsx", questionsExcelFile.getName());
+		Assertions.assertTrue(questionsExcelFile.getName().startsWith("Pytania"));
+		Assertions.assertTrue(questionsExcelFile.getName().endsWith(".xlsx"));
 	}
 
 	@Test
@@ -75,7 +76,8 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet, evaluator, "E1", "Data modyfikacji");
 		checkCellStringValue(sheet, evaluator, "F1", "Użytkownik");
 
-		Assertions.assertEquals("Pytania.xlsx", questionsExcelFile.getName());
+		Assertions.assertTrue(questionsExcelFile.getName().startsWith("Pytania"));
+		Assertions.assertTrue(questionsExcelFile.getName().endsWith(".xlsx"));
 	}
 
 	private void checkCellStringValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, String expectedValue) {

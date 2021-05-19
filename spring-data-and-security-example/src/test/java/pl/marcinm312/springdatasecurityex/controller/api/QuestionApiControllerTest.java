@@ -348,7 +348,7 @@ class QuestionApiControllerTest {
 						.with(httpBasic("user", "password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.pdf\""))
+				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
@@ -370,7 +370,7 @@ class QuestionApiControllerTest {
 						.with(httpBasic("user", "password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
-				.andExpect(header().string("Content-Disposition", "attachment; filename=\"Pytania.xlsx\""))
+				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}

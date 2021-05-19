@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -32,7 +34,10 @@ public class PdfGenerator {
 	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania.pdf";
+
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania_" + fileId + ".pdf";
+
 		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
@@ -73,7 +78,10 @@ public class PdfGenerator {
 			throws DocumentException, IOException {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi.pdf";
+
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi_" + fileId + ".pdf";
+
 		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
 		PdfWriter.getInstance(document, new FileOutputStream(filePath));
 		document.open();
