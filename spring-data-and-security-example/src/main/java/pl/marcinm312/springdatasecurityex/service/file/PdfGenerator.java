@@ -25,7 +25,7 @@ public class PdfGenerator {
 	private final Font helvetica18 = new Font(helvetica, 18);
 	private final Font helvetica12 = new Font(helvetica, 12);
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public PdfGenerator() throws DocumentException, IOException {
 		// Do nothing, this is only for adding exceptions to constructor

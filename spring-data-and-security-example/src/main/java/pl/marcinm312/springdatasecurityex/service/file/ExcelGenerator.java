@@ -18,15 +18,15 @@ import java.util.List;
 @Service
 public class ExcelGenerator {
 
-	public static final String ID_COLUMN = "Id";
-	public static final String TRESC_ODPOWIEDZI_COLUMN = "Treść odpowiedzi";
-	public static final String DATA_UTWORZENIA_COLUMN = "Data utworzenia";
-	public static final String DATA_MODYFIKACJI_COLUMN = "Data modyfikacji";
-	public static final String UZYTKOWNIK_COLUMN = "Użytkownik";
-	public static final String TYTUL_COLUMN = "Tytuł";
-	public static final String OPIS_COLUMN = "Opis";
+	private static final String ID_COLUMN = "Id";
+	private static final String TRESC_ODPOWIEDZI_COLUMN = "Treść odpowiedzi";
+	private static final String DATA_UTWORZENIA_COLUMN = "Data utworzenia";
+	private static final String DATA_MODYFIKACJI_COLUMN = "Data modyfikacji";
+	private static final String UZYTKOWNIK_COLUMN = "Użytkownik";
+	private static final String TYTUL_COLUMN = "Tytuł";
+	private static final String OPIS_COLUMN = "Opis";
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public File generateAnswersExcelFile(List<Answer> answersList, Question question) throws IOException {
 		log.info("Starting generating answers Excel file for question = {}", question);

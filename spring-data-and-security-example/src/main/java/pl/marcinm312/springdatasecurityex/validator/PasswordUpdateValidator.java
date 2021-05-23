@@ -13,13 +13,13 @@ import java.util.Optional;
 @Component
 public class PasswordUpdateValidator implements Validator {
 
-	public static final String CURRENT_PASSWORD_FIELD = "currentPassword";
-	public static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
-	public static final String CURRENT_PASSWORD_ERROR = "current_password_error";
-	public static final String USER_NOT_EXISTS_ERROR = "user_not_exists";
-	public static final String PASSWORD_FIELD = "password";
-	public static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
-	public static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+	private static final String CURRENT_PASSWORD_FIELD = "currentPassword";
+	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
+	private static final String CURRENT_PASSWORD_ERROR = "current_password_error";
+	private static final String USER_NOT_EXISTS_ERROR = "user_not_exists";
+	private static final String PASSWORD_FIELD = "password";
+	private static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
+	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
 
 	private final UserRepo userRepo;
 	private final PasswordEncoder passwordEncoder;

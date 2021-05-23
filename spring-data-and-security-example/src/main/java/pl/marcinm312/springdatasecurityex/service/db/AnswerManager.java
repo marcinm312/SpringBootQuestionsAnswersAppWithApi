@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.service.db;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
@@ -19,14 +20,14 @@ import java.util.List;
 @Service
 public class AnswerManager {
 
-	public static final String ANSWER_NOT_FOUND_WITH_ID = "Answer not found with id ";
-	public static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
+	private static final String ANSWER_NOT_FOUND_WITH_ID = "Answer not found with id ";
+	private static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionRepository questionRepository;
 	private final MailService mailService;
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionRepository questionRepository,
@@ -47,6 +48,7 @@ public class AnswerManager {
 				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
 	}
 
+	@Transactional
 	public Answer addAnswer(Long questionId, Answer answer, User user) {
 		return questionRepository.findById(questionId).map(question -> {
 			answer.setQuestion(question);
@@ -66,6 +68,7 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
+	@Transactional
 	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest, User user) {
 		log.info("Updating answer");
 		checkIfQuestionExistsByQuestionId(questionId);

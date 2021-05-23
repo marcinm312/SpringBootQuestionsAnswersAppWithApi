@@ -15,11 +15,11 @@ import java.util.List;
 @Service
 public class QuestionManager {
 
-	public static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
+	private static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
 
 	private final QuestionRepository questionRepository;
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public QuestionManager(QuestionRepository questionRepository) {

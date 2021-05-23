@@ -29,24 +29,24 @@ import java.util.List;
 @RequestMapping("/app/questions")
 public class QuestionWebController {
 
-	public static final String QUESTION_LIST = "questionList";
-	public static final String USER_LOGIN = "userLogin";
-	public static final String QUESTIONS_VIEW = "questions";
-	public static final String QUESTION = "question";
-	public static final String CREATE_QUESTION_VIEW = "createQuestion";
-	public static final String OLD_QUESTION = "oldQuestion";
-	public static final String EDIT_QUESTION_VIEW = "editQuestion";
-	public static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
-	public static final String MESSAGE = "message";
-	public static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
-	public static final String DELETE_QUESTION_VIEW = "deleteQuestion";
+	private static final String QUESTION_LIST = "questionList";
+	private static final String USER_LOGIN = "userLogin";
+	private static final String QUESTIONS_VIEW = "questions";
+	private static final String QUESTION = "question";
+	private static final String CREATE_QUESTION_VIEW = "createQuestion";
+	private static final String OLD_QUESTION = "oldQuestion";
+	private static final String EDIT_QUESTION_VIEW = "editQuestion";
+	private static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
+	private static final String MESSAGE = "message";
+	private static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
+	private static final String DELETE_QUESTION_VIEW = "deleteQuestion";
 
 	private final QuestionManager questionManager;
 	private final PdfGenerator pdfGenerator;
 	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public QuestionWebController(QuestionManager questionManager, PdfGenerator pdfGenerator,

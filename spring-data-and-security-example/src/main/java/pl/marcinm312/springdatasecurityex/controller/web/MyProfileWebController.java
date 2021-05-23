@@ -24,15 +24,15 @@ import pl.marcinm312.springdatasecurityex.validator.UserValidator;
 @RequestMapping("/app/myProfile")
 public class MyProfileWebController {
 
-	public static final String USER_LOGIN = "userLogin";
-	public static final String USER = "user";
-	public static final String MY_PROFILE_VIEW = "myProfile";
-	public static final String UPDATE_MY_PROFILE_VIEW = "updateMyProfile";
-	public static final String USER_2 = "user2";
-	public static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
-	public static final String ILLEGAL_LOGIN_CHANGE_VIEW = "illegalLoginChange";
-	public static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
-	public static final String COMMON_REDIRECT = "redirect:..";
+	private static final String USER_LOGIN = "userLogin";
+	private static final String USER = "user";
+	private static final String MY_PROFILE_VIEW = "myProfile";
+	private static final String UPDATE_MY_PROFILE_VIEW = "updateMyProfile";
+	private static final String USER_2 = "user2";
+	private static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
+	private static final String ILLEGAL_LOGIN_CHANGE_VIEW = "illegalLoginChange";
+	private static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
+	private static final String COMMON_REDIRECT = "redirect:..";
 
 	private final UserManager userManager;
 	private final UserValidator userValidator;
@@ -49,12 +49,12 @@ public class MyProfileWebController {
 	}
 
 	@InitBinder("user")
-	protected void initBinder(WebDataBinder binder) {
+	private void initBinder(WebDataBinder binder) {
 		binder.addValidators(userValidator);
 	}
 
 	@InitBinder("user2")
-	protected void initBinder2(WebDataBinder binder) {
+	private void initBinder2(WebDataBinder binder) {
 		binder.addValidators(passwordUpdateValidator);
 	}
 

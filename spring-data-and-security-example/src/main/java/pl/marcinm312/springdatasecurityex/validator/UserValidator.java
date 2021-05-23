@@ -12,10 +12,10 @@ import java.util.Optional;
 @Component
 public class UserValidator implements Validator {
 
-	public static final String USERNAME_FIELD = "username";
-	public static final String USER_EXISTS_ERROR = "user_exists_error";
-	public static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
-	public static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
+	private static final String USERNAME_FIELD = "username";
+	private static final String USER_EXISTS_ERROR = "user_exists_error";
+	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
 
 	private final UserRepo userRepo;
 

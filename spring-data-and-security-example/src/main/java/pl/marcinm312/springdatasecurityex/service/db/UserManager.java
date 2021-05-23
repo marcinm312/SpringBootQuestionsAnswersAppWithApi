@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
@@ -32,7 +33,7 @@ public class UserManager {
 	private final MailService mailService;
 	private final SessionUtils sessionUtils;
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
@@ -51,6 +52,7 @@ public class UserManager {
 		return optionalUser.orElse(null);
 	}
 
+	@Transactional
 	public User addUser(User user, String appURL) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
@@ -62,6 +64,7 @@ public class UserManager {
 		return savedUser;
 	}
 
+	@Transactional
 	public User updateUserData(User user, Authentication authentication) {
 		log.info("Updating user");
 		User oldUser = getUserByAuthentication(authentication);
@@ -85,6 +88,7 @@ public class UserManager {
 		return savedUser;
 	}
 
+	@Transactional
 	public User updateUserPassword(User user, Authentication authentication) {
 		log.info("Updating user password");
 		User oldUser = getUserByAuthentication(authentication);
@@ -106,6 +110,7 @@ public class UserManager {
 		}
 	}
 
+	@Transactional
 	public void deleteUser(Authentication authentication) {
 		User user = getUserByAuthentication(authentication);
 		log.info("Deleting user = {}", user);
@@ -115,6 +120,7 @@ public class UserManager {
 		sessionUtils.expireUserSessions(authentication.getName(), true);
 	}
 
+	@Transactional
 	public User activateUser(String tokenValue) {
 		Optional<Token> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isPresent()) {

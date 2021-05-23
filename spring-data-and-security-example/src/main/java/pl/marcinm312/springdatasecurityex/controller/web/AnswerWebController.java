@@ -31,18 +31,18 @@ import java.util.List;
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
 
-	public static final String USER_LOGIN = "userLogin";
-	public static final String MESSAGE = "message";
-	public static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
-	public static final String ANSWER_LIST = "answerList";
-	public static final String QUESTION = "question";
-	public static final String ANSWER = "answer";
-	public static final String ANSWERS_VIEW = "answers";
-	public static final String CREATE_ANSWER_VIEW = "createAnswer";
-	public static final String OLD_ANSWER = "oldAnswer";
-	public static final String EDIT_ANSWER_VIEW = "editAnswer";
-	public static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
-	public static final String DELETE_ANSWER_VIEW = "deleteAnswer";
+	private static final String USER_LOGIN = "userLogin";
+	private static final String MESSAGE = "message";
+	private static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
+	private static final String ANSWER_LIST = "answerList";
+	private static final String QUESTION = "question";
+	private static final String ANSWER = "answer";
+	private static final String ANSWERS_VIEW = "answers";
+	private static final String CREATE_ANSWER_VIEW = "createAnswer";
+	private static final String OLD_ANSWER = "oldAnswer";
+	private static final String EDIT_ANSWER_VIEW = "editAnswer";
+	private static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
+	private static final String DELETE_ANSWER_VIEW = "deleteAnswer";
 
 	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
@@ -50,7 +50,7 @@ public class AnswerWebController {
 	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
-	protected final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,

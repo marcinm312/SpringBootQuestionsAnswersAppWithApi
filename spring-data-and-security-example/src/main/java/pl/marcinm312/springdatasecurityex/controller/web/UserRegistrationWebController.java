@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/")
 public class UserRegistrationWebController {
 
-    public static final String USER = "user";
-    public static final String REGISTER_VIEW = "register";
-    public static final String TOKEN_NOT_FOUND_VIEW = "tokenNotFound";
-    public static final String USER_ACTIVATION_VIEW = "userActivation";
+    private static final String USER = "user";
+    private static final String REGISTER_VIEW = "register";
+    private static final String TOKEN_NOT_FOUND_VIEW = "tokenNotFound";
+    private static final String USER_ACTIVATION_VIEW = "userActivation";
     
     private final UserManager userManager;
     private final UserValidator userValidator;
@@ -33,7 +33,7 @@ public class UserRegistrationWebController {
     }
 
     @InitBinder("user")
-    protected void initBinder(WebDataBinder binder) {
+    private void initBinder(WebDataBinder binder) {
         binder.addValidators(userValidator);
     }
 
