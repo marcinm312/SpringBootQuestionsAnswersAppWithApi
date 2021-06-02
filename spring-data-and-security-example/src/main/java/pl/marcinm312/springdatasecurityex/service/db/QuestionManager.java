@@ -7,6 +7,8 @@ import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 
@@ -26,13 +28,15 @@ public class QuestionManager {
 		this.questionRepository = questionRepository;
 	}
 
-	public List<Question> getQuestions() {
-		return questionRepository.findAllByOrderByIdDesc();
+	public List<QuestionGet> getQuestions() {
+		List<Question> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
+		return QuestionMapper.convertQuestionListToQuestionGetList(questionsFromDB);
 	}
 
-	public Question getQuestion(Long questionId) {
-		return questionRepository.findById(questionId)
+	public QuestionGet getQuestion(Long questionId) {
+		Question questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+		return QuestionMapper.convertQuestionToQuestionGet(questionFromDB);
 	}
 
 	public Question createQuestion(Question question, User user) {

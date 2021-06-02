@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
@@ -37,12 +38,12 @@ public class QuestionApiController {
 	}
 
 	@GetMapping
-	public List<Question> getQuestions() {
+	public List<QuestionGet> getQuestions() {
 		return questionManager.getQuestions();
 	}
 
 	@GetMapping("/{questionId}")
-	public Question getQuestion(@PathVariable Long questionId) {
+	public QuestionGet getQuestion(@PathVariable Long questionId) {
 		return questionManager.getQuestion(questionId);
 	}
 
@@ -67,14 +68,14 @@ public class QuestionApiController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}

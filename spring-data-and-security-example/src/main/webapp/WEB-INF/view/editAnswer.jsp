@@ -45,7 +45,7 @@
 			</p>
 			<p>
 				<span class="bold">Użytkownik:</span><br>
-				${question.user.username}
+				${question.user}
 			</p>
 		</div>
 		<h1>Edytowanie odpowiedzi o id: ${oldAnswer.id}</h1>

@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -111,7 +112,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question[] responseQuestionList = mapper.readValue(response, Question[].class);
+		QuestionGet[] responseQuestionList = mapper.readValue(response, QuestionGet[].class);
 		int arrayExpectedSize = 3;
 		int arrayResultSize = responseQuestionList.length;
 		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
@@ -140,7 +141,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 
 		Assertions.assertEquals(expectedTitle, responseQuestion.getTitle());
 		Assertions.assertEquals(expectedDescription, responseQuestion.getDescription());

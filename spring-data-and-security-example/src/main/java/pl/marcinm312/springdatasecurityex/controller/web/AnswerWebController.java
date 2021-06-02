@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
-import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -67,7 +67,7 @@ public class AnswerWebController {
 		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
 		List<Answer> answerList;
-		Question question;
+		QuestionGet question;
 		try {
 			answerList = answerManager.getAnswersByQuestionId(questionId);
 			log.info("answerList.size()={}", answerList.size());
@@ -86,7 +86,7 @@ public class AnswerWebController {
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			Question question = questionManager.getQuestion(questionId);
+			QuestionGet question = questionManager.getQuestion(questionId);
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(ANSWER, answer);
 			model.addAttribute(USER_LOGIN, userName);
@@ -101,7 +101,7 @@ public class AnswerWebController {
 	@GetMapping("/new")
 	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question;
+		QuestionGet question;
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
@@ -119,7 +119,7 @@ public class AnswerWebController {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			Answer oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
-			Question question = questionManager.getQuestion(questionId);
+			QuestionGet question = questionManager.getQuestion(questionId);
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(OLD_ANSWER, oldAnswer);
 			model.addAttribute(ANSWER, answer);
@@ -142,7 +142,7 @@ public class AnswerWebController {
 								 Authentication authentication) {
 		String userName = authentication.getName();
 		Answer answer;
-		Question question;
+		QuestionGet question;
 		try {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
@@ -175,7 +175,7 @@ public class AnswerWebController {
 								   Authentication authentication) {
 		String userName = authentication.getName();
 		Answer answer;
-		Question question;
+		QuestionGet question;
 		try {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
@@ -190,7 +190,7 @@ public class AnswerWebController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<?> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
-		Question question;
+		QuestionGet question;
 		List<Answer> answersList;
 		try {
 			question = questionManager.getQuestion(questionId);
@@ -204,7 +204,7 @@ public class AnswerWebController {
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<?> downloadExcel(@PathVariable Long questionId) throws IOException {
-		Question question;
+		QuestionGet question;
 		List<Answer> answersList;
 		try {
 			question = questionManager.getQuestion(questionId);

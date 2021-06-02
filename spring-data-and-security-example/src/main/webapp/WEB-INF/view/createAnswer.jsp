@@ -45,7 +45,7 @@
 			</p>
 			<p>
 				<span class="bold">Użytkownik:</span><br>
-				${question.user.username}
+				${question.user}
 			</p>
 		</div>
 		<h1>Twoja odpowiedź:</h1>
