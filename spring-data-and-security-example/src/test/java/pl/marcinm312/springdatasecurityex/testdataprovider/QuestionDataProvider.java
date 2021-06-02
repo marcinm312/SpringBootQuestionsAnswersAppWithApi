@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.testdataprovider;
 
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
 
 import java.util.ArrayList;
 import java.util.Calendar;

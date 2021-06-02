@@ -12,12 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Token;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.user.Token;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
-import pl.marcinm312.springdatasecurityex.service.SessionUtils;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
 import javax.mail.MessagingException;
 import java.util.Collection;

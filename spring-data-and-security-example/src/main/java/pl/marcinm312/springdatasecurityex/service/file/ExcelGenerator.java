@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
 
 import java.io.File;
 import java.io.FileOutputStream;

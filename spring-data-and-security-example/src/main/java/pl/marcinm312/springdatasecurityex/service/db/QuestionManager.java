@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 
 import java.util.List;
