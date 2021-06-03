@@ -56,10 +56,12 @@ class QuestionManagerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		String expectedTitle = question.getTitle();
 		String expectedDescription = question.getDescription();
+		String expectedUser = question.getUser().getUsername();
 		QuestionGet questionResult = questionManager.getQuestion(1000L);
 
 		Assertions.assertEquals(expectedTitle, questionResult.getTitle());
 		Assertions.assertEquals(expectedDescription, questionResult.getDescription());
+		Assertions.assertEquals(expectedUser, questionResult.getUser());
 	}
 
 	@ParameterizedTest(name = "{index} ''{1}''")

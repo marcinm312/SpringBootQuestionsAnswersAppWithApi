@@ -133,6 +133,7 @@ class QuestionApiControllerTest {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		String expectedTitle = question.getTitle();
 		String expectedDescription = question.getDescription();
+		String expectedUser = question.getUser().getUsername();
 		String response = mockMvc.perform(
 				get("/api/questions/1000")
 						.with(httpBasic("user", "password")))
@@ -145,6 +146,7 @@ class QuestionApiControllerTest {
 
 		Assertions.assertEquals(expectedTitle, responseQuestion.getTitle());
 		Assertions.assertEquals(expectedDescription, responseQuestion.getDescription());
+		Assertions.assertEquals(expectedUser, responseQuestion.getUser());
 	}
 
 	@Test
