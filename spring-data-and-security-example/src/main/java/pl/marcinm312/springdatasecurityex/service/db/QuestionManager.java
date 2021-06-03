@@ -6,8 +6,11 @@ import org.springframework.stereotype.Service;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 
 import java.util.List;
@@ -26,22 +29,25 @@ public class QuestionManager {
 		this.questionRepository = questionRepository;
 	}
 
-	public List<Question> getQuestions() {
-		return questionRepository.findAllByOrderByIdDesc();
+	public List<QuestionGet> getQuestions() {
+		List<Question> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
+		return QuestionMapper.convertQuestionListToQuestionGetList(questionsFromDB);
 	}
 
-	public Question getQuestion(Long questionId) {
-		return questionRepository.findById(questionId)
+	public QuestionGet getQuestion(Long questionId) {
+		Question questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+		return QuestionMapper.convertQuestionToQuestionGet(questionFromDB);
 	}
 
-	public Question createQuestion(Question question, User user) {
+	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, User user) {
+		Question question = new Question(questionRequest.getTitle(), questionRequest.getDescription());
 		question.setUser(user);
 		log.info("Creating question = {}", question);
-		return questionRepository.save(question);
+		return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
 	}
 
-	public Question updateQuestion(Long questionId, Question questionRequest, User user) {
+	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
 			if (checkIfUserIsPermitted(question, user)) {
@@ -50,7 +56,7 @@ public class QuestionManager {
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
 				log.info("New question = {}", question);
-				return questionRepository.save(question);
+				return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
 			} else {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();

@@ -6,7 +6,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 
 import java.io.File;
@@ -26,7 +28,8 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateQuestionsExcelFile_simpleCase_success() throws IOException {
-		List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
 		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
 
 		FileInputStream fis = new FileInputStream(questionsExcelFile);
@@ -44,17 +47,17 @@ class ExcelGeneratorTest {
 		checkCellNumberValue(sheet, evaluator, "A2", questionsList.get(0).getId());
 		checkCellStringValue(sheet, evaluator, "B2", questionsList.get(0).getTitle());
 		checkCellStringValue(sheet, evaluator, "C2", questionsList.get(0).getDescription());
-		checkCellStringValue(sheet, evaluator, "F2", questionsList.get(0).getUser().getUsername());
+		checkCellStringValue(sheet, evaluator, "F2", questionsList.get(0).getUser());
 
 		checkCellNumberValue(sheet, evaluator, "A3", questionsList.get(1).getId());
 		checkCellStringValue(sheet, evaluator, "B3", questionsList.get(1).getTitle());
 		checkCellStringValue(sheet, evaluator, "C3", questionsList.get(1).getDescription());
-		checkCellStringValue(sheet, evaluator, "F3", questionsList.get(1).getUser().getUsername());
+		checkCellStringValue(sheet, evaluator, "F3", questionsList.get(1).getUser());
 
 		checkCellNumberValue(sheet, evaluator, "A4", questionsList.get(2).getId());
 		checkCellStringValue(sheet, evaluator, "B4", questionsList.get(2).getTitle());
 		checkCellStringValue(sheet, evaluator, "C4", questionsList.get(2).getDescription());
-		checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser().getUsername());
+		checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser());
 
 		Assertions.assertTrue(questionsExcelFile.getName().startsWith("Pytania"));
 		Assertions.assertTrue(questionsExcelFile.getName().endsWith(".xlsx"));

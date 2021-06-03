@@ -7,8 +7,8 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -31,7 +31,7 @@ public class PdfGenerator {
 		// Do nothing, this is only for adding exceptions to constructor
 	}
 
-	public File generateQuestionsPdfFile(List<Question> questionsList) throws DocumentException, IOException {
+	public File generateQuestionsPdfFile(List<QuestionGet> questionsList) throws DocumentException, IOException {
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
 
@@ -52,7 +52,7 @@ public class PdfGenerator {
 		createAndAddCellToTable("Data utworzenia", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data modyfikacji", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Użytkownik", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		for (Question question : questionsList) {
+		for (QuestionGet question : questionsList) {
 			createAndAddCellToTable(question.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(question.getTitle(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(question.getDescription(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
@@ -60,7 +60,7 @@ public class PdfGenerator {
 					table);
 			createAndAddCellToTable(question.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
-			createAndAddCellToTable(question.getUser().getUsername(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(question.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
 		}
 		int[] szerokosci = {40, 150, 150, 120, 120, 120};
@@ -74,7 +74,7 @@ public class PdfGenerator {
 		return file;
 	}
 
-	public File generateAnswersPdfFile(List<Answer> answersList, Question question)
+	public File generateAnswersPdfFile(List<Answer> answersList, QuestionGet question)
 			throws DocumentException, IOException {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
@@ -93,7 +93,7 @@ public class PdfGenerator {
 		document.add(questionTitle);
 		Paragraph questionDescription = new Paragraph("Opis: " + question.getDescription(), helvetica12);
 		document.add(questionDescription);
-		Paragraph questionUser = new Paragraph("Użytkownik: " + question.getUser().getUsername(), helvetica12);
+		Paragraph questionUser = new Paragraph("Użytkownik: " + question.getUser(), helvetica12);
 		document.add(questionUser);
 		document.add(Chunk.NEWLINE);
 		PdfPTable table = new PdfPTable(5);

@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import pl.marcinm312.springdatasecurityex.model.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 
 import java.util.List;
 

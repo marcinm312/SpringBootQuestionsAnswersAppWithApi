@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
@@ -76,10 +76,8 @@ public class AnswerApiController {
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf(@PathVariable Long questionId)
 			throws IOException, DocumentException, ResourceNotFoundException {
-		Question question;
-		List<Answer> answersList;
-		question = questionManager.getQuestion(questionId);
-		answersList = answerManager.getAnswersByQuestionId(questionId);
+		QuestionGet question = questionManager.getQuestion(questionId);
+		List<Answer> answersList = answerManager.getAnswersByQuestionId(questionId);
 		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
@@ -87,10 +85,8 @@ public class AnswerApiController {
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel(@PathVariable Long questionId)
 			throws IOException, ResourceNotFoundException {
-		Question question;
-		List<Answer> answersList;
-		question = questionManager.getQuestion(questionId);
-		answersList = answerManager.getAnswersByQuestionId(questionId);
+		QuestionGet question = questionManager.getQuestion(questionId);
+		List<Answer> answersList = answerManager.getAnswersByQuestionId(questionId);
 		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}

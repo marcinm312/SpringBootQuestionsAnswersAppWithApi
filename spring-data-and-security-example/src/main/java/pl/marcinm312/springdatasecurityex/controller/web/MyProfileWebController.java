@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
-import pl.marcinm312.springdatasecurityex.model.User;
-import pl.marcinm312.springdatasecurityex.service.SessionUtils;
+import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.validator.PasswordUpdateValidator;
 import pl.marcinm312.springdatasecurityex.validator.UserValidator;

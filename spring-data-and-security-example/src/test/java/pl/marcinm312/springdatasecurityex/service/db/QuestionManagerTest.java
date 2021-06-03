@@ -13,8 +13,9 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -45,7 +46,7 @@ class QuestionManagerTest {
 
 	@Test
 	void getQuestions_simpleCase_success() {
-		List<Question> questionsResultList = questionManager.getQuestions();
+		List<QuestionGet> questionsResultList = questionManager.getQuestions();
 		MatcherAssert.assertThat(questionsResultList, Matchers.hasSize(3));
 	}
 
@@ -55,10 +56,12 @@ class QuestionManagerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		String expectedTitle = question.getTitle();
 		String expectedDescription = question.getDescription();
-		Question questionResult = questionManager.getQuestion(1000L);
+		String expectedUser = question.getUser().getUsername();
+		QuestionGet questionResult = questionManager.getQuestion(1000L);
 
 		Assertions.assertEquals(expectedTitle, questionResult.getTitle());
 		Assertions.assertEquals(expectedDescription, questionResult.getDescription());
+		Assertions.assertEquals(expectedUser, questionResult.getUser());
 	}
 
 	@ParameterizedTest(name = "{index} ''{1}''")

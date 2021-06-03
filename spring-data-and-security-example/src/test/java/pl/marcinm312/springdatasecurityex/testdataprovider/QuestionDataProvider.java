@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.testdataprovider;
 
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,30 +24,32 @@ public class QuestionDataProvider {
 	}
 
 	public static Question prepareExampleQuestion() {
-		return new Question(1000L, "bbbb", "bbbb", UserDataProvider.prepareExampleGoodUser());
+		return new Question(1000L, "bbbb", "bbbb", UserDataProvider.prepareExampleGoodUser(),
+				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
+				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30));
 	}
 
-	public static Question prepareGoodQuestionToRequest() {
-		return new Question(null, "bbb", "bbbb", null);
+	public static QuestionCreateUpdate prepareGoodQuestionToRequest() {
+		return new QuestionCreateUpdate("bbb", "bbbb");
 	}
 
-	public static Question prepareGoodQuestionWithNullDescriptionToRequest() {
-		return new Question(null, "bbb", null, null);
+	public static QuestionCreateUpdate prepareGoodQuestionWithNullDescriptionToRequest() {
+		return new QuestionCreateUpdate("bbb", null);
 	}
 
-	public static Question prepareGoodQuestionWithEmptyDescriptionToRequest() {
-		return new Question(null, "bbb", "", null);
+	public static QuestionCreateUpdate prepareGoodQuestionWithEmptyDescriptionToRequest() {
+		return new QuestionCreateUpdate("bbb", "");
 	}
 
-	public static Question prepareQuestionWithTooShortTitleToRequest() {
-		return new Question(null, "bb", "bbbb", null);
+	public static QuestionCreateUpdate prepareQuestionWithTooShortTitleToRequest() {
+		return new QuestionCreateUpdate("bb", "bbbb");
 	}
 
-	public static Question prepareQuestionWithNullTitleToRequest() {
-		return new Question(null, null, "bbbb", null);
+	public static QuestionCreateUpdate prepareQuestionWithNullTitleToRequest() {
+		return new QuestionCreateUpdate(null, "bbbb");
 	}
 
-	public static Question prepareQuestionWithEmptyTitleToRequest() {
-		return new Question(null, "", "bbbb", null);
+	public static QuestionCreateUpdate prepareQuestionWithEmptyTitleToRequest() {
+		return new QuestionCreateUpdate("", "bbbb");
 	}
 }

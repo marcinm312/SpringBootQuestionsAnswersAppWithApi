@@ -3,7 +3,7 @@ package pl.marcinm312.springdatasecurityex.testdataprovider;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 
 public class UserDataProvider {
 

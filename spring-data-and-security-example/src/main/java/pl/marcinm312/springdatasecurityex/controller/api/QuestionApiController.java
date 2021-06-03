@@ -6,8 +6,9 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
@@ -37,23 +38,23 @@ public class QuestionApiController {
 	}
 
 	@GetMapping
-	public List<Question> getQuestions() {
+	public List<QuestionGet> getQuestions() {
 		return questionManager.getQuestions();
 	}
 
 	@GetMapping("/{questionId}")
-	public Question getQuestion(@PathVariable Long questionId) {
+	public QuestionGet getQuestion(@PathVariable Long questionId) {
 		return questionManager.getQuestion(questionId);
 	}
 
 	@PostMapping
-	public Question createQuestion(@Valid @RequestBody Question question, Authentication authentication) {
+	public QuestionGet createQuestion(@Valid @RequestBody QuestionCreateUpdate question, Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return questionManager.createQuestion(question, user);
 	}
 
 	@PutMapping("/{questionId}")
-	public Question updateQuestion(@PathVariable Long questionId, @Valid @RequestBody Question questionRequest,
+	public QuestionGet updateQuestion(@PathVariable Long questionId, @Valid @RequestBody QuestionCreateUpdate questionRequest,
 								   Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return questionManager.updateQuestion(questionId, questionRequest, user);
@@ -67,14 +68,14 @@ public class QuestionApiController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}

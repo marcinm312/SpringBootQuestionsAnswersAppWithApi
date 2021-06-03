@@ -4,8 +4,8 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.model.Answer;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +28,7 @@ public class ExcelGenerator {
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-	public File generateAnswersExcelFile(List<Answer> answersList, Question question) throws IOException {
+	public File generateAnswersExcelFile(List<Answer> answersList, QuestionGet question) throws IOException {
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
@@ -113,7 +113,7 @@ public class ExcelGenerator {
 		Cell cellA6 = row6.createCell(0);
 		cellA6.setCellValue(UZYTKOWNIK_COLUMN);
 		cellA6.setCellStyle(headerCellStyle);
-		row6.createCell(1).setCellValue(question.getUser().getUsername());
+		row6.createCell(1).setCellValue(question.getUser());
 
 		questionSheet.autoSizeColumn(0);
 		questionSheet.autoSizeColumn(1);
@@ -129,7 +129,7 @@ public class ExcelGenerator {
 		return file;
 	}
 
-	public File generateQuestionsExcelFile(List<Question> questionsList) throws IOException {
+	public File generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
 
@@ -152,7 +152,7 @@ public class ExcelGenerator {
 		CellStyle dateCellStyle = getDateCellStyle(workbook);
 
 		int rowNum = 1;
-		for (Question question : questionsList) {
+		for (QuestionGet question : questionsList) {
 			Row row = sheet.createRow(rowNum++);
 
 			row.createCell(0).setCellValue(question.getId());
@@ -167,7 +167,7 @@ public class ExcelGenerator {
 			modificationDateCell.setCellValue(question.getUpdatedAtAsString());
 			modificationDateCell.setCellStyle(dateCellStyle);
 
-			row.createCell(5).setCellValue(question.getUser().getUsername());
+			row.createCell(5).setCellValue(question.getUser());
 		}
 
 		for (int i = 0; i < columns.length; i++) {

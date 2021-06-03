@@ -22,7 +22,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -111,7 +113,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question[] responseQuestionList = mapper.readValue(response, Question[].class);
+		QuestionGet[] responseQuestionList = mapper.readValue(response, QuestionGet[].class);
 		int arrayExpectedSize = 3;
 		int arrayResultSize = responseQuestionList.length;
 		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
@@ -132,6 +134,7 @@ class QuestionApiControllerTest {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		String expectedTitle = question.getTitle();
 		String expectedDescription = question.getDescription();
+		String expectedUser = question.getUser().getUsername();
 		String response = mockMvc.perform(
 				get("/api/questions/1000")
 						.with(httpBasic("user", "password")))
@@ -140,10 +143,11 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 
 		Assertions.assertEquals(expectedTitle, responseQuestion.getTitle());
 		Assertions.assertEquals(expectedDescription, responseQuestion.getDescription());
+		Assertions.assertEquals(expectedUser, responseQuestion.getUser());
 	}
 
 	@Test
@@ -178,8 +182,9 @@ class QuestionApiControllerTest {
 	void createQuestion_simpleCase_success() throws Exception {
 		given(userManager.getUserByAuthentication(any(Authentication.class)))
 				.willReturn(UserDataProvider.prepareExampleGoodUser());
-		Question questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class))).willReturn(questionToRequestBody);
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -191,7 +196,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 	}
@@ -201,8 +206,9 @@ class QuestionApiControllerTest {
 	void createQuestion_nullDescription_success() throws Exception {
 		given(userManager.getUserByAuthentication(any(Authentication.class)))
 				.willReturn(UserDataProvider.prepareExampleGoodUser());
-		Question questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(Question.class))).willReturn(questionToRequestBody);
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -214,7 +220,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 	}

@@ -80,7 +80,7 @@
 								<td>${question.description}</td>
 								<td>${question.createdAtAsString}</td>
 								<td>${question.updatedAtAsString}</td>
-								<td>${question.user.username}</td>
+								<td>${question.user}</td>
 								<td><div class="btn-group-vertical">
 										<button type="button" class="btn btn-secondary btn-sm"
 											onclick="window.location.href = '${question.id}/answers/'">Odpowiedzi</button>

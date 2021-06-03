@@ -4,7 +4,9 @@ import com.itextpdf.text.DocumentException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.marcinm312.springdatasecurityex.model.Question;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 
 import java.io.File;
@@ -23,7 +25,8 @@ class PdfGeneratorTest {
 
 	@Test
 	void generateQuestionsPdfFile_simpleCase_success() throws IOException, DocumentException {
-		List<Question> questionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
 		File questionsPdfFile = pdfGenerator.generateQuestionsPdfFile(questionsList);
 

@@ -13,8 +13,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.Question;
-import pl.marcinm312.springdatasecurityex.model.User;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
@@ -61,7 +62,7 @@ public class QuestionWebController {
 	public String questionsGet(Model model, Authentication authentication) {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		List<Question> questionList = questionManager.getQuestions();
+		List<QuestionGet> questionList = questionManager.getQuestions();
 		log.info("questionList.size()={}", questionList.size());
 		model.addAttribute(QUESTION_LIST, questionList);
 		model.addAttribute(USER_LOGIN, userName);
@@ -69,7 +70,7 @@ public class QuestionWebController {
 	}
 
 	@PostMapping("/new")
-	public String createQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
+	public String createQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 								 Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
@@ -86,17 +87,17 @@ public class QuestionWebController {
 	@GetMapping("/new")
 	public String createQuestionView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		model.addAttribute(QUESTION, new Question());
+		model.addAttribute(QUESTION, new QuestionCreateUpdate());
 		model.addAttribute(USER_LOGIN, userName);
 		return CREATE_QUESTION_VIEW;
 	}
 
 	@PostMapping("/{questionId}/edit")
-	public String editQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
+	public String editQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			Question oldQuestion = questionManager.getQuestion(questionId);
+			QuestionGet oldQuestion = questionManager.getQuestion(questionId);
 			model.addAttribute(OLD_QUESTION, oldQuestion);
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(USER_LOGIN, userName);
@@ -116,7 +117,7 @@ public class QuestionWebController {
 	@GetMapping("/{questionId}/edit")
 	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question;
+		QuestionGet question;
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
@@ -146,7 +147,7 @@ public class QuestionWebController {
 	@GetMapping("/{questionId}/delete")
 	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
-		Question question;
+		QuestionGet question;
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
@@ -161,14 +162,14 @@ public class QuestionWebController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
-		List<Question> questionsList = questionManager.getQuestions();
+		List<QuestionGet> questionsList = questionManager.getQuestions();
 		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
