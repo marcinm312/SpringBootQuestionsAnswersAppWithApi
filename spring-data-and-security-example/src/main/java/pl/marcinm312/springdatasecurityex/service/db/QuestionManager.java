@@ -8,6 +8,7 @@ import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
@@ -39,13 +40,14 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionToQuestionGet(questionFromDB);
 	}
 
-	public Question createQuestion(Question question, User user) {
+	public Question createQuestion(QuestionCreateUpdate questionRequest, User user) {
+		Question question = new Question(questionRequest.getTitle(), questionRequest.getDescription());
 		question.setUser(user);
 		log.info("Creating question = {}", question);
 		return questionRepository.save(question);
 	}
 
-	public Question updateQuestion(Long questionId, Question questionRequest, User user) {
+	public Question updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
 			if (checkIfUserIsPermitted(question, user)) {

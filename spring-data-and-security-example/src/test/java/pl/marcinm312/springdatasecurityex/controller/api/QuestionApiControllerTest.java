@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
@@ -181,8 +182,9 @@ class QuestionApiControllerTest {
 	void createQuestion_simpleCase_success() throws Exception {
 		given(userManager.getUserByAuthentication(any(Authentication.class)))
 				.willReturn(UserDataProvider.prepareExampleGoodUser());
-		Question questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class))).willReturn(questionToRequestBody);
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -204,8 +206,9 @@ class QuestionApiControllerTest {
 	void createQuestion_nullDescription_success() throws Exception {
 		given(userManager.getUserByAuthentication(any(Authentication.class)))
 				.willReturn(UserDataProvider.prepareExampleGoodUser());
-		Question questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(Question.class))).willReturn(questionToRequestBody);
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))

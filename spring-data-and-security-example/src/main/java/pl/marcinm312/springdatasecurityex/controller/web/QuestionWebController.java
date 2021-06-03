@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -70,7 +70,7 @@ public class QuestionWebController {
 	}
 
 	@PostMapping("/new")
-	public String createQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
+	public String createQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 								 Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
@@ -87,13 +87,13 @@ public class QuestionWebController {
 	@GetMapping("/new")
 	public String createQuestionView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		model.addAttribute(QUESTION, new Question());
+		model.addAttribute(QUESTION, new QuestionCreateUpdate());
 		model.addAttribute(USER_LOGIN, userName);
 		return CREATE_QUESTION_VIEW;
 	}
 
 	@PostMapping("/{questionId}/edit")
-	public String editQuestion(@ModelAttribute("question") @Validated Question question, BindingResult bindingResult,
+	public String editQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {

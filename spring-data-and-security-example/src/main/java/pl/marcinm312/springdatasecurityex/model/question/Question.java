@@ -35,11 +35,9 @@ public class Question extends AuditModel {
     public Question() {
     }
 
-    public Question(Long id, String title, String description, User user) {
-        this.id = id;
+    public Question(String title, String description) {
         this.title = title;
         this.description = description;
-        this.user = user;
     }
 
     public Question(Long id, String title, String description, User user, Date createdAt, Date updatedAt) {

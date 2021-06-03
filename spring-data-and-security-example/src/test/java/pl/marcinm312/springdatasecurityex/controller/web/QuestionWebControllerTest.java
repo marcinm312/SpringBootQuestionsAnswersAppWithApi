@@ -23,7 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
-import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
@@ -89,7 +89,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void createQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -104,7 +104,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_withoutCsrfToken_forbidden() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -117,7 +117,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_witCsrfInvalidToken_forbidden() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -131,7 +131,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -149,7 +149,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_emptyDescription_success() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -167,7 +167,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitle_validationErrors() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
 				post("/app/questions/new")
@@ -184,7 +184,7 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-		Question questionFromModel = (Question) modelAndView.getModel().get("question");
+		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 	}
@@ -192,7 +192,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
-		Question questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
 				post("/app/questions/new")
@@ -209,7 +209,7 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-		Question questionFromModel = (Question) modelAndView.getModel().get("question");
+		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 	}

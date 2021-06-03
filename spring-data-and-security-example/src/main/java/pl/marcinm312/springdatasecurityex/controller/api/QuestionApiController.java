@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
@@ -48,13 +49,13 @@ public class QuestionApiController {
 	}
 
 	@PostMapping
-	public Question createQuestion(@Valid @RequestBody Question question, Authentication authentication) {
+	public Question createQuestion(@Valid @RequestBody QuestionCreateUpdate question, Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return questionManager.createQuestion(question, user);
 	}
 
 	@PutMapping("/{questionId}")
-	public Question updateQuestion(@PathVariable Long questionId, @Valid @RequestBody Question questionRequest,
+	public Question updateQuestion(@PathVariable Long questionId, @Valid @RequestBody QuestionCreateUpdate questionRequest,
 								   Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return questionManager.updateQuestion(questionId, questionRequest, user);
