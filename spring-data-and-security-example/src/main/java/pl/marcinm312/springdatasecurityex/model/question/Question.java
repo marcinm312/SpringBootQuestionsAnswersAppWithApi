@@ -1,26 +1,22 @@
 package pl.marcinm312.springdatasecurityex.model.question;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import pl.marcinm312.springdatasecurityex.model.AuditModel;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.Date;
 
 @Entity
 @Table(name = "questions")
 public class Question extends AuditModel {
+
     @Id
     @GeneratedValue(generator = "question_generator")
     @SequenceGenerator(name = "question_generator", sequenceName = "question_sequence", initialValue = 1000)
     private Long id;
 
-    @NotBlank(message = "Pole to musi być wypełnione!")
-    @Size(min = 3, max = 100, message = "Pole to musi zawierać od 3 do 100 znaków")
     private String title;
 
     @Column(columnDefinition = "text")
@@ -29,7 +25,6 @@ public class Question extends AuditModel {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    @JsonIgnore
     private User user;
 
     public Question() {

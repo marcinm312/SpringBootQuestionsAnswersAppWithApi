@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
@@ -132,6 +133,8 @@ class QuestionWebControllerTest {
 	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 				post("/app/questions/new")
@@ -150,6 +153,8 @@ class QuestionWebControllerTest {
 	@WithMockUser(username = "user")
 	void createQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 				post("/app/questions/new")

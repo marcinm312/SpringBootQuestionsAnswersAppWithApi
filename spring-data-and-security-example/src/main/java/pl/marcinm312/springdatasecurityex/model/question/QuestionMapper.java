@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.model.question;
 
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +19,10 @@ public class QuestionMapper {
 		questionGet.setDescription(question.getDescription());
 		questionGet.setCreatedAt(question.getCreatedAt());
 		questionGet.setUpdatedAt(question.getUpdatedAt());
-		questionGet.setUser(question.getUser().getUsername());
+		User user = question.getUser();
+		if (user != null) {
+			questionGet.setUser(user.getUsername());
+		}
 		return questionGet;
 	}
 

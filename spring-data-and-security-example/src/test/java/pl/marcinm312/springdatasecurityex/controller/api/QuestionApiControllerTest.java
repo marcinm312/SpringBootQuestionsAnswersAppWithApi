@@ -196,7 +196,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 	}
@@ -220,7 +220,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		Question responseQuestion = mapper.readValue(response, Question.class);
+		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 	}

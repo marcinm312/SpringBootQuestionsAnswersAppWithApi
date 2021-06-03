@@ -40,14 +40,14 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionToQuestionGet(questionFromDB);
 	}
 
-	public Question createQuestion(QuestionCreateUpdate questionRequest, User user) {
+	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, User user) {
 		Question question = new Question(questionRequest.getTitle(), questionRequest.getDescription());
 		question.setUser(user);
 		log.info("Creating question = {}", question);
-		return questionRepository.save(question);
+		return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
 	}
 
-	public Question updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
+	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
 			if (checkIfUserIsPermitted(question, user)) {
@@ -56,7 +56,7 @@ public class QuestionManager {
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
 				log.info("New question = {}", question);
-				return questionRepository.save(question);
+				return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
 			} else {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
