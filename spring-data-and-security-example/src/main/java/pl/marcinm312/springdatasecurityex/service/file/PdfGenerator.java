@@ -7,7 +7,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 
 import java.io.File;
@@ -74,7 +74,7 @@ public class PdfGenerator {
 		return file;
 	}
 
-	public File generateAnswersPdfFile(List<Answer> answersList, QuestionGet question)
+	public File generateAnswersPdfFile(List<AnswerGet> answersList, QuestionGet question)
 			throws DocumentException, IOException {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
@@ -102,12 +102,12 @@ public class PdfGenerator {
 		createAndAddCellToTable("Data utworzenia", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Data modyfikacji", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable("Użytkownik", BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		for (Answer answer : answersList) {
+		for (AnswerGet answer : answersList) {
 			createAndAddCellToTable(answer.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getText(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
 			createAndAddCellToTable(answer.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-			createAndAddCellToTable(answer.getUser().getUsername(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
+			createAndAddCellToTable(answer.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
 					table);
 		}
 		int[] szerokosci = {40, 300, 120, 120, 120};

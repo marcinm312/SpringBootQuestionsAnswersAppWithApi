@@ -8,6 +8,8 @@ import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.AnswerMapper;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
@@ -37,15 +39,17 @@ public class AnswerManager {
 		this.mailService = mailService;
 	}
 
-	public List<Answer> getAnswersByQuestionId(Long questionId) {
+	public List<AnswerGet> getAnswersByQuestionId(Long questionId) {
 		checkIfQuestionExistsByQuestionId(questionId);
-		return answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+		List<Answer> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+		return AnswerMapper.convertAnswerListToAnswerGetList(answersFromDB);
 	}
 
-	public Answer getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
+	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 		checkIfQuestionExistsByQuestionId(questionId);
-		return answerRepository.findById(answerId)
+		Answer answerFromDB = answerRepository.findById(answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+		return AnswerMapper.convertAnswerToAnswerGet(answerFromDB);
 	}
 
 	@Transactional

@@ -94,7 +94,7 @@
 								<td>${answer.text}</td>
 								<td>${answer.createdAtAsString}</td>
 								<td>${answer.updatedAtAsString}</td>
-								<td>${answer.user.username}</td>
+								<td>${answer.user}</td>
 								<td><div class="btn-group-vertical">
 										<button type="button" class="btn btn-secondary btn-sm"
 											onclick="window.location.href = '${answer.id}/edit/'">Edytuj</button>

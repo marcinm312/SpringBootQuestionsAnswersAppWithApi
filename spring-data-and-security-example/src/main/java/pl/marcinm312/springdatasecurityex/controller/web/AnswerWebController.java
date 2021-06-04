@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
@@ -66,7 +67,7 @@ public class AnswerWebController {
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
 		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
-		List<Answer> answerList;
+		List<AnswerGet> answerList;
 		QuestionGet question;
 		try {
 			answerList = answerManager.getAnswersByQuestionId(questionId);
@@ -118,7 +119,7 @@ public class AnswerWebController {
 							 Model model, @PathVariable Long questionId, @PathVariable Long answerId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
-			Answer oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
+			AnswerGet oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			QuestionGet question = questionManager.getQuestion(questionId);
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(OLD_ANSWER, oldAnswer);
@@ -141,7 +142,7 @@ public class AnswerWebController {
 	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								 Authentication authentication) {
 		String userName = authentication.getName();
-		Answer answer;
+		AnswerGet answer;
 		QuestionGet question;
 		try {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
@@ -174,7 +175,7 @@ public class AnswerWebController {
 	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								   Authentication authentication) {
 		String userName = authentication.getName();
-		Answer answer;
+		AnswerGet answer;
 		QuestionGet question;
 		try {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
@@ -191,7 +192,7 @@ public class AnswerWebController {
 	@GetMapping("/pdf-export")
 	public ResponseEntity<?> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
 		QuestionGet question;
-		List<Answer> answersList;
+		List<AnswerGet> answersList;
 		try {
 			question = questionManager.getQuestion(questionId);
 			answersList = answerManager.getAnswersByQuestionId(questionId);
@@ -205,7 +206,7 @@ public class AnswerWebController {
 	@GetMapping("/excel-export")
 	public ResponseEntity<?> downloadExcel(@PathVariable Long questionId) throws IOException {
 		QuestionGet question;
-		List<Answer> answersList;
+		List<AnswerGet> answersList;
 		try {
 			question = questionManager.getQuestion(questionId);
 			answersList = answerManager.getAnswersByQuestionId(questionId);
