@@ -35,12 +35,9 @@ public class QuestionGet extends CommonsDTOFields {
 	@Override
 	public String toString() {
 		return "QuestionGet{" +
-				"id=" + getId() +
-				", title='" + title + '\'' +
+				"title='" + title + '\'' +
 				", description='" + description + '\'' +
-				", createdAt=" + getCreatedAt() +
-				", updatedAt=" + getUpdatedAt() +
 				", user='" + user + '\'' +
-				'}';
+				"} " + super.toString();
 	}
 }

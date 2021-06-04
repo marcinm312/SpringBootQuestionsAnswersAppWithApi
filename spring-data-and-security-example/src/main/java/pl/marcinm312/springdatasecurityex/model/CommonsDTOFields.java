@@ -43,4 +43,13 @@ public class CommonsDTOFields {
 	public String getCreatedAtAsString() {
 		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
 	}
+
+	@Override
+	public String toString() {
+		return "CommonsDTOFields{" +
+				"id=" + id +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				'}';
+	}
 }
