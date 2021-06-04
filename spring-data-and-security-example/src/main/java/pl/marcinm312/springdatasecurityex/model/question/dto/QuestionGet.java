@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.model.question.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.marcinm312.springdatasecurityex.model.CommonsDTOFields;
 
 public class QuestionGet extends CommonsDTOFields {
@@ -31,16 +30,6 @@ public class QuestionGet extends CommonsDTOFields {
 
 	public void setUser(String user) {
 		this.user = user;
-	}
-
-	@JsonIgnore
-	public String getUpdatedAtAsString() {
-		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
-	}
-
-	@JsonIgnore
-	public String getCreatedAtAsString() {
-		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
 	}
 
 	@Override
