@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.model.question.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.marcinm312.springdatasecurityex.model.CommonsDTOFields;
 
 public class QuestionGet extends CommonsDTOFields {
@@ -33,25 +32,12 @@ public class QuestionGet extends CommonsDTOFields {
 		this.user = user;
 	}
 
-	@JsonIgnore
-	public String getUpdatedAtAsString() {
-		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
-	}
-
-	@JsonIgnore
-	public String getCreatedAtAsString() {
-		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
-	}
-
 	@Override
 	public String toString() {
 		return "QuestionGet{" +
-				"id=" + getId() +
-				", title='" + title + '\'' +
+				"title='" + title + '\'' +
 				", description='" + description + '\'' +
-				", createdAt=" + getCreatedAt() +
-				", updatedAt=" + getUpdatedAt() +
 				", user='" + user + '\'' +
-				'}';
+				"} " + super.toString();
 	}
 }

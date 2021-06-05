@@ -8,6 +8,9 @@ import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.AnswerMapper;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
@@ -37,20 +40,23 @@ public class AnswerManager {
 		this.mailService = mailService;
 	}
 
-	public List<Answer> getAnswersByQuestionId(Long questionId) {
+	public List<AnswerGet> getAnswersByQuestionId(Long questionId) {
 		checkIfQuestionExistsByQuestionId(questionId);
-		return answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+		List<Answer> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+		return AnswerMapper.convertAnswerListToAnswerGetList(answersFromDB);
 	}
 
-	public Answer getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
+	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 		checkIfQuestionExistsByQuestionId(questionId);
-		return answerRepository.findById(answerId)
+		Answer answerFromDB = answerRepository.findById(answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+		return AnswerMapper.convertAnswerToAnswerGet(answerFromDB);
 	}
 
 	@Transactional
-	public Answer addAnswer(Long questionId, Answer answer, User user) {
+	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, User user) {
 		return questionRepository.findById(questionId).map(question -> {
+			Answer answer = new Answer(answerRequest.getText());
 			answer.setQuestion(question);
 			answer.setUser(user);
 			log.info("Adding answer = {}", answer);
@@ -63,13 +69,13 @@ public class AnswerManager {
 			} catch (MessagingException e) {
 				log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 			}
-			return savedAnswer;
+			return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
 
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
 	@Transactional
-	public Answer updateAnswer(Long questionId, Long answerId, Answer answerRequest, User user) {
+	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, User user) {
 		log.info("Updating answer");
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
@@ -88,7 +94,7 @@ public class AnswerManager {
 				} catch (MessagingException e) {
 					log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 				}
-				return savedAnswer;
+				return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
 			} else {
 				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();

@@ -4,7 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 
 import java.io.File;
@@ -28,7 +28,7 @@ public class ExcelGenerator {
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-	public File generateAnswersExcelFile(List<Answer> answersList, QuestionGet question) throws IOException {
+	public File generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
@@ -52,7 +52,7 @@ public class ExcelGenerator {
 		}
 
 		int rowNum = 1;
-		for (Answer answer : answersList) {
+		for (AnswerGet answer : answersList) {
 			Row row = answersSheet.createRow(rowNum++);
 
 			row.createCell(0).setCellValue(answer.getId());
@@ -66,7 +66,7 @@ public class ExcelGenerator {
 			modificationDateCell.setCellValue(answer.getUpdatedAtAsString());
 			modificationDateCell.setCellStyle(dateCellStyle);
 
-			row.createCell(4).setCellValue(answer.getUser().getUsername());
+			row.createCell(4).setCellValue(answer.getUser());
 		}
 
 		for (int i = 0; i < columns.length; i++) {

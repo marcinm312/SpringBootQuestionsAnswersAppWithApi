@@ -1,5 +1,7 @@
 package pl.marcinm312.springdatasecurityex.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 
 public class CommonsDTOFields {
@@ -30,5 +32,24 @@ public class CommonsDTOFields {
 
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
+	}
+
+	@JsonIgnore
+	public String getUpdatedAtAsString() {
+		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
+	}
+
+	@JsonIgnore
+	public String getCreatedAtAsString() {
+		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
+	}
+
+	@Override
+	public String toString() {
+		return "CommonsDTOFields{" +
+				"id=" + id +
+				", createdAt=" + createdAt +
+				", updatedAt=" + updatedAt +
+				'}';
 	}
 }
