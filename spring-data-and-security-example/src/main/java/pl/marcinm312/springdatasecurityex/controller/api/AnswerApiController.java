@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
@@ -54,15 +54,15 @@ public class AnswerApiController {
 	}
 
 	@PostMapping
-	public Answer addAnswer(@PathVariable Long questionId, @Valid @RequestBody Answer answer,
+	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
 							Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
 	@PutMapping("/{answerId}")
-	public Answer updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
-							   @Valid @RequestBody Answer answerRequest, Authentication authentication) {
+	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
+							   @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}

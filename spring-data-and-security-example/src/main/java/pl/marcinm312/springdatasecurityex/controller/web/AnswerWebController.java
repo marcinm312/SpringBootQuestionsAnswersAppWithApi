@@ -13,7 +13,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
@@ -83,7 +83,7 @@ public class AnswerWebController {
 	}
 
 	@PostMapping("/new")
-	public String createAnswer(@ModelAttribute("answer") @Validated Answer answer, BindingResult bindingResult,
+	public String createAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
@@ -109,13 +109,13 @@ public class AnswerWebController {
 			return getResourceNotFoundView(model, userName, e);
 		}
 		model.addAttribute(QUESTION, question);
-		model.addAttribute(ANSWER, new Answer());
+		model.addAttribute(ANSWER, new AnswerCreateUpdate());
 		model.addAttribute(USER_LOGIN, userName);
 		return CREATE_ANSWER_VIEW;
 	}
 
 	@PostMapping("/{answerId}/edit")
-	public String editAnswer(@ModelAttribute("answer") @Validated Answer answer, BindingResult bindingResult,
+	public String editAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							 Model model, @PathVariable Long questionId, @PathVariable Long answerId, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
