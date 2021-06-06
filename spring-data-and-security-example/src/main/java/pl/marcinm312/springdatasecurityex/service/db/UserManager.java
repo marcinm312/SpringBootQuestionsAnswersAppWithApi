@@ -14,6 +14,8 @@ import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.user.Token;
 import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.model.user.UserMapper;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
@@ -50,6 +52,15 @@ public class UserManager {
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
 		return optionalUser.orElse(null);
+	}
+
+	public UserGet getUserDTOByAuthentication(Authentication authentication) {
+		User user = getUserByAuthentication(authentication);
+		if (user != null) {
+			return UserMapper.convertUserToUserGet(user);
+		} else {
+			return null;
+		}
 	}
 
 	@Transactional
