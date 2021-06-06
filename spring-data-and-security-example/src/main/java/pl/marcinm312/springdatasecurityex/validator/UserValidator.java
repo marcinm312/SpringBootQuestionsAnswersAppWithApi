@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import pl.marcinm312.springdatasecurityex.model.user.User;
-import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 
 import java.util.Optional;
 
@@ -17,11 +17,11 @@ public class UserValidator implements Validator {
 	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
 	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
 
-	private final UserRepo userRepo;
+	private final UserManager userManager;
 
 	@Autowired
-	public UserValidator(UserRepo userRepo) {
-		this.userRepo = userRepo;
+	public UserValidator(UserManager userManager) {
+		this.userManager = userManager;
 	}
 
 	@Override
@@ -34,7 +34,7 @@ public class UserValidator implements Validator {
 		User user = (User) target;
 
 		String username = user.getUsername();
-		Optional<User> foundUser = userRepo.findByUsername(username);
+		Optional<User> foundUser = userManager.findUserByUsername(username);
 		if (foundUser.isPresent() && !foundUser.get().getId().equals(user.getId())) {
 			errors.rejectValue(USERNAME_FIELD, USER_EXISTS_ERROR, "Użytkownik o takim loginie już istnieje!");
 		}

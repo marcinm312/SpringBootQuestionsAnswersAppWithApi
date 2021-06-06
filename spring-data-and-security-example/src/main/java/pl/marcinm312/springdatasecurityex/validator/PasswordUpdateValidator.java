@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import pl.marcinm312.springdatasecurityex.model.user.User;
-import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 
 import java.util.Optional;
 
@@ -21,12 +21,12 @@ public class PasswordUpdateValidator implements Validator {
 	private static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
 	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
 
-	private final UserRepo userRepo;
+	private final UserManager userManager;
 	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
-	public PasswordUpdateValidator(UserRepo userRepo, PasswordEncoder passwordEncoder) {
-		this.userRepo = userRepo;
+	public PasswordUpdateValidator(UserManager userManager, PasswordEncoder passwordEncoder) {
+		this.userManager = userManager;
 		this.passwordEncoder = passwordEncoder;
 	}
 
@@ -40,7 +40,7 @@ public class PasswordUpdateValidator implements Validator {
 		User user = (User) target;
 
 		String username = user.getUsername();
-		Optional<User> optionalUser = userRepo.findByUsername(username);
+		Optional<User> optionalUser = userManager.findUserByUsername(username);
 
 		String currentPassword = user.getCurrentPassword();
 		String password = user.getPassword();
