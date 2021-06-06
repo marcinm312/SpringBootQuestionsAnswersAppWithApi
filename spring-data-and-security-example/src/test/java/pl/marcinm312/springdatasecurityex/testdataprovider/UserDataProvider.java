@@ -4,6 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 
 public class UserDataProvider {
 
@@ -29,11 +30,11 @@ public class UserDataProvider {
 		return new User(1002L, "user2", "password", Roles.ROLE_USER.name(), true, "test@abc.pl");
 	}
 
-	public static User prepareUserWithConfirmPasswordErrorToRequest() {
-		return new User(null, "user", "password", "anotherPassword", "test@abc.pl");
+	public static UserCreate prepareUserWithConfirmPasswordErrorToRequest() {
+		return new UserCreate("user", "password", "anotherPassword", "test@abc.pl");
 	}
 
-	public static User prepareGoodUserToRequest() {
-		return new User(null, "user", "password", "password", "test@abc.pl");
+	public static UserCreate prepareGoodUserToRequest() {
+		return new UserCreate("user", "password", "password", "test@abc.pl");
 	}
 }

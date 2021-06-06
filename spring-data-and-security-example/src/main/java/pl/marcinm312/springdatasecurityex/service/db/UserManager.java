@@ -15,6 +15,7 @@ import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.user.Token;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.UserMapper;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
@@ -64,7 +65,8 @@ public class UserManager {
 	}
 
 	@Transactional
-	public User addUser(User user, String appURL) {
+	public UserGet addUser(UserCreate userRequest, String appURL) {
+		User user = new User(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
@@ -72,7 +74,7 @@ public class UserManager {
 		User savedUser = userRepo.save(user);
 		sendToken(user, appURL);
 		log.info("User created");
-		return savedUser;
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
