@@ -46,8 +46,10 @@ public class UserManager {
 	}
 
 	public User getUserByAuthentication(Authentication authentication) {
-		log.info("Loading user by authentication name = {}", authentication.getName());
-		return (User) authentication.getPrincipal();
+		String userName = authentication.getName();
+		log.info("Loading user by authentication name = {}", userName);
+		Optional<User> optionalUser = userRepo.findByUsername(userName);
+		return optionalUser.orElse(null);
 	}
 
 	@Transactional
