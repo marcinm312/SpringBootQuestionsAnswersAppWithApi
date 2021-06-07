@@ -75,7 +75,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 					return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
 				}
 			} else {
-				log.error("Username taken from the token is null!");
+				log.error("Username or creation date taken from the token is null!");
 			}
 		} else {
 			log.error("Token not found in header!");
