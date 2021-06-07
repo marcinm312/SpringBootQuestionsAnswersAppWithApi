@@ -50,10 +50,10 @@
 		</div>
 		<div class="section">
 			<p>
-				<span class="bold">Login:</span><br> ${user.username}
+				<span class="bold">Login:</span><br> ${user3.username}
 			</p>
 			<p>
-				<span class="bold">Email:</span><br> ${user.email}
+				<span class="bold">Email:</span><br> ${user3.email}
 			</p>
 		</div>
 	</div>

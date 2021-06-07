@@ -39,23 +39,9 @@
 		</p>
 		<form:form method="post" modelAttribute="user">
 			<div class="form-group">
-				<form:input path="id" type="hidden" class="form-control" />
-				<form:errors path="id" class="form-text" />
-			</div>
-			<div class="form-group">
 				<label>Login</label>
 				<form:input path="username" type="text" class="form-control" />
 				<form:errors path="username" class="form-text" />
-			</div>
-			<div class="form-group">
-				<form:input path="password" type="hidden" class="form-control"
-					value="password" />
-				<form:errors path="password" class="form-text" />
-			</div>
-			<div class="form-group">
-				<form:input path="confirmPassword" type="hidden"
-					class="form-control" value="password" />
-				<form:errors path="confirmPassword" class="form-text" />
 			</div>
 			<div class="form-group">
 				<label>Email</label>
