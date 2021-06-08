@@ -22,14 +22,15 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.user.Token;
 import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
-import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
-import pl.marcinm312.springdatasecurityex.validator.UserValidator;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.validator.UserCreateValidator;
 
 import javax.mail.MessagingException;
 import java.util.Optional;
@@ -53,7 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = UserRegistrationWebController.class)
 		})
-@SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserValidator.class), @SpyBean(SessionUtils.class), @SpyBean(UserDetailsServiceImpl.class)})
+@SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserCreateValidator.class), @SpyBean(SessionUtils.class),
+		@SpyBean(UserDetailsServiceImpl.class), @SpyBean(PasswordEncoder.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 @WebAppConfiguration
 class UserRegistrationWebControllerTest {
@@ -66,9 +68,6 @@ class UserRegistrationWebControllerTest {
 	@MockBean
 	TokenRepo tokenRepo;
 
-	@MockBean
-	PasswordEncoder passwordEncoder;
-
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
@@ -78,7 +77,6 @@ class UserRegistrationWebControllerTest {
 	@BeforeEach
 	void setup() throws MessagingException {
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
-		given(passwordEncoder.encode(any(CharSequence.class))).willReturn("encodedPassword");
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -90,7 +88,7 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void createUser_withoutCsrfToken_forbidden() throws Exception {
-		User userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
 		mockMvc.perform(
 				post("/register")
@@ -104,7 +102,7 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void createUser_withInvalidCsrfToken_forbidden() throws Exception {
-		User userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
 		mockMvc.perform(
 				post("/register")
@@ -119,9 +117,11 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void createUser_simpleCase_success() throws Exception {
-		User userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", userToRequest));
+		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", user));
+		given(userRepo.save(any(User.class))).willReturn(user);
 
 		mockMvc.perform(
 				post("/register")
@@ -140,7 +140,7 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
-		User userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
+		UserCreate userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -158,9 +158,8 @@ class UserRegistrationWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-		User userFromModel = (User) modelAndView.getModel().get("user");
+		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
 		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
-		Assertions.assertFalse(userFromModel.isEnabled());
 	}
 }

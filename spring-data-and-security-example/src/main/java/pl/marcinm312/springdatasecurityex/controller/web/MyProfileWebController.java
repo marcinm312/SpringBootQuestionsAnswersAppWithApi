@@ -7,18 +7,14 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-
-import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
+import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.model.user.User;
-import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.validator.PasswordUpdateValidator;
-import pl.marcinm312.springdatasecurityex.validator.UserValidator;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.validator.UserDataUpdateValidator;
+import pl.marcinm312.springdatasecurityex.validator.UserPasswordUpdateValidator;
 
 @Controller
 @RequestMapping("/app/myProfile")
@@ -29,33 +25,33 @@ public class MyProfileWebController {
 	private static final String MY_PROFILE_VIEW = "myProfile";
 	private static final String UPDATE_MY_PROFILE_VIEW = "updateMyProfile";
 	private static final String USER_2 = "user2";
+	private static final String USER_3 = "user3";
 	private static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
-	private static final String ILLEGAL_LOGIN_CHANGE_VIEW = "illegalLoginChange";
 	private static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
 	private static final String COMMON_REDIRECT = "redirect:..";
 
 	private final UserManager userManager;
-	private final UserValidator userValidator;
-	private final PasswordUpdateValidator passwordUpdateValidator;
+	private final UserDataUpdateValidator userDataUpdateValidator;
+	private final UserPasswordUpdateValidator userPasswordUpdateValidator;
 	private final SessionUtils sessionUtils;
 
 	@Autowired
-	public MyProfileWebController(UserManager userManager, UserValidator userValidator,
-			PasswordUpdateValidator passwordUpdateValidator, SessionUtils sessionUtils) {
+	public MyProfileWebController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator,
+								  UserPasswordUpdateValidator userPasswordUpdateValidator, SessionUtils sessionUtils) {
 		this.userManager = userManager;
-		this.userValidator = userValidator;
-		this.passwordUpdateValidator = passwordUpdateValidator;
+		this.userDataUpdateValidator = userDataUpdateValidator;
+		this.userPasswordUpdateValidator = userPasswordUpdateValidator;
 		this.sessionUtils = sessionUtils;
 	}
 
 	@InitBinder("user")
 	private void initBinder(WebDataBinder binder) {
-		binder.addValidators(userValidator);
+		binder.addValidators(userDataUpdateValidator);
 	}
 
 	@InitBinder("user2")
 	private void initBinder2(WebDataBinder binder) {
-		binder.addValidators(passwordUpdateValidator);
+		binder.addValidators(userPasswordUpdateValidator);
 	}
 
 	@GetMapping
@@ -63,13 +59,13 @@ public class MyProfileWebController {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(USER, user);
+		model.addAttribute(USER_3, user);
 		return MY_PROFILE_VIEW;
 	}
 
 	@PostMapping("/update")
-	public String updateMyProfile(@ModelAttribute("user") @Validated User user, BindingResult bindingResult,
-			Model model, Authentication authentication) {
+	public String updateMyProfile(@ModelAttribute("user") @Validated UserDataUpdate user, BindingResult bindingResult,
+								  Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute(USER_LOGIN, userName);
@@ -85,26 +81,22 @@ public class MyProfileWebController {
 	public String updateMyProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		User user = userManager.getUserByAuthentication(authentication);
+		UserDataUpdate userDataUpdate = new UserDataUpdate(user.getUsername(), user.getEmail());
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(USER, user);
+		model.addAttribute(USER, userDataUpdate);
 		return UPDATE_MY_PROFILE_VIEW;
 	}
 
 	@PostMapping("/updatePassword")
-	public String updateMyPassword(@ModelAttribute("user2") @Validated User user, BindingResult bindingResult,
-			Model model, Authentication authentication) {
+	public String updateMyPassword(@ModelAttribute("user2") @Validated UserPasswordUpdate user, BindingResult bindingResult,
+								   Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute(USER_LOGIN, userName);
 			model.addAttribute(USER_2, user);
 			return UPDATE_MY_PASSWORD_VIEW;
 		} else {
-			try {
-				userManager.updateUserPassword(user, authentication);
-			} catch (IllegalLoginChange e) {
-				model.addAttribute(USER_LOGIN, userName);
-				return ILLEGAL_LOGIN_CHANGE_VIEW;
-			}
+			userManager.updateUserPassword(user, authentication);
 			return COMMON_REDIRECT;
 		}
 	}
@@ -112,10 +104,8 @@ public class MyProfileWebController {
 	@GetMapping("/updatePassword")
 	public String updateMyPasswordView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		User user = userManager.getUserByAuthentication(authentication);
-		user.setPassword("");
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(USER_2, user);
+		model.addAttribute(USER_2, new UserPasswordUpdate());
 		return UPDATE_MY_PASSWORD_VIEW;
 	}
 
@@ -136,7 +126,7 @@ public class MyProfileWebController {
 	public String deleteUserConfirmation(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(USER, userManager.getUserByAuthentication(authentication));
+		model.addAttribute(USER_3, userManager.getUserByAuthentication(authentication));
 		return DELETE_MY_PROFILE_VIEW;
 	}
 }

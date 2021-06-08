@@ -6,11 +6,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.marcinm312.springdatasecurityex.model.AuditModel;
 
 import javax.persistence.*;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -23,45 +21,32 @@ public class User extends AuditModel implements UserDetails {
 	private Long id;
 
 	@Column(unique = true)
-	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 3, max = 50, message = "Pole to musi zawierać od 3 do 50 znaków")
 	private String username;
 
-	@Transient
-	private String currentPassword;
-
-	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
 	private String password;
-
-	@Transient
-	private String confirmPassword;
-
 	private String role;
 	private boolean isEnabled;
-
-	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Email(message = "Niepoprawny adres email!")
 	private String email;
 
 	public User() {
+
 	}
 
-	public User(Long id, String username, String password, String role, boolean isEnabled, String email) {
+	public User(String username, String password, String email) {
+		this.username = username;
+		this.password = password;
+		this.email = email;
+	}
+
+	public User(Long id, String username, String password, String role, boolean isEnabled, String email, Date date) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.role = role;
 		this.isEnabled = isEnabled;
 		this.email = email;
-	}
-
-	public User(Long id, String username, String password, String confirmPassword, String email) {
-		this.id = id;
-		this.username = username;
-		this.password = password;
-		this.confirmPassword = confirmPassword;
-		this.email = email;
+		this.setCreatedAt(date);
+		this.setUpdatedAt(date);
 	}
 
 	public Long getId() {
@@ -133,22 +118,6 @@ public class User extends AuditModel implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return isEnabled;
-	}
-
-	public String getConfirmPassword() {
-		return confirmPassword;
-	}
-
-	public void setConfirmPassword(String confirmPassword) {
-		this.confirmPassword = confirmPassword;
-	}
-
-	public String getCurrentPassword() {
-		return currentPassword;
-	}
-
-	public void setCurrentPassword(String currentPassword) {
-		this.currentPassword = currentPassword;
 	}
 
 	@Override

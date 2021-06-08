@@ -8,9 +8,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
-import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.validator.UserValidator;
+import pl.marcinm312.springdatasecurityex.validator.UserCreateValidator;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,10 +24,10 @@ public class UserRegistrationWebController {
     private static final String USER_ACTIVATION_VIEW = "userActivation";
     
     private final UserManager userManager;
-    private final UserValidator userValidator;
+    private final UserCreateValidator userValidator;
 
     @Autowired
-    public UserRegistrationWebController(UserManager userManager, UserValidator userValidator) {
+    public UserRegistrationWebController(UserManager userManager, UserCreateValidator userValidator) {
         this.userManager = userManager;
         this.userValidator = userValidator;
     }
@@ -38,7 +38,7 @@ public class UserRegistrationWebController {
     }
 
     @PostMapping("/register")
-    public String createUser(@ModelAttribute("user") @Validated User user, BindingResult bindingResult, Model model,
+    public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult, Model model,
                              HttpServletRequest request) {
         if (bindingResult.hasErrors()) {
             model.addAttribute(USER, user);
@@ -54,7 +54,7 @@ public class UserRegistrationWebController {
 
     @GetMapping("/register")
     public String createUserView(Model model) {
-        model.addAttribute(USER, new User());
+        model.addAttribute(USER, new UserCreate());
         return REGISTER_VIEW;
     }
 

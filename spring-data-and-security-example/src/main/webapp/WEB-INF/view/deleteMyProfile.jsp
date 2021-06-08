@@ -40,7 +40,7 @@
 					usunięcie wszystkich Twoich wpisów!</span>
 			</p>
 		</div>
-		<form:form method="post" modelAttribute="user">
+		<form:form method="post" modelAttribute="user3">
 			<div class="formbuttons">
 				<form:button type="submit" class="btn btn-success">Usuń</form:button>
 				<button type="button" class="btn btn-danger"

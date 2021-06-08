@@ -2,25 +2,25 @@ package pl.marcinm312.springdatasecurityex.service.db;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
-import pl.marcinm312.springdatasecurityex.exception.IllegalLoginChange;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.user.Token;
 import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.model.user.UserMapper;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserGet;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
 import javax.mail.MessagingException;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,7 +37,7 @@ public class UserManager {
 
 	@Autowired
 	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
-			SessionUtils sessionUtils) {
+					   SessionUtils sessionUtils) {
 		this.userRepo = userRepo;
 		this.passwordEncoder = passwordEncoder;
 		this.tokenRepo = tokenRepo;
@@ -52,8 +52,18 @@ public class UserManager {
 		return optionalUser.orElse(null);
 	}
 
+	public UserGet getUserDTOByAuthentication(Authentication authentication) {
+		User user = getUserByAuthentication(authentication);
+		if (user != null) {
+			return UserMapper.convertUserToUserGet(user);
+		} else {
+			return null;
+		}
+	}
+
 	@Transactional
-	public User addUser(User user, String appURL) {
+	public UserGet addUser(UserCreate userRequest, String appURL) {
+		User user = new User(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
@@ -61,53 +71,38 @@ public class UserManager {
 		User savedUser = userRepo.save(user);
 		sendToken(user, appURL);
 		log.info("User created");
-		return savedUser;
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
-	public User updateUserData(User user, Authentication authentication) {
+	public UserGet updateUserData(UserDataUpdate userRequest, Authentication authentication) {
 		log.info("Updating user");
-		User oldUser = getUserByAuthentication(authentication);
-		log.info("Old user = {}", oldUser);
-		String oldUserName = oldUser.getUsername();
-		user.setId(oldUser.getId());
-		user.setPassword(oldUser.getPassword());
-		user.setRole(oldUser.getRole());
-		user.setEnabled(true);
-		log.info("New user = {}", user);
-		User savedUser = userRepo.save(user);
+		User loggedUser = getUserByAuthentication(authentication);
+		log.info("Old user = {}", loggedUser);
+		String oldUserName = loggedUser.getUsername();
+		loggedUser.setUsername(userRequest.getUsername());
+		loggedUser.setEmail(userRequest.getEmail());
+		log.info("New user = {}", loggedUser);
+		User savedUser = userRepo.save(loggedUser);
 		log.info("User updated");
-		if (!oldUserName.equals(user.getUsername())) {
-			Collection<? extends GrantedAuthority> updatedAuthorities = user.getAuthorities();
-			Authentication newAuth = new UsernamePasswordAuthenticationToken(user.getUsername(),
-					authentication.getCredentials(), updatedAuthorities);
-			SecurityContextHolder.getContext().setAuthentication(newAuth);
+		if (!oldUserName.equals(userRequest.getUsername())) {
 			sessionUtils.expireUserSessions(oldUserName, true);
-			sessionUtils.expireUserSessions(user.getUsername(), true);
+			sessionUtils.expireUserSessions(userRequest.getUsername(), true);
 		}
-		return savedUser;
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
-	public User updateUserPassword(User user, Authentication authentication) {
+	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
 		log.info("Updating user password");
-		User oldUser = getUserByAuthentication(authentication);
-		log.info("Old user = {}", oldUser);
-		user.setId(oldUser.getId());
-		if (oldUser.getUsername().equals(user.getUsername())) {
-			user.setPassword(passwordEncoder.encode(user.getPassword()));
-			user.setEmail(oldUser.getEmail());
-			user.setRole(oldUser.getRole());
-			user.setEnabled(true);
-			log.info("New user = {}", user);
-			User savedUser = userRepo.save(user);
-			log.info("User password updated");
-			sessionUtils.expireUserSessions(user.getUsername(), false);
-			return savedUser;
-		} else {
-			log.error("Illegal login change!");
-			throw new IllegalLoginChange();
-		}
+		User loggedUser = getUserByAuthentication(authentication);
+		log.info("Old user = {}", loggedUser);
+		loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+		log.info("New user = {}", loggedUser);
+		User savedUser = userRepo.save(loggedUser);
+		log.info("User password updated");
+		sessionUtils.expireUserSessions(loggedUser.getUsername(), false);
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
