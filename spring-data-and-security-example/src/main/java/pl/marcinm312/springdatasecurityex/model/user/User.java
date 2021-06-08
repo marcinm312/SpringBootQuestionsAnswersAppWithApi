@@ -8,6 +8,7 @@ import pl.marcinm312.springdatasecurityex.model.AuditModel;
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Objects;
 
 @Entity
@@ -37,13 +38,15 @@ public class User extends AuditModel implements UserDetails {
 		this.email = email;
 	}
 
-	public User(Long id, String username, String password, String role, boolean isEnabled, String email) {
+	public User(Long id, String username, String password, String role, boolean isEnabled, String email, Date date) {
 		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.role = role;
 		this.isEnabled = isEnabled;
 		this.email = email;
+		this.setCreatedAt(date);
+		this.setUpdatedAt(date);
 	}
 
 	public Long getId() {
