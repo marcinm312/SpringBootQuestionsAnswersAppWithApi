@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.testdataprovider;
 
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -11,20 +12,22 @@ public class QuestionDataProvider {
 
 	public static List<Question> prepareExampleQuestionsList() {
 		List<Question> questions = new ArrayList<>();
-		questions.add(new Question(1002L, "bbbb", "bbbb", UserDataProvider.prepareExampleGoodUser(),
+		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		questions.add(new Question(1002L, "bbbb", "bbbb", user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
-		questions.add(new Question(1001L, "aaaa", "", UserDataProvider.prepareExampleGoodUser(),
+		questions.add(new Question(1001L, "aaaa", "", user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
-		questions.add(new Question(1000L, "cccc", "cccc", UserDataProvider.prepareExampleGoodUser(),
+		questions.add(new Question(1000L, "cccc", "cccc", user,
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
 		return questions;
 	}
 
 	public static Question prepareExampleQuestion() {
-		return new Question(1000L, "bbbb", "bbbb", UserDataProvider.prepareExampleGoodUser(),
+		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		return new Question(1000L, "bbbb", "bbbb",user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30));
 	}

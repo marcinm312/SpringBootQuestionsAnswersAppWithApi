@@ -13,7 +13,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -27,7 +26,9 @@ import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
@@ -35,6 +36,9 @@ import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -56,8 +60,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
 		})
-@MockBeans({@MockBean(UserRepo.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class), @SpyBean(UserDetailsServiceImpl.class)})
+@MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
+		@SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
@@ -65,20 +70,21 @@ class QuestionWebControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	QuestionRepository questionRepository;
+	private QuestionRepository questionRepository;
 
 	@MockBean
-	UserManager userManager;
+	private UserRepo userRepo;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
+
+	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
 		given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 
-		User user = UserDataProvider.prepareExampleGoodUser();
-		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(user);
+		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)

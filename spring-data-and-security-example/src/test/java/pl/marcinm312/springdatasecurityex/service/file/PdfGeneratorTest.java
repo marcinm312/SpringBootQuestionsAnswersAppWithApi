@@ -16,7 +16,7 @@ import java.util.List;
 
 class PdfGeneratorTest {
 
-	PdfGenerator pdfGenerator;
+	private PdfGenerator pdfGenerator;
 
 	@BeforeEach
 	void setup() throws DocumentException, IOException {

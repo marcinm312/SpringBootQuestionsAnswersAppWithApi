@@ -52,7 +52,7 @@ class MainWebControllerTest {
 	private WebApplicationContext webApplicationContext;
 
 	@MockBean
-	UserRepo userRepo;
+	private UserRepo userRepo;
 
 	@BeforeEach
 	void setUp() {

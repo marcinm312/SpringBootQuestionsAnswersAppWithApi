@@ -31,10 +31,10 @@ import static org.mockito.Mockito.doNothing;
 class QuestionManagerTest {
 
 	@Mock
-	QuestionRepository questionRepository;
+	private QuestionRepository questionRepository;
 
 	@InjectMocks
-	QuestionManager questionManager;
+	private QuestionManager questionManager;
 
 	@BeforeEach
 	void setUp() {
@@ -74,9 +74,9 @@ class QuestionManagerTest {
 
 	private static Stream<Arguments> successfullyDeletedQuestionData() {
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareExampleGoodUser(),
+				Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword(),
 						"deleteQuestion_userDeletesHisOwnQuestion_success"),
-				Arguments.of(UserDataProvider.prepareExampleGoodAdministrator(),
+				Arguments.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword(),
 						"deleteQuestion_administratorDeletesAnotherUsersQuestion_success"));
 	}
 
@@ -84,7 +84,7 @@ class QuestionManagerTest {
 	void deleteQuestion_userDeletesAnotherUsersQuestion_throwsChangeNotAllowedException() {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
-		User user = UserDataProvider.prepareExampleSecondGoodUser();
+		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class,
 				() -> questionManager.deleteQuestion(1000L, user));
 		Assertions.assertEquals("Change not allowed!", exception.getMessage());
@@ -93,7 +93,7 @@ class QuestionManagerTest {
 	@Test
 	void deleteQuestion_questionNotExists_throwsResourceNotFoundException() {
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		User user = UserDataProvider.prepareExampleGoodUser();
+		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class,
 				() -> questionManager.deleteQuestion(2000L, user));
 		Assertions.assertEquals("Question not found with id 2000", exception.getMessage());

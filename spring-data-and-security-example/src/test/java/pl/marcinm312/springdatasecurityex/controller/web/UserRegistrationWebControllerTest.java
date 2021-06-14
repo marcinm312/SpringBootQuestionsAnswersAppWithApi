@@ -63,16 +63,16 @@ class UserRegistrationWebControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	MailService mailService;
+	private MailService mailService;
 
 	@MockBean
-	TokenRepo tokenRepo;
+	private TokenRepo tokenRepo;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
 	@MockBean
-	UserRepo userRepo;
+	private UserRepo userRepo;
 
 	@BeforeEach
 	void setup() throws MessagingException {

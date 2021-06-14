@@ -19,7 +19,7 @@ import java.util.List;
 
 class ExcelGeneratorTest {
 
-	ExcelGenerator excelGenerator;
+	private ExcelGenerator excelGenerator;
 
 	@BeforeEach
 	void setup() {

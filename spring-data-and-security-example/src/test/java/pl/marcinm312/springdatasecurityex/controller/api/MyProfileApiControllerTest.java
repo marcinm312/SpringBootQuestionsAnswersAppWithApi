@@ -59,7 +59,7 @@ class MyProfileApiControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	UserRepo userRepo;
+	private UserRepo userRepo;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;

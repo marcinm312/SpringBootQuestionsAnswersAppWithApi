@@ -14,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,8 +24,11 @@ import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
@@ -34,6 +36,7 @@ import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
+import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -58,23 +61,28 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionApiController.class)
 		})
-@MockBeans({@MockBean(UserRepo.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class), @SpyBean(UserDetailsServiceImpl.class)})
+@MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
+		@SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 class QuestionApiControllerTest {
 
 	private MockMvc mockMvc;
 
 	@MockBean
-	QuestionRepository questionRepository;
+	private QuestionRepository questionRepository;
 
 	@MockBean
-	UserManager userManager;
+	private UserRepo userRepo;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
 	private final ObjectMapper mapper = new ObjectMapper();
+
+	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
@@ -84,6 +92,9 @@ class QuestionApiControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(Question.class));
+		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
+		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
+		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -132,9 +143,6 @@ class QuestionApiControllerTest {
 	@WithMockUser(username = "user")
 	void getQuestion_simpleCase_success() throws Exception {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
-		String expectedTitle = question.getTitle();
-		String expectedDescription = question.getDescription();
-		String expectedUser = question.getUser().getUsername();
 		String response = mockMvc.perform(
 				get("/api/questions/1000")
 						.with(httpBasic("user", "password")))
@@ -145,15 +153,15 @@ class QuestionApiControllerTest {
 
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 
-		Assertions.assertEquals(expectedTitle, responseQuestion.getTitle());
-		Assertions.assertEquals(expectedDescription, responseQuestion.getDescription());
-		Assertions.assertEquals(expectedUser, responseQuestion.getUser());
+		Assertions.assertEquals(question.getId(), responseQuestion.getId());
+		Assertions.assertEquals(question.getTitle(), responseQuestion.getTitle());
+		Assertions.assertEquals(question.getDescription(), responseQuestion.getDescription());
+		Assertions.assertEquals(question.getUser().getUsername(), responseQuestion.getUser());
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void getQuestion_questionNotExists_notFound() throws Exception {
-		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 				get("/api/questions/2000")
 						.with(httpBasic("user", "password")))
@@ -180,8 +188,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class)))
-				.willReturn(UserDataProvider.prepareExampleGoodUser());
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
@@ -204,8 +210,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullDescription_success() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class)))
-				.willReturn(UserDataProvider.prepareExampleGoodUser());
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
@@ -228,8 +232,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitle_badRequest() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class)))
-				.willReturn(UserDataProvider.prepareExampleGoodUser());
 		mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -243,8 +245,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullTitle_badRequest() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class)))
-				.willReturn(UserDataProvider.prepareExampleGoodUser());
 		mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -258,8 +258,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullBody_badRequest() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class)))
-				.willReturn(UserDataProvider.prepareExampleGoodUser());
 		mockMvc.perform(
 				post("/api/questions")
 						.with(httpBasic("user", "password"))
@@ -282,7 +280,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void deleteQuestion_userDeletesHisOwnQuestion_success() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(UserDataProvider.prepareExampleGoodUser());
 		String response = mockMvc.perform(
 				delete("/api/questions/1000")
 						.with(httpBasic("user", "password")))
@@ -296,7 +293,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(UserDataProvider.prepareExampleGoodAdministrator());
 		String response = mockMvc.perform(
 				delete("/api/questions/1000")
 						.with(httpBasic("administrator", "password")))
@@ -310,7 +306,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void deleteQuestion_userDeletesAnotherUsersQuestion_forbidden() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(UserDataProvider.prepareExampleSecondGoodUser());
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 				delete("/api/questions/1000")
 						.with(httpBasic("user2", "password")))
@@ -325,7 +320,6 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void deleteQuestion_questionNotExists_notFound() throws Exception {
-		given(userManager.getUserByAuthentication(any(Authentication.class))).willReturn(UserDataProvider.prepareExampleGoodUser());
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 				delete("/api/questions/2000")
 						.with(httpBasic("user", "password")))
