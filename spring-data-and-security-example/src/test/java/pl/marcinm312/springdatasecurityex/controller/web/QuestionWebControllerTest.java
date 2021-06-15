@@ -24,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
@@ -38,6 +39,7 @@ import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -82,7 +84,7 @@ class QuestionWebControllerTest {
 
 	@BeforeEach
 	void setup() {
-		given(questionRepository.findAll()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.findAllByOrderByIdDesc()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 
@@ -91,6 +93,38 @@ class QuestionWebControllerTest {
 				.apply(springSecurity())
 				.alwaysDo(print())
 				.build();
+	}
+
+	@Test
+	@WithAnonymousUser
+	void questionsGet_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+				get("/app/questions"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void questionsGet_simpleCase_success() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+				get("/app/questions")
+						.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("questions"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		List<QuestionGet> questionsFromModel = (List<QuestionGet>) modelAndView.getModel().get("questionList");
+		int arrayExpectedSize = 3;
+		int arrayResultSize = questionsFromModel.size();
+		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
+
+		String usernameFromModel = (String) modelAndView.getModel().get("userLogin");
+		String expectedUser = "user";
+		Assertions.assertEquals(expectedUser, usernameFromModel);
 	}
 
 	@Test
@@ -229,8 +263,7 @@ class QuestionWebControllerTest {
 	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-				get("/app/questions/pdf-export")
-						.with(csrf()))
+				get("/app/questions/pdf-export"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -254,8 +287,7 @@ class QuestionWebControllerTest {
 	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-				get("/app/questions/excel-export")
-						.with(csrf()))
+				get("/app/questions/excel-export"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());

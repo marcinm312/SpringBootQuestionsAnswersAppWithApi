@@ -196,8 +196,7 @@ class AnswerApiControllerTest {
 	void getAnswerByQuestionIdAndAnswerId_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
 																	 String nameOfTestCase) throws Exception {
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						get(url)
-								.with(httpBasic("user", "password")))
+						get(url).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
