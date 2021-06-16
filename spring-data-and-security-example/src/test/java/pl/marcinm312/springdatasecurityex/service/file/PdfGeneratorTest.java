@@ -31,6 +31,7 @@ class PdfGeneratorTest {
 	void generateQuestionsPdfFile_simpleCase_success() throws IOException, DocumentException {
 		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
+
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(questionsList));
 		File questionsPdfFile = pdfGenerator.generateQuestionsPdfFile(questionsList);
 
@@ -53,6 +54,7 @@ class PdfGeneratorTest {
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerListToAnswerGetList(oldAnswersList);
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateAnswersPdfFile(answersList, questionGet));
 		File answersPdfFile = pdfGenerator.generateAnswersPdfFile(answersList, questionGet);
 
@@ -64,6 +66,7 @@ class PdfGeneratorTest {
 	void generateAnswersPdfFile_emptyAnswersList_success() throws DocumentException, IOException {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateAnswersPdfFile(new ArrayList<>(), questionGet));
 		File answersPdfFile = pdfGenerator.generateAnswersPdfFile(new ArrayList<>(), questionGet);
 

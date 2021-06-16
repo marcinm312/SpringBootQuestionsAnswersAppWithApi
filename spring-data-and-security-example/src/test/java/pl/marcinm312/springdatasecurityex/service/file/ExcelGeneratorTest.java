@@ -6,9 +6,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.AnswerMapper;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 
 import java.io.File;
@@ -30,6 +34,7 @@ class ExcelGeneratorTest {
 	void generateQuestionsExcelFile_simpleCase_success() throws IOException {
 		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
+
 		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
 
 		FileInputStream fis = new FileInputStream(questionsExcelFile);
@@ -101,5 +106,89 @@ class ExcelGeneratorTest {
 		CellValue cellValue = evaluator.evaluate(cell);
 		Long numberValue = (long) cellValue.getNumberValue();
 		Assertions.assertEquals(expectedValue, numberValue);
+	}
+
+	@Test
+	void generateAnswersExcelFile_simpleCase_success() throws IOException {
+		List<Answer> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
+		List<AnswerGet> answersList = AnswerMapper.convertAnswerListToAnswerGetList(oldAnswersList);
+		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+
+		File answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
+
+		FileInputStream fis = new FileInputStream(answersExcelFile);
+		Workbook wb = new XSSFWorkbook(fis);
+		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+
+		Sheet sheet0 = wb.getSheetAt(0);
+
+		checkCellStringValue(sheet0, evaluator, "A1", "Id");
+		checkCellStringValue(sheet0, evaluator, "B1", "Treść odpowiedzi");
+		checkCellStringValue(sheet0, evaluator, "C1", "Data utworzenia");
+		checkCellStringValue(sheet0, evaluator, "D1", "Data modyfikacji");
+		checkCellStringValue(sheet0, evaluator, "E1", "Użytkownik");
+
+		checkCellNumberValue(sheet0, evaluator, "A2", answersList.get(0).getId());
+		checkCellStringValue(sheet0, evaluator, "B2", answersList.get(0).getText());
+		checkCellStringValue(sheet0, evaluator, "E2", answersList.get(0).getUser());
+
+		checkCellNumberValue(sheet0, evaluator, "A4", answersList.get(2).getId());
+		checkCellStringValue(sheet0, evaluator, "B4", answersList.get(2).getText());
+		checkCellStringValue(sheet0, evaluator, "E4", answersList.get(2).getUser());
+
+		Sheet sheet1 = wb.getSheetAt(1);
+
+		checkCellStringValue(sheet1, evaluator, "A1", "Id");
+		checkCellStringValue(sheet1, evaluator, "A2", "Tytuł");
+		checkCellStringValue(sheet1, evaluator, "A3", "Opis");
+		checkCellStringValue(sheet1, evaluator, "A4", "Data utworzenia");
+		checkCellStringValue(sheet1, evaluator, "A5", "Data modyfikacji");
+		checkCellStringValue(sheet1, evaluator, "A6", "Użytkownik");
+
+		checkCellStringValue(sheet1, evaluator, "B1", questionGet.getId().toString());
+		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
+		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
+		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
+
+		Assertions.assertTrue(answersExcelFile.getName().startsWith("Odpowiedzi"));
+		Assertions.assertTrue(answersExcelFile.getName().endsWith(".xlsx"));
+	}
+
+	@Test
+	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException {
+		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+
+		File answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
+
+		FileInputStream fis = new FileInputStream(answersExcelFile);
+		Workbook wb = new XSSFWorkbook(fis);
+		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
+
+		Sheet sheet0 = wb.getSheetAt(0);
+
+		checkCellStringValue(sheet0, evaluator, "A1", "Id");
+		checkCellStringValue(sheet0, evaluator, "B1", "Treść odpowiedzi");
+		checkCellStringValue(sheet0, evaluator, "C1", "Data utworzenia");
+		checkCellStringValue(sheet0, evaluator, "D1", "Data modyfikacji");
+		checkCellStringValue(sheet0, evaluator, "E1", "Użytkownik");
+
+		Sheet sheet1 = wb.getSheetAt(1);
+
+		checkCellStringValue(sheet1, evaluator, "A1", "Id");
+		checkCellStringValue(sheet1, evaluator, "A2", "Tytuł");
+		checkCellStringValue(sheet1, evaluator, "A3", "Opis");
+		checkCellStringValue(sheet1, evaluator, "A4", "Data utworzenia");
+		checkCellStringValue(sheet1, evaluator, "A5", "Data modyfikacji");
+		checkCellStringValue(sheet1, evaluator, "A6", "Użytkownik");
+
+		checkCellStringValue(sheet1, evaluator, "B1", questionGet.getId().toString());
+		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
+		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
+		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
+
+		Assertions.assertTrue(answersExcelFile.getName().startsWith("Odpowiedzi"));
+		Assertions.assertTrue(answersExcelFile.getName().endsWith(".xlsx"));
 	}
 }

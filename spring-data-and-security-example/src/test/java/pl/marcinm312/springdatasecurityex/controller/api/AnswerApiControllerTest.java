@@ -26,6 +26,7 @@ import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
@@ -39,6 +40,7 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
+import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
@@ -57,8 +59,8 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(AnswerApiController.class)
@@ -99,10 +101,14 @@ class AnswerApiControllerTest {
 	@BeforeEach
 	void setup() throws MessagingException {
 		Answer answer = AnswerDataProvider.prepareExampleAnswer();
+		Question question = QuestionDataProvider.prepareExampleQuestion();
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 
 		given(questionRepository.existsById(1000L)).willReturn(true);
 		given(questionRepository.existsById(2000L)).willReturn(false);
+
+		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 
 		given(answerRepository.findByQuestionIdOrderByIdDesc(1000L))
 				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
@@ -212,6 +218,73 @@ class AnswerApiControllerTest {
 						"getAnswerByQuestionIdAndAnswerId_AnswerNotExists_notFound"),
 				Arguments.of("/api/questions/2000/answers/2000", "Question not found with id 2000",
 						"getAnswerByQuestionIdAndAnswerId_AnswerAndQuestionNotExists_notFound")
+		);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
+		mockMvc.perform(
+						get("/api/questions/1000/answers/pdf-export"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void downloadPdf_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/api/questions/1000/answers/pdf-export")
+								.with(httpBasic("user", "password")))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().exists("Content-Disposition"))
+				.andExpect(header().string("Accept-Ranges", "bytes"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
+		mockMvc.perform(
+						get("/api/questions/1000/answers/excel-export"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void downloadExcel_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/api/questions/1000/answers/excel-export")
+								.with(httpBasic("user", "password")))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(header().exists("Content-Disposition"))
+				.andExpect(header().string("Accept-Ranges", "bytes"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@WithMockUser(username = "user")
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfQuestionNotFoundUrls")
+	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						get(url).with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		String expectedErrorMessage = "Question not found with id 2000";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfQuestionNotFoundUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/2000/answers/pdf-export",
+						"downloadPdf_questionNotExists_notFound"),
+				Arguments.of("/api/questions/2000/answers/excel-export",
+						"downloadExcel_questionNotExists_notFound")
 		);
 	}
 }
