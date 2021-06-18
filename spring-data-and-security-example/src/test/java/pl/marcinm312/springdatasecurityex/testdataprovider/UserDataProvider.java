@@ -31,11 +31,26 @@ public class UserDataProvider {
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
 	}
 
+	public static User prepareExampleDisabledUserWithEncodedPassword() {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return new User(1001L, "user", passwordEncoder.encode("password"),
+				Roles.ROLE_USER.name(), false, "test@abc.pl",
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+	}
+
 	public static UserCreate prepareUserWithConfirmPasswordErrorToRequest() {
 		return new UserCreate("user", "password", "anotherPassword", "test@abc.pl");
 	}
 
 	public static UserCreate prepareGoodUserToRequest() {
 		return new UserCreate("user", "password", "password", "test@abc.pl");
+	}
+
+	public static UserCreate prepareIncorrectUserToRequest() {
+		return new UserCreate("aa", "passw", "passw", "email");
+	}
+
+	public static UserCreate prepareEmptyUserToRequest() {
+		return new UserCreate("", "", "", "");
 	}
 }
