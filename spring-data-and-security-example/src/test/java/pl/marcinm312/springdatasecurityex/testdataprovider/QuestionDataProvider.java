@@ -33,26 +33,26 @@ public class QuestionDataProvider {
 	}
 
 	public static QuestionCreateUpdate prepareGoodQuestionToRequest() {
-		return new QuestionCreateUpdate("bbb", "bbbb");
+		return new QuestionCreateUpdate("ccc", "cccc");
 	}
 
 	public static QuestionCreateUpdate prepareGoodQuestionWithNullDescriptionToRequest() {
-		return new QuestionCreateUpdate("bbb", null);
+		return new QuestionCreateUpdate("ccc", null);
 	}
 
 	public static QuestionCreateUpdate prepareGoodQuestionWithEmptyDescriptionToRequest() {
-		return new QuestionCreateUpdate("bbb", "");
+		return new QuestionCreateUpdate("ccc", "");
 	}
 
 	public static QuestionCreateUpdate prepareQuestionWithTooShortTitleToRequest() {
-		return new QuestionCreateUpdate("bb", "bbbb");
+		return new QuestionCreateUpdate("cc", "cccc");
 	}
 
 	public static QuestionCreateUpdate prepareQuestionWithNullTitleToRequest() {
-		return new QuestionCreateUpdate(null, "bbbb");
+		return new QuestionCreateUpdate(null, "cccc");
 	}
 
 	public static QuestionCreateUpdate prepareQuestionWithEmptyTitleToRequest() {
-		return new QuestionCreateUpdate("", "bbbb");
+		return new QuestionCreateUpdate("", "cccc");
 	}
 }
