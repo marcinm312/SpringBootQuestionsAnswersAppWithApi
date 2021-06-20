@@ -36,4 +36,12 @@ public class QuestionCreateUpdate {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	@Override
+	public String toString() {
+		return "QuestionCreateUpdate{" +
+				"title='" + title + '\'' +
+				", description='" + description + '\'' +
+				'}';
+	}
 }

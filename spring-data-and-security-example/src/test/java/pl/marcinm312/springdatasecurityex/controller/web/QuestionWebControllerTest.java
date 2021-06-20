@@ -43,7 +43,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -81,12 +83,21 @@ class QuestionWebControllerTest {
 	private WebApplicationContext webApplicationContext;
 
 	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
-		given(questionRepository.findAllByOrderByIdDesc()).willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		Question question = QuestionDataProvider.prepareExampleQuestion();
+		given(questionRepository.findAllByOrderByIdDesc())
+				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
+		doNothing().when(questionRepository).delete(isA(Question.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
+		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
+		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -99,7 +110,7 @@ class QuestionWebControllerTest {
 	@WithAnonymousUser
 	void questionsGet_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-				get("/app/questions"))
+						get("/app/questions"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -109,10 +120,12 @@ class QuestionWebControllerTest {
 	@WithMockUser(username = "user")
 	void questionsGet_simpleCase_success() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
-				get("/app/questions")
-						.with(user("user").password("password")))
+						get("/app/questions")
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("questions"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(model().attributeExists("questionList", "userLogin"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getModelAndView();
 
@@ -121,10 +134,30 @@ class QuestionWebControllerTest {
 		int arrayExpectedSize = 3;
 		int arrayResultSize = questionsFromModel.size();
 		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
+	}
 
-		String usernameFromModel = (String) modelAndView.getModel().get("userLogin");
-		String expectedUser = "user";
-		Assertions.assertEquals(expectedUser, usernameFromModel);
+	@Test
+	@WithAnonymousUser
+	void createQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/new"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void createQuestionView_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/new")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("createQuestion"))
+				.andExpect(model().attributeExists("question", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
 	}
 
 	@Test
@@ -133,10 +166,10 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
-				post("/app/questions/new")
-						.with(csrf())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -148,10 +181,10 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 	}
 
@@ -161,11 +194,11 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.with(csrf().useInvalidToken())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf().useInvalidToken())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 	}
 
@@ -177,11 +210,11 @@ class QuestionWebControllerTest {
 				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.with(csrf())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl(".."))
 				.andExpect(view().name("redirect:.."))
@@ -197,11 +230,11 @@ class QuestionWebControllerTest {
 				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.with(csrf())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl(".."))
 				.andExpect(view().name("redirect:.."))
@@ -215,16 +248,16 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.with(csrf())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"))
+				.andExpect(model().attributeExists("question", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(model().attributeExists("question"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getModelAndView();
 
@@ -240,16 +273,16 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
-				post("/app/questions/new")
-						.with(user("user").password("password"))
-						.with(csrf())
-						.param("title", questionToRequest.getTitle())
-						.param("description", questionToRequest.getDescription()))
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"))
+				.andExpect(model().attributeExists("question", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(model().attributeExists("question"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getModelAndView();
 
@@ -261,9 +294,255 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void editQuestionView_withAnonymousUser_success() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/1000/edit"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestionView_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/1000/edit")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("editQuestion"))
+				.andExpect(model().attributeExists("question", "oldQuestion", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		QuestionGet questionFromModel2 = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel2.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel2.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel2.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel2.getUser());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestionView_questionNotExists_notFoundMessage() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/2000/edit")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("message", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Question not found with id 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void editQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_withoutCsrfToken_forbidden() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_witCsrfInvalidToken_forbidden() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.with(csrf().useInvalidToken())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_emptyDescription_success() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_tooShortTitle_validationErrors() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(view().name("editQuestion"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeExists("userLogin", "question", "oldQuestion"))
+				.andExpect(model().attributeHasFieldErrors("question", "title"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
+		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
+
+		Question expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		Assertions.assertEquals(expectedOldQuestion.getId(), oldQuestionFromModel.getId());
+		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
+		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
+		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void editQuestion_emptyTitle_validationErrors() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(view().name("editQuestion"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeExists("userLogin", "question", "oldQuestion"))
+				.andExpect(model().attributeHasFieldErrors("question", "title"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
+		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
+
+		Question expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		Assertions.assertEquals(expectedOldQuestion.getId(), oldQuestionFromModel.getId());
+		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
+		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
+		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
+	}
+
+	@Test
+	@WithMockUser(username = "administrator", roles = {"ADMIN"})
+	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void editQuestion_userUpdatesAnotherUsersQuestion_changeNotAllowed() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(Question.class)))
+				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+
+		mockMvc.perform(
+						post("/app/questions/1000/edit")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isOk())
+				.andExpect(view().name("changeNotAllowed"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+	}
+
+	@Test
+	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-				get("/app/questions/pdf-export"))
+						get("/app/questions/pdf-export"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -274,8 +553,8 @@ class QuestionWebControllerTest {
 	void downloadPdf_simpleCase_success() throws Exception {
 
 		mockMvc.perform(
-				get("/app/questions/pdf-export")
-						.with(user("user").password("password")))
+						get("/app/questions/pdf-export")
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -287,7 +566,7 @@ class QuestionWebControllerTest {
 	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-				get("/app/questions/excel-export"))
+						get("/app/questions/excel-export"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
@@ -297,8 +576,8 @@ class QuestionWebControllerTest {
 	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
 		mockMvc.perform(
-				get("/app/questions/excel-export")
-						.with(user("user").password("password")))
+						get("/app/questions/excel-export")
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))

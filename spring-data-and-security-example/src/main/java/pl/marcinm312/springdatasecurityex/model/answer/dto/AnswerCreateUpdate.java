@@ -24,4 +24,11 @@ public class AnswerCreateUpdate {
 	public void setText(String text) {
 		this.text = text;
 	}
+
+	@Override
+	public String toString() {
+		return "AnswerCreateUpdate{" +
+				"text='" + text + '\'' +
+				'}';
+	}
 }
