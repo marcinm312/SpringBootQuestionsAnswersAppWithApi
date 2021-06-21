@@ -38,6 +38,11 @@ public class Answer extends AuditModel {
 		this.text = text;
 	}
 
+	public Answer(String text, User user) {
+		this.text = text;
+		this.user = user;
+	}
+
 	public Answer(Long id, String text, Question question, User user, Date createdAt, Date updatedAt) {
 		this.id = id;
 		this.text = text;

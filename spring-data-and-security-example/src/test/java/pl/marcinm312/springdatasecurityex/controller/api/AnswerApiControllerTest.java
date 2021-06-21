@@ -25,6 +25,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.user.User;
@@ -49,6 +50,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
@@ -58,6 +60,7 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -219,6 +222,28 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/2000/answers/2000", "Question not found with id 2000",
 						"getAnswerByQuestionIdAndAnswerId_AnswerAndQuestionNotExists_notFound")
 		);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_simpleCase_success() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+
+		String response = mockMvc.perform(
+				post("/api/questions/1000/answers")
+						.with(httpBasic("user", "password"))
+						.contentType(MediaType.APPLICATION_JSON)
+						.content(mapper.writeValueAsString(answerToRequest))
+						.characterEncoding("utf-8"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getResponse().getContentAsString();
+
+		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
+		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
 	}
 
 	@Test

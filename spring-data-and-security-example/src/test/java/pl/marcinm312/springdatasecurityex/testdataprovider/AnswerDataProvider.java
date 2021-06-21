@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.testdataprovider;
 
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 
@@ -32,5 +33,21 @@ public class AnswerDataProvider {
 		return new Answer(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+	}
+
+	public static AnswerCreateUpdate prepareGoodAnswerToRequest() {
+		return new AnswerCreateUpdate("aaa");
+	}
+
+	public static AnswerCreateUpdate prepareAnswerWithTooShortTextToRequest() {
+		return new AnswerCreateUpdate("aa");
+	}
+
+	public static AnswerCreateUpdate prepareAnswerWithEmptyTextToRequest() {
+		return new AnswerCreateUpdate("");
+	}
+
+	public static AnswerCreateUpdate prepareAnswerWithNullTextToRequest() {
+		return new AnswerCreateUpdate(null);
 	}
 }
