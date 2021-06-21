@@ -540,6 +540,132 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void removeQuestionView_withAnonymousUser_success() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/1000/delete"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeQuestionView_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/1000/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("deleteQuestion"))
+				.andExpect(model().attributeExists("question", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel2 = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel2.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel2.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel2.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel2.getUser());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeQuestionView_questionNotExists_notFoundMessage() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/2000/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("message", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Question not found with id 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void removeQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeQuestion_withoutCsrfToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeQuestion_witCsrfInvalidToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(user("user").password("password"))
+								.with(csrf().useInvalidToken()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(user("user").password("password"))
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "administrator", roles = {"ADMIN"})
+	void removeQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/delete")
+								.with(user("user2").password("password"))
+								.with(csrf()))
+				.andExpect(status().isOk())
+				.andExpect(view().name("changeNotAllowed"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+	}
+
+	@Test
+	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/pdf-export"))
