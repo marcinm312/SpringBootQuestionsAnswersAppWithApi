@@ -135,7 +135,7 @@ class AnswerApiControllerTest {
 	@WithAnonymousUser
 	void getAnswersByQuestionId_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-				get("/api/questions/1000/answers"))
+						get("/api/questions/1000/answers"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(unauthenticated());
 	}
@@ -144,8 +144,8 @@ class AnswerApiControllerTest {
 	@WithMockUser(username = "user")
 	void getAnswersByQuestionId_simpleCase_success() throws Exception {
 		String response = mockMvc.perform(
-				get("/api/questions/1000/answers")
-						.with(httpBasic("user", "password")))
+						get("/api/questions/1000/answers")
+								.with(httpBasic("user", "password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -185,8 +185,8 @@ class AnswerApiControllerTest {
 	void getAnswerByQuestionIdAndAnswerId_simpleCase_success() throws Exception {
 		Answer answer = AnswerDataProvider.prepareExampleAnswer();
 		String response = mockMvc.perform(
-				get("/api/questions/1000/answers/1000")
-						.with(httpBasic("user", "password")))
+						get("/api/questions/1000/answers/1000")
+								.with(httpBasic("user", "password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -203,7 +203,7 @@ class AnswerApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void getAnswerByQuestionIdAndAnswerId_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
-																	 String nameOfTestCase) throws Exception {
+																			 String nameOfTestCase) throws Exception {
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get(url).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound())
@@ -225,6 +225,39 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
+	@WithAnonymousUser
+	void addAnswer_WithAnonymousUser_unauthorized() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_questionNotExists_notFound() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						post("/api/questions/2000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		String expectedErrorMessage = "Question not found with id 2000";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_simpleCase_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
@@ -232,11 +265,11 @@ class AnswerApiControllerTest {
 		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
-				post("/api/questions/1000/answers")
-						.with(httpBasic("user", "password"))
-						.contentType(MediaType.APPLICATION_JSON)
-						.content(mapper.writeValueAsString(answerToRequest))
-						.characterEncoding("utf-8"))
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -244,6 +277,64 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_tooShortText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
+
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_emptyText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
+
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_nullText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
+
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void addAnswer_emptyBody_badRequest() throws Exception {
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content("")
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
 	@Test
