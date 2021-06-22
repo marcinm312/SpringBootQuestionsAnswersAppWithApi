@@ -59,8 +59,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -335,6 +334,69 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void deleteAnswer_withAnonymousUser_unauthorized() throws Exception {
+		mockMvc.perform(
+						delete("/api/questions/1000/answers/1000"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+		String response = mockMvc.perform(
+						delete("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password")))
+				.andExpect(status().isOk())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getResponse().getContentAsString();
+
+		Assertions.assertEquals("true", response);
+	}
+
+	@Test
+	@WithMockUser(username = "administrator", roles = {"ADMIN"})
+	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
+		String response = mockMvc.perform(
+						delete("/api/questions/1000/answers/1000")
+								.with(httpBasic("administrator", "password")))
+				.andExpect(status().isOk())
+				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
+				.andReturn().getResponse().getContentAsString();
+
+		Assertions.assertEquals("true", response);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void deleteAnswer_userDeletesAnotherUsersAnswer_success() throws Exception {
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						delete("/api/questions/1000/answers/1000")
+								.with(httpBasic("user", "password")))
+				.andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		String expectedErrorMessage = "Change not allowed!";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@WithMockUser(username = "user2")
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
+	void deleteAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
+														 String nameOfTestCase) throws Exception {
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						delete(url).with(httpBasic("user2", "password")))
+				.andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
 	@Test
