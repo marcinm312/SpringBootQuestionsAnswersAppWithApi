@@ -338,6 +338,161 @@ class AnswerApiControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void updateAnswer_withAnonymousUser_unauthorized() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isUnauthorized())
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void updateAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+
+		String response = mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getResponse().getContentAsString();
+
+		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
+		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void updateAnswer_tooShortText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
+
+		mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void updateAnswer_emptyText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
+
+		mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void updateAnswer_nullText_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
+
+		mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void updateAnswer_emptyBody_badRequest() throws Exception {
+		mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content("")
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "administrator", roles = {"ADMIN"})
+	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+
+		String response = mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("administrator", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
+				.andReturn().getResponse().getContentAsString();
+
+		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
+		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateAnswer_userUpdatesAnotherUsersAnswer_forbidden() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						put("/api/questions/1000/answers/1000")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isForbidden())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		String expectedErrorMessage = "Change not allowed!";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@WithMockUser(username = "user2")
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
+	void updateAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
+														 String nameOfTestCase) throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						put(url)
+								.with(httpBasic("user2", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isNotFound())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getResolvedException()).getMessage();
+
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@Test
+	@WithAnonymousUser
 	void deleteAnswer_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						delete("/api/questions/1000/answers/1000"))
@@ -373,7 +528,7 @@ class AnswerApiControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void deleteAnswer_userDeletesAnotherUsersAnswer_success() throws Exception {
+	void deleteAnswer_userDeletesAnotherUsersAnswer_forbidden() throws Exception {
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
 								.with(httpBasic("user", "password")))

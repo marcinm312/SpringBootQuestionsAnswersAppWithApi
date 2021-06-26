@@ -414,8 +414,7 @@ class QuestionApiControllerTest {
 	@WithMockUser(username = "user")
 	void updateQuestion_questionNotExists_notFound() throws Exception {
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/2000")
 								.with(httpBasic("user", "password"))

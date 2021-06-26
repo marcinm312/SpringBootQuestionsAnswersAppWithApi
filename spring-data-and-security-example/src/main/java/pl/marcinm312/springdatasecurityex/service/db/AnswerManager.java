@@ -86,7 +86,7 @@ public class AnswerManager {
 				log.info("New answer = {}", answer);
 				Answer savedAnswer = answerRepository.save(answer);
 				try {
-					Question question = savedAnswer.getQuestion();
+					Question question = answer.getQuestion();
 					String email = question.getUser().getEmail();
 					String subject = "Zaktualizowano odpowiedź na Twoje pytanie o id: " + question.getId();
 					String content = generateEmailContent(question, savedAnswer, false);
