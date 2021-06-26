@@ -25,6 +25,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
+import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
@@ -52,16 +53,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -144,10 +146,11 @@ class AnswerWebControllerTest {
 	void answersGet_simpleCase_success() throws Exception {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
-				get("/app/questions/1000/answers")
-						.with(user("user").password("password")))
+						get("/app/questions/1000/answers")
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("answers"))
+				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getModelAndView();
 
@@ -157,10 +160,6 @@ class AnswerWebControllerTest {
 		int arrayExpectedSize = 3;
 		int arrayResultSize = answersFromModel.size();
 		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
-
-		String usernameFromModel = (String) modelAndView.getModel().get("userLogin");
-		String expectedUser = "user";
-		Assertions.assertEquals(expectedUser, usernameFromModel);
 
 		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
 		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
@@ -177,18 +176,188 @@ class AnswerWebControllerTest {
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
 
-		String usernameFromModel = (String) modelAndView.getModel().get("userLogin");
-		String expectedUser = "user";
-		Assertions.assertEquals(expectedUser, usernameFromModel);
-
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedMessage, messageFromModel);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void createAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswer_withoutCsrfToken_forbidden() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswer_withCsrfInvalidToken_forbidden() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf().useInvalidToken())
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswer_simpleCase_success() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+
+		mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswer_tooShortText_validationErrors() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(view().name("createAnswer"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("answer", "text"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
+		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswer_emptyText_validationErrors() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(view().name("createAnswer"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("answer", "text"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
+		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void createAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/1000/answers/new"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswerView_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/1000/answers/new")
+								.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("createAnswer"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void createAnswerView_questionNotExists_notFoundMessage() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/2000/answers/new")
+								.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("message", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Question not found with id 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
 	@Test
@@ -244,7 +413,7 @@ class AnswerWebControllerTest {
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get(url).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound())
-				.andExpect(content().contentType(new MediaType("text" , "plain", StandardCharsets.UTF_8)))
+				.andExpect(content().contentType(new MediaType("text", "plain", StandardCharsets.UTF_8)))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString());
 

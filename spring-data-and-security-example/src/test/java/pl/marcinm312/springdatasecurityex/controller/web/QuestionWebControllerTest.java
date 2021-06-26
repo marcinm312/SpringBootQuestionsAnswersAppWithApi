@@ -156,8 +156,7 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().attributeExists("question", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
 	@Test
@@ -190,7 +189,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void createQuestion_witCsrfInvalidToken_forbidden() throws Exception {
+	void createQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
@@ -534,8 +533,7 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
-				.andReturn().getModelAndView();
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 	}
 
 	@Test
@@ -660,8 +658,7 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
-				.andReturn().getModelAndView();
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 	}
 
 	@Test

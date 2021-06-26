@@ -225,7 +225,7 @@ class AnswerApiControllerTest {
 
 	@Test
 	@WithAnonymousUser
-	void addAnswer_WithAnonymousUser_unauthorized() throws Exception {
+	void addAnswer_withAnonymousUser_unauthorized() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
 		mockMvc.perform(
