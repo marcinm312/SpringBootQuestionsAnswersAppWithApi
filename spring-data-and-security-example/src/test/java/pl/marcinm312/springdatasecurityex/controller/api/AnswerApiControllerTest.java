@@ -215,11 +215,11 @@ class AnswerApiControllerTest {
 	private static Stream<Arguments> examplesOfNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
 				Arguments.of("/api/questions/2000/answers/1000", "Question not found with id 2000",
-						"getAnswerByQuestionIdAndAnswerId_questionNotExists_notFound"),
+						"questionNotExists_notFound"),
 				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with id 2000",
-						"getAnswerByQuestionIdAndAnswerId_AnswerNotExists_notFound"),
+						"answerNotExists_notFound"),
 				Arguments.of("/api/questions/2000/answers/2000", "Question not found with id 2000",
-						"getAnswerByQuestionIdAndAnswerId_AnswerAndQuestionNotExists_notFound")
+						"answerAndQuestionNotExists_notFound")
 		);
 	}
 

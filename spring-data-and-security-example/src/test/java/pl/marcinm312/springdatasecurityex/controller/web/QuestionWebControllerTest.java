@@ -293,7 +293,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
-	void editQuestionView_withAnonymousUser_success() throws Exception {
+	void editQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/edit"))
 				.andExpect(status().is3xxRedirection())
@@ -538,7 +538,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
-	void removeQuestionView_withAnonymousUser_success() throws Exception {
+	void removeQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/delete"))
 				.andExpect(status().is3xxRedirection())
@@ -611,7 +611,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void removeQuestion_witCsrfInvalidToken_forbidden() throws Exception {
+	void removeQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("user").password("password"))

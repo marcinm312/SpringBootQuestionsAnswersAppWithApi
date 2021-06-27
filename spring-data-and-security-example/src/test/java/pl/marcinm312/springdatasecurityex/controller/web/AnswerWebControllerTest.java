@@ -133,7 +133,7 @@ class AnswerWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
-	void questionsGet_withAnonymousUser_redirectToLoginPage() throws Exception {
+	void answersGet_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers"))
 				.andExpect(status().is3xxRedirection())
@@ -358,6 +358,150 @@ class AnswerWebControllerTest {
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void removeAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/answers/1000/delete")
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void removeAnswer_withoutCsrfToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/answers/1000/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void removeAnswer_withCsrfInvalidToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/answers/1000/delete")
+								.with(user("user").password("password"))
+								.with(csrf().useInvalidToken()))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void removeAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+		mockMvc.perform(
+			post("/app/questions/1000/answers/1000/delete")
+					.with(user("user2").password("password"))
+					.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+	}
+
+	@Test
+	@WithMockUser(username = "administrator", roles = {"ADMIN"})
+	void removeAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/answers/1000/delete")
+								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("../.."))
+				.andExpect(view().name("redirect:../.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void removeAnswer_userDeletesAnotherUsersAnswer_changeNotAllowed() throws Exception {
+		mockMvc.perform(
+						post("/app/questions/1000/answers/1000/delete")
+								.with(user("user").password("password"))
+								.with(csrf()))
+				.andExpect(status().isOk())
+				.andExpect(view().name("changeNotAllowed"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void removeAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/1000/answers/1000/delete"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void removeAnswerView_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		Answer expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
+
+		ModelAndView modelAndView = mockMvc.perform(
+				get("/app/questions/1000/answers/1000/delete")
+						.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("deleteAnswer"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		AnswerGet answerFromModel = (AnswerGet) modelAndView.getModel().get("answer");
+		Assertions.assertEquals(expectedAnswer.getId(), answerFromModel.getId());
+		Assertions.assertEquals(expectedAnswer.getText(), answerFromModel.getText());
+		Assertions.assertEquals(expectedAnswer.getUser().getUsername(), answerFromModel.getUser());
+	}
+
+	@WithMockUser(username = "user2")
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfDeleteNotFoundUrlsAndErrorMessages")
+	void removeAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
+																	String nameOfTestCase) throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						get(url)
+								.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("message", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+	}
+
+	private static Stream<Arguments> examplesOfDeleteNotFoundUrlsAndErrorMessages() {
+		return Stream.of(
+				Arguments.of("/app/questions/2000/answers/1000/delete", "Question not found with id 2000",
+						"questionNotExists_notFound"),
+				Arguments.of("/app/questions/1000/answers/2000/delete", "Answer not found with id 2000",
+						"answerNotExists_notFound"),
+				Arguments.of("/app/questions/2000/answers/2000/delete", "Question not found with id 2000",
+						"answerAndQuestionNotExists_notFound")
+		);
 	}
 
 	@Test
