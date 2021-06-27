@@ -362,6 +362,83 @@ class AnswerWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void editAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/questions/1000/answers/1000/edit"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
+	void editAnswerView_simpleCase_success() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		Answer expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/questions/1000/answers/1000/edit")
+								.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("editAnswer"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer", "oldAnswer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		AnswerGet answerFromModel = (AnswerGet) modelAndView.getModel().get("answer");
+		Assertions.assertEquals(expectedAnswer.getId(), answerFromModel.getId());
+		Assertions.assertEquals(expectedAnswer.getText(), answerFromModel.getText());
+		Assertions.assertEquals(expectedAnswer.getUser().getUsername(), answerFromModel.getUser());
+
+		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");
+		Assertions.assertEquals(expectedAnswer.getId(), oldAnswerFromModel.getId());
+		Assertions.assertEquals(expectedAnswer.getText(), oldAnswerFromModel.getText());
+		Assertions.assertEquals(expectedAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
+	}
+
+	@WithMockUser(username = "user2")
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfEditNotFoundUrlsAndErrorMessages")
+	void editAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
+																	String nameOfTestCase) throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						get(url)
+								.with(user("user2").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("message", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+	}
+
+	private static Stream<Arguments> examplesOfEditNotFoundUrlsAndErrorMessages() {
+		return Stream.of(
+				Arguments.of("/app/questions/2000/answers/1000/edit", "Question not found with id 2000",
+						"questionNotExists_notFound"),
+				Arguments.of("/app/questions/1000/answers/2000/edit", "Answer not found with id 2000",
+						"answerNotExists_notFound"),
+				Arguments.of("/app/questions/2000/answers/2000/edit", "Question not found with id 2000",
+						"answerAndQuestionNotExists_notFound")
+		);
+	}
+
+	@Test
+	@WithAnonymousUser
 	void removeAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
