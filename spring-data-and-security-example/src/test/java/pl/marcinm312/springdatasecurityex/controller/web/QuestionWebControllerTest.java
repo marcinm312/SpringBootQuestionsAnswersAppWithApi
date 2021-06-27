@@ -380,7 +380,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
-	void editQuestion_witCsrfInvalidToken_forbidden() throws Exception {
+	void editQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
 		mockMvc.perform(
