@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
 
 import java.util.Calendar;
 
@@ -38,12 +39,12 @@ public class UserDataProvider {
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
 	}
 
-	public static UserCreate prepareUserWithConfirmPasswordErrorToRequest() {
-		return new UserCreate("user", "password", "anotherPassword", "test@abc.pl");
-	}
-
 	public static UserCreate prepareGoodUserToRequest() {
 		return new UserCreate("user", "password", "password", "test@abc.pl");
+	}
+
+	public static UserCreate prepareUserWithConfirmPasswordErrorToRequest() {
+		return new UserCreate("user", "password", "anotherPassword", "test@abc.pl");
 	}
 
 	public static UserCreate prepareIncorrectUserToRequest() {
@@ -52,5 +53,25 @@ public class UserDataProvider {
 
 	public static UserCreate prepareEmptyUserToRequest() {
 		return new UserCreate("", "", "", "");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
+		return new UserDataUpdate("user", "test@abc.pl");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateWithLoginChangeToRequest() {
+		return new UserDataUpdate("user3", "test@abc.pl");
+	}
+
+	public static UserDataUpdate prepareExistingUserDataUpdateToRequest() {
+		return new UserDataUpdate("user2", "test@abc.pl");
+	}
+
+	public static UserDataUpdate prepareIncorrectUserDataUpdateToRequest() {
+		return new UserDataUpdate("aa", "email");
+	}
+
+	public static UserDataUpdate prepareEmptyUserDataUpdateToRequest() {
+		return new UserDataUpdate("", "");
 	}
 }
