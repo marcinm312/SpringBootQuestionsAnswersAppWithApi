@@ -56,7 +56,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -101,10 +101,12 @@ class AnswerWebControllerTest {
 	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
+	private final Question question = QuestionDataProvider.prepareExampleQuestion();
+
 	@BeforeEach
 	void setup() throws MessagingException {
 		Answer answer = AnswerDataProvider.prepareExampleAnswer();
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 
 		given(questionRepository.existsById(1000L)).willReturn(true);
@@ -199,6 +201,10 @@ class AnswerWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -211,6 +217,10 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -224,6 +234,10 @@ class AnswerWebControllerTest {
 								.with(csrf().useInvalidToken())
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -243,6 +257,10 @@ class AnswerWebControllerTest {
 				.andExpect(view().name("redirect:.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, times(1)).save(any(Answer.class));
 	}
 
 	@Test
@@ -274,6 +292,10 @@ class AnswerWebControllerTest {
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
 		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -305,6 +327,10 @@ class AnswerWebControllerTest {
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
 		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -372,6 +398,10 @@ class AnswerWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -384,6 +414,10 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -397,6 +431,10 @@ class AnswerWebControllerTest {
 								.with(csrf().useInvalidToken())
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -416,6 +454,10 @@ class AnswerWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, times(1)).save(any(Answer.class));
 	}
 
 	@Test
@@ -455,6 +497,10 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedOldAnswer.getId(), oldAnswerFromModel.getId());
 		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
 		Assertions.assertEquals(expectedOldAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -494,6 +540,10 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedOldAnswer.getId(), oldAnswerFromModel.getId());
 		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
 		Assertions.assertEquals(expectedOldAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -513,6 +563,10 @@ class AnswerWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+
+		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, times(1)).save(any(Answer.class));
 	}
 
 	@Test
@@ -530,6 +584,10 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
 	@Test
@@ -618,6 +676,8 @@ class AnswerWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
 	@Test
@@ -627,6 +687,8 @@ class AnswerWebControllerTest {
 						post("/app/questions/1000/answers/1000/delete")
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
+
+		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
 	@Test
@@ -637,6 +699,8 @@ class AnswerWebControllerTest {
 								.with(user("user").password("password"))
 								.with(csrf().useInvalidToken()))
 				.andExpect(status().isForbidden());
+
+		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
 	@Test
@@ -651,6 +715,8 @@ class AnswerWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(answerRepository, times(1)).delete(any(Answer.class));
 	}
 
 	@Test
@@ -665,6 +731,8 @@ class AnswerWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+
+		verify(answerRepository, times(1)).delete(any(Answer.class));
 	}
 
 	@Test
@@ -679,6 +747,8 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
 	@Test

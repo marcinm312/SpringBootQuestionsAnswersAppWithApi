@@ -45,7 +45,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -172,6 +172,8 @@ class QuestionWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -185,6 +187,8 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -199,6 +203,8 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -219,6 +225,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -239,6 +247,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -264,6 +274,8 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -289,6 +301,8 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -363,6 +377,8 @@ class QuestionWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -376,6 +392,8 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -390,6 +408,8 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -410,6 +430,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -430,6 +452,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -462,6 +486,8 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
 		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
 		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -494,6 +520,8 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
 		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
 		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -514,6 +542,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -534,6 +564,8 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -598,6 +630,8 @@ class QuestionWebControllerTest {
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/login"))
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
@@ -607,6 +641,8 @@ class QuestionWebControllerTest {
 						post("/app/questions/1000/delete")
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
@@ -617,6 +653,8 @@ class QuestionWebControllerTest {
 								.with(user("user").password("password"))
 								.with(csrf().useInvalidToken()))
 				.andExpect(status().isForbidden());
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
@@ -631,6 +669,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, times(1)).delete(any(Question.class));
 	}
 
 	@Test
@@ -645,6 +685,8 @@ class QuestionWebControllerTest {
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+
+		verify(questionRepository, times(1)).delete(any(Question.class));
 	}
 
 	@Test
@@ -659,6 +701,8 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test

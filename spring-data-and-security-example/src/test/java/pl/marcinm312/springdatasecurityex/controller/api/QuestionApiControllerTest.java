@@ -44,7 +44,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -183,6 +183,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -205,6 +207,8 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -227,6 +231,8 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -241,6 +247,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -255,6 +263,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -268,6 +278,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -281,6 +293,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -303,6 +317,8 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -325,6 +341,8 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -339,6 +357,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -353,6 +373,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -366,6 +388,8 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -388,6 +412,8 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+
+		verify(questionRepository, times(1)).save(any(Question.class));
 	}
 
 	@Test
@@ -408,6 +434,8 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Change not allowed!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -427,6 +455,8 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+
+		verify(questionRepository, never()).save(any(Question.class));
 	}
 
 	@Test
@@ -436,6 +466,8 @@ class QuestionApiControllerTest {
 						delete("/api/questions/1000"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(unauthenticated());
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
@@ -449,6 +481,8 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
+
+		verify(questionRepository, times(1)).delete(any(Question.class));
 	}
 
 	@Test
@@ -462,6 +496,8 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
+
+		verify(questionRepository, times(1)).delete(any(Question.class));
 	}
 
 	@Test
@@ -476,6 +512,8 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Change not allowed!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
@@ -490,6 +528,8 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+
+		verify(questionRepository, never()).delete(any(Question.class));
 	}
 
 	@Test
