@@ -6,7 +6,6 @@ import javax.validation.constraints.Size;
 public class UserPasswordUpdate {
 
 	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
 	private String currentPassword;
 
 	@NotBlank(message = "Pole to musi być wypełnione!")

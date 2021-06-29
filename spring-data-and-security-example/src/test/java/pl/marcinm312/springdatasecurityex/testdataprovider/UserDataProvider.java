@@ -6,6 +6,7 @@ import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 
 import java.util.Calendar;
 
@@ -73,5 +74,29 @@ public class UserDataProvider {
 
 	public static UserDataUpdate prepareEmptyUserDataUpdateToRequest() {
 		return new UserDataUpdate("", "");
+	}
+
+	public static UserPasswordUpdate prepareGoodUserPasswordUpdateToRequest() {
+		return new UserPasswordUpdate("password", "password2", "password2");
+	}
+
+	public static UserPasswordUpdate prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest() {
+		return new UserPasswordUpdate("aaaaaaa", "password2", "password2");
+	}
+
+	public static UserPasswordUpdate prepareUserPasswordUpdateWithConfirmationErrorToRequest() {
+		return new UserPasswordUpdate("password", "password2", "password3");
+	}
+
+	public static UserPasswordUpdate prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest() {
+		return new UserPasswordUpdate("password", "password", "password");
+	}
+
+	public static UserPasswordUpdate prepareUserPasswordUpdateWithTooShortPasswordToRequest() {
+		return new UserPasswordUpdate("password", "passw", "passw");
+	}
+
+	public static UserPasswordUpdate prepareEmptyUserPasswordUpdateToRequest() {
+		return new UserPasswordUpdate("", "", "");
 	}
 }

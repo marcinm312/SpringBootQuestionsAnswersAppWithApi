@@ -22,6 +22,7 @@ import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
+import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.MailService;
@@ -79,6 +80,8 @@ class MyProfileWebControllerTest {
 
 		User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+
+		doNothing().when(userRepo).delete(isA(User.class));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -171,9 +174,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", true);
-		verify(sessionUtils, never())
-				.expireUserSessions("user3", true);
+				.expireUserSessions(any(String.class), eq(true));
 	}
 
 	@Test
@@ -362,5 +363,362 @@ class MyProfileWebControllerTest {
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
 				.expireUserSessions(any(String.class), eq(true));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void updateMyPasswordView_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/myProfile/updatePassword"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPasswordView_loggedCommonUser_success() throws Exception {
+		mockMvc.perform(
+						get("/app/myProfile/updatePassword")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void updateMyPassword_withAnonymousUser_redirectToLoginPage() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(false));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_withoutCsrfToken_forbidden() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().isForbidden());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_withCsrfInvalidToken_forbidden() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf().useInvalidToken())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().isForbidden());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_simpleCase_success() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+		User user = new User("user", userToRequest.getPassword(), "test@abc.pl");
+		given(userRepo.save(any(User.class))).willReturn(user);
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, times(1)).save(any(User.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_incorrectCurrentPassword_validationError() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user2", "currentPassword"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_differentPasswordInConfirmation_validationError() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_theSamePasswordAsPrevious_validationError() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user2", "password"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_tooShortPassword_validationError() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user2", "password"))
+				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void updateMyPassword_emptyFields_validationError() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(view().name("updateMyPassword"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user2", "currentPassword"))
+				.andExpect(model().attributeHasFieldErrors("user2", "password"))
+				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
+				.andExpect(model().attributeExists("userLogin", "user2"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions("user", false);
+	}
+
+
+	@Test
+	@WithAnonymousUser
+	void endOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/myProfile/endOtherSessions"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(false));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void endOtherSessions_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/app/myProfile/endOtherSessions")
+								.with(user("user").password("password")))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:.."))
+				.andExpect(redirectedUrl(".."))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(sessionUtils, times(1))
+				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithAnonymousUser
+	void deleteUserConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						get("/app/myProfile/delete"))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void deleteUserConfirmation_loggedCommonUser_success() throws Exception {
+		User expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						get("/app/myProfile/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("deleteMyProfile"))
+				.andExpect(model().attributeExists("userLogin", "user3"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		User userFromModel = (User) modelAndView.getModel().get("user3");
+		Assertions.assertEquals(expectedUser.getId(), userFromModel.getId());
+		Assertions.assertEquals(expectedUser.getCreatedAt(), userFromModel.getCreatedAt());
+		Assertions.assertEquals(expectedUser.getUpdatedAt(), userFromModel.getUpdatedAt());
+		Assertions.assertEquals(expectedUser.getUsername(), userFromModel.getUsername());
+		Assertions.assertEquals(expectedUser.getRole(), userFromModel.getRole());
+		Assertions.assertEquals(expectedUser.getEmail(), userFromModel.getEmail());
+		Assertions.assertEquals(expectedUser.isEnabled(), userFromModel.isEnabled());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void deleteUser_withAnonymousUser_redirectToLoginPage() throws Exception {
+		mockMvc.perform(
+						post("/app/myProfile/delete")
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(unauthenticated());
+
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(true));
+		verify(userRepo, never())
+				.delete(any(User.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void deleteUser_withoutCsrfToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/myProfile/delete")
+								.with(user("user").password("password")))
+				.andExpect(status().isForbidden());
+
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(true));
+		verify(userRepo, never())
+				.delete(any(User.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void deleteUser_withCsrfInvalidToken_forbidden() throws Exception {
+		mockMvc.perform(
+						post("/app/myProfile/delete")
+								.with(csrf().useInvalidToken())
+								.with(user("user").password("password")))
+				.andExpect(status().isForbidden());
+
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(true));
+		verify(userRepo, never())
+				.delete(any(User.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
+	void deleteUser_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						post("/app/myProfile/delete")
+								.with(user("user").password("password"))
+								.with(csrf()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(view().name("redirect:../../.."))
+				.andExpect(redirectedUrl("../../.."))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(sessionUtils, times(1))
+				.expireUserSessions("user", true);
+		verify(userRepo, times(1))
+				.delete(any(User.class));
 	}
 }
