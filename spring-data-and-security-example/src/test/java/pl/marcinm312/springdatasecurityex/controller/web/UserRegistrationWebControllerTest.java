@@ -34,7 +34,6 @@ import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.validator.UserCreateValidator;
 
 import javax.mail.MessagingException;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -336,15 +335,10 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void activateUser_nullTokenValue_userNotActivated() throws Exception {
-		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						get("/token"))
+		mockMvc.perform(get("/token"))
 				.andExpect(status().isBadRequest())
-				.andExpect(unauthenticated())
-				.andReturn().getResolvedException()).getMessage();
+				.andExpect(unauthenticated());
 
-		String expectedErrorMessage = "Required String parameter 'value' is not present";
-
-		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 		verify(tokenRepo, never()).delete(any(Token.class));
 		verify(userRepo, never()).save(any(User.class));
 	}

@@ -5,7 +5,7 @@
 }
 
 .bold {
-	font-weight: bold;
+    font-weight: bold;
 }
 
 button.btn-primary {
@@ -13,99 +13,101 @@ button.btn-primary {
 }
 
 div.wrapper {
-	margin: 30px;
+    margin: 30px;
 }
 
 div.usertoolbar {
-	margin-bottom: 5px;
+    margin-bottom: 5px;
 }
 
 h1 {
-	margin-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 body {
-	line-height: 1.25;
+    line-height: 1.25;
 }
 
 p.message {
-	margin-top: 20px;
-	margin-bottom: 20px;
+    margin-top: 20px;
+    margin-bottom: 20px;
 }
 
 div.messagebuttons {
-	margin-top: 30px;
+    margin-top: 30px;
 }
 
 .right {
-	float: right;
+    float: right;
 }
 
 div.group {
-	display: inline-block;
+    display: inline-block;
 }
 
 div.usertoolbar p {
-	margin-right: 4px;
-	display: inline-block;
+    margin-right: 4px;
+    display: inline-block;
 }
 
 div.toolbar {
-	margin-top: 10px;
-	margin-bottom: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 #toolbar {
-	margin-right: 4px;
+    margin-right: 4px;
 }
 
 div.section {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 form {
-	max-width: 600px;
+    max-width: 600px;
 }
 
 p.empty {
-	margin-top: 20px;
-	font-size: 20px;
-	color: red;
+    margin-top: 20px;
+    font-size: 20px;
+    color: red;
 }
 
 div.deleteuser {
-	margin-top: 20px;
+    margin-top: 20px;
 }
 
 div.formbuttons {
-	margin-top: 30px;
+    margin-top: 30px;
 }
 
 span.form-text {
     color: red;
 }
 
-@media (max-width:414px) {
-	div.wrapper {
-		margin: 15px;
-	}
-	input.search-input {
+@media (max-width: 414px) {
+    div.wrapper {
+        margin: 15px;
+    }
+
+    input.search-input {
         width: 200px;
     }
 }
 
-@media (max-width:360px) {
-	input.search-input {
-	    width: 180px;
-	}
+@media (max-width: 360px) {
+    input.search-input {
+        width: 180px;
+    }
 }
 
-@media (max-width:320px) {
-	div.wrapper {
-		margin: 5px;
-	}
-	input.search-input {
-	    width: 160px;
-	}
+@media (max-width: 320px) {
+    div.wrapper {
+        margin: 5px;
+    }
+
+    input.search-input {
+        width: 160px;
+    }
 }
 	
