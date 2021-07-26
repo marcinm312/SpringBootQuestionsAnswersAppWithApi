@@ -25,15 +25,11 @@ import java.util.List;
 public class QuestionApiController {
 
 	private final QuestionManager questionManager;
-	private final PdfGenerator pdfGenerator;
-	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
 	@Autowired
-	public QuestionApiController(QuestionManager questionManager, PdfGenerator pdfGenerator, ExcelGenerator excelGenerator, UserManager userManager) {
+	public QuestionApiController(QuestionManager questionManager, UserManager userManager) {
 		this.questionManager = questionManager;
-		this.pdfGenerator = pdfGenerator;
-		this.excelGenerator = excelGenerator;
 		this.userManager = userManager;
 	}
 
@@ -69,14 +65,14 @@ public class QuestionApiController {
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
+		File file = PdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
+		File file = ExcelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 }

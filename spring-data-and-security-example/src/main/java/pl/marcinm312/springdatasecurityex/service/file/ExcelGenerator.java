@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.service.file;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 
@@ -15,7 +14,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-@Service
 public class ExcelGenerator {
 
 	private static final String ID_COLUMN = "Id";
@@ -26,9 +24,13 @@ public class ExcelGenerator {
 	private static final String TYTUL_COLUMN = "Tytuł";
 	private static final String OPIS_COLUMN = "Opis";
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+	private ExcelGenerator () {
 
-	public File generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
+	}
+
+	public static File generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
+		org.slf4j.Logger log = LoggerFactory.getLogger(ExcelGenerator.class);
+
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
@@ -129,7 +131,9 @@ public class ExcelGenerator {
 		return file;
 	}
 
-	public File generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
+	public static File generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
+		org.slf4j.Logger log = LoggerFactory.getLogger(ExcelGenerator.class);
+
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
 
@@ -185,14 +189,14 @@ public class ExcelGenerator {
 		return file;
 	}
 
-	private CellStyle getDateCellStyle(Workbook workbook) {
+	private static CellStyle getDateCellStyle(Workbook workbook) {
 		CreationHelper createHelper = workbook.getCreationHelper();
 		CellStyle dateCellStyle = workbook.createCellStyle();
 		dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd hh:mm:ss"));
 		return dateCellStyle;
 	}
 
-	private CellStyle getHeaderCellStyle(Workbook workbook) {
+	private static CellStyle getHeaderCellStyle(Workbook workbook) {
 		Font headerFont = workbook.createFont();
 		headerFont.setBold(true);
 		headerFont.setFontHeightInPoints((short) 14);

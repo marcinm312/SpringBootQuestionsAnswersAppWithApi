@@ -38,8 +38,6 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -50,9 +48,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
@@ -63,7 +59,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(AnswerApiController.class)
@@ -73,8 +68,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = AnswerApiController.class)
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(ExcelGenerator.class),
-		@SpyBean(PdfGenerator.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
+		@SpyBean(UserManager.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 class AnswerApiControllerTest {
 

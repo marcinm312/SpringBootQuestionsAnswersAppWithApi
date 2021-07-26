@@ -4,7 +4,6 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 import pl.marcinm312.springdatasecurityex.model.answer.AnswerMapper;
@@ -23,19 +22,12 @@ import java.util.List;
 
 class ExcelGeneratorTest {
 
-	private ExcelGenerator excelGenerator;
-
-	@BeforeEach
-	void setup() {
-		excelGenerator = new ExcelGenerator();
-	}
-
 	@Test
 	void generateQuestionsExcelFile_simpleCase_success() throws IOException {
 		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
 
-		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
+		File questionsExcelFile = ExcelGenerator.generateQuestionsExcelFile(questionsList);
 
 		FileInputStream fis = new FileInputStream(questionsExcelFile);
 		Workbook wb = new XSSFWorkbook(fis);
@@ -70,7 +62,7 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException {
-		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
+		File questionsExcelFile = ExcelGenerator.generateQuestionsExcelFile(new ArrayList<>());
 
 		FileInputStream fis = new FileInputStream(questionsExcelFile);
 		Workbook wb = new XSSFWorkbook(fis);
@@ -115,7 +107,7 @@ class ExcelGeneratorTest {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
 
-		File answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
+		File answersExcelFile = ExcelGenerator.generateAnswersExcelFile(answersList, questionGet);
 
 		FileInputStream fis = new FileInputStream(answersExcelFile);
 		Workbook wb = new XSSFWorkbook(fis);
@@ -160,7 +152,7 @@ class ExcelGeneratorTest {
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
 
-		File answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
+		File answersExcelFile = ExcelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
 
 		FileInputStream fis = new FileInputStream(answersExcelFile);
 		Workbook wb = new XSSFWorkbook(fis);

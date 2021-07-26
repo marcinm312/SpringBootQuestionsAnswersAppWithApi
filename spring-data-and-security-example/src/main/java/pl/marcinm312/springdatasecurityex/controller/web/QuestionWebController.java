@@ -43,18 +43,13 @@ public class QuestionWebController {
 	private static final String DELETE_QUESTION_VIEW = "deleteQuestion";
 
 	private final QuestionManager questionManager;
-	private final PdfGenerator pdfGenerator;
-	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	public QuestionWebController(QuestionManager questionManager, PdfGenerator pdfGenerator,
-								 ExcelGenerator excelGenerator, UserManager userManager) {
+	public QuestionWebController(QuestionManager questionManager, UserManager userManager) {
 		this.questionManager = questionManager;
-		this.pdfGenerator = pdfGenerator;
-		this.excelGenerator = excelGenerator;
 		this.userManager = userManager;
 	}
 
@@ -163,14 +158,14 @@ public class QuestionWebController {
 	@GetMapping("/pdf-export")
 	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = pdfGenerator.generateQuestionsPdfFile(questionsList);
+		File file = PdfGenerator.generateQuestionsPdfFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = excelGenerator.generateQuestionsExcelFile(questionsList);
+		File file = ExcelGenerator.generateQuestionsExcelFile(questionsList);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 }

@@ -39,8 +39,6 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -75,8 +73,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = AnswerWebController.class)
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(ExcelGenerator.class),
-		@SpyBean(PdfGenerator.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
+		@SpyBean(UserManager.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 class AnswerWebControllerTest {
 
