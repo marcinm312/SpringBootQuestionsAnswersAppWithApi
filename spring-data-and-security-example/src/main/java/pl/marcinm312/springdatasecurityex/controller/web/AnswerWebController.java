@@ -47,19 +47,14 @@ public class AnswerWebController {
 
 	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
-	private final PdfGenerator pdfGenerator;
-	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,
-							   ExcelGenerator excelGenerator, UserManager userManager) {
+	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
 		this.questionManager = questionManager;
 		this.answerManager = answerManager;
-		this.pdfGenerator = pdfGenerator;
-		this.excelGenerator = excelGenerator;
 		this.userManager = userManager;
 	}
 
@@ -199,7 +194,7 @@ public class AnswerWebController {
 		} catch (ResourceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
+		File file = PdfGenerator.generateAnswersPdfFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
@@ -213,7 +208,7 @@ public class AnswerWebController {
 		} catch (ResourceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
+		File file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 

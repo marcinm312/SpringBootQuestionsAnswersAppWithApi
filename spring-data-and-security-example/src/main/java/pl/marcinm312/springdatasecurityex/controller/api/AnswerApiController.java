@@ -29,17 +29,12 @@ public class AnswerApiController {
 
 	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
-	private final PdfGenerator pdfGenerator;
-	private final ExcelGenerator excelGenerator;
 	private final UserManager userManager;
 
 	@Autowired
-	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, PdfGenerator pdfGenerator,
-							   ExcelGenerator excelGenerator, UserManager userManager) {
+	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
 		this.questionManager = questionManager;
 		this.answerManager = answerManager;
-		this.pdfGenerator = pdfGenerator;
-		this.excelGenerator = excelGenerator;
 		this.userManager = userManager;
 	}
 
@@ -79,7 +74,7 @@ public class AnswerApiController {
 			throws IOException, DocumentException, ResourceNotFoundException {
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = pdfGenerator.generateAnswersPdfFile(answersList, question);
+		File file = PdfGenerator.generateAnswersPdfFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
@@ -88,7 +83,7 @@ public class AnswerApiController {
 			throws IOException, ResourceNotFoundException {
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = excelGenerator.generateAnswersExcelFile(answersList, question);
+		File file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 }
