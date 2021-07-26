@@ -1,13 +1,18 @@
 package pl.marcinm312.springdatasecurityex.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
 
 public class CommonsDTOFields {
 
 	private Long id;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date createdAt;
+
+	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date updatedAt;
 
 	public Long getId() {
