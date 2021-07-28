@@ -324,7 +324,7 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+		Assertions.assertNull(answerFromModel.getText());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -531,7 +531,7 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+		Assertions.assertNull(answerFromModel.getText());
 
 		Answer expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
 		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");

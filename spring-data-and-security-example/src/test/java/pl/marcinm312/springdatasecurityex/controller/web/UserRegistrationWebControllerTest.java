@@ -289,10 +289,10 @@ class UserRegistrationWebControllerTest {
 
 		assert modelAndView != null;
 		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
+		Assertions.assertNull(userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),

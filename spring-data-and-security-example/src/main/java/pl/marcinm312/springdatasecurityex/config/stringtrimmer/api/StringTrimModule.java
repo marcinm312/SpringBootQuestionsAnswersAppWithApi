@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 @Component
 public class StringTrimModule extends SimpleModule {
@@ -15,7 +17,13 @@ public class StringTrimModule extends SimpleModule {
 		addDeserializer(String.class, new StdScalarDeserializer<>(String.class) {
 			@Override
 			public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-				return jsonParser.getValueAsString().trim();
+				List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
+				String fieldName = jsonParser.currentName();
+				if (fieldsToNotTrim.contains(fieldName)) {
+					return jsonParser.getValueAsString();
+				} else {
+					return jsonParser.getValueAsString().trim();
+				}
 			}
 		});
 	}

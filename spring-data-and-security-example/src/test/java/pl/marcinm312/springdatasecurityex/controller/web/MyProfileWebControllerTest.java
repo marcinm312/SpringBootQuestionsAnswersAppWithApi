@@ -357,8 +357,8 @@ class MyProfileWebControllerTest {
 		assert modelAndView != null;
 
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+		Assertions.assertNull(userFromModel.getUsername());
+		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())

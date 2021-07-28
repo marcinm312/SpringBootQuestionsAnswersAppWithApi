@@ -15,11 +15,13 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 public class UserPasswordUpdateValidator implements Validator {
 
 	private static final String CURRENT_PASSWORD_FIELD = "currentPassword";
+	private static final String PASSWORD_FIELD = "password";
+	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+
 	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
 	private static final String CURRENT_PASSWORD_ERROR = "current_password_error";
-	private static final String PASSWORD_FIELD = "password";
 	private static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
-	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+	private static final String START_END_SPACE_ERROR = "start_end_space_error";
 
 	private final UserManager userManager;
 	private final PasswordEncoder passwordEncoder;
@@ -39,12 +41,20 @@ public class UserPasswordUpdateValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		UserPasswordUpdate user = (UserPasswordUpdate) target;
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User loggedUser = userManager.getUserByAuthentication(authentication);
-
 		String currentPassword = user.getCurrentPassword();
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
+
+		if (password.startsWith(" ") || password.endsWith(" ")) {
+			errors.rejectValue(PASSWORD_FIELD, START_END_SPACE_ERROR, "Hasło nie może się zaczynać lub kończyć spacją");
+		}
+
+		if (confirmPassword.startsWith(" ") || confirmPassword.endsWith(" ")) {
+			errors.rejectValue(CONFIRM_PASSWORD_FIELD, START_END_SPACE_ERROR, "Hasło nie może się zaczynać lub kończyć spacją");
+		}
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User loggedUser = userManager.getUserByAuthentication(authentication);
 
 		if (!passwordEncoder.matches(currentPassword, loggedUser.getPassword())) {
 			errors.rejectValue(CURRENT_PASSWORD_FIELD, CURRENT_PASSWORD_ERROR, "Podano nieprawidłowe hasło");

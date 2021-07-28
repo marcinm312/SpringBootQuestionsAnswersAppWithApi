@@ -296,7 +296,7 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
+		Assertions.assertNull(questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
 		verify(questionRepository, never()).save(any(Question.class));
@@ -508,7 +508,7 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
+		Assertions.assertNull(questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
 		Question expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
