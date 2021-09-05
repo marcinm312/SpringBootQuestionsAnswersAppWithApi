@@ -335,6 +335,37 @@ class MyProfileWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
+	void updateMyProfile_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+		UserDataUpdate userToRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/myProfile/update")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("username", userToRequest.getUsername())
+								.param("email", userToRequest.getEmail()))
+				.andExpect(view().name("updateMyProfile"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user", "username"))
+				.andExpect(model().attributeExists("user", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
+		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
+		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(true));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
 	void updateMyProfile_emptyValues_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());

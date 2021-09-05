@@ -84,6 +84,10 @@ public class UserDataProvider {
 		return new UserDataUpdate("", "");
 	}
 
+	public static UserDataUpdate prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest() {
+		return new UserDataUpdate(" a ", "test@abc.pl");
+	}
+
 	public static UserPasswordUpdate prepareGoodUserPasswordUpdateToRequest() {
 		return new UserPasswordUpdate("password", "password2", "password2");
 	}
