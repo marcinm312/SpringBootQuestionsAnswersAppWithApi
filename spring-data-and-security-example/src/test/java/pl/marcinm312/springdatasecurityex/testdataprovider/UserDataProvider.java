@@ -56,6 +56,14 @@ public class UserDataProvider {
 		return new UserCreate("", "", "", "");
 	}
 
+	public static UserCreate prepareUserWithTooShortLoginAfterTrimToRequest() {
+		return new UserCreate(" a ", "password", "password", "test@abc.pl");
+	}
+
+	public static UserCreate prepareUserWithSpacesInPasswordToRequest() {
+		return new UserCreate("user", " pass ", " pass ", "test@abc.pl");
+	}
+
 	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
 		return new UserDataUpdate("user", "test@abc.pl");
 	}
