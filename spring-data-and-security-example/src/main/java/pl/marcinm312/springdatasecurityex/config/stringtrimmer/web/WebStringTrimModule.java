@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @ControllerAdvice
-public class MyCustomControllerAdvice {
+public class WebStringTrimModule {
 
 	@InitBinder
 	public void setupDefaultInitBinder(WebDataBinder binder) {
@@ -22,6 +22,7 @@ public class MyCustomControllerAdvice {
 				super.setValue(text);
 			}
 		};
+
 		List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
 		for (String fieldName : fieldsToNotTrim) {
 			binder.registerCustomEditor(String.class, fieldName, dummyEditor);

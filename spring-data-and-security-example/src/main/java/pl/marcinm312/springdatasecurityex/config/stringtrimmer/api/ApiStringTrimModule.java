@@ -11,10 +11,12 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-public class StringTrimModule extends SimpleModule {
+public class ApiStringTrimModule extends SimpleModule {
 
-	public StringTrimModule() {
+	public ApiStringTrimModule() {
+
 		addDeserializer(String.class, new StdScalarDeserializer<>(String.class) {
+
 			@Override
 			public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
 				List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
@@ -25,6 +27,7 @@ public class StringTrimModule extends SimpleModule {
 					return jsonParser.getValueAsString().trim();
 				}
 			}
+
 		});
 	}
 }
