@@ -277,6 +277,33 @@ class QuestionWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
+	void createQuestion_tooShortTitleAfterTrim_validationErrors() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/new")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(view().name("createQuestion"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("question", "title"))
+				.andExpect(model().attributeExists("question", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
+		Assertions.assertEquals(questionToRequest.getTitle().trim(), questionFromModel.getTitle());
+		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
+
+		verify(questionRepository, never()).save(any(Question.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 

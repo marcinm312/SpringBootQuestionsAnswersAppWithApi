@@ -48,6 +48,10 @@ public class QuestionDataProvider {
 		return new QuestionCreateUpdate("cc", "cccc");
 	}
 
+	public static QuestionCreateUpdate prepareQuestionWithTooShortTitleAfterTrimToRequest() {
+		return new QuestionCreateUpdate(" c ", "cccc");
+	}
+
 	public static QuestionCreateUpdate prepareQuestionWithNullTitleToRequest() {
 		return new QuestionCreateUpdate(null, "cccc");
 	}

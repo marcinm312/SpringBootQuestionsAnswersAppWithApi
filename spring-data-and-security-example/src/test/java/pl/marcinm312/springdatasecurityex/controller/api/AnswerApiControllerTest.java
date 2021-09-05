@@ -308,6 +308,25 @@ class AnswerApiControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
+	void addAnswer_tooShortTextAfterTrim_badRequest() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
+
+		mockMvc.perform(
+						post("/api/questions/1000/answers")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(answerToRequest))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
 	void addAnswer_emptyText_badRequest() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 

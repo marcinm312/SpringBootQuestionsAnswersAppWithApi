@@ -298,6 +298,41 @@ class AnswerWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user2")
+	void createAnswer_tooShortTextAfterTrim_validationErrors() throws Exception {
+		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/1000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(view().name("createAnswer"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("answer", "text"))
+				.andExpect(model().attributeExists("question", "userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
+
+		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
+		Assertions.assertEquals(answerToRequest.getText().trim(), answerFromModel.getText());
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(Answer.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user2")
 	void createAnswer_emptyText_validationErrors() throws Exception {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
