@@ -165,6 +165,33 @@ class UserRegistrationWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void createUser_spacesInPassword_success() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
+		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", user));
+		given(userRepo.save(any(User.class))).willReturn(user);
+
+		mockMvc.perform(
+						post("/register")
+								.with(csrf())
+								.param("username", userToRequest.getUsername())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword())
+								.param("email", userToRequest.getEmail()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(unauthenticated());
+
+		verify(userRepo, times(1)).save(any(User.class));
+		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	@WithAnonymousUser
 	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -179,7 +206,6 @@ class UserRegistrationWebControllerTest {
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"))
-				.andExpect(model().attributeHasNoErrors())
 				.andExpect(model().attributeExists("user"))
 				.andExpect(unauthenticated())
 				.andReturn().getModelAndView();
@@ -187,6 +213,38 @@ class UserRegistrationWebControllerTest {
 		assert modelAndView != null;
 		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
 		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
+		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
+		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
+		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	@WithAnonymousUser
+	void createUser_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/register")
+								.with(csrf())
+								.param("username", userToRequest.getUsername())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword())
+								.param("email", userToRequest.getEmail()))
+				.andExpect(view().name("register"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user", "username"))
+				.andExpect(model().attributeExists("user"))
+				.andExpect(unauthenticated())
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
+		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
@@ -289,10 +347,10 @@ class UserRegistrationWebControllerTest {
 
 		assert modelAndView != null;
 		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
+		Assertions.assertNull(userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),

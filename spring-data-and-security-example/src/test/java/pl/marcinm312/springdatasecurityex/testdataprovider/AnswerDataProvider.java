@@ -43,6 +43,10 @@ public class AnswerDataProvider {
 		return new AnswerCreateUpdate("aa");
 	}
 
+	public static AnswerCreateUpdate prepareAnswerWithTooShortTextAfterTrimToRequest() {
+		return new AnswerCreateUpdate(" a ");
+	}
+
 	public static AnswerCreateUpdate prepareAnswerWithEmptyTextToRequest() {
 		return new AnswerCreateUpdate("");
 	}

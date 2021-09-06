@@ -40,6 +40,13 @@ public class UserDataProvider {
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
 	}
 
+	public static User prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return new User(1003L, "user3", passwordEncoder.encode(" pass "),
+				Roles.ROLE_USER.name(), true, "test3@abc.pl",
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30));
+	}
+
 	public static UserCreate prepareGoodUserToRequest() {
 		return new UserCreate("user", "password", "password", "test@abc.pl");
 	}
@@ -54,6 +61,14 @@ public class UserDataProvider {
 
 	public static UserCreate prepareEmptyUserToRequest() {
 		return new UserCreate("", "", "", "");
+	}
+
+	public static UserCreate prepareUserWithTooShortLoginAfterTrimToRequest() {
+		return new UserCreate(" a ", "password", "password", "test@abc.pl");
+	}
+
+	public static UserCreate prepareUserWithSpacesInPasswordToRequest() {
+		return new UserCreate("user", " pass ", " pass ", "test@abc.pl");
 	}
 
 	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
@@ -74,6 +89,10 @@ public class UserDataProvider {
 
 	public static UserDataUpdate prepareEmptyUserDataUpdateToRequest() {
 		return new UserDataUpdate("", "");
+	}
+
+	public static UserDataUpdate prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest() {
+		return new UserDataUpdate(" a ", "test@abc.pl");
 	}
 
 	public static UserPasswordUpdate prepareGoodUserPasswordUpdateToRequest() {
@@ -98,5 +117,9 @@ public class UserDataProvider {
 
 	public static UserPasswordUpdate prepareEmptyUserPasswordUpdateToRequest() {
 		return new UserPasswordUpdate("", "", "");
+	}
+
+	public static UserPasswordUpdate prepareUserPasswordUpdateWithSpacesInPassToRequest() {
+		return new UserPasswordUpdate(" pass ", " pas  ", " pas  ");
 	}
 }

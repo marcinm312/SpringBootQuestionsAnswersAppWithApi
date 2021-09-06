@@ -89,6 +89,16 @@ class MainWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void getJsScriptInRegistrationForm() throws Exception {
+		mockMvc.perform(
+				get("/js/clearPasswordsFieldsInRegistrationForm.js"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/javascript"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
 	void formLogin_userWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
 				formLogin().user("user").password("password"))

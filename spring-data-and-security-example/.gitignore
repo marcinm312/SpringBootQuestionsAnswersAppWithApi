@@ -34,3 +34,5 @@ build/
 /files/*.xlsx
 /.run/
 /logs/
+
+/.jpb/

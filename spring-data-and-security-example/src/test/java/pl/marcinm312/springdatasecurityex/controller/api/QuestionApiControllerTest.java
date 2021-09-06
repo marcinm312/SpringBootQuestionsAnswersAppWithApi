@@ -250,6 +250,22 @@ class QuestionApiControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
+	void createQuestion_tooShortTitleAfterTrim_badRequest() throws Exception {
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
+		mockMvc.perform(
+						post("/api/questions")
+								.with(httpBasic("user", "password"))
+								.contentType(MediaType.APPLICATION_JSON)
+								.content(mapper.writeValueAsString(questionToRequestBody))
+								.characterEncoding("utf-8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(Question.class));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
 	void createQuestion_nullTitle_badRequest() throws Exception {
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithNullTitleToRequest();
 		mockMvc.perform(

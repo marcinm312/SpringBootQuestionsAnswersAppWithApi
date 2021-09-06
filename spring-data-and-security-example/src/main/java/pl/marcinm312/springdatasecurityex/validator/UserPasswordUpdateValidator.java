@@ -15,11 +15,12 @@ import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 public class UserPasswordUpdateValidator implements Validator {
 
 	private static final String CURRENT_PASSWORD_FIELD = "currentPassword";
+	private static final String PASSWORD_FIELD = "password";
+	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
+
 	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
 	private static final String CURRENT_PASSWORD_ERROR = "current_password_error";
-	private static final String PASSWORD_FIELD = "password";
 	private static final String PASSWORD_WITHOUT_CHANGE_ERROR = "password_without_change";
-	private static final String CONFIRM_PASSWORD_FIELD = "confirmPassword";
 
 	private final UserManager userManager;
 	private final PasswordEncoder passwordEncoder;
@@ -39,12 +40,12 @@ public class UserPasswordUpdateValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		UserPasswordUpdate user = (UserPasswordUpdate) target;
 
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User loggedUser = userManager.getUserByAuthentication(authentication);
-
 		String currentPassword = user.getCurrentPassword();
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
+
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		User loggedUser = userManager.getUserByAuthentication(authentication);
 
 		if (!passwordEncoder.matches(currentPassword, loggedUser.getPassword())) {
 			errors.rejectValue(CURRENT_PASSWORD_FIELD, CURRENT_PASSWORD_ERROR, "Podano nieprawidłowe hasło");

@@ -81,6 +81,9 @@ class MyProfileWebControllerTest {
 		User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
 
+		User userWithSpacesInPass = UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces();
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(userWithSpacesInPass));
+
 		doNothing().when(userRepo).delete(isA(User.class));
 
 		this.mockMvc =
@@ -335,6 +338,37 @@ class MyProfileWebControllerTest {
 
 	@Test
 	@WithMockUser(username = "user")
+	void updateMyProfile_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+		UserDataUpdate userToRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/myProfile/update")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("username", userToRequest.getUsername())
+								.param("email", userToRequest.getEmail()))
+				.andExpect(view().name("updateMyProfile"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user", "username"))
+				.andExpect(model().attributeExists("user", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
+		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
+		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+
+		verify(userRepo, never()).save(any(User.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(String.class), eq(true));
+	}
+
+	@Test
+	@WithMockUser(username = "user")
 	void updateMyProfile_emptyValues_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -357,8 +391,8 @@ class MyProfileWebControllerTest {
 		assert modelAndView != null;
 
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
+		Assertions.assertNull(userFromModel.getUsername());
+		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
@@ -468,6 +502,31 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user3")
+	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
+		User user = new User("user3", userToRequest.getPassword(), "test3@abc.pl");
+		given(userRepo.save(any(User.class))).willReturn(user);
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user3").password(" pass "))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user3").withRoles("USER"));
+
+		verify(userRepo, times(1)).save(any(User.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions("user3", false);
 	}
 
 	@Test
