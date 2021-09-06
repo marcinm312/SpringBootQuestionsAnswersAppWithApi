@@ -81,6 +81,9 @@ class MyProfileWebControllerTest {
 		User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
 
+		User userWithSpacesInPass = UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces();
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(userWithSpacesInPass));
+
 		doNothing().when(userRepo).delete(isA(User.class));
 
 		this.mockMvc =
@@ -499,6 +502,31 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions("user", false);
+	}
+
+	@Test
+	@WithMockUser(username = "user3")
+	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
+		User user = new User("user3", userToRequest.getPassword(), "test3@abc.pl");
+		given(userRepo.save(any(User.class))).willReturn(user);
+
+		mockMvc.perform(
+						post("/app/myProfile/updatePassword")
+								.with(user("user3").password(" pass "))
+								.with(csrf())
+								.param("currentPassword", userToRequest.getCurrentPassword())
+								.param("password", userToRequest.getPassword())
+								.param("confirmPassword", userToRequest.getConfirmPassword()))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl(".."))
+				.andExpect(view().name("redirect:.."))
+				.andExpect(model().hasNoErrors())
+				.andExpect(authenticated().withUsername("user3").withRoles("USER"));
+
+		verify(userRepo, times(1)).save(any(User.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions("user3", false);
 	}
 
 	@Test
