@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -129,18 +128,15 @@ public class User extends AuditModel implements UserDetails {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (!(o instanceof User)) return false;
+
 		User user = (User) o;
-		return isEnabled == user.isEnabled &&
-				id.equals(user.id) &&
-				username.equals(user.username) &&
-				password.equals(user.password) &&
-				role.equals(user.role) &&
-				email.equals(user.email);
+
+		return getUsername() != null ? getUsername().equals(user.getUsername()) : user.getUsername() == null;
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, username, password, role, isEnabled, email);
+		return getUsername() != null ? getUsername().hashCode() : 0;
 	}
 }
