@@ -2,10 +2,10 @@ package pl.marcinm312.springdatasecurityex.controller.api;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
@@ -50,14 +50,14 @@ public class AnswerApiController {
 
 	@PostMapping
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
-							Authentication authentication) {
+							   Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
 	@PutMapping("/{answerId}")
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
-							   @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
+								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
@@ -70,20 +70,27 @@ public class AnswerApiController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<ByteArrayResource> downloadPdf(@PathVariable Long questionId)
+	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId)
 			throws IOException, DocumentException, ResourceNotFoundException {
-		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = PdfGenerator.generateAnswersPdfFile(answersList, question);
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return generateAnswersFile(questionId, FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<ByteArrayResource> downloadExcel(@PathVariable Long questionId)
-			throws IOException, ResourceNotFoundException {
+	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId)
+			throws IOException, ResourceNotFoundException, DocumentException {
+		return generateAnswersFile(questionId, FileTypes.EXCEL);
+	}
+
+	private ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
+			throws IOException, DocumentException {
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
+		File file;
+		if (filetype.equals(FileTypes.EXCEL)) {
+			file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
+		} else {
+			file = PdfGenerator.generateAnswersPdfFile(answersList, question);
+		}
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 }

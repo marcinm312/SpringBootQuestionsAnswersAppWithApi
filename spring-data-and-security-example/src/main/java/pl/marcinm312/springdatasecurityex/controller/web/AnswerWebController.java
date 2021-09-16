@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
@@ -185,21 +186,17 @@ public class AnswerWebController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<?> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
-		QuestionGet question;
-		List<AnswerGet> answersList;
-		try {
-			question = questionManager.getQuestion(questionId);
-			answersList = answerManager.getAnswersByQuestionId(questionId);
-		} catch (ResourceNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
-		File file = PdfGenerator.generateAnswersPdfFile(answersList, question);
-		return FileResponseGenerator.generateResponseWithFile(file);
+	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
+		return generateAnswersFile(questionId, FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<?> downloadExcel(@PathVariable Long questionId) throws IOException {
+	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId) throws IOException, DocumentException {
+		return generateAnswersFile(questionId, FileTypes.EXCEL);
+	}
+
+	private ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
+			throws IOException, DocumentException {
 		QuestionGet question;
 		List<AnswerGet> answersList;
 		try {
@@ -208,7 +205,12 @@ public class AnswerWebController {
 		} catch (ResourceNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
-		File file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
+		File file;
+		if (filetype.equals(FileTypes.EXCEL)) {
+			file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
+		} else {
+			file = PdfGenerator.generateAnswersPdfFile(answersList, question);
+		}
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 

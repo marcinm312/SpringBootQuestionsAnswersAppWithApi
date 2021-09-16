@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.controller.web;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -11,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
@@ -18,11 +18,8 @@ import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.service.file.FileResponseGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -156,16 +153,14 @@ public class QuestionWebController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<ByteArrayResource> downloadPdf() throws IOException, DocumentException {
+	public ResponseEntity<Object> downloadPdf() throws IOException, DocumentException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = PdfGenerator.generateQuestionsPdfFile(questionsList);
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return FileResponseGenerator.generateQuestionsFile(questionsList, FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<ByteArrayResource> downloadExcel() throws IOException {
+	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
 		List<QuestionGet> questionsList = questionManager.getQuestions();
-		File file = ExcelGenerator.generateQuestionsExcelFile(questionsList);
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return FileResponseGenerator.generateQuestionsFile(questionsList, FileTypes.EXCEL);
 	}
 }
