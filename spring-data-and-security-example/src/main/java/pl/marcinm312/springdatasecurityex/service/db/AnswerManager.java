@@ -137,17 +137,17 @@ public class AnswerManager {
 		User questionUser = question.getUser();
 		User answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",");
+		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",")
+				.append("<br><br>Użytkownik <b>").append(answerUser.getUsername());
 		if (isNewAnswer) {
-			stringBuilder.append("<br><br>Użytkownik <b>").append(answerUser.getUsername())
-					.append("</b> opublikował odpowiedź na Twoje pytanie:");
+			stringBuilder.append("</b> opublikował odpowiedź na Twoje pytanie:");
 		} else {
-			stringBuilder.append("<br><br>Użytkownik <b>").append(answerUser.getUsername())
-					.append("</b> zaktualizował odpowiedź na Twoje pytanie:");
+			stringBuilder.append("</b> zaktualizował odpowiedź na Twoje pytanie:");
 		}
-		stringBuilder.append("<br><br><b>Tytuł:</b><br>").append(question.getTitle());
-		stringBuilder.append("<br><br><b>Opis:</b><br>").append(question.getDescription());
-		stringBuilder.append("<br><br><br><b>Treść odpowiedzi:</b><br>").append(answer.getText().replace("\n", "<br>"));
+		stringBuilder.append("<br><br><b>Tytuł:</b><br>").append(question.getTitle())
+				.append("<br><br><b>Opis:</b><br>").append(question.getDescription())
+				.append("<br><br><br><b>Treść odpowiedzi:</b><br>")
+				.append(answer.getText().replace("\n", "<br>"));
 		return stringBuilder.toString();
 	}
 }

@@ -151,7 +151,9 @@ public class UserManager {
 	}
 
 	private String generateEmailContent(User user, String tokenValue, String appURL) {
-		return "Witaj " + user.getUsername() + "," + "<br><br>Potwierdź swój adres email, klikając w poniższy link:"
-				+ "<br><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
+		return new StringBuilder().append("Witaj ").append(user.getUsername())
+				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
+				.append("<br><a href=\"").append(appURL).append("/token?value=").append(tokenValue)
+				.append("\">Aktywuj konto</a>").toString();
 	}
 }
