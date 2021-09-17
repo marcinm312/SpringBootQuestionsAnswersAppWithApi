@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
@@ -16,6 +15,7 @@ import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.service.MailService;
+import pl.marcinm312.springdatasecurityex.utils.PermissionsUtils;
 
 import javax.mail.MessagingException;
 import java.util.List;
@@ -79,8 +79,9 @@ public class AnswerManager {
 		log.info("Updating answer");
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
-			if (checkIfUserIsPermitted(answer, user)) {
-				log.info("Permitted user");
+			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
+			log.info("isUserPermitted = {}", isUserPermitted);
+			if (isUserPermitted) {
 				log.info("Old answer = {}", answer);
 				answer.setText(answerRequest.getText());
 				log.info("New answer = {}", answer);
@@ -96,7 +97,6 @@ public class AnswerManager {
 				}
 				return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
 			} else {
-				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
@@ -106,25 +106,15 @@ public class AnswerManager {
 		log.info("Deleting answer.id = {}", answerId);
 		checkIfQuestionExistsByQuestionId(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
-			if (checkIfUserIsPermitted(answer, user)) {
-				log.info("Permitted user");
+			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
+			log.info("isUserPermitted = {}", isUserPermitted);
+			if (isUserPermitted) {
 				answerRepository.delete(answer);
 				return true;
 			} else {
-				log.info("User is not permitted");
 				throw new ChangeNotAllowedException();
 			}
 		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
-	}
-
-	private boolean checkIfUserIsPermitted (Answer answer, User user) {
-		Long answerUserId = answer.getUser().getId();
-		Long currentUserId = user.getId();
-		String currentUserRole = user.getRole();
-		log.info("answerUserId={}", answerUserId);
-		log.info("currentUserId={}", currentUserId);
-		log.info("currentUserRole={}", currentUserRole);
-		return answerUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name());
 	}
 
 	private void checkIfQuestionExistsByQuestionId(Long questionId) {
