@@ -18,7 +18,6 @@ import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.FileResponseGenerator;
 
 import java.io.IOException;
 import java.util.List;
@@ -154,13 +153,11 @@ public class QuestionWebController {
 
 	@GetMapping("/pdf-export")
 	public ResponseEntity<Object> downloadPdf() throws IOException, DocumentException {
-		List<QuestionGet> questionsList = questionManager.getQuestions();
-		return FileResponseGenerator.generateQuestionsFile(questionsList, FileTypes.PDF);
+		return questionManager.generateQuestionsFile(FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
-		List<QuestionGet> questionsList = questionManager.getQuestions();
-		return FileResponseGenerator.generateQuestionsFile(questionsList, FileTypes.EXCEL);
+		return questionManager.generateQuestionsFile(FileTypes.EXCEL);
 	}
 }

@@ -9,17 +9,11 @@ import pl.marcinm312.springdatasecurityex.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
-import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.FileResponseGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,13 +21,11 @@ import java.util.List;
 @RequestMapping("/api/questions/{questionId}/answers")
 public class AnswerApiController {
 
-	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
 	@Autowired
-	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
-		this.questionManager = questionManager;
+	public AnswerApiController(AnswerManager answerManager, UserManager userManager) {
 		this.answerManager = answerManager;
 		this.userManager = userManager;
 	}
@@ -72,25 +64,12 @@ public class AnswerApiController {
 	@GetMapping("/pdf-export")
 	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId)
 			throws IOException, DocumentException, ResourceNotFoundException {
-		return generateAnswersFile(questionId, FileTypes.PDF);
+		return answerManager.generateAnswersFile(questionId, FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
 	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId)
 			throws IOException, ResourceNotFoundException, DocumentException {
-		return generateAnswersFile(questionId, FileTypes.EXCEL);
-	}
-
-	private ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
-			throws IOException, DocumentException {
-		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file;
-		if (filetype.equals(FileTypes.EXCEL)) {
-			file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
-		} else {
-			file = PdfGenerator.generateAnswersPdfFile(answersList, question);
-		}
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL);
 	}
 }

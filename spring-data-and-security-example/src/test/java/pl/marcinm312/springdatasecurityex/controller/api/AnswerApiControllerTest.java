@@ -38,6 +38,8 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -69,7 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class)})
+		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 class AnswerApiControllerTest {
 
@@ -692,11 +694,11 @@ class AnswerApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
-		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+		String receivedErrorMessage = mockMvc.perform(
 						get(url).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getResolvedException()).getMessage();
+				.andReturn().getResponse().getContentAsString();
 
 		String expectedErrorMessage = "Question not found with id 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
