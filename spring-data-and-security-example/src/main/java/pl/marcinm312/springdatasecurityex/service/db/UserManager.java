@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.service.db;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,16 +53,19 @@ public class UserManager {
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
-		return optionalUser.orElse(null);
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+			log.info("Loading user = {}", user);
+			return user;
+		} else {
+			log.error("User not found!");
+			throw new UsernameNotFoundException("User not found");
+		}
 	}
 
 	public UserGet getUserDTOByAuthentication(Authentication authentication) {
 		User user = getUserByAuthentication(authentication);
-		if (user != null) {
-			return UserMapper.convertUserToUserGet(user);
-		} else {
-			return null;
-		}
+		return UserMapper.convertUserToUserGet(user);
 	}
 
 	@Transactional
@@ -90,7 +94,6 @@ public class UserManager {
 		log.info("User updated");
 		if (!oldUserName.equals(userRequest.getUsername())) {
 			sessionUtils.expireUserSessions(oldUserName, true);
-			sessionUtils.expireUserSessions(userRequest.getUsername(), true);
 		}
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
