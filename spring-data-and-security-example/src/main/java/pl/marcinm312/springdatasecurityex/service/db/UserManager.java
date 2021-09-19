@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.service.db;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,11 +54,11 @@ public class UserManager {
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
-			log.info("Loading user = {}", user);
+			log.info("Loaded user = {}", userName);
 			return user;
 		} else {
-			log.error("User not found!");
-			throw new UsernameNotFoundException("User not found");
+			log.error("User {} not found!", userName);
+			return null;
 		}
 	}
 
