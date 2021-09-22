@@ -28,12 +28,14 @@ import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class AnswerManager {
 
 	private static final String ANSWER_NOT_FOUND_WITH_ID = "Answer not found with id ";
 	private static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
+	private static final String ANSWER_NOT_FOUND_IN_QUESTION = "Answer not found in question with id ";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
@@ -63,6 +65,7 @@ public class AnswerManager {
 		questionManager.getQuestion(questionId);
 		Answer answerFromDB = answerRepository.findById(answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+		checkIfQuestionContainsAnswer(questionId, answerFromDB);
 		return AnswerMapper.convertAnswerToAnswerGet(answerFromDB);
 	}
 
@@ -92,6 +95,7 @@ public class AnswerManager {
 		log.info("Updating answer");
 		questionManager.getQuestion(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
+			checkIfQuestionContainsAnswer(questionId, answer);
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
 			if (isUserPermitted) {
@@ -119,6 +123,7 @@ public class AnswerManager {
 		log.info("Deleting answer.id = {}", answerId);
 		questionManager.getQuestion(questionId);
 		return answerRepository.findById(answerId).map(answer -> {
+			checkIfQuestionContainsAnswer(questionId, answer);
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
 			if (isUserPermitted) {
@@ -147,6 +152,12 @@ public class AnswerManager {
 			file = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		}
 		return FileResponseGenerator.generateResponseWithFile(file);
+	}
+
+	private void checkIfQuestionContainsAnswer(Long questionId, Answer answer) {
+		if (!Objects.equals(answer.getQuestion().getId(), questionId)) {
+			throw new ResourceNotFoundException(ANSWER_NOT_FOUND_IN_QUESTION + questionId);
+		}
 	}
 
 	private String generateEmailContent(Question question, Answer answer, boolean isNewAnswer) {
