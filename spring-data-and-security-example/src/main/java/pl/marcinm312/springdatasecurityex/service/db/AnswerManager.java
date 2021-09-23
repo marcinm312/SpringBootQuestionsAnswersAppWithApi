@@ -19,23 +19,21 @@ import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.service.MailService;
+import pl.marcinm312.springdatasecurityex.utils.PermissionsUtils;
 import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.utils.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
-import pl.marcinm312.springdatasecurityex.utils.PermissionsUtils;
 
 import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class AnswerManager {
 
-	private static final String ANSWER_NOT_FOUND_WITH_ID = "Answer not found with id ";
-	private static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id ";
-	private static final String ANSWER_NOT_FOUND_IN_QUESTION = "Answer not found in question with id ";
+	private static final String QUESTION_NOT_FOUND = "Question not found with id: ";
+	private static final String ANSWER_NOT_FOUND = "Answer not found with questionId: %d and answerId: %d";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
@@ -62,10 +60,8 @@ public class AnswerManager {
 	}
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
-		questionManager.getQuestion(questionId);
-		Answer answerFromDB = answerRepository.findById(answerId)
-				.orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
-		checkIfQuestionContainsAnswer(questionId, answerFromDB);
+		Answer answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
+				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
 		return AnswerMapper.convertAnswerToAnswerGet(answerFromDB);
 	}
 
@@ -87,15 +83,13 @@ public class AnswerManager {
 			}
 			return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
 
-		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
 	@Transactional
 	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, User user) {
 		log.info("Updating answer");
-		questionManager.getQuestion(questionId);
-		return answerRepository.findById(answerId).map(answer -> {
-			checkIfQuestionContainsAnswer(questionId, answer);
+		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
 			if (isUserPermitted) {
@@ -116,14 +110,12 @@ public class AnswerManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, User user) {
 		log.info("Deleting answer.id = {}", answerId);
-		questionManager.getQuestion(questionId);
-		return answerRepository.findById(answerId).map(answer -> {
-			checkIfQuestionContainsAnswer(questionId, answer);
+		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
 			if (isUserPermitted) {
@@ -132,7 +124,7 @@ public class AnswerManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(ANSWER_NOT_FOUND_WITH_ID + answerId));
+		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
 	}
 
 	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
@@ -152,12 +144,6 @@ public class AnswerManager {
 			file = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		}
 		return FileResponseGenerator.generateResponseWithFile(file);
-	}
-
-	private void checkIfQuestionContainsAnswer(Long questionId, Answer answer) {
-		if (!Objects.equals(answer.getQuestion().getId(), questionId)) {
-			throw new ResourceNotFoundException(ANSWER_NOT_FOUND_IN_QUESTION + questionId);
-		}
 	}
 
 	private String generateEmailContent(Question question, Answer answer, boolean isNewAnswer) {

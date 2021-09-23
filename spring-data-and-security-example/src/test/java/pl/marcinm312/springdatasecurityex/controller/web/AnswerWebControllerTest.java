@@ -117,8 +117,10 @@ class AnswerWebControllerTest {
 
 		given(answerRepository.findByQuestionIdOrderByIdDesc(1000L))
 				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.findById(1000L)).willReturn(Optional.of(answer));
-		given(answerRepository.findById(2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(1000L, 1000L)).willReturn(Optional.of(answer));
+		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 2000L)).willReturn(Optional.empty());
 		doNothing().when(answerRepository).delete(isA(Answer.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
@@ -185,7 +187,7 @@ class AnswerWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedMessage = "Question not found with id 2000";
+		String expectedMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedMessage, messageFromModel);
 	}
 
@@ -417,7 +419,7 @@ class AnswerWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
@@ -693,11 +695,11 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfEditNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/edit", "Question not found with id 2000",
+				Arguments.of("/app/questions/2000/answers/1000/edit", "Answer not found with questionId: 2000 and answerId: 1000",
 						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/edit", "Answer not found with id 2000",
+				Arguments.of("/app/questions/1000/answers/2000/edit", "Answer not found with questionId: 1000 and answerId: 2000",
 						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/edit", "Question not found with id 2000",
+				Arguments.of("/app/questions/2000/answers/2000/edit", "Answer not found with questionId: 2000 and answerId: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -849,11 +851,11 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfDeleteNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/delete", "Question not found with id 2000",
+				Arguments.of("/app/questions/2000/answers/1000/delete", "Answer not found with questionId: 2000 and answerId: 1000",
 						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/delete", "Answer not found with id 2000",
+				Arguments.of("/app/questions/1000/answers/2000/delete", "Answer not found with questionId: 1000 and answerId: 2000",
 						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/delete", "Question not found with id 2000",
+				Arguments.of("/app/questions/2000/answers/2000/delete", "Answer not found with questionId: 2000 and answerId: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -915,7 +917,7 @@ class AnswerWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString());
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 

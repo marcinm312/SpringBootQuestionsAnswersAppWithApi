@@ -113,8 +113,10 @@ class AnswerApiControllerTest {
 
 		given(answerRepository.findByQuestionIdOrderByIdDesc(1000L))
 				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.findById(1000L)).willReturn(Optional.of(answer));
-		given(answerRepository.findById(2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(1000L, 1000L)).willReturn(Optional.of(answer));
+		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 2000L)).willReturn(Optional.empty());
 		doNothing().when(answerRepository).delete(isA(Answer.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
@@ -165,7 +167,7 @@ class AnswerApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
@@ -213,11 +215,11 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/api/questions/2000/answers/1000", "Question not found with id 2000",
+				Arguments.of("/api/questions/2000/answers/1000", "Answer not found with questionId: 2000 and answerId: 1000",
 						"questionNotExists_notFound"),
-				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with id 2000",
+				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with questionId: 1000 and answerId: 2000",
 						"answerNotExists_notFound"),
-				Arguments.of("/api/questions/2000/answers/2000", "Question not found with id 2000",
+				Arguments.of("/api/questions/2000/answers/2000", "Answer not found with questionId: 2000 and answerId: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -255,7 +257,7 @@ class AnswerApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
@@ -700,7 +702,7 @@ class AnswerApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 

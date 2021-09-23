@@ -169,7 +169,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
@@ -469,7 +469,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).save(any(Question.class));
@@ -542,7 +542,7 @@ class QuestionApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).delete(any(Question.class));

@@ -7,10 +7,13 @@ import org.springframework.stereotype.Repository;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AnswerRepository extends JpaRepository<Answer, Long> {
 
 	@Query("SELECT a FROM Answer a LEFT JOIN FETCH a.user WHERE a.question.id = :questionId ORDER BY a.id DESC")
 	List<Answer> findByQuestionIdOrderByIdDesc(@Param("questionId") Long questionId);
+
+	Optional<Answer> findByQuestionIdAndId(Long questionId, Long answerId);
 }

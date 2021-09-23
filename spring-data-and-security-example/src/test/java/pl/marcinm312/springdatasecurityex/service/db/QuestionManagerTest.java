@@ -96,6 +96,6 @@ class QuestionManagerTest {
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class,
 				() -> questionManager.deleteQuestion(2000L, user));
-		Assertions.assertEquals("Question not found with id 2000", exception.getMessage());
+		Assertions.assertEquals("Question not found with id: 2000", exception.getMessage());
 	}
 }
