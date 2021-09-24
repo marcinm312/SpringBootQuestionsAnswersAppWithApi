@@ -242,7 +242,7 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions("user", true);
-		verify(sessionUtils, times(1))
+		verify(sessionUtils, never())
 				.expireUserSessions("user3", true);
 	}
 

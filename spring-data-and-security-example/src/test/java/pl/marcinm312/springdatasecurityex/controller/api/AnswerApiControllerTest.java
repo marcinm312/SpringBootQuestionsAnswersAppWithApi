@@ -38,6 +38,8 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -69,7 +71,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class)})
+		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 class AnswerApiControllerTest {
 
@@ -111,8 +113,10 @@ class AnswerApiControllerTest {
 
 		given(answerRepository.findByQuestionIdOrderByIdDesc(1000L))
 				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.findById(1000L)).willReturn(Optional.of(answer));
-		given(answerRepository.findById(2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(1000L, 1000L)).willReturn(Optional.of(answer));
+		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
+		given(answerRepository.findByQuestionIdAndId(2000L, 2000L)).willReturn(Optional.empty());
 		doNothing().when(answerRepository).delete(isA(Answer.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
@@ -163,7 +167,7 @@ class AnswerApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
@@ -211,11 +215,11 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/api/questions/2000/answers/1000", "Question not found with id 2000",
+				Arguments.of("/api/questions/2000/answers/1000", "Answer not found with questionId: 2000 and answerId: 1000",
 						"questionNotExists_notFound"),
-				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with id 2000",
+				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with questionId: 1000 and answerId: 2000",
 						"answerNotExists_notFound"),
-				Arguments.of("/api/questions/2000/answers/2000", "Question not found with id 2000",
+				Arguments.of("/api/questions/2000/answers/2000", "Answer not found with questionId: 2000 and answerId: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -253,7 +257,7 @@ class AnswerApiControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
@@ -692,13 +696,13 @@ class AnswerApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
-		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+		String receivedErrorMessage = mockMvc.perform(
 						get(url).with(httpBasic("user", "password")))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getResolvedException()).getMessage();
+				.andReturn().getResponse().getContentAsString();
 
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 

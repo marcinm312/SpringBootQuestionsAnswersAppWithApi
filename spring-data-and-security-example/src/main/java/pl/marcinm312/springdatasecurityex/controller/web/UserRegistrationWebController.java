@@ -12,8 +12,6 @@ import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
 import pl.marcinm312.springdatasecurityex.validator.UserCreateValidator;
 
-import javax.servlet.http.HttpServletRequest;
-
 @Controller
 @RequestMapping("/")
 public class UserRegistrationWebController {
@@ -38,16 +36,13 @@ public class UserRegistrationWebController {
     }
 
     @PostMapping("/register")
-    public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult, Model model,
-                             HttpServletRequest request) {
+    public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult,
+                             Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute(USER, user);
             return REGISTER_VIEW;
         } else {
-            String requestURL = request.getRequestURL().toString();
-            String servletPath = request.getServletPath();
-            String appURL = requestURL.replace(servletPath, "");
-            userManager.addUser(user, appURL);
+            userManager.addUser(user);
             return "redirect:..";
         }
     }

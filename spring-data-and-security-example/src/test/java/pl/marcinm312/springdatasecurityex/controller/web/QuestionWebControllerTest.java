@@ -33,6 +33,8 @@ import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
@@ -63,7 +65,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class)})
+@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
+		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
@@ -384,7 +387,7 @@ class QuestionWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
@@ -641,7 +644,7 @@ class QuestionWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id 2000";
+		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 

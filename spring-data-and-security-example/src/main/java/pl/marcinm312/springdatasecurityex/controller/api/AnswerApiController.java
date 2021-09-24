@@ -2,24 +2,18 @@ package pl.marcinm312.springdatasecurityex.controller.api;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
-import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.service.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.FileResponseGenerator;
-import pl.marcinm312.springdatasecurityex.service.file.PdfGenerator;
 
 import javax.validation.Valid;
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -27,13 +21,11 @@ import java.util.List;
 @RequestMapping("/api/questions/{questionId}/answers")
 public class AnswerApiController {
 
-	private final QuestionManager questionManager;
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
 	@Autowired
-	public AnswerApiController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
-		this.questionManager = questionManager;
+	public AnswerApiController(AnswerManager answerManager, UserManager userManager) {
 		this.answerManager = answerManager;
 		this.userManager = userManager;
 	}
@@ -50,14 +42,14 @@ public class AnswerApiController {
 
 	@PostMapping
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
-							Authentication authentication) {
+							   Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
 	@PutMapping("/{answerId}")
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
-							   @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
+								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
 		User user = userManager.getUserByAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
@@ -70,20 +62,14 @@ public class AnswerApiController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<ByteArrayResource> downloadPdf(@PathVariable Long questionId)
+	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId)
 			throws IOException, DocumentException, ResourceNotFoundException {
-		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = PdfGenerator.generateAnswersPdfFile(answersList, question);
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return answerManager.generateAnswersFile(questionId, FileTypes.PDF);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<ByteArrayResource> downloadExcel(@PathVariable Long questionId)
-			throws IOException, ResourceNotFoundException {
-		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = answerManager.getAnswersByQuestionId(questionId);
-		File file = ExcelGenerator.generateAnswersExcelFile(answersList, question);
-		return FileResponseGenerator.generateResponseWithFile(file);
+	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId)
+			throws IOException, ResourceNotFoundException, DocumentException {
+		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL);
 	}
 }

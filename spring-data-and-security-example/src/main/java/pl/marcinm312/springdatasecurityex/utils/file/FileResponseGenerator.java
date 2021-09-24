@@ -1,4 +1,4 @@
-package pl.marcinm312.springdatasecurityex.service.file;
+package pl.marcinm312.springdatasecurityex.utils.file;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
@@ -15,7 +15,7 @@ public class FileResponseGenerator {
 
 	}
 
-	public static ResponseEntity<ByteArrayResource> generateResponseWithFile(File file) throws IOException {
+	public static ResponseEntity<Object> generateResponseWithFile(File file) throws IOException {
 		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
 		return ResponseEntity.ok().contentLength(file.length())
 				.contentType(MediaType.parseMediaType("application/octet-stream"))

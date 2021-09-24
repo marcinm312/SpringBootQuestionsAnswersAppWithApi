@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.model.user.Token;
@@ -21,6 +23,7 @@ import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
 import javax.mail.MessagingException;
+import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,27 +52,30 @@ public class UserManager {
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
-		return optionalUser.orElse(null);
-	}
-
-	public UserGet getUserDTOByAuthentication(Authentication authentication) {
-		User user = getUserByAuthentication(authentication);
-		if (user != null) {
-			return UserMapper.convertUserToUserGet(user);
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+			log.info("Loaded user = {}", userName);
+			return user;
 		} else {
+			log.error("User {} not found!", userName);
 			return null;
 		}
 	}
 
+	public UserGet getUserDTOByAuthentication(Authentication authentication) {
+		User user = getUserByAuthentication(authentication);
+		return UserMapper.convertUserToUserGet(user);
+	}
+
 	@Transactional
-	public UserGet addUser(UserCreate userRequest, String appURL) {
+	public UserGet addUser(UserCreate userRequest) {
 		User user = new User(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
 		log.info("Creating user = {}", user);
 		User savedUser = userRepo.save(user);
-		sendToken(user, appURL);
+		sendToken(user);
 		log.info("User created");
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
@@ -87,7 +93,6 @@ public class UserManager {
 		log.info("User updated");
 		if (!oldUserName.equals(userRequest.getUsername())) {
 			sessionUtils.expireUserSessions(oldUserName, true);
-			sessionUtils.expireUserSessions(userRequest.getUsername(), true);
 		}
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
@@ -136,13 +141,13 @@ public class UserManager {
 		return userRepo.findByUsername(username);
 	}
 
-	private void sendToken(User user, String appURL) {
+	private void sendToken(User user) {
 		String tokenValue = UUID.randomUUID().toString();
 		Token token = new Token();
 		token.setUser(user);
 		token.setValue(tokenValue);
 		tokenRepo.save(token);
-		String emailContent = generateEmailContent(user, tokenValue, appURL);
+		String emailContent = generateEmailContent(user, tokenValue);
 		try {
 			mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 		} catch (MessagingException e) {
@@ -150,8 +155,17 @@ public class UserManager {
 		}
 	}
 
-	private String generateEmailContent(User user, String tokenValue, String appURL) {
-		return "Witaj " + user.getUsername() + "," + "<br><br>Potwierdź swój adres email, klikając w poniższy link:"
-				+ "<br><a href=\"" + appURL + "/token?value=" + tokenValue + "\">Aktywuj konto</a>";
+	private String generateEmailContent(User user, String tokenValue) {
+		return new StringBuilder().append("Witaj ").append(user.getUsername())
+				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
+				.append("<br><a href=\"").append(getApplicationUrl()).append("/token?value=").append(tokenValue)
+				.append("\">Aktywuj konto</a>").toString();
+	}
+
+	private String getApplicationUrl() {
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		String requestURL = request.getRequestURL().toString();
+		String servletPath = request.getServletPath();
+		return requestURL.replace(servletPath, "");
 	}
 }
