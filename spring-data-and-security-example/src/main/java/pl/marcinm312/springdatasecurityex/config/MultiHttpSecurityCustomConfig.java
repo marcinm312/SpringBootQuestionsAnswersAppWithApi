@@ -15,6 +15,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
 @Configuration
@@ -75,7 +76,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 					"/css/style.css", "/favicon.ico", "/js/clearPasswordsFieldsInRegistrationForm.js").permitAll()
 					.anyRequest().authenticated()
 					.and().formLogin().permitAll()
-					.and().logout().permitAll().logoutSuccessUrl("/")
+					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
 		}
 
