@@ -72,10 +72,13 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/**")
-					.authorizeRequests().antMatchers("/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-					"/css/style.css", "/favicon.ico", "/js/clearPasswordsFieldsInRegistrationForm.js").permitAll()
+					.authorizeRequests().antMatchers(
+							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
+							"/css/style.css", "/css/signin.css", "/favicon.ico",
+							"/js/clearPasswordsFieldsInRegistrationForm.js")
+					.permitAll()
 					.anyRequest().authenticated()
-					.and().formLogin().permitAll()
+					.and().formLogin().loginPage("/showLoginPage").loginProcessingUrl("/authenticate").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
 		}
