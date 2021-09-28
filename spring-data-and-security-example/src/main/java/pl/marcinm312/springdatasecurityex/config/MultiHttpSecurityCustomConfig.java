@@ -78,9 +78,9 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 							"/js/clearPasswordsFieldsInRegistrationForm.js")
 					.permitAll()
 					.anyRequest().authenticated()
-					.and().formLogin().loginPage("/showLoginPage").loginProcessingUrl("/authenticate").permitAll()
+					.and().formLogin().loginPage("/loginPage").loginProcessingUrl("/authenticate").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/login").sessionRegistry(sessionRegistry());
+					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage").sessionRegistry(sessionRegistry());
 		}
 
 		@Bean
