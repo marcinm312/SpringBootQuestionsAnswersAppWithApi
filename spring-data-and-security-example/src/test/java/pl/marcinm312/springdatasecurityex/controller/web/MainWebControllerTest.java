@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MainWebController.class)
 		})
 @Import({MultiHttpSecurityCustomConfig.class})
-@SpyBeans({@SpyBean(UserDetailsServiceImpl.class)})
+@SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(LoginWebController.class)})
 @WebAppConfiguration
 class MainWebControllerTest {
 
@@ -101,7 +101,7 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_userWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-				formLogin().user("user").password("password"))
+				formLogin("/authenticate").user("user").password("password"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
@@ -109,7 +109,7 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-				formLogin().user("administrator").password("password"))
+				formLogin("/authenticate").user("administrator").password("password"))
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 	}
 
@@ -117,8 +117,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_userWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("user").password("invalid"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("user").password("invalid"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
@@ -126,8 +126,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_administratorWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("administrator").password("invalid"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("administrator").password("invalid"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
@@ -135,8 +135,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_notExistingUser_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("lalala").password("password"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("lalala").password("password"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
