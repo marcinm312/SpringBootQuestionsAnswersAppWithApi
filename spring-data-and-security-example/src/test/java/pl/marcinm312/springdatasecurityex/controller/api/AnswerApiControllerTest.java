@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
@@ -72,7 +73,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerApiControllerTest {
 
 	private MockMvc mockMvc;

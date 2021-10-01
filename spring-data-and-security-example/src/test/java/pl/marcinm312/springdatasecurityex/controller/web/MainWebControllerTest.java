@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -41,7 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MainWebController.class)
 		})
-@Import({MultiHttpSecurityCustomConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 @SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(LoginWebController.class)})
 @WebAppConfiguration
 class MainWebControllerTest {
@@ -74,6 +75,16 @@ class MainWebControllerTest {
 				get("/"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("main"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void getLoginPage_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/loginPage"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("loginForm"))
 				.andExpect(unauthenticated());
 	}
 
