@@ -20,7 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
