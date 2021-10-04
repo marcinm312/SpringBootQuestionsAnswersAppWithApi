@@ -100,6 +100,16 @@ class MainWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void getSignInCss_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/css/signin.css"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("text/css"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
 	void getJsScriptInRegistrationForm() throws Exception {
 		mockMvc.perform(
 				get("/js/clearPasswordsFieldsInRegistrationForm.js"))
