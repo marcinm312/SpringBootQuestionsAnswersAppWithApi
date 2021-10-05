@@ -1,5 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8"
-        pageEncoding="UTF-8" %>
+         pageEncoding="UTF-8" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
@@ -19,6 +19,10 @@
 </head>
 <body>
 
+<button class="btn btn-primary back"
+        onclick="window.location.href = '../..'">Wróć do strony głównej
+</button>
+
 <div class="container">
     <form:form class="form-signin" method="post" action="${pageContext.request.contextPath}/authenticate">
 
@@ -30,7 +34,8 @@
 
         <p>
             <label for="username" class="sr-only">Login</label>
-            <input type="text" id="username" name="username" class="form-control" placeholder="Login" required autofocus/>
+            <input type="text" id="username" name="username" class="form-control" placeholder="Login" required
+                   autofocus/>
         </p>
         <p>
             <label for="password" class="sr-only">Hasło</label>

@@ -35,3 +35,23 @@ body {
 .form-signin input[type="password"] {
     margin-bottom: 10px;
 }
+
+button.back {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+}
+
+@media (max-width: 414px) {
+    button.back {
+        top: 15px;
+        left: 15px;
+    }
+}
+
+@media (max-width: 320px) {
+    button.back {
+        top: 5px;
+        left: 5px;
+    }
+}
