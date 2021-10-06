@@ -20,6 +20,10 @@ body {
     margin: auto;
 }
 
+.form-signin h1 {
+    text-align: center;
+}
+
 .form-signin .form-control {
     position: relative;
     box-sizing: border-box;
@@ -42,14 +46,21 @@ button.back {
     left: 30px;
 }
 
-@media (max-width: 414px) {
+@media (orientation: portrait) and (max-width: 414px) {
     button.back {
         top: 15px;
         left: 15px;
     }
 }
 
-@media (max-width: 320px) {
+@media (orientation: portrait) and (max-width: 320px) {
+    button.back {
+        top: 5px;
+        left: 5px;
+    }
+}
+
+@media (orientation: landscape) and (max-height: 359px) {
     button.back {
         top: 5px;
         left: 5px;
