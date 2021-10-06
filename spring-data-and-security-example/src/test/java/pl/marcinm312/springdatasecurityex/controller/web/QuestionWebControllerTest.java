@@ -21,7 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
-import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
@@ -67,7 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
 		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
 
@@ -112,7 +113,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -142,7 +143,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions/new"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -170,7 +171,7 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(questionRepository, never()).save(any(Question.class));
@@ -338,7 +339,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions/1000/edit"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -402,7 +403,7 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(questionRepository, never()).save(any(Question.class));
@@ -601,7 +602,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions/1000/delete"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -655,7 +656,7 @@ class QuestionWebControllerTest {
 						post("/app/questions/1000/delete")
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(questionRepository, never()).delete(any(Question.class));
@@ -738,7 +739,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions/pdf-export"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -762,7 +763,7 @@ class QuestionWebControllerTest {
 		mockMvc.perform(
 						get("/app/questions/excel-export"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 

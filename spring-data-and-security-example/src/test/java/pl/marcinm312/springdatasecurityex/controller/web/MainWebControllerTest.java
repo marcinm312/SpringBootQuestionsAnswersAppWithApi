@@ -16,7 +16,8 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -41,8 +42,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MainWebController.class)
 		})
-@Import({MultiHttpSecurityCustomConfig.class})
-@SpyBeans({@SpyBean(UserDetailsServiceImpl.class)})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
+@SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(LoginWebController.class)})
 @WebAppConfiguration
 class MainWebControllerTest {
 
@@ -79,9 +80,29 @@ class MainWebControllerTest {
 
 	@Test
 	@WithAnonymousUser
+	void getLoginPage_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/loginPage"))
+				.andExpect(status().isOk())
+				.andExpect(view().name("loginForm"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
 	void getCss_simpleCase_success() throws Exception {
 		mockMvc.perform(
 				get("/css/style.css"))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("text/css"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void getSignInCss_simpleCase_success() throws Exception {
+		mockMvc.perform(
+						get("/css/signin.css"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType("text/css"))
 				.andExpect(unauthenticated());
@@ -101,7 +122,7 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_userWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-				formLogin().user("user").password("password"))
+				formLogin("/authenticate").user("user").password("password"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
@@ -109,7 +130,7 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-				formLogin().user("administrator").password("password"))
+				formLogin("/authenticate").user("administrator").password("password"))
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 	}
 
@@ -117,8 +138,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_userWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("user").password("invalid"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("user").password("invalid"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
@@ -126,8 +147,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_administratorWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("administrator").password("invalid"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("administrator").password("invalid"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
@@ -135,8 +156,8 @@ class MainWebControllerTest {
 	@WithAnonymousUser
 	void formLogin_notExistingUser_unauthenticated() throws Exception {
 		mockMvc.perform(
-				formLogin().user("lalala").password("password"))
-				.andExpect(redirectedUrl("/login?error"))
+				formLogin("/authenticate").user("lalala").password("password"))
+				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 

@@ -19,7 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
-import pl.marcinm312.springdatasecurityex.config.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
+import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
@@ -59,7 +60,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class)})
-@Import({MultiHttpSecurityCustomConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class MyProfileWebControllerTest {
 
 	private MockMvc mockMvc;
@@ -100,7 +101,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -136,7 +137,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/update"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -172,7 +173,7 @@ class MyProfileWebControllerTest {
 								.param("username", userToRequest.getUsername())
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(User.class));
@@ -405,7 +406,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -434,7 +435,7 @@ class MyProfileWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(User.class));
@@ -659,7 +660,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/endOtherSessions"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never())
@@ -687,7 +688,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/delete"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
@@ -725,7 +726,7 @@ class MyProfileWebControllerTest {
 						post("/app/myProfile/delete")
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/login"))
+				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never())
