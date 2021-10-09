@@ -57,7 +57,7 @@ public class ExcelGenerator {
 			Row row = answersSheet.createRow(rowNum++);
 
 			row.createCell(0).setCellValue(answer.getId());
-			row.createCell(1).setCellValue(answer.getText());
+			row.createCell(1).setCellValue(addValueWithNewLines(answer.getText()));
 
 			Cell creationDateCell = row.createCell(2);
 			creationDateCell.setCellValue(answer.getCreatedAtAsString());
@@ -92,7 +92,7 @@ public class ExcelGenerator {
 		Cell cellA3 = row3.createCell(0);
 		cellA3.setCellValue(OPIS_COLUMN);
 		cellA3.setCellStyle(headerCellStyle);
-		row3.createCell(1).setCellValue(question.getDescription());
+		row3.createCell(1).setCellValue(addValueWithNewLines(question.getDescription()));
 
 		Row row4 = questionSheet.createRow(3);
 		Cell cellA4 = row4.createCell(0);
@@ -159,7 +159,7 @@ public class ExcelGenerator {
 
 			row.createCell(0).setCellValue(question.getId());
 			row.createCell(1).setCellValue(question.getTitle());
-			row.createCell(2).setCellValue(question.getDescription());
+			row.createCell(2).setCellValue(addValueWithNewLines(question.getDescription()));
 
 			Cell creationDateCell = row.createCell(3);
 			creationDateCell.setCellValue(question.getCreatedAtAsString());
@@ -202,5 +202,13 @@ public class ExcelGenerator {
 		CellStyle headerCellStyle = workbook.createCellStyle();
 		headerCellStyle.setFont(headerFont);
 		return headerCellStyle;
+	}
+
+	private String addValueWithNewLines(String value) {
+		if (value == null || value.isEmpty()) {
+			return "";
+		} else {
+			return value.replace("\n", " ");
+		}
 	}
 }
