@@ -1,10 +1,13 @@
 package pl.marcinm312.springdatasecurityex.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,8 +17,13 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.JsonObjectAuthenticationFilter;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.JwtAuthorizationFilter;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
 @Configuration
@@ -32,10 +40,21 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 	public class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
 
 		private final UserDetailsServiceImpl userDetailsService;
+		private final ObjectMapper objectMapper;
+		private final RestAuthenticationSuccessHandler successHandler;
+		private final RestAuthenticationFailureHandler failureHandler;
+		private final String secret;
 
 		@Autowired
-		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService) {
+		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper,
+												  RestAuthenticationSuccessHandler successHandler,
+												  RestAuthenticationFailureHandler failureHandler,
+												  @Value("${jwt.secret}") String secret) {
 			this.userDetailsService = userDetailsService;
+			this.objectMapper = objectMapper;
+			this.successHandler = successHandler;
+			this.failureHandler = failureHandler;
+			this.secret = secret;
 		}
 
 		@Override
@@ -46,11 +65,24 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/api/**")
-					.authorizeRequests().anyRequest().authenticated()
-					.and().httpBasic()
+					.authorizeRequests().antMatchers("/api/login").permitAll()
+					.anyRequest().authenticated()
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					.and().addFilter(authenticationFilter())
+					.addFilter(new JwtAuthorizationFilter(authenticationManager(), userDetailsService, secret))
+					.exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
 					.and().csrf().disable();
 		}
+
+		public JsonObjectAuthenticationFilter authenticationFilter() throws Exception {
+			JsonObjectAuthenticationFilter authenticationFilter = new JsonObjectAuthenticationFilter(objectMapper);
+			authenticationFilter.setFilterProcessesUrl("/api/login");
+			authenticationFilter.setAuthenticationSuccessHandler(successHandler);
+			authenticationFilter.setAuthenticationFailureHandler(failureHandler);
+			authenticationFilter.setAuthenticationManager(super.authenticationManager());
+			return authenticationFilter;
+		}
+
 	}
 
 	@Configuration
