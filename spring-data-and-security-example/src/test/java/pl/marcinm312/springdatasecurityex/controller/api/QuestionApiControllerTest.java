@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.question.dto.QuestionGet;
@@ -64,7 +66,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
-		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
+		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class QuestionApiControllerTest {
 
@@ -117,9 +120,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getQuestions_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String response = mockMvc.perform(
 						get("/api/questions")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -591,5 +597,13 @@ class QuestionApiControllerTest {
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	private String prepareToken(String username, String password) throws Exception {
+		return mockMvc.perform(post("/api/login")
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+				.andExpect(status().isOk())
+				.andExpect(header().exists("Authorization"))
+				.andReturn().getResponse().getHeader("Authorization");
 	}
 }
