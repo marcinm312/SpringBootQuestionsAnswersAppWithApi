@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,10 +17,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
+
 	private static final String TOKEN_HEADER = "Authorization";
 	private static final String TOKEN_PREFIX = "Bearer ";
 	private final UserDetailsServiceImpl userDetailsService;
 	private final String secret;
+
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
 								  UserDetailsServiceImpl userDetailsService,
@@ -43,10 +47,15 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(TOKEN_HEADER);
 		if (token != null && token.startsWith(TOKEN_PREFIX)) {
-			String userName = JWT.require(Algorithm.HMAC256(secret))
-					.build()
-					.verify(token.replace(TOKEN_PREFIX, ""))
-					.getSubject();
+			String userName = null;
+			try {
+				userName = JWT.require(Algorithm.HMAC256(secret))
+						.build()
+						.verify(token.replace(TOKEN_PREFIX, ""))
+						.getSubject();
+			} catch (Exception exc) {
+				log.error("Error while decoding JWT: {}", exc.getMessage());
+			}
 			if (userName != null) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 				return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());

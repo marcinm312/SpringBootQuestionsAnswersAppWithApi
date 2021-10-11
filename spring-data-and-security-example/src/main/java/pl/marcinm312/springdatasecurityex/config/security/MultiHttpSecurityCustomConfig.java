@@ -7,7 +7,6 @@ import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,13 +16,9 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import pl.marcinm312.springdatasecurityex.config.security.jwt.JsonObjectAuthenticationFilter;
-import pl.marcinm312.springdatasecurityex.config.security.jwt.JwtAuthorizationFilter;
-import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
-import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.*;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
 @Configuration
@@ -70,7 +65,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
 					.addFilter(new JwtAuthorizationFilter(authenticationManager(), userDetailsService, secret))
-					.exceptionHandling().authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+					.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 					.and().csrf().disable();
 		}
 
