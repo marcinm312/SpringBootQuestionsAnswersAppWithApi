@@ -25,6 +25,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
@@ -39,12 +41,12 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 
 import javax.mail.MessagingException;
 import java.util.Objects;
@@ -55,7 +57,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -72,7 +73,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
+		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerApiControllerTest {
 
@@ -144,9 +146,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getAnswersByQuestionId_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String response = mockMvc.perform(
 						get("/api/questions/1000/answers")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -161,9 +166,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getAnswersByQuestionId_questionNotExists_notFound() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get("/api/questions/2000/answers")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -184,10 +192,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getAnswerByQuestionIdAndAnswerId_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		Answer answer = AnswerDataProvider.prepareExampleAnswer();
 		String response = mockMvc.perform(
 						get("/api/questions/1000/answers/1000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -205,8 +216,12 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void getAnswerByQuestionIdAndAnswerId_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
 																			 String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						get(url).with(httpBasic("user", "password")))
+						get(url)
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -228,8 +243,8 @@ class AnswerApiControllerTest {
 	@Test
 	@WithAnonymousUser
 	void addAnswer_withAnonymousUser_unauthorized() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -246,11 +261,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_questionNotExists_notFound() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						post("/api/questions/2000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -269,13 +286,16 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -295,11 +315,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_tooShortText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -314,11 +336,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_tooShortTextAfterTrim_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -333,11 +357,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_emptyText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -352,11 +378,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_nullText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -371,9 +399,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void addAnswer_emptyBody_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
@@ -406,13 +437,16 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -432,11 +466,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateAnswer_tooShortText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 
+		String token = prepareToken("user2", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -451,11 +487,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateAnswer_emptyText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 
+		String token = prepareToken("user2", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -470,11 +508,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateAnswer_nullText_badRequest() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
 
+		String token = prepareToken("user2", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -489,9 +529,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateAnswer_emptyBody_badRequest() throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
@@ -506,13 +549,16 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
+
+		String token = prepareToken("administrator", "password");
+
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("administrator", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -532,11 +578,13 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateAnswer_userUpdatesAnotherUsersAnswer_forbidden() throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
+		String token = prepareToken("user", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -557,11 +605,13 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void updateAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
 														 String nameOfTestCase) throws Exception {
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
+		String token = prepareToken("user2", "password");
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put(url)
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
@@ -590,9 +640,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
-								.with(httpBasic("user2", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
@@ -605,9 +658,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
+
+		String token = prepareToken("administrator", "password");
+
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
-								.with(httpBasic("administrator", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
 				.andReturn().getResponse().getContentAsString();
@@ -620,9 +676,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void deleteAnswer_userDeletesAnotherUsersAnswer_forbidden() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -638,8 +697,12 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void deleteAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
 														 String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						delete(url).with(httpBasic("user2", "password")))
+						delete(url)
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -661,9 +724,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						get("/api/questions/1000/answers/pdf-export")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -683,9 +749,12 @@ class AnswerApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						get("/api/questions/1000/answers/excel-export")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -697,8 +766,12 @@ class AnswerApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = mockMvc.perform(
-						get(url).with(httpBasic("user", "password")))
+						get(url)
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
@@ -714,5 +787,13 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/2000/answers/excel-export",
 						"downloadExcel_questionNotExists_notFound")
 		);
+	}
+
+	private String prepareToken(String username, String password) throws Exception {
+		return mockMvc.perform(post("/api/login")
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+				.andExpect(status().isOk())
+				.andExpect(header().exists("Authorization"))
+				.andReturn().getResponse().getHeader("Authorization");
 	}
 }
