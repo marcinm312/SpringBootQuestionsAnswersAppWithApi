@@ -35,11 +35,11 @@ import pl.marcinm312.springdatasecurityex.service.MailService;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -49,7 +49,6 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -149,10 +148,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getQuestion_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		String response = mockMvc.perform(
 						get("/api/questions/1000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -169,9 +171,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getQuestion_questionNotExists_notFound() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get("/api/questions/2000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -197,12 +202,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -221,12 +229,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullDescription_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -245,10 +256,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitle_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -261,10 +275,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitleAfterTrim_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
 		mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -277,10 +294,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullTitle_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithNullTitleToRequest();
 		mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -293,9 +313,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_nullBody_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						post("/api/questions")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
@@ -323,12 +346,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -347,12 +373,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_nullDescription_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -371,10 +400,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_tooShortTitle_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
-				mockMvc.perform(
+		mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -387,10 +419,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_nullTitle_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithNullTitleToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -403,9 +438,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_nullBody_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
@@ -418,12 +456,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void updateQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
+
+		String token = prepareToken("administrator", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("administrator", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -442,12 +483,15 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void updateQuestion_userUpdatesAnotherUsersQuestion_forbidden() throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(Question.class)))
 				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000")
-								.with(httpBasic("user2", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -464,11 +508,13 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void updateQuestion_questionNotExists_notFound() throws Exception {
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		String token = prepareToken("user", "password");
+
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/2000")
-								.with(httpBasic("user", "password"))
+								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(questionToRequestBody))
 								.characterEncoding("utf-8"))
@@ -496,9 +542,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void deleteQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
@@ -511,9 +560,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
+
+		String token = prepareToken("administrator", "password");
+
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
-								.with(httpBasic("administrator", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
 				.andReturn().getResponse().getContentAsString();
@@ -526,9 +578,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void deleteQuestion_userDeletesAnotherUsersQuestion_forbidden() throws Exception {
+
+		String token = prepareToken("user2", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000")
-								.with(httpBasic("user2", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isForbidden())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -542,9 +597,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void deleteQuestion_questionNotExists_notFound() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/2000")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isNotFound())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
@@ -567,9 +625,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						get("/api/questions/pdf-export")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -589,9 +650,12 @@ class QuestionApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		mockMvc.perform(
 						get("/api/questions/excel-export")
-								.with(httpBasic("user", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))

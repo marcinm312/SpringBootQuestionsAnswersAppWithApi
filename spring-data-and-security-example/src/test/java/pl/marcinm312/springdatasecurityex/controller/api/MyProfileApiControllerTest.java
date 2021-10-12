@@ -22,6 +22,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.repository.TokenRepo;
@@ -36,14 +38,13 @@ import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MyProfileApiController.class)
@@ -53,7 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MyProfileApiController.class)
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class)})
+@SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class MyProfileApiControllerTest {
 
@@ -86,10 +88,13 @@ class MyProfileApiControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void getMyProfile_loggedCommonUser_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
 		User expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		String response = mockMvc.perform(
-				get("/api/myProfile")
-						.with(httpBasic("user", "password")))
+						get("/api/myProfile")
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -103,10 +108,13 @@ class MyProfileApiControllerTest {
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void getMyProfile_loggedAdminUser_success() throws Exception {
+
+		String token = prepareToken("administrator", "password");
+
 		User expectedUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		String response = mockMvc.perform(
 						get("/api/myProfile")
-								.with(httpBasic("administrator", "password")))
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
@@ -121,7 +129,7 @@ class MyProfileApiControllerTest {
 	@WithAnonymousUser
 	void getMyProfile_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-				get("/api/myProfile"))
+						get("/api/myProfile"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(unauthenticated());
 	}
@@ -134,5 +142,13 @@ class MyProfileApiControllerTest {
 		Assertions.assertEquals(expectedUser.getRole(), responseUser.getRole());
 		Assertions.assertEquals(expectedUser.getEmail(), responseUser.getEmail());
 		Assertions.assertEquals(expectedUser.isEnabled(), responseUser.isEnabled());
+	}
+
+	private String prepareToken(String username, String password) throws Exception {
+		return mockMvc.perform(post("/api/login")
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+				.andExpect(status().isOk())
+				.andExpect(header().exists("Authorization"))
+				.andReturn().getResponse().getHeader("Authorization");
 	}
 }
