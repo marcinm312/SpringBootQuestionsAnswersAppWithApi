@@ -10,6 +10,7 @@ public class LoginApiController {
 
 	@PostMapping("/api/login")
 	public void login(@RequestBody LoginCredentials credentials) {
-
+		// This method is handled by Spring Security. It is added to make the controller method visible in
+		// tools such as Swagger
 	}
 }
