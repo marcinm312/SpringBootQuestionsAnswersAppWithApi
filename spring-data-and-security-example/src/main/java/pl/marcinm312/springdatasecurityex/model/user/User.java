@@ -121,8 +121,7 @@ public class User extends AuditModel implements UserDetails {
 
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
-				+ ", email=" + email + "]";
+		return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled + "]";
 	}
 
 	@Override

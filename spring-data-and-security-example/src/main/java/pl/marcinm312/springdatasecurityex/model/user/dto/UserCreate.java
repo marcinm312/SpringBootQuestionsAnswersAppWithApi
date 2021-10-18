@@ -69,7 +69,6 @@ public class UserCreate {
 	public String toString() {
 		return "UserCreate{" +
 				"username='" + username + '\'' +
-				", email='" + email + '\'' +
 				'}';
 	}
 }

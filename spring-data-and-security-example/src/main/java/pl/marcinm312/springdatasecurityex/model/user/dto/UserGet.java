@@ -47,7 +47,6 @@ public class UserGet extends CommonsDTOFields {
 				"username='" + username + '\'' +
 				", role='" + role + '\'' +
 				", isEnabled=" + isEnabled +
-				", email='" + email + '\'' +
 				"} " + super.toString();
 	}
 
