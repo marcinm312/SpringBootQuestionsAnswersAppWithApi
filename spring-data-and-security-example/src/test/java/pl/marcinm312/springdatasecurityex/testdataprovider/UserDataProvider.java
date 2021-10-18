@@ -40,6 +40,13 @@ public class UserDataProvider {
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
 	}
 
+	public static User prepareExampleSecondDisabledUserWithEncodedPassword() {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return new User(1003L, "user3", passwordEncoder.encode("password"),
+				Roles.ROLE_USER.name(), false, "test@abc.pl",
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+	}
+
 	public static User prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return new User(1003L, "user3", passwordEncoder.encode(" pass "),

@@ -63,6 +63,7 @@ class MainWebControllerTest {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -160,6 +161,15 @@ class MainWebControllerTest {
 	void formLogin_notExistingUser_unauthenticated() throws Exception {
 		mockMvc.perform(
 				formLogin("/authenticate").user("lalala").password("password"))
+				.andExpect(redirectedUrl("/loginPage?error"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void formLogin_disabledUser_unauthenticated() throws Exception {
+		mockMvc.perform(
+						formLogin("/authenticate").user("user3").password("password"))
 				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
