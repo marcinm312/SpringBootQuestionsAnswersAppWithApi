@@ -78,7 +78,8 @@ class LoginApiControllerTest {
 			throws Exception {
 
 		String token = mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
+						.characterEncoding("UTF8"))
 				.andExpect(status().isOk())
 				.andExpect(header().exists("Authorization"))
 				.andReturn().getResponse().getHeader("Authorization");
@@ -93,7 +94,8 @@ class LoginApiControllerTest {
 													  String nameOfTestCase) throws Exception {
 
 		String receivedErrorMessage = mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
+						.characterEncoding("UTF8"))
 				.andExpect(status().isUnauthorized())
 				.andExpect(header().doesNotExist("Authorization"))
 				.andReturn().getResponse().getErrorMessage();
