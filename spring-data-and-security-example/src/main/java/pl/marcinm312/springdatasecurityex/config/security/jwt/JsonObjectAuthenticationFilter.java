@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -16,12 +17,15 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
 
 	private final ObjectMapper objectMapper;
 
+	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
+
 	public JsonObjectAuthenticationFilter(ObjectMapper objectMapper) {
 		this.objectMapper = objectMapper;
 	}
 
 	@Override
-	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+			throws AuthenticationException {
 
 		try {
 			BufferedReader reader = request.getReader();
@@ -37,7 +41,14 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
 			setDetails(request, token);
 			return this.getAuthenticationManager().authenticate(token);
 		} catch (IOException e) {
-			throw new IllegalArgumentException(e.getMessage());
+			log.error("Error while authenticating user: {}", e.getClass().getName());
+			try {
+				response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+			} catch (IOException ex) {
+				log.error("Error while sending error: {}", ex.getMessage());
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+			return null;
 		}
 	}
 }
