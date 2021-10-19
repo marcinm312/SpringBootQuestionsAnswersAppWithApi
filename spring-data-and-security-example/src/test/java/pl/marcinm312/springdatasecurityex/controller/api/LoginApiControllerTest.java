@@ -101,6 +101,17 @@ class LoginApiControllerTest {
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfBadRequests")
+	void login_incorrectRequestBody_badRequest(String requestBody, String nameOfTestCase) throws Exception {
+
+		mockMvc.perform(post("/api/login")
+						.content(requestBody)
+						.characterEncoding("UTF8"))
+				.andExpect(status().isBadRequest())
+				.andExpect(header().doesNotExist("Authorization"));
+	}
+
 	private static Stream<Arguments> examplesOfAuthorized() {
 		return Stream.of(
 				Arguments.of("user", "password", "login_userWithGoodCredentials_success"),
@@ -118,6 +129,17 @@ class LoginApiControllerTest {
 						"login_notExistingUser_unauthenticated"),
 				Arguments.of("user3", "password", "Konto użytkownika jest wyłączone",
 						"login_disabledUser_unauthenticated")
+		);
+	}
+
+	private static Stream<Arguments> examplesOfBadRequests() {
+		return Stream.of(
+			Arguments.of("aaa", "login_incorrectRequestBody_badRequest1"),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\"", "login_incorrectRequestBody_badRequest2"),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}", "login_incorrectRequestBody_badRequest3"),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa", "login_incorrectRequestBody_badRequest4"),
+			Arguments.of("", "login_incorrectRequestBody_badRequest5"),
+			Arguments.of("{..}", "login_incorrectRequestBody_badRequest6")
 		);
 	}
 }
