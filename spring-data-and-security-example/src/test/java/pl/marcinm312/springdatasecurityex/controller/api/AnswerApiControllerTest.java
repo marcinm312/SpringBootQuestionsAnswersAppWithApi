@@ -17,8 +17,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -57,8 +55,6 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -135,16 +131,13 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getAnswersByQuestionId_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/questions/1000/answers"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void getAnswersByQuestionId_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -154,7 +147,6 @@ class AnswerApiControllerTest {
 								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		AnswerGet[] responseAnswerList = mapper.readValue(response, AnswerGet[].class);
@@ -164,7 +156,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void getAnswersByQuestionId_questionNotExists_notFound() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -173,7 +164,6 @@ class AnswerApiControllerTest {
 						get("/api/questions/2000/answers")
 								.header("Authorization", token))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Question not found with id: 2000";
@@ -181,16 +171,13 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getAnswerByQuestionIdAndAnswerId_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/questions/1000/answers/1000"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void getAnswerByQuestionIdAndAnswerId_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -201,7 +188,6 @@ class AnswerApiControllerTest {
 								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
@@ -211,7 +197,6 @@ class AnswerApiControllerTest {
 		Assertions.assertEquals(answer.getUser().getUsername(), responseAnswer.getUser());
 	}
 
-	@WithMockUser(username = "user")
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void getAnswerByQuestionIdAndAnswerId_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
@@ -223,7 +208,6 @@ class AnswerApiControllerTest {
 						get(url)
 								.header("Authorization", token))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
@@ -241,7 +225,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void addAnswer_withAnonymousUser_unauthorized() throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
@@ -250,8 +233,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -259,7 +241,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_questionNotExists_notFound() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -272,7 +253,6 @@ class AnswerApiControllerTest {
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Question not found with id: 2000";
@@ -284,7 +264,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -301,7 +280,6 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
@@ -313,7 +291,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_tooShortText_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -325,8 +302,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -334,7 +310,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_tooShortTextAfterTrim_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -346,8 +321,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -355,7 +329,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_emptyText_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -367,8 +340,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -376,7 +348,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_nullText_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -388,8 +359,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -397,7 +367,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void addAnswer_emptyBody_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -408,8 +377,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -417,7 +385,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void updateAnswer_withAnonymousUser_unauthorized() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -426,8 +393,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -435,7 +401,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void updateAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -452,7 +417,6 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
@@ -464,7 +428,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void updateAnswer_tooShortText_badRequest() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -476,8 +439,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -485,7 +447,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void updateAnswer_emptyText_badRequest() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -497,8 +458,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -506,7 +466,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void updateAnswer_nullText_badRequest() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -518,8 +477,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -527,7 +485,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void updateAnswer_emptyBody_badRequest() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -538,8 +495,7 @@ class AnswerApiControllerTest {
 								.contentType(MediaType.APPLICATION_JSON)
 								.content("")
 								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+				.andExpect(status().isBadRequest());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -547,7 +503,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 
 		String token = prepareToken("administrator", "password");
@@ -564,7 +519,6 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
 				.andReturn().getResponse().getContentAsString();
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
@@ -576,7 +530,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateAnswer_userUpdatesAnotherUsersAnswer_forbidden() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -589,7 +542,6 @@ class AnswerApiControllerTest {
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isForbidden())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Change not allowed!";
@@ -600,7 +552,6 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).save(any(Answer.class));
 	}
 
-	@WithMockUser(username = "user2")
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void updateAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
@@ -616,7 +567,6 @@ class AnswerApiControllerTest {
 								.content(mapper.writeValueAsString(answerToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
@@ -627,18 +577,15 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void deleteAnswer_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						delete("/api/questions/1000/answers/1000"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 
 		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
 
 		String token = prepareToken("user2", "password");
@@ -647,7 +594,6 @@ class AnswerApiControllerTest {
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
 				.andExpect(status().isOk())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
@@ -656,7 +602,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
 
 		String token = prepareToken("administrator", "password");
@@ -665,7 +610,6 @@ class AnswerApiControllerTest {
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
 				.andExpect(status().isOk())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
@@ -674,7 +618,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void deleteAnswer_userDeletesAnotherUsersAnswer_forbidden() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -683,7 +626,6 @@ class AnswerApiControllerTest {
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
 				.andExpect(status().isForbidden())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Change not allowed!";
@@ -692,7 +634,6 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).delete(any(Answer.class));
 	}
 
-	@WithMockUser(username = "user2")
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void deleteAnswer_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage,
@@ -704,7 +645,6 @@ class AnswerApiControllerTest {
 						delete(url)
 								.header("Authorization", token))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
@@ -713,16 +653,13 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/questions/1000/answers/pdf-export"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -733,21 +670,17 @@ class AnswerApiControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
-				.andExpect(header().string("Accept-Ranges", "bytes"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/questions/1000/answers/excel-export"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -758,11 +691,9 @@ class AnswerApiControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
-				.andExpect(header().string("Accept-Ranges", "bytes"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
 
-	@WithMockUser(username = "user")
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
@@ -773,7 +704,6 @@ class AnswerApiControllerTest {
 						get(url)
 								.header("Authorization", token))
 				.andExpect(status().isNotFound())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		String expectedErrorMessage = "Question not found with id: 2000";

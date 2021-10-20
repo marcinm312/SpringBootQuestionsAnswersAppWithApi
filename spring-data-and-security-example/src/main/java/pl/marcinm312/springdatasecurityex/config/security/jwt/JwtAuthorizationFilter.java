@@ -59,7 +59,11 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			if (userName != null) {
 				UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 				return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
+			} else {
+				log.error("Username taken from the token is null!");
 			}
+		} else {
+			log.error("Token not found in header!");
 		}
 		return null;
 	}

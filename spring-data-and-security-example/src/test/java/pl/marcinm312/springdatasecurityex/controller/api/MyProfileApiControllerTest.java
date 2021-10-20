@@ -14,8 +14,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -38,8 +36,6 @@ import java.util.Optional;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -86,7 +82,6 @@ class MyProfileApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void getMyProfile_loggedCommonUser_success() throws Exception {
 
 		String token = prepareToken("user", "password");
@@ -97,7 +92,6 @@ class MyProfileApiControllerTest {
 								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString();
 
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
@@ -106,7 +100,6 @@ class MyProfileApiControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void getMyProfile_loggedAdminUser_success() throws Exception {
 
 		String token = prepareToken("administrator", "password");
@@ -117,7 +110,6 @@ class MyProfileApiControllerTest {
 								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"))
 				.andReturn().getResponse().getContentAsString();
 
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
@@ -126,12 +118,10 @@ class MyProfileApiControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getMyProfile_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/myProfile"))
-				.andExpect(status().isUnauthorized())
-				.andExpect(unauthenticated());
+				.andExpect(status().isUnauthorized());
 	}
 
 	private void assertUser(User expectedUser, UserGet responseUser) {
