@@ -101,6 +101,7 @@ class QuestionApiControllerTest {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -121,6 +122,17 @@ class QuestionApiControllerTest {
 	void getQuestions_expiredToken_unauthorized() throws Exception {
 
 		String token = prepareExpiredToken("user");
+
+		mockMvc.perform(
+						get("/api/questions")
+								.header("Authorization", token))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getQuestions_tokenForNotExistingUser_unauthorized() throws Exception {
+
+		String token = prepareTokenForNotExistingUser();
 
 		mockMvc.perform(
 						get("/api/questions")
@@ -643,6 +655,14 @@ class QuestionApiControllerTest {
 				.andExpect(status().isOk())
 				.andExpect(header().exists("Authorization"))
 				.andReturn().getResponse().getHeader("Authorization");
+	}
+
+	private String prepareTokenForNotExistingUser() {
+
+		return "Bearer " + JWT.create()
+				.withSubject("lalala")
+				.withExpiresAt(new Date(System.currentTimeMillis() + 60000))
+				.sign(Algorithm.HMAC256(secret));
 	}
 
 	private String prepareExpiredToken(String username) {

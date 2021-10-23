@@ -7,6 +7,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
@@ -57,7 +58,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
 			if (userName != null) {
-				UserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+				UserDetails userDetails;
+				try {
+					userDetails = userDetailsService.loadUserByUsername(userName);
+				} catch (UsernameNotFoundException exc) {
+					log.error("User not found!");
+					return null;
+				}
 				return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 			} else {
 				log.error("Username taken from the token is null!");
