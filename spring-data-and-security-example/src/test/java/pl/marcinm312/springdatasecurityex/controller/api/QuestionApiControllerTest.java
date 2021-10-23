@@ -161,6 +161,15 @@ class QuestionApiControllerTest {
 	}
 
 	@Test
+	void getQuestions_incorrectBearerToken2_unauthorized() throws Exception {
+
+		mockMvc.perform(
+						get("/api/questions")
+								.header("Authorization", "Bearer aaaaaaaaaaaaa.bbbbb.ccccc"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
 	void getQuestions_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
