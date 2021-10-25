@@ -2,14 +2,14 @@ package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
 import javax.servlet.FilterChain;
@@ -17,6 +17,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
+import java.util.Optional;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -50,26 +52,27 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		String token = request.getHeader(TOKEN_HEADER);
 		if (token != null && token.startsWith(TOKEN_PREFIX)) {
 			String userName = null;
+			Date issuedAt = null;
 			try {
 				String secret = environment.getProperty("jwt.secret");
 				if (secret != null) {
-					userName = JWT.require(Algorithm.HMAC256(secret.getBytes()))
+					DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret.getBytes()))
 							.build()
-							.verify(token.replace(TOKEN_PREFIX, ""))
-							.getSubject();
+							.verify(token.replace(TOKEN_PREFIX, ""));
+					userName = decodedJWT.getSubject();
+					issuedAt = decodedJWT.getIssuedAt();
 				}
 			} catch (Exception exc) {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
-			if (userName != null) {
-				UserDetails userDetails;
-				try {
-					userDetails = userDetailsService.loadUserByUsername(userName);
-				} catch (UsernameNotFoundException exc) {
+			if (userName != null && issuedAt != null) {
+				Optional<User> optionalUser = userDetailsService.findUserByUsername(userName);
+				if (optionalUser.isPresent()) {
+					User userFromDB = optionalUser.get();
+					return new UsernamePasswordAuthenticationToken(userFromDB.getUsername(), null, userFromDB.getAuthorities());
+				} else {
 					log.error("User not found!");
-					return null;
 				}
-				return new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
 			} else {
 				log.error("Username taken from the token is null!");
 			}

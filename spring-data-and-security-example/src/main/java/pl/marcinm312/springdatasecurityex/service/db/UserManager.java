@@ -137,10 +137,6 @@ public class UserManager {
 		}
 	}
 
-	public Optional<User> findUserByUsername(String username) {
-		return userRepo.findByUsername(username);
-	}
-
 	private void sendToken(User user) {
 		String tokenValue = UUID.randomUUID().toString();
 		Token token = new Token();

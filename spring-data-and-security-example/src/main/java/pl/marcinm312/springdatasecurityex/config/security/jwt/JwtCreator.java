@@ -13,9 +13,11 @@ public class JwtCreator {
 
 	public static String createJWT(String subject, long expirationTime, byte[] secretBytes) {
 
+		long currentTime = System.currentTimeMillis();
 		return JWT.create()
 				.withSubject(subject)
-				.withExpiresAt(new Date(System.currentTimeMillis() + expirationTime))
+				.withExpiresAt(new Date(currentTime + expirationTime))
+				.withIssuedAt(new Date(currentTime))
 				.sign(Algorithm.HMAC256(secretBytes));
 	}
 }
