@@ -50,7 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		if (token != null && token.startsWith(TOKEN_PREFIX)) {
 			String userName = null;
 			try {
-				userName = JWT.require(Algorithm.HMAC256(secret))
+				userName = JWT.require(Algorithm.HMAC256(secret.getBytes()))
 						.build()
 						.verify(token.replace(TOKEN_PREFIX, ""))
 						.getSubject();

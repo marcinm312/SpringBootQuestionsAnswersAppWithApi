@@ -1,7 +1,5 @@
 package pl.marcinm312.springdatasecurityex.controller.api;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +21,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.JwtCreator;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.question.Question;
@@ -42,7 +41,6 @@ import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 
-import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -667,18 +665,10 @@ class QuestionApiControllerTest {
 	}
 
 	private String prepareTokenForNotExistingUser() {
-
-		return "Bearer " + JWT.create()
-				.withSubject("lalala")
-				.withExpiresAt(new Date(System.currentTimeMillis() + 60000))
-				.sign(Algorithm.HMAC256(secret));
+		return "Bearer " + JwtCreator.createJWT("lalala", 60000, secret.getBytes());
 	}
 
 	private String prepareExpiredToken(String username) {
-
-		return "Bearer " + JWT.create()
-				.withSubject(username)
-				.withExpiresAt(new Date(System.currentTimeMillis() - 60000))
-				.sign(Algorithm.HMAC256(secret));
+		return "Bearer " + JwtCreator.createJWT(username, - 60000, secret.getBytes());
 	}
 }
