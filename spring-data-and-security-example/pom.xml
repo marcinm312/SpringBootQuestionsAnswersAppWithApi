@@ -154,6 +154,7 @@
                 <configuration>
                     <environmentVariables>
                         <LOGGING_FILE_NAME/>
+                        <JWT_SECRET>secret</JWT_SECRET>
                     </environmentVariables>
                 </configuration>
             </plugin>

@@ -2,11 +2,11 @@ package pl.marcinm312.springdatasecurityex.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,18 +38,18 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		private final ObjectMapper objectMapper;
 		private final RestAuthenticationSuccessHandler successHandler;
 		private final RestAuthenticationFailureHandler failureHandler;
-		private final String secret;
+		private final Environment environment;
 
 		@Autowired
 		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper,
 												  RestAuthenticationSuccessHandler successHandler,
 												  RestAuthenticationFailureHandler failureHandler,
-												  @Value("${jwt.secret}") String secret) {
+												  Environment environment) {
 			this.userDetailsService = userDetailsService;
 			this.objectMapper = objectMapper;
 			this.successHandler = successHandler;
 			this.failureHandler = failureHandler;
-			this.secret = secret;
+			this.environment = environment;
 		}
 
 		@Override
@@ -64,7 +64,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 					.anyRequest().authenticated()
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
-					.addFilter(new JwtAuthorizationFilter(authenticationManager(), userDetailsService, secret))
+					.addFilter(new JwtAuthorizationFilter(authenticationManager(), userDetailsService, environment))
 					.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
 					.and().csrf().disable();
 		}

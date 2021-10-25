@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -13,23 +13,24 @@ import javax.servlet.http.HttpServletResponse;
 @Component
 public class RestAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-	private final long expirationTime;
-	private final String secret;
+	private final Environment environment;
 
 	@Autowired
-	public RestAuthenticationSuccessHandler(
-			@Value("${jwt.expirationTime}") long expirationTime,
-			@Value("${jwt.secret}") String secret) {
-		this.expirationTime = expirationTime * 60000;
-		this.secret = secret;
+	public RestAuthenticationSuccessHandler(Environment environment) {
+		this.environment = environment;
 	}
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 										Authentication authentication) {
 
-		UserDetails principal = (UserDetails) authentication.getPrincipal();
-		String token = JwtCreator.createJWT(principal.getUsername(), expirationTime, secret.getBytes());
-		response.addHeader("Authorization", "Bearer " + token);
+		String secret = environment.getProperty("jwt.secret");
+		String expirationTimeString = environment.getProperty("jwt.expirationTime");
+		if (secret != null && expirationTimeString != null) {
+			long expirationTime = Long.parseLong(expirationTimeString) * 60000;
+			UserDetails principal = (UserDetails) authentication.getPrincipal();
+			String token = JwtCreator.createJWT(principal.getUsername(), expirationTime, secret.getBytes());
+			response.addHeader("Authorization", "Bearer " + token);
+		}
 	}
 }
