@@ -96,9 +96,15 @@ class QuestionApiControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(Question.class));
-		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
-		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+
+		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
+		given(userRepo.findById(secondUser.getId())).willReturn(Optional.of(secondUser));
+		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
+
+		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
+		given(userRepo.findByUsername(secondUser.getUsername())).willReturn(Optional.of(secondUser));
+		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
+
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
 
 		this.mockMvc =
@@ -658,7 +664,8 @@ class QuestionApiControllerTest {
 
 	private String prepareToken(String username, String password) throws Exception {
 		return mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
+						.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(header().exists("Authorization"))
 				.andReturn().getResponse().getHeader("Authorization");

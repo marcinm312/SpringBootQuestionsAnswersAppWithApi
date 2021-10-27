@@ -18,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
-import java.util.Optional;
 
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
@@ -51,7 +50,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(TOKEN_HEADER);
 		if (token != null && token.startsWith(TOKEN_PREFIX)) {
-			String userName = null;
+			String userId = null;
 			Date issuedAt = null;
 			try {
 				String secret = environment.getProperty("jwt.secret");
@@ -59,20 +58,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 					DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret.getBytes()))
 							.build()
 							.verify(token.replace(TOKEN_PREFIX, ""));
-					userName = decodedJWT.getSubject();
+					userId = decodedJWT.getSubject();
 					issuedAt = decodedJWT.getIssuedAt();
 				}
 			} catch (Exception exc) {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
-			if (userName != null && issuedAt != null) {
-				Optional<User> optionalUser = userDetailsService.findUserByUsername(userName);
-				if (optionalUser.isPresent()) {
-					User userFromDB = optionalUser.get();
-					return new UsernamePasswordAuthenticationToken(userFromDB.getUsername(), null, userFromDB.getAuthorities());
-				} else {
-					log.error("User not found!");
+			if (userId != null && issuedAt != null) {
+				User user;
+				try {
+					user = userDetailsService.findUserById(Long.valueOf(userId));
+				} catch (Exception exc) {
+					log.error("Error while searching user: {} {}", exc.getClass().getName(), exc.getMessage());
+					return null;
 				}
+				return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
 			} else {
 				log.error("Username taken from the token is null!");
 			}

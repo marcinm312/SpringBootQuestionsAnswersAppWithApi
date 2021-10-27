@@ -65,13 +65,16 @@ class MyProfileApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
+	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+
 	@BeforeEach
 	void setup() {
-		User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
+		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
+		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
 
-		User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
+		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -136,7 +139,8 @@ class MyProfileApiControllerTest {
 
 	private String prepareToken(String username, String password) throws Exception {
 		return mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}"))
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
+						.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(header().exists("Authorization"))
 				.andReturn().getResponse().getHeader("Authorization");
