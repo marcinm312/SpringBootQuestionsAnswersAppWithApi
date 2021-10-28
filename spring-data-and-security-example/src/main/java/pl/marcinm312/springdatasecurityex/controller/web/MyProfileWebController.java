@@ -111,8 +111,7 @@ public class MyProfileWebController {
 
 	@GetMapping("/endOtherSessions")
 	public String endOtherSessions(Authentication authentication) {
-		String userName = authentication.getName();
-		sessionUtils.expireUserSessions(userName, false);
+		userManager.endOtherSessions(authentication);
 		return COMMON_REDIRECT;
 	}
 

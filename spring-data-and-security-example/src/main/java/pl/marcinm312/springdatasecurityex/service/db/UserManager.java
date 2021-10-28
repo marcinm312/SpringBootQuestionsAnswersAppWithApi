@@ -24,6 +24,7 @@ import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,7 +55,7 @@ public class UserManager {
 		Optional<User> optionalUser = userRepo.findByUsername(userName);
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
-			log.info("Loaded user = {}", userName);
+			log.info("Loaded user = {}", user);
 			return user;
 		} else {
 			log.error("User {} not found!", userName);
@@ -70,9 +71,12 @@ public class UserManager {
 	@Transactional
 	public UserGet addUser(UserCreate userRequest) {
 		User user = new User(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
+		Date currentDate = new Date();
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
 		user.setRole(Roles.ROLE_USER.name());
+		user.setTimeOfSessionExpiration(currentDate);
+		user.setChangePasswordDate(currentDate);
 		log.info("Creating user = {}", user);
 		User savedUser = userRepo.save(user);
 		sendToken(user);
@@ -86,27 +90,29 @@ public class UserManager {
 		User loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
 		String oldUserName = loggedUser.getUsername();
+		if (!oldUserName.equals(userRequest.getUsername())) {
+			loggedUser = sessionUtils.expireUserSessions(loggedUser, true, false);
+		}
 		loggedUser.setUsername(userRequest.getUsername());
 		loggedUser.setEmail(userRequest.getEmail());
 		log.info("New user = {}", loggedUser);
 		User savedUser = userRepo.save(loggedUser);
 		log.info("User updated");
-		if (!oldUserName.equals(userRequest.getUsername())) {
-			sessionUtils.expireUserSessions(oldUserName, true);
-		}
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
 	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
 		log.info("Updating user password");
+		Date currentDate = new Date();
 		User loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
 		loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
+		loggedUser.setChangePasswordDate(currentDate);
+		loggedUser = sessionUtils.expireUserSessions(loggedUser, false, false);
 		log.info("New user = {}", loggedUser);
 		User savedUser = userRepo.save(loggedUser);
 		log.info("User password updated");
-		sessionUtils.expireUserSessions(loggedUser.getUsername(), false);
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
@@ -116,8 +122,7 @@ public class UserManager {
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
 		log.info("User deleted");
-		log.info("Expiring session for user: {}", authentication.getName());
-		sessionUtils.expireUserSessions(authentication.getName(), true);
+		sessionUtils.expireUserSessions(user, true, true);
 	}
 
 	@Transactional
@@ -135,6 +140,16 @@ public class UserManager {
 		} else {
 			throw new TokenNotFoundException();
 		}
+	}
+
+	@Transactional
+	public UserGet endOtherSessions(Authentication authentication) {
+		log.info("Expiring sessions for user = {}", authentication.getName());
+		User user = getUserByAuthentication(authentication);
+		user = sessionUtils.expireUserSessions(user, false, false);
+		User savedUser = userRepo.save(user);
+		log.info("Sessions for user expired");
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	private void sendToken(User user) {

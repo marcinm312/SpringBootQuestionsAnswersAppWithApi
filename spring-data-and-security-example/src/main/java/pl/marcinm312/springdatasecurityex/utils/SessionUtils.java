@@ -4,10 +4,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
+import pl.marcinm312.springdatasecurityex.model.user.User;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -22,33 +23,31 @@ public class SessionUtils {
 		this.sessionRegistry = sessionRegistry;
 	}
 
-	public void expireUserSessions(String username, boolean expireCurrentSession) {
-		log.info("Starting expiring user sessions");
-		for (Object principal : sessionRegistry.getAllPrincipals()) {
-			if (principal instanceof UserDetails) {
-				UserDetails userDetails = (UserDetails) principal;
-				if (userDetails.getUsername().equals(username)) {
-					List<SessionInformation> listOfSessionInformation = sessionRegistry.getAllSessions(userDetails, true);
-					log.info("listOfSessionInformation.size()={}", listOfSessionInformation.size());
-					for (SessionInformation sessionInformation : listOfSessionInformation) {
-						processSession(username, expireCurrentSession, sessionInformation);
-					}
+	public User expireUserSessions(User user, boolean expireCurrentSession, boolean isDeletingUser) {
+		log.info("Starting expiring user sessions. user={}, expireCurrentSession={}", user, expireCurrentSession);
+		List<SessionInformation> listOfSessionInformation = sessionRegistry.getAllSessions(user, true);
+		log.info("listOfSessionInformation.size()={}", listOfSessionInformation.size());
+		if (expireCurrentSession) {
+			for (SessionInformation sessionInformation : listOfSessionInformation) {
+				processSession(user.getUsername(), sessionInformation);
+			}
+		} else {
+			String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
+			for (SessionInformation sessionInformation : listOfSessionInformation) {
+				if (!sessionInformation.getSessionId().equals(currentSessionId)) {
+					processSession(user.getUsername(), sessionInformation);
 				}
 			}
 		}
-		log.info("User sessions expired");
+		if (!isDeletingUser) {
+			user.setTimeOfSessionExpiration(new Date());
+			log.info("User sessions expired");
+		}
+		return user;
 	}
 
-	private void processSession(String username, boolean expireCurrentSession, SessionInformation sessionInformation) {
-		if (expireCurrentSession) {
-			sessionInformation.expireNow();
-			log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
-		} else {
-			String currentSessionId = RequestContextHolder.currentRequestAttributes().getSessionId();
-			if (!sessionInformation.getSessionId().equals(currentSessionId)) {
-				sessionInformation.expireNow();
-				log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
-			}
-		}
+	private void processSession(String username, SessionInformation sessionInformation) {
+		sessionInformation.expireNow();
+		log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
 	}
 }

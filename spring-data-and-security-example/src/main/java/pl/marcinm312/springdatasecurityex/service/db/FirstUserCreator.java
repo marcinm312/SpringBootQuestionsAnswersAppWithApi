@@ -11,6 +11,8 @@ import pl.marcinm312.springdatasecurityex.enums.Roles;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 
+import java.util.Date;
+
 @Service
 public class FirstUserCreator {
 
@@ -33,12 +35,15 @@ public class FirstUserCreator {
 		if (!userRepo.findByUsername(login).isPresent()) {
 			String password = environment.getProperty("admin.default.password");
 			String email = environment.getProperty("admin.default.email");
+			Date currentDate = new Date();
 			User user = new User();
 			user.setUsername(login);
 			user.setPassword(passwordEncoder.encode(password));
 			user.setRole(Roles.ROLE_ADMIN.name());
 			user.setEnabled(true);
 			user.setEmail(email);
+			user.setTimeOfSessionExpiration(currentDate);
+			user.setChangePasswordDate(currentDate);
 			User savedUser = userRepo.save(user);
 			log.info("First user created");
 			return savedUser;

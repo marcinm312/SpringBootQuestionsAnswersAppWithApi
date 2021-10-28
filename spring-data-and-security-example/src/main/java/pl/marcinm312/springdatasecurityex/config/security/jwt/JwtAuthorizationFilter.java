@@ -35,6 +35,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		this.userDetailsService = userDetailsService;
 		this.environment = environment;
 	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 									FilterChain filterChain) throws IOException, ServletException {
@@ -49,18 +50,16 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
 		String token = request.getHeader(TOKEN_HEADER);
-		if (token != null && token.startsWith(TOKEN_PREFIX)) {
+		String secret = environment.getProperty("jwt.secret");
+		if (secret != null && token != null && token.startsWith(TOKEN_PREFIX)) {
 			String userId = null;
 			Date issuedAt = null;
 			try {
-				String secret = environment.getProperty("jwt.secret");
-				if (secret != null) {
-					DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret.getBytes()))
-							.build()
-							.verify(token.replace(TOKEN_PREFIX, ""));
-					userId = decodedJWT.getSubject();
-					issuedAt = decodedJWT.getIssuedAt();
-				}
+				DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret.getBytes()))
+						.build()
+						.verify(token.replace(TOKEN_PREFIX, ""));
+				userId = decodedJWT.getSubject();
+				issuedAt = decodedJWT.getIssuedAt();
 			} catch (Exception exc) {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
@@ -72,7 +71,9 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 					log.error("Error while searching user: {} {}", exc.getClass().getName(), exc.getMessage());
 					return null;
 				}
-				return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+				if (issuedAt.after(user.getDateToCompareInJwt())) {
+					return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+				}
 			} else {
 				log.error("Username taken from the token is null!");
 			}
