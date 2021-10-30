@@ -64,16 +64,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
 			if (userId != null && issuedAt != null) {
-				User user;
-				try {
-					user = userDetailsService.findUserById(Long.valueOf(userId));
-				} catch (Exception exc) {
-					log.error("Error while searching user: {} {}", exc.getClass().getName(), exc.getMessage());
-					return null;
-				}
-				if (issuedAt.after(user.getDateToCompareInJwt())) {
-					return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
-				}
+				return getAndVerifyUserAndReturnAuthenticationToken(userId, issuedAt);
 			} else {
 				log.error("Username or creation date taken from the token is null!");
 			}
@@ -81,5 +72,21 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			log.error("Token not found in header!");
 		}
 		return null;
+	}
+
+	private UsernamePasswordAuthenticationToken getAndVerifyUserAndReturnAuthenticationToken(String userId, Date issuedAt) {
+		User user;
+		try {
+			user = userDetailsService.findUserById(Long.valueOf(userId));
+		} catch (Exception exc) {
+			log.error("Error while searching user: {} {}", exc.getClass().getName(), exc.getMessage());
+			return null;
+		}
+		if (issuedAt.after(user.getDateToCompareInJwt())) {
+			return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+		} else {
+			log.error("The token has expired due to logging out of the user or changing the password");
+			return null;
+		}
 	}
 }

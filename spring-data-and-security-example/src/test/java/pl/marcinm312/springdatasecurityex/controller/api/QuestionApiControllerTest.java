@@ -84,6 +84,7 @@ class QuestionApiControllerTest {
 	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final User userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
 
 	@Value("${jwt.secret}")
 	private String secret;
@@ -100,10 +101,12 @@ class QuestionApiControllerTest {
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(secondUser.getId())).willReturn(Optional.of(secondUser));
 		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
+		given(userRepo.findById(userWithChangedPassword.getId())).willReturn(Optional.of(userWithChangedPassword));
 
 		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername(secondUser.getUsername())).willReturn(Optional.of(secondUser));
 		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername(userWithChangedPassword.getUsername())).willReturn(Optional.of(userWithChangedPassword));
 
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
 
@@ -126,6 +129,17 @@ class QuestionApiControllerTest {
 	void getQuestions_expiredToken_unauthorized() throws Exception {
 
 		String token = prepareExpiredToken("user");
+
+		mockMvc.perform(
+						get("/api/questions")
+								.header("Authorization", token))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getQuestions_tokenBeforePasswordChange_unauthorized() throws Exception {
+
+		String token = prepareToken("user4", "password");
 
 		mockMvc.perform(
 						get("/api/questions")
