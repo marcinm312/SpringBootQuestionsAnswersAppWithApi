@@ -26,6 +26,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		Optional<User> optionalUser = userRepo.findByUsername(username);
+		return getUserFromOptional(optionalUser);
+	}
+
+	public User findUserById(Long userId) {
+		Optional<User> optionalUser = userRepo.findById(userId);
+		return getUserFromOptional(optionalUser);
+	}
+
+	private User getUserFromOptional(Optional<User> optionalUser) {
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
 			log.info("Loading user = {}", user);
@@ -34,5 +43,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			log.error("User not found!");
 			throw new UsernameNotFoundException("User not found");
 		}
+	}
+
+	public Optional<User> findUserByUsername(String username) {
+		return userRepo.findByUsername(username);
 	}
 }

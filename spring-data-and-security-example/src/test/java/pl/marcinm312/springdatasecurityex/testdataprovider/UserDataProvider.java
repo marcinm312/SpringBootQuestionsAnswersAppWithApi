@@ -9,42 +9,122 @@ import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 
 import java.util.Calendar;
+import java.util.Date;
 
 public class UserDataProvider {
 
 	public static User prepareExampleGoodAdministratorWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return new User(1000L, "administrator", passwordEncoder.encode("password"),
-				Roles.ROLE_ADMIN.name(), true, "admin@abc.pl",
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		User user = new User();
+		user.setId(1000L);
+		user.setUsername("administrator");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_ADMIN.name());
+		user.setEnabled(true);
+		user.setEmail("admin@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		return user;
 	}
 
 	public static User prepareExampleGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return new User(1001L, "user", passwordEncoder.encode("password"),
-				Roles.ROLE_USER.name(), true, "test@abc.pl",
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		User user = new User();
+		user.setId(1001L);
+		user.setUsername("user");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(true);
+		user.setEmail("test@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		return user;
 	}
 
 	public static User prepareExampleSecondGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return new User(1002L, "user2", passwordEncoder.encode("password"),
-				Roles.ROLE_USER.name(), true, "test2@abc.pl",
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		User user = new User();
+		user.setId(1002L);
+		user.setUsername("user2");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(true);
+		user.setEmail("test2@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		return user;
 	}
 
 	public static User prepareExampleDisabledUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return new User(1001L, "user", passwordEncoder.encode("password"),
-				Roles.ROLE_USER.name(), false, "test@abc.pl",
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		User user = new User();
+		user.setId(1001L);
+		user.setUsername("user");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(false);
+		user.setEmail("test@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		return user;
+	}
+
+	public static User prepareExampleSecondDisabledUserWithEncodedPassword() {
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		User user = new User();
+		user.setId(1003L);
+		user.setUsername("user3");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(false);
+		user.setEmail("test@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
+		return user;
 	}
 
 	public static User prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		return new User(1003L, "user3", passwordEncoder.encode(" pass "),
-				Roles.ROLE_USER.name(), true, "test3@abc.pl",
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30));
+		User user = new User();
+		user.setId(1003L);
+		user.setUsername("user3");
+		user.setPassword(passwordEncoder.encode(" pass "));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(true);
+		user.setEmail("test3@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30));
+		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+		return user;
+	}
+
+	public static User prepareExampleGoodUserWithEncodedAndChangedPassword() {
+		long currentTime = System.currentTimeMillis();
+		Date futureDate = new Date(currentTime + 10 * 60000);
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		User user = new User();
+		user.setId(1004L);
+		user.setUsername("user4");
+		user.setPassword(passwordEncoder.encode("password"));
+		user.setRole(Roles.ROLE_USER.name());
+		user.setEnabled(true);
+		user.setEmail("test4@abc.pl");
+		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
+		user.setUpdatedAt(futureDate);
+		user.setChangePasswordDate(futureDate);
+		user.setTimeOfSessionExpiration(futureDate);
+		return user;
 	}
 
 	public static UserCreate prepareGoodUserToRequest() {

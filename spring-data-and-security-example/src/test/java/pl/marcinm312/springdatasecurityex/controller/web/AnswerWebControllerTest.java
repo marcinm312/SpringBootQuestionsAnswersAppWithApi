@@ -25,6 +25,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.answer.Answer;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.model.answer.dto.AnswerGet;
@@ -40,12 +42,12 @@ import pl.marcinm312.springdatasecurityex.service.db.AnswerManager;
 import pl.marcinm312.springdatasecurityex.service.db.QuestionManager;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.utils.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.utils.file.PdfGenerator;
 
 import javax.mail.MessagingException;
 import java.nio.charset.StandardCharsets;
@@ -77,7 +79,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
+		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerWebControllerTest {
 

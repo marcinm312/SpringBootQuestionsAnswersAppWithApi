@@ -6,9 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import pl.marcinm312.springdatasecurityex.model.AuditModel;
 
 import javax.persistence.*;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
+import java.util.*;
 
 @Entity
 @Table(name = "users")
@@ -27,6 +25,9 @@ public class User extends AuditModel implements UserDetails {
 	private boolean isEnabled;
 	private String email;
 
+	private Date timeOfSessionExpiration;
+	private Date changePasswordDate;
+
 	public User() {
 
 	}
@@ -35,17 +36,6 @@ public class User extends AuditModel implements UserDetails {
 		this.username = username;
 		this.password = password;
 		this.email = email;
-	}
-
-	public User(Long id, String username, String password, String role, boolean isEnabled, String email, Date date) {
-		this.id = id;
-		this.username = username;
-		this.password = password;
-		this.role = role;
-		this.isEnabled = isEnabled;
-		this.email = email;
-		this.setCreatedAt(date);
-		this.setUpdatedAt(date);
 	}
 
 	public Long getId() {
@@ -119,10 +109,39 @@ public class User extends AuditModel implements UserDetails {
 		return isEnabled;
 	}
 
+	public Date getTimeOfSessionExpiration() {
+		return timeOfSessionExpiration;
+	}
+
+	public void setTimeOfSessionExpiration(Date timeOfSessionExpiration) {
+		this.timeOfSessionExpiration = timeOfSessionExpiration;
+	}
+
+	public Date getChangePasswordDate() {
+		return changePasswordDate;
+	}
+
+	public void setChangePasswordDate(Date changePasswordDate) {
+		this.changePasswordDate = changePasswordDate;
+	}
+
+	public Date getDateToCompareInJwt() {
+		List<Date> dates = new ArrayList<>();
+		dates.add(getTimeOfSessionExpiration());
+		dates.add(getChangePasswordDate());
+		return Collections.max(dates);
+	}
+
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", role=" + role + ", isEnabled=" + isEnabled
-				+ ", email=" + email + "]";
+		return "User{" +
+				"id=" + id +
+				", username='" + username + '\'' +
+				", role='" + role + '\'' +
+				", isEnabled=" + isEnabled +
+				", timeOfSessionExpiration=" + timeOfSessionExpiration +
+				", changePasswordDate=" + changePasswordDate +
+				'}';
 	}
 
 	@Override

@@ -6,7 +6,7 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserCreate;
-import pl.marcinm312.springdatasecurityex.service.db.UserManager;
+import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 
 import java.util.Optional;
 
@@ -19,11 +19,11 @@ public class UserCreateValidator implements Validator {
 	private static final String USER_EXISTS_ERROR = "user_exists_error";
 	private static final String CONFIRM_PASSWORD_ERROR = "confirm_password_error";
 
-	private final UserManager userManager;
+	private final UserDetailsServiceImpl userDetailsService;
 
 	@Autowired
-	public UserCreateValidator(UserManager userManager) {
-		this.userManager = userManager;
+	public UserCreateValidator(UserDetailsServiceImpl userDetailsService) {
+		this.userDetailsService = userDetailsService;
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class UserCreateValidator implements Validator {
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
 
-		Optional<User> foundUser = userManager.findUserByUsername(username);
+		Optional<User> foundUser = userDetailsService.findUserByUsername(username);
 		if (foundUser.isPresent()) {
 			errors.rejectValue(USERNAME_FIELD, USER_EXISTS_ERROR, "Użytkownik o takim loginie już istnieje!");
 		}

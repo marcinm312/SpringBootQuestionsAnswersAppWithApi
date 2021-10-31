@@ -43,7 +43,6 @@ public class UserDataUpdate {
 	public String toString() {
 		return "UserDataUpdate{" +
 				"username='" + username + '\'' +
-				", email='" + email + '\'' +
 				'}';
 	}
 }

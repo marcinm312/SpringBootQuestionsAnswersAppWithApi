@@ -21,6 +21,8 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
@@ -59,7 +61,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class)})
+		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class MyProfileWebControllerTest {
 
@@ -74,15 +77,14 @@ class MyProfileWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
+	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final User userWithSpacesInPass = UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces();
+
 	@BeforeEach
 	void setup() {
-		User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
-
-		User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
-
-		User userWithSpacesInPass = UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces();
 		given(userRepo.findByUsername("user3")).willReturn(Optional.of(userWithSpacesInPass));
 
 		doNothing().when(userRepo).delete(isA(User.class));
@@ -178,7 +180,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -195,9 +197,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", true);
-		verify(sessionUtils, never())
-				.expireUserSessions("user3", true);
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -215,18 +215,16 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", true);
-		verify(sessionUtils, never())
-				.expireUserSessions("user3", true);
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void updateMyProfile_goodUserWithLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
-		User user = new User(userToRequest.getUsername(), "password", userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(userRepo.save(any(User.class))).willReturn(user);
+		given(userRepo.save(any(User.class))).willReturn(commonUser);
+		given(sessionUtils.expireUserSessions(any(User.class), eq(true), eq(false))).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/myProfile/update")
@@ -242,9 +240,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
-				.expireUserSessions("user", true);
-		verify(sessionUtils, never())
-				.expireUserSessions("user3", true);
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -270,7 +266,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -302,7 +298,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -334,7 +330,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -365,7 +361,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -397,7 +393,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(false));
 	}
 
 	@Test
@@ -440,7 +436,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(false));
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -458,7 +454,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -477,15 +473,15 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void updateMyPassword_simpleCase_success() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
-		User user = new User("user", userToRequest.getPassword(), "test@abc.pl");
-		given(userRepo.save(any(User.class))).willReturn(user);
+		given(userRepo.save(any(User.class))).willReturn(commonUser);
+		given(sessionUtils.expireUserSessions(any(User.class), eq(false), eq(false))).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword")
@@ -502,15 +498,15 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
 	@WithMockUser(username = "user3")
 	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
-		User user = new User("user3", userToRequest.getPassword(), "test3@abc.pl");
-		given(userRepo.save(any(User.class))).willReturn(user);
+		given(userRepo.save(any(User.class))).willReturn(userWithSpacesInPass);
+		given(sessionUtils.expireUserSessions(any(User.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
 
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword")
@@ -527,7 +523,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(User.class));
 		verify(sessionUtils, times(1))
-				.expireUserSessions("user3", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -551,7 +547,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -575,7 +571,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -599,7 +595,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -624,7 +620,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -650,7 +646,7 @@ class MyProfileWebControllerTest {
 
 		verify(userRepo, never()).save(any(User.class));
 		verify(sessionUtils, never())
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 
@@ -664,12 +660,15 @@ class MyProfileWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(false));
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void endOtherSessions_simpleCase_success() throws Exception {
+		given(userRepo.save(any(User.class))).willReturn(commonUser);
+		given(sessionUtils.expireUserSessions(any(User.class), eq(false), eq(false))).willReturn(commonUser);
+
 		mockMvc.perform(
 						get("/app/myProfile/endOtherSessions")
 								.with(user("user").password("password")))
@@ -679,7 +678,7 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(sessionUtils, times(1))
-				.expireUserSessions("user", false);
+				.expireUserSessions(any(User.class), eq(false), eq(false));
 	}
 
 	@Test
@@ -730,7 +729,7 @@ class MyProfileWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(true));
 		verify(userRepo, never())
 				.delete(any(User.class));
 	}
@@ -744,7 +743,7 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(true));
 		verify(userRepo, never())
 				.delete(any(User.class));
 	}
@@ -759,7 +758,7 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(sessionUtils, never())
-				.expireUserSessions(any(String.class), eq(true));
+				.expireUserSessions(any(User.class), eq(true), eq(true));
 		verify(userRepo, never())
 				.delete(any(User.class));
 	}
@@ -777,7 +776,7 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(sessionUtils, times(1))
-				.expireUserSessions("user", true);
+				.expireUserSessions(any(User.class), eq(true), eq(true));
 		verify(userRepo, times(1))
 				.delete(any(User.class));
 	}

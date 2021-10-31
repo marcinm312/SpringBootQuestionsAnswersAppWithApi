@@ -18,6 +18,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
+import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.testdataprovider.UserDataProvider;
@@ -43,7 +45,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MainWebController.class)
 		})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
-@SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(LoginWebController.class)})
+@SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(LoginWebController.class),
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @WebAppConfiguration
 class MainWebControllerTest {
 
@@ -60,6 +63,7 @@ class MainWebControllerTest {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
 		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -157,6 +161,15 @@ class MainWebControllerTest {
 	void formLogin_notExistingUser_unauthenticated() throws Exception {
 		mockMvc.perform(
 				formLogin("/authenticate").user("lalala").password("password"))
+				.andExpect(redirectedUrl("/loginPage?error"))
+				.andExpect(unauthenticated());
+	}
+
+	@Test
+	@WithAnonymousUser
+	void formLogin_disabledUser_unauthenticated() throws Exception {
+		mockMvc.perform(
+						formLogin("/authenticate").user("user3").password("password"))
 				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}

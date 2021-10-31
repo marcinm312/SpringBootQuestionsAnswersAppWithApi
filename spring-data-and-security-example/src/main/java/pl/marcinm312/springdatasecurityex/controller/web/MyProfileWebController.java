@@ -12,7 +12,6 @@ import pl.marcinm312.springdatasecurityex.model.user.User;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.model.user.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.service.db.UserManager;
-import pl.marcinm312.springdatasecurityex.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.validator.UserDataUpdateValidator;
 import pl.marcinm312.springdatasecurityex.validator.UserPasswordUpdateValidator;
 
@@ -33,15 +32,13 @@ public class MyProfileWebController {
 	private final UserManager userManager;
 	private final UserDataUpdateValidator userDataUpdateValidator;
 	private final UserPasswordUpdateValidator userPasswordUpdateValidator;
-	private final SessionUtils sessionUtils;
 
 	@Autowired
 	public MyProfileWebController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator,
-								  UserPasswordUpdateValidator userPasswordUpdateValidator, SessionUtils sessionUtils) {
+								  UserPasswordUpdateValidator userPasswordUpdateValidator) {
 		this.userManager = userManager;
 		this.userDataUpdateValidator = userDataUpdateValidator;
 		this.userPasswordUpdateValidator = userPasswordUpdateValidator;
-		this.sessionUtils = sessionUtils;
 	}
 
 	@InitBinder("user")
@@ -111,8 +108,7 @@ public class MyProfileWebController {
 
 	@GetMapping("/endOtherSessions")
 	public String endOtherSessions(Authentication authentication) {
-		String userName = authentication.getName();
-		sessionUtils.expireUserSessions(userName, false);
+		userManager.endOtherSessions(authentication);
 		return COMMON_REDIRECT;
 	}
 
