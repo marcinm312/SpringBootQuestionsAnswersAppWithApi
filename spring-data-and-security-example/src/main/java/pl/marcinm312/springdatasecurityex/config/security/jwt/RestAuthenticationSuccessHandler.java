@@ -5,7 +5,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.user.model.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
