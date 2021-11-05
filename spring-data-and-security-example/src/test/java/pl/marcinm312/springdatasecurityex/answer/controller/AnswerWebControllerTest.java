@@ -23,11 +23,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
+import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.answer.model.Answer;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.Question;
@@ -109,7 +109,7 @@ class AnswerWebControllerTest {
 
 	@BeforeEach
 	void setup() throws MessagingException {
-		Answer answer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity answer = AnswerDataProvider.prepareExampleAnswer();
 
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 
@@ -125,7 +125,7 @@ class AnswerWebControllerTest {
 		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
 		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
 		given(answerRepository.findByQuestionIdAndId(2000L, 2000L)).willReturn(Optional.empty());
-		doNothing().when(answerRepository).delete(isA(Answer.class));
+		doNothing().when(answerRepository).delete(isA(AnswerEntity.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
@@ -210,7 +210,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -226,7 +226,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -243,7 +243,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -251,7 +251,7 @@ class AnswerWebControllerTest {
 	void createAnswer_simpleCase_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/new")
@@ -266,7 +266,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -301,7 +301,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -336,7 +336,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -371,7 +371,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -442,7 +442,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -458,7 +458,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -475,7 +475,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -483,7 +483,7 @@ class AnswerWebControllerTest {
 	void editAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -498,7 +498,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -507,7 +507,7 @@ class AnswerWebControllerTest {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -533,7 +533,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
 		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
 
-		Answer expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
 		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");
 		Assertions.assertEquals(expectedOldAnswer.getId(), oldAnswerFromModel.getId());
 		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
@@ -541,7 +541,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -550,7 +550,7 @@ class AnswerWebControllerTest {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -576,7 +576,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
 		Assertions.assertNull(answerFromModel.getText());
 
-		Answer expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
 		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");
 		Assertions.assertEquals(expectedOldAnswer.getId(), oldAnswerFromModel.getId());
 		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
@@ -584,7 +584,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -592,7 +592,7 @@ class AnswerWebControllerTest {
 	void editAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -607,7 +607,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -628,7 +628,7 @@ class AnswerWebControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -645,7 +645,7 @@ class AnswerWebControllerTest {
 	@WithMockUser(username = "user2")
 	void editAnswerView_simpleCase_success() throws Exception {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
-		Answer expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
 
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/answers/1000/edit")
@@ -718,7 +718,7 @@ class AnswerWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -729,7 +729,7 @@ class AnswerWebControllerTest {
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -741,7 +741,7 @@ class AnswerWebControllerTest {
 								.with(csrf().useInvalidToken()))
 				.andExpect(status().isForbidden());
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -757,7 +757,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 
-		verify(answerRepository, times(1)).delete(any(Answer.class));
+		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -773,7 +773,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 
-		verify(answerRepository, times(1)).delete(any(Answer.class));
+		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -789,7 +789,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -806,7 +806,7 @@ class AnswerWebControllerTest {
 	@WithMockUser(username = "user2")
 	void removeAnswerView_simpleCase_success() throws Exception {
 		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
-		Answer expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
 
 		ModelAndView modelAndView = mockMvc.perform(
 				get("/app/questions/1000/answers/1000/delete")

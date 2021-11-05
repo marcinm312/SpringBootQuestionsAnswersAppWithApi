@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import pl.marcinm312.springdatasecurityex.answer.model.Answer;
+import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
@@ -101,7 +101,7 @@ class AnswerApiControllerTest {
 
 	@BeforeEach
 	void setup() throws MessagingException {
-		Answer answer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity answer = AnswerDataProvider.prepareExampleAnswer();
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 
 		given(questionRepository.existsById(1000L)).willReturn(true);
@@ -116,7 +116,7 @@ class AnswerApiControllerTest {
 		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
 		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
 		given(answerRepository.findByQuestionIdAndId(2000L, 2000L)).willReturn(Optional.empty());
-		doNothing().when(answerRepository).delete(isA(Answer.class));
+		doNothing().when(answerRepository).delete(isA(AnswerEntity.class));
 
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(secondUser.getId())).willReturn(Optional.of(secondUser));
@@ -186,7 +186,7 @@ class AnswerApiControllerTest {
 
 		String token = prepareToken("user", "password");
 
-		Answer answer = AnswerDataProvider.prepareExampleAnswer();
+		AnswerEntity answer = AnswerDataProvider.prepareExampleAnswer();
 		String response = mockMvc.perform(
 						get("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
@@ -241,7 +241,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -264,7 +264,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -274,7 +274,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
@@ -291,7 +291,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -310,7 +310,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -329,7 +329,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -348,7 +348,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -367,7 +367,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -385,7 +385,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -401,7 +401,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -411,7 +411,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -428,7 +428,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -447,7 +447,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -466,7 +466,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -485,7 +485,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -503,7 +503,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -513,7 +513,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(Answer.class))).willReturn(new Answer(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -530,7 +530,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(Answer.class));
+		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -553,7 +553,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@ParameterizedTest(name = "{index} ''{2}''")
@@ -577,7 +577,7 @@ class AnswerApiControllerTest {
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(Answer.class));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -586,7 +586,7 @@ class AnswerApiControllerTest {
 						delete("/api/questions/1000/answers/1000"))
 				.andExpect(status().isUnauthorized());
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -602,7 +602,7 @@ class AnswerApiControllerTest {
 
 		Assertions.assertEquals("true", response);
 
-		verify(answerRepository, times(1)).delete(any(Answer.class));
+		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -618,7 +618,7 @@ class AnswerApiControllerTest {
 
 		Assertions.assertEquals("true", response);
 
-		verify(answerRepository, times(1)).delete(any(Answer.class));
+		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -635,7 +635,7 @@ class AnswerApiControllerTest {
 		String expectedErrorMessage = "Change not allowed!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@ParameterizedTest(name = "{index} ''{2}''")
@@ -653,7 +653,7 @@ class AnswerApiControllerTest {
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(answerRepository, never()).delete(any(Answer.class));
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
 	@Test

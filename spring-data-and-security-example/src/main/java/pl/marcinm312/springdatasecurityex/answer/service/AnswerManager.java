@@ -7,10 +7,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.answer.model.Answer;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
@@ -56,24 +56,24 @@ public class AnswerManager {
 
 	public List<AnswerGet> getAnswersByQuestionId(Long questionId) {
 		questionManager.getQuestion(questionId);
-		List<Answer> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
-		return AnswerMapper.convertAnswerListToAnswerGetList(answersFromDB);
+		List<AnswerEntity> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
 	}
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
-		Answer answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
+		AnswerEntity answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
-		return AnswerMapper.convertAnswerToAnswerGet(answerFromDB);
+		return AnswerMapper.convertAnswerEntityToAnswerGet(answerFromDB);
 	}
 
 	@Transactional
 	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, User user) {
 		return questionManager.getQuestionEntity(questionId).map(question -> {
-			Answer answer = new Answer(answerRequest.getText());
+			AnswerEntity answer = new AnswerEntity(answerRequest.getText());
 			answer.setQuestion(question);
 			answer.setUser(user);
 			log.info("Adding answer = {}", answer);
-			Answer savedAnswer = answerRepository.save(answer);
+			AnswerEntity savedAnswer = answerRepository.save(answer);
 			try {
 				String email = question.getUser().getEmail();
 				String subject = "Opublikowano odpowiedź na Twoje pytanie o id: " + question.getId();
@@ -82,7 +82,7 @@ public class AnswerManager {
 			} catch (MessagingException e) {
 				log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 			}
-			return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
+			return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
 
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
@@ -97,7 +97,7 @@ public class AnswerManager {
 				log.info("Old answer = {}", answer);
 				answer.setText(answerRequest.getText());
 				log.info("New answer = {}", answer);
-				Answer savedAnswer = answerRepository.save(answer);
+				AnswerEntity savedAnswer = answerRepository.save(answer);
 				try {
 					Question question = answer.getQuestion();
 					String email = question.getUser().getEmail();
@@ -107,7 +107,7 @@ public class AnswerManager {
 				} catch (MessagingException e) {
 					log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
 				}
-				return AnswerMapper.convertAnswerToAnswerGet(savedAnswer);
+				return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
 			} else {
 				throw new ChangeNotAllowedException();
 			}
@@ -147,7 +147,7 @@ public class AnswerManager {
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
-	private String generateEmailContent(Question question, Answer answer, boolean isNewAnswer) {
+	private String generateEmailContent(Question question, AnswerEntity answer, boolean isNewAnswer) {
 		User questionUser = question.getUser();
 		User answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();

@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "answers")
-public class Answer extends AuditModel {
+public class AnswerEntity extends AuditModel {
 
 	@Id
 	@GeneratedValue(generator = "answer_generator")
@@ -31,19 +31,19 @@ public class Answer extends AuditModel {
 	@OnDelete(action = OnDeleteAction.CASCADE)
 	private User user;
 
-	public Answer() {
+	public AnswerEntity() {
 	}
 
-	public Answer(String text) {
+	public AnswerEntity(String text) {
 		this.text = text;
 	}
 
-	public Answer(String text, User user) {
+	public AnswerEntity(String text, User user) {
 		this.text = text;
 		this.user = user;
 	}
 
-	public Answer(Long id, String text, Question question, User user, Date createdAt, Date updatedAt) {
+	public AnswerEntity(Long id, String text, Question question, User user, Date createdAt, Date updatedAt) {
 		this.id = id;
 		this.text = text;
 		this.question = question;
@@ -86,6 +86,6 @@ public class Answer extends AuditModel {
 
 	@Override
 	public String toString() {
-		return "Answer [id=" + id + ", text=" + text + ", question=" + question + ", user=" + user + "]";
+		return "AnswerEntity [id=" + id + ", text=" + text + ", question=" + question + ", user=" + user + "]";
 	}
 }

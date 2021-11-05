@@ -12,7 +12,7 @@ public class AnswerMapper {
 
 	}
 
-	public static AnswerGet convertAnswerToAnswerGet(Answer answer) {
+	public static AnswerGet convertAnswerEntityToAnswerGet(AnswerEntity answer) {
 		AnswerGet answerGet = new AnswerGet();
 		answerGet.setId(answer.getId());
 		answerGet.setText(answer.getText());
@@ -25,10 +25,10 @@ public class AnswerMapper {
 		return answerGet;
 	}
 
-	public static List<AnswerGet> convertAnswerListToAnswerGetList(List<Answer> answerList) {
+	public static List<AnswerGet> convertAnswerEntityListToAnswerGetList(List<AnswerEntity> answerList) {
 		List<AnswerGet> newAnswerList = new ArrayList<>();
-		for (Answer answer : answerList) {
-			newAnswerList.add(convertAnswerToAnswerGet(answer));
+		for (AnswerEntity answer : answerList) {
+			newAnswerList.add(convertAnswerEntityToAnswerGet(answer));
 		}
 		return newAnswerList;
 	}

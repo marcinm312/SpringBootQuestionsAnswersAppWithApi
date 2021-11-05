@@ -4,7 +4,7 @@ import com.itextpdf.text.DocumentException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import pl.marcinm312.springdatasecurityex.answer.model.Answer;
+import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.Question;
@@ -12,7 +12,6 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,8 +50,8 @@ class PdfGeneratorTest {
 
 	@Test
 	void generateAnswersPdfFile_simpleCase_success() throws DocumentException, IOException {
-		List<Answer> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
-		List<AnswerGet> answersList = AnswerMapper.convertAnswerListToAnswerGetList(oldAnswersList);
+		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
+		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		Question question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
 

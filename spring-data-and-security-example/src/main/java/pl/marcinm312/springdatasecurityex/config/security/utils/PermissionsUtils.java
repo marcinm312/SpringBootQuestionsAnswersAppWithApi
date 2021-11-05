@@ -1,8 +1,8 @@
 package pl.marcinm312.springdatasecurityex.config.security.utils;
 
 import org.slf4j.LoggerFactory;
+import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
-import pl.marcinm312.springdatasecurityex.answer.model.Answer;
 import pl.marcinm312.springdatasecurityex.question.model.Question;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 
@@ -17,8 +17,8 @@ public class PermissionsUtils {
 		Long objectUserId;
 		if (object instanceof Question) {
 			objectUserId = ((Question) object).getUser().getId();
-		} else if (object instanceof Answer) {
-			objectUserId = ((Answer) object).getUser().getId();
+		} else if (object instanceof AnswerEntity) {
+			objectUserId = ((AnswerEntity) object).getUser().getId();
 		} else {
 			return false;
 		}
