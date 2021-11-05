@@ -16,7 +16,7 @@ import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
@@ -67,7 +67,7 @@ public class AnswerManager {
 	}
 
 	@Transactional
-	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, User user) {
+	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, UserEntity user) {
 		return questionManager.getQuestionEntity(questionId).map(question -> {
 			AnswerEntity answer = new AnswerEntity(answerRequest.getText());
 			answer.setQuestion(question);
@@ -88,7 +88,7 @@ public class AnswerManager {
 	}
 
 	@Transactional
-	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, User user) {
+	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, UserEntity user) {
 		log.info("Updating answer");
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
@@ -114,7 +114,7 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
 	}
 
-	public boolean deleteAnswer(Long questionId, Long answerId, User user) {
+	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
 		log.info("Deleting answer.id = {}", answerId);
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
@@ -148,8 +148,8 @@ public class AnswerManager {
 	}
 
 	private String generateEmailContent(QuestionEntity question, AnswerEntity answer, boolean isNewAnswer) {
-		User questionUser = question.getUser();
-		User answerUser = answer.getUser();
+		UserEntity questionUser = question.getUser();
+		UserEntity answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();
 		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",")
 				.append("<br><br>Użytkownik <b>").append(answerUser.getUsername());

@@ -24,7 +24,7 @@ import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
@@ -116,7 +116,7 @@ class UserRegistrationWebControllerTest {
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().isForbidden());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -135,7 +135,7 @@ class UserRegistrationWebControllerTest {
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().isForbidden());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -144,10 +144,10 @@ class UserRegistrationWebControllerTest {
 	@WithAnonymousUser
 	void createUser_simpleCase_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
-		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
-		given(userRepo.save(any(User.class))).willReturn(user);
+		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
 						post("/register")
@@ -162,7 +162,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(unauthenticated());
 
-		verify(userRepo, times(1)).save(any(User.class));
+		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -171,10 +171,10 @@ class UserRegistrationWebControllerTest {
 	@WithAnonymousUser
 	void createUser_spacesInPassword_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
-		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
-		given(userRepo.save(any(User.class))).willReturn(user);
+		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
 						post("/register")
@@ -189,7 +189,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(unauthenticated());
 
-		verify(userRepo, times(1)).save(any(User.class));
+		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -221,7 +221,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -253,7 +253,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -262,7 +262,7 @@ class UserRegistrationWebControllerTest {
 	@WithAnonymousUser
 	void createUser_userAlreadyExists_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
-		User existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -286,7 +286,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -321,7 +321,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -356,7 +356,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
 		Assertions.assertNull(userFromModel.getEmail());
 
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -375,7 +375,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(tokenRepo, times(1)).delete(foundToken);
-		verify(userRepo, times(1)).save(any(User.class));
+		verify(userRepo, times(1)).save(any(UserEntity.class));
 	}
 
 	@Test
@@ -391,7 +391,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(tokenRepo, never()).delete(any(TokenEntity.class));
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 
 	@Test
@@ -402,6 +402,6 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(tokenRepo, never()).delete(any(TokenEntity.class));
-		verify(userRepo, never()).save(any(User.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 }

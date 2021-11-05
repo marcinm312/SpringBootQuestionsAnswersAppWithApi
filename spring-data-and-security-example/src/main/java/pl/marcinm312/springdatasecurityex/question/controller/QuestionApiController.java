@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -41,20 +41,20 @@ public class QuestionApiController {
 
 	@PostMapping
 	public QuestionGet createQuestion(@Valid @RequestBody QuestionCreateUpdate question, Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.createQuestion(question, user);
 	}
 
 	@PutMapping("/{questionId}")
 	public QuestionGet updateQuestion(@PathVariable Long questionId, @Valid @RequestBody QuestionCreateUpdate questionRequest,
 								   Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.updateQuestion(questionId, questionRequest, user);
 	}
 
 	@DeleteMapping("/{questionId}")
 	public boolean deleteQuestion(@PathVariable Long questionId, Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.deleteQuestion(questionId, user);
 	}
 

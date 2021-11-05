@@ -10,7 +10,7 @@ import java.util.*;
 
 @Entity
 @Table(name = "users")
-public class User extends AuditModel implements UserDetails {
+public class UserEntity extends AuditModel implements UserDetails {
 
 	@Id
 	@GeneratedValue(generator = "user_generator")
@@ -28,11 +28,11 @@ public class User extends AuditModel implements UserDetails {
 	private Date timeOfSessionExpiration;
 	private Date changePasswordDate;
 
-	public User() {
+	public UserEntity() {
 
 	}
 
-	public User(String username, String password, String email) {
+	public UserEntity(String username, String password, String email) {
 		this.username = username;
 		this.password = password;
 		this.email = email;
@@ -134,7 +134,7 @@ public class User extends AuditModel implements UserDetails {
 
 	@Override
 	public String toString() {
-		return "User{" +
+		return "UserEntity{" +
 				"id=" + id +
 				", username='" + username + '\'' +
 				", role='" + role + '\'' +
@@ -147,9 +147,9 @@ public class User extends AuditModel implements UserDetails {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof User)) return false;
+		if (!(o instanceof UserEntity)) return false;
 
-		User user = (User) o;
+		UserEntity user = (UserEntity) o;
 
 		return getUsername() != null ? getUsername().equals(user.getUsername()) : user.getUsername() == null;
 	}

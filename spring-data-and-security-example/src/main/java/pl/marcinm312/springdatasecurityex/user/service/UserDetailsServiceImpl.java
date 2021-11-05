@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 
 import java.util.Optional;
@@ -25,18 +25,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Optional<User> optionalUser = userRepo.findByUsername(username);
+		Optional<UserEntity> optionalUser = userRepo.findByUsername(username);
 		return getUserFromOptional(optionalUser);
 	}
 
-	public User findUserById(Long userId) {
-		Optional<User> optionalUser = userRepo.findById(userId);
+	public UserEntity findUserById(Long userId) {
+		Optional<UserEntity> optionalUser = userRepo.findById(userId);
 		return getUserFromOptional(optionalUser);
 	}
 
-	private User getUserFromOptional(Optional<User> optionalUser) {
+	private UserEntity getUserFromOptional(Optional<UserEntity> optionalUser) {
 		if (optionalUser.isPresent()) {
-			User user = optionalUser.get();
+			UserEntity user = optionalUser.get();
 			log.info("Loading user = {}", user);
 			return user;
 		} else {
@@ -45,7 +45,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		}
 	}
 
-	public Optional<User> findUserByUsername(String username) {
+	public Optional<UserEntity> findUserByUsername(String username) {
 		return userRepo.findByUsername(username);
 	}
 }

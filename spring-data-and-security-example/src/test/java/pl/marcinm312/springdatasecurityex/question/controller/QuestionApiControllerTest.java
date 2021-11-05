@@ -27,7 +27,7 @@ import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthentication
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
@@ -81,10 +81,10 @@ class QuestionApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
-	private final User userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
 
 	@Value("${jwt.secret}")
 	private String secret;

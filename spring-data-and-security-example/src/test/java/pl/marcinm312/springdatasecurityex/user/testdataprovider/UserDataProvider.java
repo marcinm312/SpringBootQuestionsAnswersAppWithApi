@@ -4,7 +4,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
 import pl.marcinm312.springdatasecurityex.shared.testdataprovider.DateProvider;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
@@ -14,9 +14,9 @@ import java.util.Date;
 
 public class UserDataProvider {
 
-	public static User prepareExampleGoodAdministratorWithEncodedPassword() {
+	public static UserEntity prepareExampleGoodAdministratorWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1000L);
 		user.setUsername("administrator");
 		user.setPassword(passwordEncoder.encode("password"));
@@ -30,9 +30,9 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleGoodUserWithEncodedPassword() {
+	public static UserEntity prepareExampleGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1001L);
 		user.setUsername("user");
 		user.setPassword(passwordEncoder.encode("password"));
@@ -46,9 +46,9 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleSecondGoodUserWithEncodedPassword() {
+	public static UserEntity prepareExampleSecondGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1002L);
 		user.setUsername("user2");
 		user.setPassword(passwordEncoder.encode("password"));
@@ -62,9 +62,9 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleDisabledUserWithEncodedPassword() {
+	public static UserEntity prepareExampleDisabledUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1001L);
 		user.setUsername("user");
 		user.setPassword(passwordEncoder.encode("password"));
@@ -78,9 +78,9 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleSecondDisabledUserWithEncodedPassword() {
+	public static UserEntity prepareExampleSecondDisabledUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1003L);
 		user.setUsername("user3");
 		user.setPassword(passwordEncoder.encode("password"));
@@ -94,9 +94,9 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
+	public static UserEntity prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1003L);
 		user.setUsername("user3");
 		user.setPassword(passwordEncoder.encode(" pass "));
@@ -110,11 +110,11 @@ public class UserDataProvider {
 		return user;
 	}
 
-	public static User prepareExampleGoodUserWithEncodedAndChangedPassword() {
+	public static UserEntity prepareExampleGoodUserWithEncodedAndChangedPassword() {
 		long currentTime = System.currentTimeMillis();
 		Date futureDate = new Date(currentTime + 10 * 60000);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		User user = new User();
+		UserEntity user = new UserEntity();
 		user.setId(1004L);
 		user.setUsername("user4");
 		user.setPassword(passwordEncoder.encode("password"));

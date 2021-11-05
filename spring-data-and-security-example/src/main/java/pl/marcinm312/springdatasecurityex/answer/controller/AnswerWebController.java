@@ -16,7 +16,7 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
@@ -84,7 +84,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_ANSWER_VIEW;
 		} else {
-			User user = userManager.getUserByAuthentication(authentication);
+			UserEntity user = userManager.getUserByAuthentication(authentication);
 			answerManager.addAnswer(questionId, answer, user);
 			return "redirect:..";
 		}
@@ -118,7 +118,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_ANSWER_VIEW;
 		} else {
-			User user = userManager.getUserByAuthentication(authentication);
+			UserEntity user = userManager.getUserByAuthentication(authentication);
 			try {
 				answerManager.updateAnswer(questionId, answerId, answer, user);
 			} catch (ChangeNotAllowedException e) {
@@ -151,7 +151,7 @@ public class AnswerWebController {
 	@PostMapping("/{answerId}/delete")
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
 		} catch (ChangeNotAllowedException e) {

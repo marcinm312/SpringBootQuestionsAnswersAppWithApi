@@ -5,7 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 
@@ -35,12 +35,12 @@ public class UserDataUpdateValidator implements Validator {
 		UserDataUpdate user = (UserDataUpdate) target;
 
 		String username = user.getUsername();
-		Optional<User> foundUser = userDetailsService.findUserByUsername(username);
+		Optional<UserEntity> foundUser = userDetailsService.findUserByUsername(username);
 
 		String loggedUserLogin = SecurityContextHolder.getContext().getAuthentication().getName();
-		Optional<User> optionalLoggedUser = userDetailsService.findUserByUsername(loggedUserLogin);
+		Optional<UserEntity> optionalLoggedUser = userDetailsService.findUserByUsername(loggedUserLogin);
 		if (optionalLoggedUser.isPresent()) {
-			User loggedUser = optionalLoggedUser.get();
+			UserEntity loggedUser = optionalLoggedUser.get();
 			if (foundUser.isPresent() && !foundUser.get().getId().equals(loggedUser.getId())) {
 				errors.rejectValue(USERNAME_FIELD, USER_EXISTS_ERROR, "Użytkownik o takim loginie już istnieje!");
 			}

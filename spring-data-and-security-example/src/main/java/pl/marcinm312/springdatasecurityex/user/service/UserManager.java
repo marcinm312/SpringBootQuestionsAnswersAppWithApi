@@ -11,7 +11,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
 import pl.marcinm312.springdatasecurityex.user.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.UserMapper;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
@@ -49,12 +49,12 @@ public class UserManager {
 		this.sessionUtils = sessionUtils;
 	}
 
-	public User getUserByAuthentication(Authentication authentication) {
+	public UserEntity getUserByAuthentication(Authentication authentication) {
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
-		Optional<User> optionalUser = userRepo.findByUsername(userName);
+		Optional<UserEntity> optionalUser = userRepo.findByUsername(userName);
 		if (optionalUser.isPresent()) {
-			User user = optionalUser.get();
+			UserEntity user = optionalUser.get();
 			log.info("Loaded user = {}", user);
 			return user;
 		} else {
@@ -64,13 +64,13 @@ public class UserManager {
 	}
 
 	public UserGet getUserDTOByAuthentication(Authentication authentication) {
-		User user = getUserByAuthentication(authentication);
+		UserEntity user = getUserByAuthentication(authentication);
 		return UserMapper.convertUserToUserGet(user);
 	}
 
 	@Transactional
 	public UserGet addUser(UserCreate userRequest) {
-		User user = new User(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
+		UserEntity user = new UserEntity(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
 		Date currentDate = new Date();
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setEnabled(false);
@@ -78,7 +78,7 @@ public class UserManager {
 		user.setTimeOfSessionExpiration(currentDate);
 		user.setChangePasswordDate(currentDate);
 		log.info("Creating user = {}", user);
-		User savedUser = userRepo.save(user);
+		UserEntity savedUser = userRepo.save(user);
 		sendToken(user);
 		log.info("User created");
 		return UserMapper.convertUserToUserGet(savedUser);
@@ -87,7 +87,7 @@ public class UserManager {
 	@Transactional
 	public UserGet updateUserData(UserDataUpdate userRequest, Authentication authentication) {
 		log.info("Updating user");
-		User loggedUser = getUserByAuthentication(authentication);
+		UserEntity loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
 		String oldUserName = loggedUser.getUsername();
 		if (!oldUserName.equals(userRequest.getUsername())) {
@@ -96,7 +96,7 @@ public class UserManager {
 		loggedUser.setUsername(userRequest.getUsername());
 		loggedUser.setEmail(userRequest.getEmail());
 		log.info("New user = {}", loggedUser);
-		User savedUser = userRepo.save(loggedUser);
+		UserEntity savedUser = userRepo.save(loggedUser);
 		log.info("User updated");
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
@@ -105,20 +105,20 @@ public class UserManager {
 	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
 		log.info("Updating user password");
 		Date currentDate = new Date();
-		User loggedUser = getUserByAuthentication(authentication);
+		UserEntity loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
 		loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		loggedUser.setChangePasswordDate(currentDate);
 		loggedUser = sessionUtils.expireUserSessions(loggedUser, false, false);
 		log.info("New user = {}", loggedUser);
-		User savedUser = userRepo.save(loggedUser);
+		UserEntity savedUser = userRepo.save(loggedUser);
 		log.info("User password updated");
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
 	public void deleteUser(Authentication authentication) {
-		User user = getUserByAuthentication(authentication);
+		UserEntity user = getUserByAuthentication(authentication);
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
 		log.info("User deleted");
@@ -126,14 +126,14 @@ public class UserManager {
 	}
 
 	@Transactional
-	public User activateUser(String tokenValue) {
+	public UserEntity activateUser(String tokenValue) {
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isPresent()) {
 			TokenEntity token = optionalToken.get();
-			User user = token.getUser();
+			UserEntity user = token.getUser();
 			log.info("Activating user = {}", user);
 			user.setEnabled(true);
-			User savedUser = userRepo.save(user);
+			UserEntity savedUser = userRepo.save(user);
 			tokenRepo.delete(token);
 			log.info("User activated");
 			return savedUser;
@@ -145,14 +145,14 @@ public class UserManager {
 	@Transactional
 	public UserGet endOtherSessions(Authentication authentication) {
 		log.info("Expiring sessions for user = {}", authentication.getName());
-		User user = getUserByAuthentication(authentication);
+		UserEntity user = getUserByAuthentication(authentication);
 		user = sessionUtils.expireUserSessions(user, false, false);
-		User savedUser = userRepo.save(user);
+		UserEntity savedUser = userRepo.save(user);
 		log.info("Sessions for user expired");
 		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
-	private void sendToken(User user) {
+	private void sendToken(UserEntity user) {
 		String tokenValue = UUID.randomUUID().toString();
 		TokenEntity token = new TokenEntity();
 		token.setUser(user);
@@ -166,7 +166,7 @@ public class UserManager {
 		}
 	}
 
-	private String generateEmailContent(User user, String tokenValue) {
+	private String generateEmailContent(UserEntity user, String tokenValue) {
 		return new StringBuilder().append("Witaj ").append(user.getUsername())
 				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
 				.append("<br><a href=\"").append(getApplicationUrl()).append("/token?value=").append(tokenValue)

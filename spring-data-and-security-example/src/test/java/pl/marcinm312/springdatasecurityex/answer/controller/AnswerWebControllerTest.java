@@ -32,7 +32,7 @@ import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -101,9 +101,9 @@ class AnswerWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
@@ -250,7 +250,7 @@ class AnswerWebControllerTest {
 	@WithMockUser(username = "user2")
 	void createAnswer_simpleCase_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(
@@ -482,7 +482,7 @@ class AnswerWebControllerTest {
 	@WithMockUser(username = "user2")
 	void editAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(
@@ -506,7 +506,7 @@ class AnswerWebControllerTest {
 	void editAnswer_tooShortText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -549,7 +549,7 @@ class AnswerWebControllerTest {
 	void editAnswer_emptyText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -591,7 +591,7 @@ class AnswerWebControllerTest {
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void editAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		mockMvc.perform(

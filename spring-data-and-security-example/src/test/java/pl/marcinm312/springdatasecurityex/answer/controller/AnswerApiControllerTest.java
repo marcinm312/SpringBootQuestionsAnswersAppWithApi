@@ -31,7 +31,7 @@ import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
@@ -93,9 +93,9 @@ class AnswerApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
@@ -273,7 +273,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
@@ -410,7 +410,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user2", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(
@@ -512,7 +512,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("administrator", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
 
 		String response = mockMvc.perform(

@@ -8,7 +8,7 @@ public class UserMapper {
 
 	}
 
-	public static UserGet convertUserToUserGet(User user) {
+	public static UserGet convertUserToUserGet(UserEntity user) {
 		UserGet userGet = new UserGet();
 		userGet.setId(user.getId());
 		userGet.setCreatedAt(user.getCreatedAt());

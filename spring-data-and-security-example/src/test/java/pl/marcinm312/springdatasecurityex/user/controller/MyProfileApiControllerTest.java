@@ -22,7 +22,7 @@ import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCusto
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
@@ -65,8 +65,8 @@ class MyProfileApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper();
 
-	private final User commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
@@ -89,7 +89,7 @@ class MyProfileApiControllerTest {
 
 		String token = prepareToken("user", "password");
 
-		User expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		String response = mockMvc.perform(
 						get("/api/myProfile")
 								.header("Authorization", token))
@@ -107,7 +107,7 @@ class MyProfileApiControllerTest {
 
 		String token = prepareToken("administrator", "password");
 
-		User expectedUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+		UserEntity expectedUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		String response = mockMvc.perform(
 						get("/api/myProfile")
 								.header("Authorization", token))
@@ -127,7 +127,7 @@ class MyProfileApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	private void assertUser(User expectedUser, UserGet responseUser) {
+	private void assertUser(UserEntity expectedUser, UserGet responseUser) {
 		Assertions.assertEquals(expectedUser.getId(), responseUser.getId());
 		Assertions.assertEquals(expectedUser.getCreatedAt(), responseUser.getCreatedAt());
 		Assertions.assertEquals(expectedUser.getUpdatedAt(), responseUser.getUpdatedAt());

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 
@@ -39,7 +39,7 @@ public class UserCreateValidator implements Validator {
 		String password = user.getPassword();
 		String confirmPassword = user.getConfirmPassword();
 
-		Optional<User> foundUser = userDetailsService.findUserByUsername(username);
+		Optional<UserEntity> foundUser = userDetailsService.findUserByUsername(username);
 		if (foundUser.isPresent()) {
 			errors.rejectValue(USERNAME_FIELD, USER_EXISTS_ERROR, "Użytkownik o takim loginie już istnieje!");
 		}

@@ -6,7 +6,7 @@ import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SessionUtils {
 		this.sessionRegistry = sessionRegistry;
 	}
 
-	public User expireUserSessions(User user, boolean expireCurrentSession, boolean isDeletingUser) {
+	public UserEntity expireUserSessions(UserEntity user, boolean expireCurrentSession, boolean isDeletingUser) {
 		log.info("Starting expiring user sessions. user={}, expireCurrentSession={}", user, expireCurrentSession);
 		List<SessionInformation> listOfSessionInformation = sessionRegistry.getAllSessions(user, true);
 		log.info("listOfSessionInformation.size()={}", listOfSessionInformation.size());

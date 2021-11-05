@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 public class PermissionsUtils {
 
@@ -12,7 +12,7 @@ public class PermissionsUtils {
 
 	}
 
-	public static boolean checkIfUserIsPermitted (Object object, User loggedUser) {
+	public static boolean checkIfUserIsPermitted (Object object, UserEntity loggedUser) {
 		org.slf4j.Logger log = LoggerFactory.getLogger(PermissionsUtils.class);
 		Long objectUserId;
 		if (object instanceof QuestionEntity) {

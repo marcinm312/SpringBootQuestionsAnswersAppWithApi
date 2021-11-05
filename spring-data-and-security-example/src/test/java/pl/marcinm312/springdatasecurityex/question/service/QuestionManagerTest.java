@@ -15,7 +15,7 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
@@ -66,7 +66,7 @@ class QuestionManagerTest {
 
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("successfullyDeletedQuestionData")
-	void deleteQuestion_withDataFromMethod_success(User user, String nameOfTestCase) {
+	void deleteQuestion_withDataFromMethod_success(UserEntity user, String nameOfTestCase) {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		Assertions.assertTrue(questionManager.deleteQuestion(1000L, user));
@@ -84,7 +84,7 @@ class QuestionManagerTest {
 	void deleteQuestion_userDeletesAnotherUsersQuestion_throwsChangeNotAllowedException() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
-		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class,
 				() -> questionManager.deleteQuestion(1000L, user));
 		Assertions.assertEquals("Change not allowed!", exception.getMessage());
@@ -93,7 +93,7 @@ class QuestionManagerTest {
 	@Test
 	void deleteQuestion_questionNotExists_throwsResourceNotFoundException() {
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class,
 				() -> questionManager.deleteQuestion(2000L, user));
 		Assertions.assertEquals("Question not found with id: 2000", exception.getMessage());

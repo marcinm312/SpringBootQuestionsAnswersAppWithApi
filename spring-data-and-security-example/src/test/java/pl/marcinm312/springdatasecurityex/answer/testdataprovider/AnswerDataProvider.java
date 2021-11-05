@@ -3,7 +3,7 @@ package pl.marcinm312.springdatasecurityex.answer.testdataprovider;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.shared.testdataprovider.DateProvider;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
@@ -16,7 +16,7 @@ public class AnswerDataProvider {
 
 	public static List<AnswerEntity> prepareExampleAnswersList() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
 		answers.add(new AnswerEntity(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
@@ -32,7 +32,7 @@ public class AnswerDataProvider {
 
 	public static AnswerEntity prepareExampleAnswer() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		return new AnswerEntity(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));

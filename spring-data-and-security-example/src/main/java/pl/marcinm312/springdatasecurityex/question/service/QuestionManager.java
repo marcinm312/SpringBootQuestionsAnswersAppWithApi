@@ -12,7 +12,7 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
@@ -58,14 +58,14 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
 	}
 
-	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, User user) {
+	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {
 		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription());
 		question.setUser(user);
 		log.info("Creating question = {}", question);
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
 	}
 
-	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
+	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
@@ -82,7 +82,7 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
 	}
 
-	public boolean deleteQuestion(Long questionId, User user) {
+	public boolean deleteQuestion(Long questionId, UserEntity user) {
 		log.info("Deleting question.id = {}", questionId);
 		return questionRepository.findById(questionId).map(question -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);

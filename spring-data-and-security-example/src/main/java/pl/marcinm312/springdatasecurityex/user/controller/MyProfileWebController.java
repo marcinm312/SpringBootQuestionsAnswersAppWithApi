@@ -8,7 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
@@ -54,7 +54,7 @@ public class MyProfileWebController {
 	@GetMapping
 	public String myProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER_3, user);
 		return MY_PROFILE_VIEW;
@@ -77,7 +77,7 @@ public class MyProfileWebController {
 	@GetMapping("/update")
 	public String updateMyProfileView(Model model, Authentication authentication) {
 		String userName = authentication.getName();
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		UserDataUpdate userDataUpdate = new UserDataUpdate(user.getUsername(), user.getEmail());
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER, userDataUpdate);

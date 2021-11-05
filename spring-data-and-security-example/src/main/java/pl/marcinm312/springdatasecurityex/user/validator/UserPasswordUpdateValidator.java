@@ -7,7 +7,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -45,7 +45,7 @@ public class UserPasswordUpdateValidator implements Validator {
 		String confirmPassword = user.getConfirmPassword();
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		User loggedUser = userManager.getUserByAuthentication(authentication);
+		UserEntity loggedUser = userManager.getUserByAuthentication(authentication);
 
 		if (!passwordEncoder.matches(currentPassword, loggedUser.getPassword())) {
 			errors.rejectValue(CURRENT_PASSWORD_FIELD, CURRENT_PASSWORD_ERROR, "Podano nieprawidłowe hasło");

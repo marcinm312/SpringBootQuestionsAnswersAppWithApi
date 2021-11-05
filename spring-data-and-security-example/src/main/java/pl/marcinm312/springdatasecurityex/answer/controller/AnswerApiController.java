@@ -9,7 +9,7 @@ import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -43,21 +43,21 @@ public class AnswerApiController {
 	@PostMapping
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
 							   Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
 	@PutMapping("/{answerId}")
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
 
 	@DeleteMapping("/{answerId}")
 	public boolean deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								Authentication authentication) {
-		User user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.deleteAnswer(questionId, answerId, user);
 	}
 

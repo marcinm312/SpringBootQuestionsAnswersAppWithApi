@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.model;
 
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public class QuestionMapper {
 		questionGet.setDescription(question.getDescription());
 		questionGet.setCreatedAt(question.getCreatedAt());
 		questionGet.setUpdatedAt(question.getUpdatedAt());
-		User user = question.getUser();
+		UserEntity user = question.getUser();
 		if (user != null) {
 			questionGet.setUser(user.getUsername());
 		}
