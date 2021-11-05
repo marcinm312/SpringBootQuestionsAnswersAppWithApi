@@ -30,7 +30,7 @@ import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthentication
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
@@ -105,7 +105,7 @@ class AnswerWebControllerTest {
 	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
-	private final Question question = QuestionDataProvider.prepareExampleQuestion();
+	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
 	@BeforeEach
 	void setup() throws MessagingException {
@@ -152,7 +152,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void answersGet_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/answers")
 								.with(user("user").password("password")))
@@ -272,7 +272,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void createAnswer_tooShortText_validationErrors() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -307,7 +307,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void createAnswer_tooShortTextAfterTrim_validationErrors() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -342,7 +342,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void createAnswer_emptyText_validationErrors() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -387,7 +387,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void createAnswerView_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/answers/new")
 								.with(user("user2").password("password")))
@@ -504,7 +504,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void editAnswer_tooShortText_validationErrors() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
@@ -547,7 +547,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void editAnswer_emptyText_validationErrors() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 		User user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
@@ -644,7 +644,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void editAnswerView_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -805,7 +805,7 @@ class AnswerWebControllerTest {
 	@Test
 	@WithMockUser(username = "user2")
 	void removeAnswerView_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
 
 		ModelAndView modelAndView = mockMvc.perform(

@@ -11,9 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
@@ -41,7 +41,7 @@ class QuestionManagerTest {
 		MockitoAnnotations.openMocks(this);
 		given(questionRepository.findAllByOrderByIdDesc())
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
-		doNothing().when(questionRepository).delete(isA(Question.class));
+		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 	}
 
 	@Test
@@ -52,7 +52,7 @@ class QuestionManagerTest {
 
 	@Test
 	void getQuestion_simpleCase_success() {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		String expectedTitle = question.getTitle();
 		String expectedDescription = question.getDescription();
@@ -67,7 +67,7 @@ class QuestionManagerTest {
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("successfullyDeletedQuestionData")
 	void deleteQuestion_withDataFromMethod_success(User user, String nameOfTestCase) {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		Assertions.assertTrue(questionManager.deleteQuestion(1000L, user));
 	}
@@ -82,7 +82,7 @@ class QuestionManagerTest {
 
 	@Test
 	void deleteQuestion_userDeletesAnotherUsersQuestion_throwsChangeNotAllowedException() {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		User user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class,

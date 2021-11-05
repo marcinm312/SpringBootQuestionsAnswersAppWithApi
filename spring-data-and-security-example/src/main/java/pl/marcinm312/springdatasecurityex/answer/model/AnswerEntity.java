@@ -2,8 +2,8 @@ package pl.marcinm312.springdatasecurityex.answer.model;
 
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 
 import javax.persistence.*;
@@ -24,7 +24,7 @@ public class AnswerEntity extends AuditModel {
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "question_id", nullable = false)
 	@OnDelete(action = OnDeleteAction.CASCADE)
-	private Question question;
+	private QuestionEntity question;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
 	@JoinColumn(name = "user_id", nullable = false)
@@ -43,7 +43,7 @@ public class AnswerEntity extends AuditModel {
 		this.user = user;
 	}
 
-	public AnswerEntity(Long id, String text, Question question, User user, Date createdAt, Date updatedAt) {
+	public AnswerEntity(Long id, String text, QuestionEntity question, User user, Date createdAt, Date updatedAt) {
 		this.id = id;
 		this.text = text;
 		this.question = question;
@@ -68,11 +68,11 @@ public class AnswerEntity extends AuditModel {
 		this.text = text;
 	}
 
-	public Question getQuestion() {
+	public QuestionEntity getQuestion() {
 		return question;
 	}
 
-	public void setQuestion(Question question) {
+	public void setQuestion(QuestionEntity question) {
 		this.question = question;
 	}
 

@@ -30,7 +30,7 @@ import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCusto
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -97,7 +97,7 @@ class AnswerApiControllerTest {
 	private final User secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 	private final User adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
-	private final Question question = QuestionDataProvider.prepareExampleQuestion();
+	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
 	@BeforeEach
 	void setup() throws MessagingException {

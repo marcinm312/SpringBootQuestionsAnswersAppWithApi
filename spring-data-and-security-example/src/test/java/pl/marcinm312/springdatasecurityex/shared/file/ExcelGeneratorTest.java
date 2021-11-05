@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
@@ -32,8 +32,8 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateQuestionsExcelFile_simpleCase_success() throws IOException {
-		List<Question> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
-		List<QuestionGet> questionsList = QuestionMapper.convertQuestionListToQuestionGetList(oldQuestionsList);
+		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
+		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
 		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
 
@@ -112,8 +112,8 @@ class ExcelGeneratorTest {
 	void generateAnswersExcelFile_simpleCase_success() throws IOException {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
-		Question question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 
 		File answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
 
@@ -157,8 +157,8 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionToQuestionGet(question);
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 
 		File answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
 

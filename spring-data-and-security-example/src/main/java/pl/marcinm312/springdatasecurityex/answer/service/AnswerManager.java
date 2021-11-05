@@ -8,13 +8,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
@@ -99,7 +99,7 @@ public class AnswerManager {
 				log.info("New answer = {}", answer);
 				AnswerEntity savedAnswer = answerRepository.save(answer);
 				try {
-					Question question = answer.getQuestion();
+					QuestionEntity question = answer.getQuestion();
 					String email = question.getUser().getEmail();
 					String subject = "Zaktualizowano odpowiedź na Twoje pytanie o id: " + question.getId();
 					String content = generateEmailContent(question, savedAnswer, false);
@@ -147,7 +147,7 @@ public class AnswerManager {
 		return FileResponseGenerator.generateResponseWithFile(file);
 	}
 
-	private String generateEmailContent(Question question, AnswerEntity answer, boolean isNewAnswer) {
+	private String generateEmailContent(QuestionEntity question, AnswerEntity answer, boolean isNewAnswer) {
 		User questionUser = question.getUser();
 		User answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();

@@ -10,7 +10,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "questions")
-public class Question extends AuditModel {
+public class QuestionEntity extends AuditModel {
 
     @Id
     @GeneratedValue(generator = "question_generator")
@@ -27,15 +27,15 @@ public class Question extends AuditModel {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    public Question() {
+    public QuestionEntity() {
     }
 
-    public Question(String title, String description) {
+    public QuestionEntity(String title, String description) {
         this.title = title;
         this.description = description;
     }
 
-    public Question(Long id, String title, String description, User user, Date createdAt, Date updatedAt) {
+    public QuestionEntity(Long id, String title, String description, User user, Date createdAt, Date updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -78,6 +78,6 @@ public class Question extends AuditModel {
 
     @Override
     public String toString() {
-        return "Question [id=" + id + ", title=" + title + ", description=" + description + ", user=" + user + "]";
+        return "QuestionEntity [id=" + id + ", title=" + title + ", description=" + description + ", user=" + user + "]";
     }
 }

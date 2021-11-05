@@ -12,7 +12,7 @@ public class QuestionMapper {
 
 	}
 
-	public static QuestionGet convertQuestionToQuestionGet(Question question) {
+	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question) {
 		QuestionGet questionGet = new QuestionGet();
 		questionGet.setId(question.getId());
 		questionGet.setTitle(question.getTitle());
@@ -26,10 +26,10 @@ public class QuestionMapper {
 		return questionGet;
 	}
 
-	public static List<QuestionGet> convertQuestionListToQuestionGetList(List<Question> questionList) {
+	public static List<QuestionGet> convertQuestionEntityListToQuestionGetList(List<QuestionEntity> questionList) {
 		List<QuestionGet> newQuestionList = new ArrayList<>();
-		for (Question question : questionList) {
-			newQuestionList.add(convertQuestionToQuestionGet(question));
+		for (QuestionEntity question : questionList) {
+			newQuestionList.add(convertQuestionEntityToQuestionGet(question));
 		}
 		return newQuestionList;
 	}

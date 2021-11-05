@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
@@ -44,25 +44,25 @@ public class QuestionManager {
 	}
 
 	public List<QuestionGet> getQuestions() {
-		List<Question> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
-		return QuestionMapper.convertQuestionListToQuestionGetList(questionsFromDB);
+		List<QuestionEntity> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
+		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
-	public Optional<Question> getQuestionEntity(Long questionId) {
+	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
 		return questionRepository.findById(questionId);
 	}
 
 	public QuestionGet getQuestion(Long questionId) {
-		Question questionFromDB = questionRepository.findById(questionId)
+		QuestionEntity questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
-		return QuestionMapper.convertQuestionToQuestionGet(questionFromDB);
+		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, User user) {
-		Question question = new Question(questionRequest.getTitle(), questionRequest.getDescription());
+		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription());
 		question.setUser(user);
 		log.info("Creating question = {}", question);
-		return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
+		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
 	}
 
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, User user) {
@@ -75,7 +75,7 @@ public class QuestionManager {
 				question.setTitle(questionRequest.getTitle());
 				question.setDescription(questionRequest.getDescription());
 				log.info("New question = {}", question);
-				return QuestionMapper.convertQuestionToQuestionGet(questionRepository.save(question));
+				return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
 			} else {
 				throw new ChangeNotAllowedException();
 			}

@@ -24,7 +24,7 @@ import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig
 import pl.marcinm312.springdatasecurityex.config.security.jwt.JwtCreator;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.User;
@@ -91,12 +91,12 @@ class QuestionApiControllerTest {
 
 	@BeforeEach
 	void setup() {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findAllByOrderByIdDesc())
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		doNothing().when(questionRepository).delete(isA(Question.class));
+		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(secondUser.getId())).willReturn(Optional.of(secondUser));
@@ -217,7 +217,7 @@ class QuestionApiControllerTest {
 
 		String token = prepareToken("user", "password");
 
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		String response = mockMvc.perform(
 						get("/api/questions/1000")
 								.header("Authorization", token))
@@ -257,7 +257,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -266,8 +266,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -282,7 +282,7 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -291,8 +291,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -307,7 +307,7 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -324,7 +324,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -341,7 +341,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -358,7 +358,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -374,7 +374,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -387,7 +387,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -396,8 +396,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -412,7 +412,7 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -421,8 +421,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -437,7 +437,7 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -454,7 +454,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -471,7 +471,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -487,7 +487,7 @@ class QuestionApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -496,8 +496,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("administrator", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -512,7 +512,7 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -521,8 +521,8 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user2", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -535,7 +535,7 @@ class QuestionApiControllerTest {
 		String expectedErrorMessage = "Change not allowed!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -556,7 +556,7 @@ class QuestionApiControllerTest {
 		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -565,7 +565,7 @@ class QuestionApiControllerTest {
 						delete("/api/questions/1000"))
 				.andExpect(status().isUnauthorized());
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -581,7 +581,7 @@ class QuestionApiControllerTest {
 
 		Assertions.assertEquals("true", response);
 
-		verify(questionRepository, times(1)).delete(any(Question.class));
+		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -597,7 +597,7 @@ class QuestionApiControllerTest {
 
 		Assertions.assertEquals("true", response);
 
-		verify(questionRepository, times(1)).delete(any(Question.class));
+		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -614,7 +614,7 @@ class QuestionApiControllerTest {
 		String expectedErrorMessage = "Change not allowed!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -631,7 +631,7 @@ class QuestionApiControllerTest {
 		String expectedErrorMessage = "Question not found with id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test

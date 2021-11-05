@@ -25,7 +25,7 @@ import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCusto
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.question.model.Question;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.User;
@@ -92,12 +92,12 @@ class QuestionWebControllerTest {
 
 	@BeforeEach
 	void setup() {
-		Question question = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.findAllByOrderByIdDesc())
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		doNothing().when(questionRepository).delete(isA(Question.class));
+		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
@@ -177,7 +177,7 @@ class QuestionWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -192,7 +192,7 @@ class QuestionWebControllerTest {
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -208,15 +208,15 @@ class QuestionWebControllerTest {
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -230,15 +230,15 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void createQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -252,7 +252,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -279,7 +279,7 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -306,7 +306,7 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(questionToRequest.getTitle().trim(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -333,7 +333,7 @@ class QuestionWebControllerTest {
 		Assertions.assertNull(questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -349,7 +349,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void editQuestionView_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/edit")
 								.with(user("user").password("password")))
@@ -409,7 +409,7 @@ class QuestionWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -424,7 +424,7 @@ class QuestionWebControllerTest {
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -440,15 +440,15 @@ class QuestionWebControllerTest {
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -462,15 +462,15 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "user")
 	void editQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -484,7 +484,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -511,14 +511,14 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
-		Question expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
 		Assertions.assertEquals(expectedOldQuestion.getId(), oldQuestionFromModel.getId());
 		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
 		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
 		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -545,22 +545,22 @@ class QuestionWebControllerTest {
 		Assertions.assertNull(questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
-		Question expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
 		Assertions.assertEquals(expectedOldQuestion.getId(), oldQuestionFromModel.getId());
 		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
 		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
 		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -574,15 +574,15 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 
-		verify(questionRepository, times(1)).save(any(Question.class));
+		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	@WithMockUser(username = "user2")
 	void editQuestion_userUpdatesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(Question.class)))
-				.willReturn(new Question(questionToRequest.getTitle(), questionToRequest.getDescription()));
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -596,7 +596,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 
-		verify(questionRepository, never()).save(any(Question.class));
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -612,7 +612,7 @@ class QuestionWebControllerTest {
 	@Test
 	@WithMockUser(username = "user")
 	void removeQuestionView_simpleCase_success() throws Exception {
-		Question expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/delete")
 								.with(user("user").password("password")))
@@ -662,7 +662,7 @@ class QuestionWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -673,7 +673,7 @@ class QuestionWebControllerTest {
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -685,7 +685,7 @@ class QuestionWebControllerTest {
 								.with(csrf().useInvalidToken()))
 				.andExpect(status().isForbidden());
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -701,7 +701,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(questionRepository, times(1)).delete(any(Question.class));
+		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -717,7 +717,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 
-		verify(questionRepository, times(1)).delete(any(Question.class));
+		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -733,7 +733,7 @@ class QuestionWebControllerTest {
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 
-		verify(questionRepository, never()).delete(any(Question.class));
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
