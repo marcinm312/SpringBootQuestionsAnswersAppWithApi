@@ -10,7 +10,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
 import pl.marcinm312.springdatasecurityex.user.exception.TokenNotFoundException;
-import pl.marcinm312.springdatasecurityex.user.model.Token;
+import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.user.model.UserMapper;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
@@ -127,9 +127,9 @@ public class UserManager {
 
 	@Transactional
 	public User activateUser(String tokenValue) {
-		Optional<Token> optionalToken = tokenRepo.findByValue(tokenValue);
+		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isPresent()) {
-			Token token = optionalToken.get();
+			TokenEntity token = optionalToken.get();
 			User user = token.getUser();
 			log.info("Activating user = {}", user);
 			user.setEnabled(true);
@@ -154,7 +154,7 @@ public class UserManager {
 
 	private void sendToken(User user) {
 		String tokenValue = UUID.randomUUID().toString();
-		Token token = new Token();
+		TokenEntity token = new TokenEntity();
 		token.setUser(user);
 		token.setValue(tokenValue);
 		tokenRepo.save(token);

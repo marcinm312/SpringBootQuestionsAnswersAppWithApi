@@ -1,14 +1,13 @@
 package pl.marcinm312.springdatasecurityex.user.repository;
 
-import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
 
-import pl.marcinm312.springdatasecurityex.user.model.Token;
+import java.util.Optional;
 
 @Repository
-public interface TokenRepo extends JpaRepository<Token, Long> {
+public interface TokenRepo extends JpaRepository<TokenEntity, Long> {
 
-	Optional<Token> findByValue(String value);
+	Optional<TokenEntity> findByValue(String value);
 }

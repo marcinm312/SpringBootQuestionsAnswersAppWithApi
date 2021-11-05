@@ -23,7 +23,7 @@ import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCusto
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.user.model.Token;
+import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
 import pl.marcinm312.springdatasecurityex.user.model.User;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -84,7 +84,7 @@ class UserRegistrationWebControllerTest {
 	@BeforeEach
 	void setup() throws MessagingException {
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
-		doNothing().when(tokenRepo).delete(isA(Token.class));
+		doNothing().when(tokenRepo).delete(isA(TokenEntity.class));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -146,7 +146,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", user));
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
 		given(userRepo.save(any(User.class))).willReturn(user);
 
 		mockMvc.perform(
@@ -173,7 +173,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
 		User user = new User(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(Token.class))).willReturn(new Token(null, "123456789", user));
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
 		given(userRepo.save(any(User.class))).willReturn(user);
 
 		mockMvc.perform(
@@ -364,7 +364,7 @@ class UserRegistrationWebControllerTest {
 	@Test
 	@WithAnonymousUser
 	void activateUser_simpleCase_userActivated() throws Exception {
-		Token foundToken = TokenDataProvider.prepareExampleToken();
+		TokenEntity foundToken = TokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
 		given(tokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
 
@@ -390,7 +390,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(view().name("tokenNotFound"))
 				.andExpect(unauthenticated());
 
-		verify(tokenRepo, never()).delete(any(Token.class));
+		verify(tokenRepo, never()).delete(any(TokenEntity.class));
 		verify(userRepo, never()).save(any(User.class));
 	}
 
@@ -401,7 +401,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isBadRequest())
 				.andExpect(unauthenticated());
 
-		verify(tokenRepo, never()).delete(any(Token.class));
+		verify(tokenRepo, never()).delete(any(TokenEntity.class));
 		verify(userRepo, never()).save(any(User.class));
 	}
 }
