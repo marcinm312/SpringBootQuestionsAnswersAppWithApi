@@ -3,8 +3,8 @@ package pl.marcinm312.springdatasecurityex.answer.model;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AnswerMapper {
 
@@ -26,10 +26,6 @@ public class AnswerMapper {
 	}
 
 	public static List<AnswerGet> convertAnswerEntityListToAnswerGetList(List<AnswerEntity> answerList) {
-		List<AnswerGet> newAnswerList = new ArrayList<>();
-		for (AnswerEntity answer : answerList) {
-			newAnswerList.add(convertAnswerEntityToAnswerGet(answer));
-		}
-		return newAnswerList;
+		return answerList.stream().map(AnswerMapper::convertAnswerEntityToAnswerGet).collect(Collectors.toList());
 	}
 }

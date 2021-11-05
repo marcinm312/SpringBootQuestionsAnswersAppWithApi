@@ -3,8 +3,8 @@ package pl.marcinm312.springdatasecurityex.question.model;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuestionMapper {
 
@@ -27,10 +27,6 @@ public class QuestionMapper {
 	}
 
 	public static List<QuestionGet> convertQuestionEntityListToQuestionGetList(List<QuestionEntity> questionList) {
-		List<QuestionGet> newQuestionList = new ArrayList<>();
-		for (QuestionEntity question : questionList) {
-			newQuestionList.add(convertQuestionEntityToQuestionGet(question));
-		}
-		return newQuestionList;
+		return questionList.stream().map(QuestionMapper::convertQuestionEntityToQuestionGet).collect(Collectors.toList());
 	}
 }
