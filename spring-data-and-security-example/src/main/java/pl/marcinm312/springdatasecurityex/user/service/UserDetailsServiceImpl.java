@@ -41,7 +41,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			return user;
 		} else {
 			log.error("User not found!");
-			throw new UsernameNotFoundException("User not found");
+			throw new UsernameNotFoundException("Nie znaleziono użytkownika");
 		}
 	}
 

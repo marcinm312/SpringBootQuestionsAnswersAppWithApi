@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class QuestionManager {
 
-	private static final String QUESTION_NOT_FOUND_WITH_ID = "Question not found with id: ";
+	private static final String QUESTION_NOT_FOUND_WITH_ID = "Nie znaleziono pytania o id: ";
 
 	private final QuestionRepository questionRepository;
 	private final ExcelGenerator excelGenerator;

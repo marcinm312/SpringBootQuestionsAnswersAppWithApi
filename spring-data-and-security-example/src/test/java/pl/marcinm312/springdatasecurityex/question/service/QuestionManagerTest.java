@@ -87,7 +87,7 @@ class QuestionManagerTest {
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ChangeNotAllowedException.class,
 				() -> questionManager.deleteQuestion(1000L, user));
-		Assertions.assertEquals("Change not allowed!", exception.getMessage());
+		Assertions.assertEquals("Brak uprawnień do wykonania operacji!", exception.getMessage());
 	}
 
 	@Test
@@ -96,6 +96,6 @@ class QuestionManagerTest {
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Throwable exception = Assertions.assertThrows(ResourceNotFoundException.class,
 				() -> questionManager.deleteQuestion(2000L, user));
-		Assertions.assertEquals("Question not found with id: 2000", exception.getMessage());
+		Assertions.assertEquals("Nie znaleziono pytania o id: 2000", exception.getMessage());
 	}
 }

@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class ChangeNotAllowedException extends RuntimeException {
 
 	public ChangeNotAllowedException() {
-		super("Change not allowed!");
+		super("Brak uprawnień do wykonania operacji!");
 	}
 }

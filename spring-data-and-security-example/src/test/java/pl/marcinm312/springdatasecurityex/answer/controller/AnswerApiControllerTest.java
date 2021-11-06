@@ -170,7 +170,7 @@ class AnswerApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
@@ -219,11 +219,11 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/api/questions/2000/answers/1000", "Answer not found with questionId: 2000 and answerId: 1000",
+				Arguments.of("/api/questions/2000/answers/1000", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
 						"questionNotExists_notFound"),
-				Arguments.of("/api/questions/1000/answers/2000", "Answer not found with questionId: 1000 and answerId: 2000",
+				Arguments.of("/api/questions/1000/answers/2000", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
 						"answerNotExists_notFound"),
-				Arguments.of("/api/questions/2000/answers/2000", "Answer not found with questionId: 2000 and answerId: 2000",
+				Arguments.of("/api/questions/2000/answers/2000", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -259,7 +259,7 @@ class AnswerApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
@@ -548,7 +548,7 @@ class AnswerApiControllerTest {
 				.andExpect(status().isForbidden())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Change not allowed!";
+		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
@@ -632,7 +632,7 @@ class AnswerApiControllerTest {
 				.andExpect(status().isForbidden())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Change not allowed!";
+		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(answerRepository, never()).delete(any(AnswerEntity.class));
@@ -710,7 +710,7 @@ class AnswerApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResponse().getContentAsString();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 

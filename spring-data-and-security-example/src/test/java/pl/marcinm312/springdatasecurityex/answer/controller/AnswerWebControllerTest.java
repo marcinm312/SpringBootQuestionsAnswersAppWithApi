@@ -191,7 +191,7 @@ class AnswerWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedMessage = "Question not found with id: 2000";
+		String expectedMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedMessage, messageFromModel);
 	}
 
@@ -423,7 +423,7 @@ class AnswerWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
@@ -699,11 +699,11 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfEditNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/edit", "Answer not found with questionId: 2000 and answerId: 1000",
+				Arguments.of("/app/questions/2000/answers/1000/edit", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
 						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/edit", "Answer not found with questionId: 1000 and answerId: 2000",
+				Arguments.of("/app/questions/1000/answers/2000/edit", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
 						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/edit", "Answer not found with questionId: 2000 and answerId: 2000",
+				Arguments.of("/app/questions/2000/answers/2000/edit", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -855,11 +855,11 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfDeleteNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/delete", "Answer not found with questionId: 2000 and answerId: 1000",
+				Arguments.of("/app/questions/2000/answers/1000/delete", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
 						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/delete", "Answer not found with questionId: 1000 and answerId: 2000",
+				Arguments.of("/app/questions/1000/answers/2000/delete", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
 						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/delete", "Answer not found with questionId: 2000 and answerId: 2000",
+				Arguments.of("/app/questions/2000/answers/2000/delete", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}
@@ -921,7 +921,7 @@ class AnswerWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
 				.andReturn().getResponse().getContentAsString());
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 

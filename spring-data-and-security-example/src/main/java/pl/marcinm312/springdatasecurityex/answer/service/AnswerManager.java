@@ -33,8 +33,8 @@ import java.util.List;
 @Service
 public class AnswerManager {
 
-	private static final String QUESTION_NOT_FOUND = "Question not found with id: ";
-	private static final String ANSWER_NOT_FOUND = "Answer not found with questionId: %d and answerId: %d";
+	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
+	private static final String ANSWER_NOT_FOUND = "Nie znaleziono odpowiedzi o id: %d na pytanie o id: %d";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
@@ -62,7 +62,7 @@ public class AnswerManager {
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 		AnswerEntity answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
-				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
+				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 		return AnswerMapper.convertAnswerEntityToAnswerGet(answerFromDB);
 	}
 
@@ -111,7 +111,7 @@ public class AnswerManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
+		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
@@ -125,7 +125,7 @@ public class AnswerManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, questionId, answerId)));
+		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
 	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)

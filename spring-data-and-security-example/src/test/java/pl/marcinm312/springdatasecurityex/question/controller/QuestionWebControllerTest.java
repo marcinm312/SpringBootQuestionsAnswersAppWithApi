@@ -391,7 +391,7 @@ class QuestionWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
@@ -648,7 +648,7 @@ class QuestionWebControllerTest {
 		assert modelAndView != null;
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 

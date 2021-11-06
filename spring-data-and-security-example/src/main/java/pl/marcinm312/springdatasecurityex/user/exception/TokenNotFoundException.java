@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class TokenNotFoundException extends RuntimeException {
 
 	public TokenNotFoundException() {
-		super("Token not found");
+		super("Nie znaleziono tokenu!");
 	}
 }

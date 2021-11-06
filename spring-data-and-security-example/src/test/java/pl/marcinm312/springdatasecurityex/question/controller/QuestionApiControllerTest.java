@@ -244,7 +244,7 @@ class QuestionApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
@@ -532,7 +532,7 @@ class QuestionApiControllerTest {
 				.andExpect(status().isForbidden())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Change not allowed!";
+		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
@@ -553,7 +553,7 @@ class QuestionApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
@@ -611,7 +611,7 @@ class QuestionApiControllerTest {
 				.andExpect(status().isForbidden())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Change not allowed!";
+		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
@@ -628,7 +628,7 @@ class QuestionApiControllerTest {
 				.andExpect(status().isNotFound())
 				.andReturn().getResolvedException()).getMessage();
 
-		String expectedErrorMessage = "Question not found with id: 2000";
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
