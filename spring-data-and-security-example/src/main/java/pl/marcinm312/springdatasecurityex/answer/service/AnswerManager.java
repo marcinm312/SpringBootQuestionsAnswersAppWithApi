@@ -3,27 +3,26 @@ package pl.marcinm312.springdatasecurityex.answer.service;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
-import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
-import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
-import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
-import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.mail.MessagingException;
 import java.io.File;
@@ -130,14 +129,8 @@ public class AnswerManager {
 
 	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
 			throws IOException, DocumentException {
-		QuestionGet question;
-		List<AnswerGet> answersList;
-		try {
-			question = questionManager.getQuestion(questionId);
-			answersList = getAnswersByQuestionId(questionId);
-		} catch (ResourceNotFoundException e) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-		}
+		QuestionGet question = questionManager.getQuestion(questionId);
+		List<AnswerGet> answersList = getAnswersByQuestionId(questionId);
 		File file;
 		if (filetype.equals(FileTypes.EXCEL)) {
 			file = excelGenerator.generateAnswersExcelFile(answersList, question);

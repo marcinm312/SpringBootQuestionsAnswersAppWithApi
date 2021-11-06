@@ -24,33 +24,32 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
+import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
+import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
+import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
+import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
-import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
-import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
-import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
-import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
-import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
-import pl.marcinm312.springdatasecurityex.user.service.UserManager;
-import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
+import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
+import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
+import pl.marcinm312.springdatasecurityex.user.service.UserManager;
+import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
 import javax.mail.MessagingException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -61,7 +60,8 @@ import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
@@ -879,7 +879,7 @@ class AnswerWebControllerTest {
 	void downloadPdf_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/pdf-export")
-								.with(httpBasic("user", "password")))
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -902,7 +902,7 @@ class AnswerWebControllerTest {
 	void downloadExcel_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/excel-export")
-								.with(httpBasic("user", "password")))
+								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
@@ -915,11 +915,10 @@ class AnswerWebControllerTest {
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						get(url).with(httpBasic("user", "password")))
+						get(url).with(user("user").password("password")))
 				.andExpect(status().isNotFound())
-				.andExpect(content().contentType(new MediaType("text", "plain", StandardCharsets.UTF_8)))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getResponse().getContentAsString());
+				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);

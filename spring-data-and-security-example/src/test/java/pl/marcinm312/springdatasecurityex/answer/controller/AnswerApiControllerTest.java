@@ -704,11 +704,11 @@ class AnswerApiControllerTest {
 
 		String token = prepareToken("user", "password");
 
-		String receivedErrorMessage = mockMvc.perform(
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get(url)
 								.header("Authorization", token))
 				.andExpect(status().isNotFound())
-				.andReturn().getResponse().getContentAsString();
+				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
