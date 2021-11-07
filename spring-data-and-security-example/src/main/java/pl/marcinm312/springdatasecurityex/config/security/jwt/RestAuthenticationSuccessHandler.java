@@ -5,7 +5,7 @@ import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import pl.marcinm312.springdatasecurityex.model.user.User;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +28,7 @@ public class RestAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 		String expirationTimeString = environment.getProperty("jwt.expirationTime");
 		if (secret != null && expirationTimeString != null) {
 			long expirationTime = Long.parseLong(expirationTimeString) * 60000;
-			User principal = (User) authentication.getPrincipal();
+			UserEntity principal = (UserEntity) authentication.getPrincipal();
 			String token = JwtCreator.createJWT(principal.getId().toString(), expirationTime, secret.getBytes());
 			response.addHeader("Authorization", "Bearer " + token);
 		}

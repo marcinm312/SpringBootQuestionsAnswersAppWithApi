@@ -9,8 +9,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import pl.marcinm312.springdatasecurityex.model.user.User;
-import pl.marcinm312.springdatasecurityex.service.db.UserDetailsServiceImpl;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
+import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -75,7 +75,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	}
 
 	private UsernamePasswordAuthenticationToken getAndVerifyUserAndReturnAuthenticationToken(String userId, Date issuedAt) {
-		User user;
+		UserEntity user;
 		try {
 			user = userDetailsService.findUserById(Long.valueOf(userId));
 		} catch (Exception exc) {
