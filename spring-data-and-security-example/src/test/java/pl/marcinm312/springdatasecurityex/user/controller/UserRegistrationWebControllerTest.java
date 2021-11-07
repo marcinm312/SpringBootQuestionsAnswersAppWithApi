@@ -367,6 +367,7 @@ class UserRegistrationWebControllerTest {
 		TokenEntity foundToken = TokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
 		given(tokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
+		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
 
 		mockMvc.perform(
 						get("/token?value=" + exampleExistingTokenValue))

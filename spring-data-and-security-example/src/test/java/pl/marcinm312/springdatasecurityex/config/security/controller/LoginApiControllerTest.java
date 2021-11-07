@@ -21,7 +21,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
-import pl.marcinm312.springdatasecurityex.config.security.controller.LoginApiController;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;

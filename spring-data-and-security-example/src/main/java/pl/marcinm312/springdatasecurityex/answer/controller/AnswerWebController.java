@@ -132,20 +132,7 @@ public class AnswerWebController {
 	@GetMapping("/{answerId}/edit")
 	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								 Authentication authentication) {
-		String userName = authentication.getName();
-		AnswerGet answer;
-		QuestionGet question;
-		try {
-			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
-			question = questionManager.getQuestion(questionId);
-		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e);
-		}
-		model.addAttribute(QUESTION, question);
-		model.addAttribute(OLD_ANSWER, answer);
-		model.addAttribute(ANSWER, answer);
-		model.addAttribute(USER_LOGIN, userName);
-		return EDIT_ANSWER_VIEW;
+		return getEditOrRemoveAnswerView(model, questionId, answerId, authentication, true);
 	}
 
 	@PostMapping("/{answerId}/delete")
@@ -165,19 +152,7 @@ public class AnswerWebController {
 	@GetMapping("/{answerId}/delete")
 	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								   Authentication authentication) {
-		String userName = authentication.getName();
-		AnswerGet answer;
-		QuestionGet question;
-		try {
-			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
-			question = questionManager.getQuestion(questionId);
-		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e);
-		}
-		model.addAttribute(ANSWER, answer);
-		model.addAttribute(QUESTION, question);
-		model.addAttribute(USER_LOGIN, userName);
-		return DELETE_ANSWER_VIEW;
+		return getEditOrRemoveAnswerView(model, questionId, answerId, authentication, false);
 	}
 
 	@GetMapping("/pdf-export")
@@ -194,5 +169,27 @@ public class AnswerWebController {
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(MESSAGE, e.getMessage());
 		return RESOURCE_NOT_FOUND_VIEW;
+	}
+
+	private String getEditOrRemoveAnswerView(Model model, Long questionId, Long answerId, Authentication authentication,
+											 boolean isEdit) {
+		String userName = authentication.getName();
+		AnswerGet answer;
+		QuestionGet question;
+		try {
+			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
+		}
+		model.addAttribute(ANSWER, answer);
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
+		if (isEdit) {
+			model.addAttribute(OLD_ANSWER, answer);
+			return EDIT_ANSWER_VIEW;
+		} else {
+			return DELETE_ANSWER_VIEW;
+		}
 	}
 }

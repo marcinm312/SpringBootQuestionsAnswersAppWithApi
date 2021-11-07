@@ -117,16 +117,17 @@ public class UserManager {
 	}
 
 	@Transactional
-	public void deleteUser(Authentication authentication) {
+	public boolean deleteUser(Authentication authentication) {
 		UserEntity user = getUserByAuthentication(authentication);
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
 		log.info("User deleted");
 		sessionUtils.expireUserSessions(user, true, true);
+		return true;
 	}
 
 	@Transactional
-	public UserEntity activateUser(String tokenValue) {
+	public UserGet activateUser(String tokenValue) {
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isPresent()) {
 			TokenEntity token = optionalToken.get();
@@ -136,7 +137,7 @@ public class UserManager {
 			UserEntity savedUser = userRepo.save(user);
 			tokenRepo.delete(token);
 			log.info("User activated");
-			return savedUser;
+			return UserMapper.convertUserToUserGet(savedUser);
 		} else {
 			throw new TokenNotFoundException();
 		}

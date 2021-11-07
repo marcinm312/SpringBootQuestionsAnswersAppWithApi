@@ -107,19 +107,7 @@ public class QuestionWebController {
 
 	@GetMapping("/{questionId}/edit")
 	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
-		String userName = authentication.getName();
-		QuestionGet question;
-		try {
-			question = questionManager.getQuestion(questionId);
-		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
-		}
-		model.addAttribute(OLD_QUESTION, question);
-		model.addAttribute(QUESTION, question);
-		model.addAttribute(USER_LOGIN, userName);
-		return EDIT_QUESTION_VIEW;
+		return getEditOrRemoveQuestionView(model, questionId, authentication, true);
 	}
 
 	@PostMapping("/{questionId}/delete")
@@ -137,18 +125,7 @@ public class QuestionWebController {
 
 	@GetMapping("/{questionId}/delete")
 	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
-		String userName = authentication.getName();
-		QuestionGet question;
-		try {
-			question = questionManager.getQuestion(questionId);
-		} catch (ResourceNotFoundException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			model.addAttribute(MESSAGE, e.getMessage());
-			return RESOURCE_NOT_FOUND_VIEW;
-		}
-		model.addAttribute(QUESTION, question);
-		model.addAttribute(USER_LOGIN, userName);
-		return DELETE_QUESTION_VIEW;
+		return getEditOrRemoveQuestionView(model, questionId, authentication, false);
 	}
 
 	@GetMapping("/pdf-export")
@@ -159,5 +136,30 @@ public class QuestionWebController {
 	@GetMapping("/excel-export")
 	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
 		return questionManager.generateQuestionsFile(FileTypes.EXCEL);
+	}
+
+	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(MESSAGE, e.getMessage());
+		return RESOURCE_NOT_FOUND_VIEW;
+	}
+
+	private String getEditOrRemoveQuestionView(Model model, Long questionId, Authentication authentication,
+											   boolean isEdit) {
+		String userName = authentication.getName();
+		QuestionGet question;
+		try {
+			question = questionManager.getQuestion(questionId);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
+		}
+		model.addAttribute(QUESTION, question);
+		model.addAttribute(USER_LOGIN, userName);
+		if (isEdit) {
+			model.addAttribute(OLD_QUESTION, question);
+			return EDIT_QUESTION_VIEW;
+		} else {
+			return DELETE_QUESTION_VIEW;
+		}
 	}
 }

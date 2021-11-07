@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.shared.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -39,15 +38,5 @@ public class AuditModel implements Serializable {
 
 	public void setUpdatedAt(Date updatedAt) {
 		this.updatedAt = updatedAt;
-	}
-
-	@JsonIgnore
-	public String getUpdatedAtAsString() {
-		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
-	}
-
-	@JsonIgnore
-	public String getCreatedAtAsString() {
-		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
 	}
 }

@@ -14,10 +14,6 @@ public class UserDataUpdate {
 	@Email(message = "Niepoprawny adres email!")
 	private String email;
 
-	public UserDataUpdate() {
-
-	}
-
 	public UserDataUpdate(String username, String email) {
 		this.username = username;
 		this.email = email;

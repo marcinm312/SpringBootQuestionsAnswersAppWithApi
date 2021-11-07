@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.question.model.dto;
 import nl.jqno.equalsverifier.EqualsVerifier;
 import nl.jqno.equalsverifier.Warning;
 import org.junit.jupiter.api.Test;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 
 class QuestionGetTest {
 
