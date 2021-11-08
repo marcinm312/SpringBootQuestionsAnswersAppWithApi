@@ -60,7 +60,7 @@ public class MultiHttpSecurityCustomConfig extends WebSecurityConfigurerAdapter 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http.antMatcher("/api/**")
-					.authorizeRequests().antMatchers("/api/login").permitAll()
+					.authorizeRequests().antMatchers("/api/login", "/api/registration").permitAll()
 					.anyRequest().authenticated()
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
