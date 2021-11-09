@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
@@ -9,9 +10,6 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 @RestController
 @RequestMapping("/api")
@@ -32,11 +30,9 @@ public class UserRegistrationApiController {
 	}
 
 	@PostMapping("/registration")
-	public UserGet createUser(@Validated @RequestBody UserCreate user, BindingResult bindingResult,
-							  HttpServletResponse response) throws IOException {
+	public UserGet createUser(@Validated @RequestBody UserCreate user, BindingResult bindingResult) throws BindException {
 		if (bindingResult.hasErrors()) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, bindingResult.getFieldErrors().toString());
-			return null;
+			throw new BindException(bindingResult);
 		} else {
 			return userManager.addUser(user);
 		}
