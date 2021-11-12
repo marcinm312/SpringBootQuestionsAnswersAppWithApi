@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -74,7 +73,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getLoginPage_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/loginPage"))
@@ -84,7 +82,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_userWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("user").password("password"))
@@ -92,7 +89,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("administrator").password("password"))
@@ -100,7 +96,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_userWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("user").password("invalid"))
@@ -109,7 +104,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_administratorWithBadCredentials_unauthenticated() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("administrator").password("invalid"))
@@ -118,7 +112,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_notExistingUser_unauthenticated() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("lalala").password("password"))
@@ -127,7 +120,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void formLogin_disabledUser_unauthenticated() throws Exception {
 		mockMvc.perform(
 						formLogin("/authenticate").user("user3").password("password"))
@@ -136,7 +128,6 @@ class LoginWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void logout_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						logout())

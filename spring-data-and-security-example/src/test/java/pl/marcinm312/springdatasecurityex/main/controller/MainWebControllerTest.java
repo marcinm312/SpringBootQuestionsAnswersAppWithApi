@@ -11,7 +11,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -60,7 +59,6 @@ class MainWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getMainPage_simpleCase_success() throws Exception {
 		mockMvc.perform(
 				get("/"))
@@ -70,7 +68,6 @@ class MainWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getCss_simpleCase_success() throws Exception {
 		mockMvc.perform(
 				get("/css/style.css"))
@@ -80,7 +77,6 @@ class MainWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getSignInCss_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/css/signin.css"))
@@ -90,7 +86,6 @@ class MainWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getJsScriptInRegistrationForm() throws Exception {
 		mockMvc.perform(
 				get("/js/clearPasswordsFieldsInRegistrationForm.js"))

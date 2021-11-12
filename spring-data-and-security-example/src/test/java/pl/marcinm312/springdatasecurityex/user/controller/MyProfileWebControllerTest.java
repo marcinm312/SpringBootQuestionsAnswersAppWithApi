@@ -12,8 +12,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -98,7 +96,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void myProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile"))
@@ -108,7 +105,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void myProfileView_loggedCommonUser_success() throws Exception {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
@@ -134,7 +130,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void updateMyProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/update"))
@@ -144,7 +139,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfileView_loggedCommonUser_success() throws Exception {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
@@ -165,7 +159,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void updateMyProfile_withAnonymousUser_redirectToLoginPage() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
@@ -184,7 +177,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_withoutCsrfToken_forbidden() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
@@ -201,7 +193,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_withCsrfInvalidToken_forbidden() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
@@ -219,7 +210,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_goodUserWithLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -244,7 +234,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_goodUserWithoutLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
 		UserEntity user = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
@@ -270,7 +259,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_userAlreadyExists_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareExistingUserDataUpdateToRequest();
 		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
@@ -302,7 +290,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_incorrectValues_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareIncorrectUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -334,7 +321,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_userWithTooShortLoginAfterTrim_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -365,7 +351,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyProfile_emptyValues_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -397,7 +382,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void updateMyPasswordView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword"))
@@ -407,7 +391,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPasswordView_loggedCommonUser_success() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword")
@@ -420,7 +403,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void updateMyPassword_withAnonymousUser_redirectToLoginPage() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
@@ -440,7 +422,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_withoutCsrfToken_forbidden() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
@@ -458,7 +439,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_withCsrfInvalidToken_forbidden() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
@@ -477,7 +457,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_simpleCase_success() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
@@ -502,7 +481,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user3")
 	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
 		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
@@ -527,7 +505,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_incorrectCurrentPassword_validationError() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
 
@@ -551,7 +528,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_differentPasswordInConfirmation_validationError() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
 
@@ -575,7 +551,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_theSamePasswordAsPrevious_validationError() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
 
@@ -599,7 +574,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_tooShortPassword_validationError() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
 
@@ -624,7 +598,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void updateMyPassword_emptyFields_validationError() throws Exception {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
 
@@ -651,7 +624,6 @@ class MyProfileWebControllerTest {
 
 
 	@Test
-	@WithAnonymousUser
 	void endOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/endOtherSessions"))
@@ -664,7 +636,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void endOtherSessions_simpleCase_success() throws Exception {
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
@@ -682,7 +653,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void deleteUserConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/delete"))
@@ -692,7 +662,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void deleteUserConfirmation_loggedCommonUser_success() throws Exception {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
@@ -719,7 +688,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void deleteUser_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
@@ -735,7 +703,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void deleteUser_withoutCsrfToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
@@ -749,7 +716,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void deleteUser_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
@@ -764,7 +730,6 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void deleteUser_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
