@@ -31,6 +31,8 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
+import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
 import java.util.Optional;
 
@@ -51,6 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
+		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class MyProfileApiControllerTest {
