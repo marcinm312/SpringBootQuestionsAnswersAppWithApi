@@ -114,7 +114,140 @@ class UserRegistrationApiControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_spacesInPassword_success() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
+		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
+		given(userRepo.save(any(UserEntity.class))).willReturn(user);
+
+		String response = mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		UserGet responseUser = mapper.readValue(response, UserGet.class);
+		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
+
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		mockMvc.perform(
+				post("/api/registration")
+						.contentType(MediaType.APPLICATION_JSON)
+						.characterEncoding("utf-8")
+						.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_userAlreadyExists_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
+		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
+
+		mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_incorrectValues_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareIncorrectUserToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_emptyValues_validationError() throws Exception {
+		UserCreate userToRequest = UserDataProvider.prepareEmptyUserToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+
+		mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
+	}
+
+	@Test
+	void createUser_nullBody_validationError() throws Exception {
+		mockMvc.perform(
+						post("/api/registration")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(""))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 }

@@ -115,6 +115,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -133,6 +134,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -159,6 +161,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -185,6 +188,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -216,6 +220,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -247,6 +252,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -279,6 +285,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -313,6 +320,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -347,6 +355,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
