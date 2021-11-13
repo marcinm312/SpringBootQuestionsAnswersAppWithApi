@@ -294,12 +294,13 @@ class AnswerApiControllerTest {
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void addAnswer_tooShortText_badRequest() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfAddAnswerBadRequests")
+	void addAnswer_incorrectAnswer_badRequest(AnswerCreateUpdate answerToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
 								.header("Authorization", token)
@@ -313,61 +314,17 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void addAnswer_tooShortTextAfterTrim_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
-		mockMvc.perform(
-						post("/api/questions/1000/answers")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void addAnswer_emptyText_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
-		mockMvc.perform(
-						post("/api/questions/1000/answers")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void addAnswer_nullText_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
-		mockMvc.perform(
-						post("/api/questions/1000/answers")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
+	private static Stream<Arguments> examplesOfAddAnswerBadRequests() {
+		return Stream.of(
+				Arguments.of(AnswerDataProvider.prepareAnswerWithTooShortTextToRequest(),
+						"addAnswer_tooShortText_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest(),
+						"addAnswer_tooShortTextAfterTrim_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithEmptyTextToRequest(),
+						"addAnswer_emptyText_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithNullTextToRequest(),
+						"addAnswer_nullText_badRequest")
+		);
 	}
 
 	@Test
@@ -431,12 +388,13 @@ class AnswerApiControllerTest {
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void updateAnswer_tooShortText_badRequest() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfUpdateAnswerBadRequests")
+	void updateAnswer_incorrectAnswer_badRequest(AnswerCreateUpdate answerToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user2", "password");
 
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -450,42 +408,17 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void updateAnswer_emptyText_badRequest() throws Exception {
-
-		String token = prepareToken("user2", "password");
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
-		mockMvc.perform(
-						put("/api/questions/1000/answers/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void updateAnswer_nullText_badRequest() throws Exception {
-
-		String token = prepareToken("user2", "password");
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithNullTextToRequest();
-		mockMvc.perform(
-						put("/api/questions/1000/answers/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
+	private static Stream<Arguments> examplesOfUpdateAnswerBadRequests() {
+		return Stream.of(
+				Arguments.of(AnswerDataProvider.prepareAnswerWithTooShortTextToRequest(),
+						"updateAnswer_tooShortText_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest(),
+						"updateAnswer_tooShortTextAfterTrim_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithEmptyTextToRequest(),
+						"updateAnswer_emptyText_badRequest"),
+				Arguments.of(AnswerDataProvider.prepareAnswerWithNullTextToRequest(),
+						"updateAnswer_nullText_badRequest")
+		);
 	}
 
 	@Test
