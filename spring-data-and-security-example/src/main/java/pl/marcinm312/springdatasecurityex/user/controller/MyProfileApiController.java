@@ -35,7 +35,7 @@ public class MyProfileApiController {
 		return userManager.getUserDTOByAuthentication(authentication);
 	}
 
-	@PutMapping("/update")
+	@PutMapping
 	public UserGet updateMyProfile(@Validated @RequestBody UserDataUpdate user, BindingResult bindingResult,
 								   Authentication authentication) throws BindException {
 		if (bindingResult.hasErrors()) {
