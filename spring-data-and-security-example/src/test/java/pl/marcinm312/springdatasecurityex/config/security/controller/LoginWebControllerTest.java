@@ -3,6 +3,9 @@ package pl.marcinm312.springdatasecurityex.config.security.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,6 +28,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -35,7 +39,6 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(controllers = LoginWebController.class)
@@ -95,36 +98,23 @@ class LoginWebControllerTest {
 				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
 	}
 
-	@Test
-	void formLogin_userWithBadCredentials_unauthenticated() throws Exception {
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfUnauthenticatedErrors")
+	void formLogin_badCredentials_unauthenticated(String username, String password, String nameOfTestCase)
+			throws Exception {
 		mockMvc.perform(
-						formLogin("/authenticate").user("user").password("invalid"))
+						formLogin("/authenticate").user(username).password(password))
 				.andExpect(redirectedUrl("/loginPage?error"))
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	void formLogin_administratorWithBadCredentials_unauthenticated() throws Exception {
-		mockMvc.perform(
-						formLogin("/authenticate").user("administrator").password("invalid"))
-				.andExpect(redirectedUrl("/loginPage?error"))
-				.andExpect(unauthenticated());
-	}
-
-	@Test
-	void formLogin_notExistingUser_unauthenticated() throws Exception {
-		mockMvc.perform(
-						formLogin("/authenticate").user("lalala").password("password"))
-				.andExpect(redirectedUrl("/loginPage?error"))
-				.andExpect(unauthenticated());
-	}
-
-	@Test
-	void formLogin_disabledUser_unauthenticated() throws Exception {
-		mockMvc.perform(
-						formLogin("/authenticate").user("user3").password("password"))
-				.andExpect(redirectedUrl("/loginPage?error"))
-				.andExpect(unauthenticated());
+	private static Stream<Arguments> examplesOfUnauthenticatedErrors() {
+		return Stream.of(
+				Arguments.of("user", "invalid", "formLogin_userWithBadCredentials_unauthenticated"),
+				Arguments.of("administrator", "invalid", "formLogin_administratorWithBadCredentials_unauthenticated"),
+				Arguments.of("lalala", "password", "formLogin_notExistingUser_unauthenticated"),
+				Arguments.of("user3", "password", "formLogin_disabledUser_unauthenticated")
+		);
 	}
 
 	@Test
