@@ -212,9 +212,10 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyProfile_goodUserWithLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
+		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
-		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(commonUser);
+		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
 		mockMvc.perform(
 						post("/app/myProfile/update")
@@ -236,10 +237,10 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyProfile_goodUserWithoutLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
-		UserEntity user = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
+		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
-		given(userRepo.save(any(UserEntity.class))).willReturn(user);
+		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 
 		mockMvc.perform(
 						post("/app/myProfile/update")
@@ -262,7 +263,7 @@ class MyProfileWebControllerTest {
 	void updateMyProfile_userAlreadyExists_validationError() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareExistingUserDataUpdateToRequest();
 		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(userRepo.findByUsername("user2")).willReturn(Optional.of(existingUser));
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/myProfile/update")

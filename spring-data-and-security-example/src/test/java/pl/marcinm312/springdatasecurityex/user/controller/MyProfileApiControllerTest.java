@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -22,25 +25,29 @@ import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCusto
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
+import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -51,7 +58,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MyProfileApiController.class)
 		})
-@MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
+@MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
@@ -62,6 +69,9 @@ class MyProfileApiControllerTest {
 
 	@MockBean
 	private UserRepo userRepo;
+
+	@MockBean
+	private SessionUtils sessionUtils;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -138,6 +148,116 @@ class MyProfileApiControllerTest {
 		Assertions.assertEquals(expectedUser.getRole(), responseUser.getRole());
 		Assertions.assertEquals(expectedUser.getEmail(), responseUser.getEmail());
 		Assertions.assertEquals(expectedUser.isEnabled(), responseUser.isEnabled());
+	}
+
+	@Test
+	void updateMyProfile_withAnonymousUser_unauthorized() throws Exception {
+		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
+		mockMvc.perform(
+				put("/api/myProfile")
+						.contentType(MediaType.APPLICATION_JSON)
+						.characterEncoding("utf-8")
+						.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isUnauthorized());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	@ParameterizedTest(name = "{index} ''{3}''")
+	@MethodSource("examplesOfGoodProfileUpdates")
+	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUser,
+										  int numberOfExpireSessionInvocations, String nameOfTestCase) throws Exception {
+
+		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
+		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
+
+		String token = prepareToken("user", "password");
+
+		String response = mockMvc.perform(
+				put("/api/myProfile")
+						.header("Authorization", token)
+						.contentType(MediaType.APPLICATION_JSON)
+						.characterEncoding("utf-8")
+						.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		UserGet responseUser = mapper.readValue(response, UserGet.class);
+		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
+
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(sessionUtils, times(numberOfExpireSessionInvocations))
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	private static Stream<Arguments> examplesOfGoodProfileUpdates() {
+		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), Optional.empty(), 1,
+						"updateMyProfile_goodUserWithLoginChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateToRequest(), Optional.of(existingUser), 0,
+						"updateMyProfile_goodUserWithoutLoginChange_success")
+		);
+	}
+
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfUpdateMyProfileBadRequests")
+	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, Optional<UserEntity> foundUser,
+										  String nameOfTestCase) throws Exception {
+
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
+
+		String token = prepareToken("user", "password");
+
+		mockMvc.perform(
+						put("/api/myProfile")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	private static Stream<Arguments> examplesOfUpdateMyProfileBadRequests() {
+		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareExistingUserDataUpdateToRequest(), Optional.of(existingUser),
+						"updateMyProfile_userAlreadyExists_validationError"),
+				Arguments.of(UserDataProvider.prepareIncorrectUserDataUpdateToRequest(), Optional.empty(),
+						"updateMyProfile_incorrectValues_validationError"),
+				Arguments.of(UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest(), Optional.empty(),
+						"updateMyProfile_userWithTooShortLoginAfterTrim_validationError"),
+				Arguments.of(UserDataProvider.prepareEmptyUserDataUpdateToRequest(), Optional.empty(),
+						"updateMyProfile_emptyValues_validationError")
+		);
+	}
+
+	@Test
+	void updateMyProfile_nullBody_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		mockMvc.perform(
+						put("/api/myProfile")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(""))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	private String prepareToken(String username, String password) throws Exception {
