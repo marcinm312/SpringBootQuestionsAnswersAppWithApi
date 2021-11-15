@@ -155,6 +155,7 @@
                     <environmentVariables>
                         <LOGGING_FILE_NAME/>
                         <JWT_SECRET>secret</JWT_SECRET>
+                        <JWT_EXP_MINUTES>60</JWT_EXP_MINUTES>
                     </environmentVariables>
                 </configuration>
             </plugin>
