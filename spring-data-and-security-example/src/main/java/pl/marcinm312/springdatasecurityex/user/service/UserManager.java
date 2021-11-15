@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.user.service;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,9 @@ public class UserManager {
 	private final TokenRepo tokenRepo;
 	private final MailService mailService;
 	private final SessionUtils sessionUtils;
+
+	@Value("${activate.user.url}")
+	private String activationUrl;
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -170,14 +174,18 @@ public class UserManager {
 	private String generateEmailContent(UserEntity user, String tokenValue) {
 		return new StringBuilder().append("Witaj ").append(user.getUsername())
 				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
-				.append("<br><a href=\"").append(getApplicationUrl()).append("/token?value=").append(tokenValue)
+				.append("<br><a href=\"").append(getTokenUrl()).append(tokenValue)
 				.append("\">Aktywuj konto</a>").toString();
 	}
 
-	private String getApplicationUrl() {
-		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-		String requestURL = request.getRequestURL().toString();
-		String servletPath = request.getServletPath();
-		return requestURL.replace(servletPath, "");
+	private String getTokenUrl() {
+		if (activationUrl != null && !activationUrl.isEmpty() && activationUrl.startsWith("http")) {
+			return activationUrl;
+		} else {
+			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+			String requestURL = request.getRequestURL().toString();
+			String servletPath = request.getServletPath();
+			return requestURL.replace(servletPath, "") + "/token?value=";
+		}
 	}
 }
