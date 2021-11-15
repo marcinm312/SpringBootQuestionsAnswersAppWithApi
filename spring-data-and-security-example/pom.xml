@@ -157,6 +157,7 @@
                         <JWT_SECRET>secret</JWT_SECRET>
                         <JWT_EXP_MINUTES>60</JWT_EXP_MINUTES>
                         <ACTIVATE_USER_URL/>
+                        <TIME_ZONE>Europe/Warsaw</TIME_ZONE>
                     </environmentVariables>
                 </configuration>
             </plugin>
