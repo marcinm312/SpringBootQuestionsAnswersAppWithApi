@@ -37,6 +37,7 @@ import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
+import pl.marcinm312.springdatasecurityex.user.testdataprovider.TokenDataProvider;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
@@ -48,8 +49,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -179,5 +182,46 @@ class UserRegistrationApiControllerTest {
 		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
+	}
+
+	@Test
+	void activateUser_simpleCase_userActivated() throws Exception {
+		TokenEntity foundToken = TokenDataProvider.prepareExampleToken();
+		String exampleExistingTokenValue = "123456-123-123-1234";
+		given(tokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
+		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
+
+		mockMvc.perform(
+						put("/api/token?value=" + exampleExistingTokenValue))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andExpect(unauthenticated());
+
+		verify(tokenRepo, times(1)).delete(foundToken);
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+	}
+
+	@Test
+	void activateUser_tokenNotFound_userNotActivated() throws Exception {
+		String exampleNotExistingTokenValue = "000-000-000";
+		given(tokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
+
+		mockMvc.perform(
+						put("/api/token?value=" + exampleNotExistingTokenValue))
+				.andExpect(status().isNotFound())
+				.andExpect(unauthenticated());
+
+		verify(tokenRepo, never()).delete(any(TokenEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
+	}
+
+	@Test
+	void activateUser_nullTokenValue_userNotActivated() throws Exception {
+		mockMvc.perform(put("/api/token"))
+				.andExpect(status().isBadRequest())
+				.andExpect(unauthenticated());
+
+		verify(tokenRepo, never()).delete(any(TokenEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 }

@@ -37,4 +37,9 @@ public class UserRegistrationApiController {
 			return userManager.addUser(user);
 		}
 	}
+
+	@PutMapping("/token")
+	public UserGet activateUser(@RequestParam String value) {
+		return userManager.activateUser(value);
+	}
 }
