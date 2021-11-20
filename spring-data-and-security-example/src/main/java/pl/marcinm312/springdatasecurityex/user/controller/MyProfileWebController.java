@@ -106,20 +106,20 @@ public class MyProfileWebController {
 		return UPDATE_MY_PASSWORD_VIEW;
 	}
 
-	@GetMapping("/endOtherSessions")
-	public String endOtherSessions(Authentication authentication) {
-		userManager.endOtherSessions(authentication);
+	@GetMapping("/expireOtherSessions")
+	public String expireOtherSessions(Authentication authentication) {
+		userManager.expireOtherSessions(authentication);
 		return COMMON_REDIRECT;
 	}
 
 	@PostMapping("/delete")
-	public String deleteUser(Authentication authentication) {
+	public String deleteMyProfile(Authentication authentication) {
 		userManager.deleteUser(authentication);
 		return "redirect:../../..";
 	}
 
 	@GetMapping("/delete")
-	public String deleteUserConfirmation(Model model, Authentication authentication) {
+	public String deleteMyProfileConfirmation(Model model, Authentication authentication) {
 		String userName = authentication.getName();
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER_3, userManager.getUserByAuthentication(authentication));

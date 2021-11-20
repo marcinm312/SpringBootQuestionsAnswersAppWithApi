@@ -625,36 +625,38 @@ class MyProfileWebControllerTest {
 
 
 	@Test
-	void endOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
+	void expireOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/endOtherSessions"))
+						get("/app/myProfile/expireOtherSessions"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 
+		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(sessionUtils, never())
 				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
-	void endOtherSessions_simpleCase_success() throws Exception {
+	void expireOtherSessions_simpleCase_success() throws Exception {
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
 		mockMvc.perform(
-						get("/app/myProfile/endOtherSessions")
+						get("/app/myProfile/expireOtherSessions")
 								.with(user("user").password("password")))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:.."))
 				.andExpect(redirectedUrl(".."))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
+		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
-	void deleteUserConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
+	void deleteMyProfileConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/myProfile/delete"))
 				.andExpect(status().is3xxRedirection())
@@ -663,7 +665,7 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	void deleteUserConfirmation_loggedCommonUser_success() throws Exception {
+	void deleteMyProfileConfirmation_loggedCommonUser_success() throws Exception {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
@@ -689,7 +691,7 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	void deleteUser_withAnonymousUser_redirectToLoginPage() throws Exception {
+	void deleteMyProfile_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
 								.with(csrf()))
@@ -704,7 +706,7 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	void deleteUser_withoutCsrfToken_forbidden() throws Exception {
+	void deleteMyProfile_withoutCsrfToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
 								.with(user("user").password("password")))
@@ -717,7 +719,7 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	void deleteUser_withCsrfInvalidToken_forbidden() throws Exception {
+	void deleteMyProfile_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
 								.with(csrf().useInvalidToken())
@@ -731,7 +733,7 @@ class MyProfileWebControllerTest {
 	}
 
 	@Test
-	void deleteUser_simpleCase_success() throws Exception {
+	void deleteMyProfile_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						post("/app/myProfile/delete")
 								.with(user("user").password("password"))

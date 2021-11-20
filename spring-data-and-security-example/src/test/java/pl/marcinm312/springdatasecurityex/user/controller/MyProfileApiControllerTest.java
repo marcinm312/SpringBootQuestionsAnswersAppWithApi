@@ -389,6 +389,73 @@ class MyProfileApiControllerTest {
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
+	@Test
+	void deleteMyProfile_withAnonymousUser_unauthorized() throws Exception {
+
+		mockMvc.perform(
+						delete("/api/myProfile"))
+				.andExpect(status().isUnauthorized());
+
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
+		verify(userRepo, never())
+				.delete(any(UserEntity.class));
+	}
+
+	@Test
+	void deleteMyProfile_simpleCase_success() throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String response = mockMvc.perform(
+				delete("/api/myProfile")
+						.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andReturn().getResponse().getContentAsString();
+
+		Assertions.assertEquals("true", response);
+
+		verify(sessionUtils, times(1))
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
+		verify(userRepo, times(1))
+				.delete(any(UserEntity.class));
+	}
+
+	@Test
+	void expireOtherSessions_withAnonymousUser_unauthorized() throws Exception {
+
+		mockMvc.perform(
+						put("/api/myProfile/expireOtherSessions"))
+				.andExpect(status().isUnauthorized());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+	}
+
+	@Test
+	void expireOtherSessions_simpleCase_success() throws Exception {
+		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
+
+		String response = mockMvc.perform(
+				put("/api/myProfile/expireOtherSessions")
+						.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		UserGet responseUser = mapper.readValue(response, UserGet.class);
+		Assertions.assertEquals(commonUser.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(commonUser.getEmail(), responseUser.getEmail());
+
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+	}
+
 	private String prepareToken(String username, String password) throws Exception {
 		return mockMvc.perform(post("/api/login")
 						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")

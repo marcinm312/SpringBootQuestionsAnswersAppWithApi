@@ -64,4 +64,14 @@ public class MyProfileApiController {
 			return userManager.updateUserPassword(user, authentication);
 		}
 	}
+
+	@DeleteMapping
+	public boolean deleteMyProfile(Authentication authentication) {
+		return userManager.deleteUser(authentication);
+	}
+
+	@PutMapping("/expireOtherSessions")
+	public UserGet expireOtherSessions(Authentication authentication) {
+		return userManager.expireOtherSessions(authentication);
+	}
 }

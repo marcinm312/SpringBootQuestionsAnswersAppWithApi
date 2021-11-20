@@ -148,7 +148,7 @@ public class UserManager {
 	}
 
 	@Transactional
-	public UserGet endOtherSessions(Authentication authentication) {
+	public UserGet expireOtherSessions(Authentication authentication) {
 		log.info("Expiring sessions for user = {}", authentication.getName());
 		UserEntity user = getUserByAuthentication(authentication);
 		user = sessionUtils.expireUserSessions(user, false, false);
