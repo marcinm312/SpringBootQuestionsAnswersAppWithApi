@@ -42,12 +42,12 @@ public class MyProfileWebController {
 	}
 
 	@InitBinder("user")
-	private void initBinder(WebDataBinder binder) {
+	private void initUserDataUpdateBinder(WebDataBinder binder) {
 		binder.addValidators(userDataUpdateValidator);
 	}
 
 	@InitBinder("user2")
-	private void initBinder2(WebDataBinder binder) {
+	private void initUserPasswordUpdateBinder(WebDataBinder binder) {
 		binder.addValidators(userPasswordUpdateValidator);
 	}
 

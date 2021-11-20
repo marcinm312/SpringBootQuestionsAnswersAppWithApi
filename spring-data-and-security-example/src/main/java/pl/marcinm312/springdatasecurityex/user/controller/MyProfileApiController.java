@@ -9,8 +9,10 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
+import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
+import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
 @RestController
 @RequestMapping("/api/myProfile")
@@ -18,16 +20,24 @@ public class MyProfileApiController {
 
 	private final UserManager userManager;
 	private final UserDataUpdateValidator userDataUpdateValidator;
+	private final UserPasswordUpdateValidator userPasswordUpdateValidator;
 
 	@Autowired
-	public MyProfileApiController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator) {
+	public MyProfileApiController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator,
+								  UserPasswordUpdateValidator userPasswordUpdateValidator) {
 		this.userManager = userManager;
 		this.userDataUpdateValidator = userDataUpdateValidator;
+		this.userPasswordUpdateValidator = userPasswordUpdateValidator;
 	}
 
 	@InitBinder("userDataUpdate")
-	private void initBinder(WebDataBinder binder) {
+	private void initUserDataUpdateBinder(WebDataBinder binder) {
 		binder.addValidators(userDataUpdateValidator);
+	}
+
+	@InitBinder("userPasswordUpdate")
+	private void initUserPasswordUpdateBinder(WebDataBinder binder) {
+		binder.addValidators(userPasswordUpdateValidator);
 	}
 
 	@GetMapping
@@ -42,6 +52,16 @@ public class MyProfileApiController {
 			throw new BindException(bindingResult);
 		} else {
 			return userManager.updateUserData(user, authentication);
+		}
+	}
+
+	@PutMapping("/updatePassword")
+	public UserGet updateMyPassword(@Validated @RequestBody UserPasswordUpdate user, BindingResult bindingResult,
+									Authentication authentication) throws BindException {
+		if (bindingResult.hasErrors()) {
+			throw new BindException(bindingResult);
+		} else {
+			return userManager.updateUserPassword(user, authentication);
 		}
 	}
 }

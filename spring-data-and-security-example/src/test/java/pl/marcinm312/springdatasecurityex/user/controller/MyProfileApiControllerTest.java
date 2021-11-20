@@ -30,6 +30,7 @@ import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
+import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
@@ -80,14 +81,19 @@ class MyProfileApiControllerTest {
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity userWithSpacesInPass = UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces();
 
 	@BeforeEach
 	void setup() {
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
+		given(userRepo.findById(userWithSpacesInPass.getId())).willReturn(Optional.of(userWithSpacesInPass));
 
 		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername(userWithSpacesInPass.getUsername())).willReturn(Optional.of(userWithSpacesInPass));
+
+		doNothing().when(userRepo).delete(isA(UserEntity.class));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -249,6 +255,129 @@ class MyProfileApiControllerTest {
 
 		mockMvc.perform(
 						put("/api/myProfile")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(""))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	@Test
+	void updateMyPassword_withAnonymousUser_unauthorized() throws Exception {
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+		mockMvc.perform(
+						put("/api/myProfile/updatePassword")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isUnauthorized());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	@Test
+	void updateMyPassword_simpleCase_success() throws Exception {
+
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
+
+		String response = mockMvc.perform(
+						put("/api/myProfile/updatePassword")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		UserGet responseUser = mapper.readValue(response, UserGet.class);
+		Assertions.assertEquals(commonUser.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(commonUser.getEmail(), responseUser.getEmail());
+
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+	}
+
+	@Test
+	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
+
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
+		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
+
+		String token = prepareToken("user3", " pass ");
+
+		String response = mockMvc.perform(
+						put("/api/myProfile/updatePassword")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		UserGet responseUser = mapper.readValue(response, UserGet.class);
+		Assertions.assertEquals(userWithSpacesInPass.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(userWithSpacesInPass.getEmail(), responseUser.getEmail());
+
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(sessionUtils, times(1))
+				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfUpdateMyPasswordBadRequests")
+	void updateMyPassword_incorrectData_badRequest(UserPasswordUpdate userToRequest, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		mockMvc.perform(
+						put("/api/myProfile/updatePassword")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
+				.andExpect(status().isBadRequest());
+
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never())
+				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	private static Stream<Arguments> examplesOfUpdateMyPasswordBadRequests() {
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest(),
+						"updateMyPassword_incorrectCurrentPassword_validationError"),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest(),
+						"updateMyPassword_differentPasswordInConfirmation_validationError"),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest(),
+						"updateMyPassword_theSamePasswordAsPrevious_validationError"),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest(),
+						"updateMyPassword_tooShortPassword_validationError"),
+				Arguments.of(UserDataProvider.prepareEmptyUserPasswordUpdateToRequest(),
+						"updateMyPassword_emptyFields_validationError")
+		);
+	}
+
+	@Test
+	void updateMyPassword_nullBody_badRequest() throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		mockMvc.perform(
+						put("/api/myProfile/updatePassword")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.characterEncoding("utf-8")
