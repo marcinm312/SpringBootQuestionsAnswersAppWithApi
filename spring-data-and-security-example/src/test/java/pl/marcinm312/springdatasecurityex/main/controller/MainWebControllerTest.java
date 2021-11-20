@@ -3,6 +3,9 @@ package pl.marcinm312.springdatasecurityex.main.controller;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -11,7 +14,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -23,6 +25,8 @@ import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthentication
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
+
+import java.util.stream.Stream;
 
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
@@ -60,7 +64,6 @@ class MainWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void getMainPage_simpleCase_success() throws Exception {
 		mockMvc.perform(
 				get("/"))
@@ -69,33 +72,22 @@ class MainWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	@WithAnonymousUser
-	void getCss_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfStaticResources")
+	void getStaticResource_simpleCase_success(String url, String contentType, String nameOfTestCase) throws Exception {
 		mockMvc.perform(
-				get("/css/style.css"))
+						get(url))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType("text/css"))
+				.andExpect(content().contentType(contentType))
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	@WithAnonymousUser
-	void getSignInCss_simpleCase_success() throws Exception {
-		mockMvc.perform(
-						get("/css/signin.css"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType("text/css"))
-				.andExpect(unauthenticated());
-	}
-
-	@Test
-	@WithAnonymousUser
-	void getJsScriptInRegistrationForm() throws Exception {
-		mockMvc.perform(
-				get("/js/clearPasswordsFieldsInRegistrationForm.js"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType("application/javascript"))
-				.andExpect(unauthenticated());
+	private static Stream<Arguments> examplesOfStaticResources() {
+		return Stream.of(
+			Arguments.of("/css/style.css", "text/css", "getCss_simpleCase_success"),
+			Arguments.of("/css/signin.css", "text/css", "getSignInCss_simpleCase_success"),
+			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "application/javascript",
+					"getJsScriptInRegistrationForm_simpleCase_success")
+		);
 	}
 }

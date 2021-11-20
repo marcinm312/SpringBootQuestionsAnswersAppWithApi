@@ -16,8 +16,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -140,7 +138,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void answersGet_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers"))
@@ -150,7 +147,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void answersGet_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
@@ -177,7 +173,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void answersGet_questionNotExists_notFoundMessage() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/answers")
@@ -196,7 +191,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -214,7 +208,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_withoutCsrfToken_forbidden() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -230,7 +223,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_withCsrfInvalidToken_forbidden() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -247,7 +239,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_simpleCase_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
@@ -270,7 +261,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_tooShortText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
@@ -305,7 +295,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_tooShortTextAfterTrim_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
@@ -340,7 +329,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswer_emptyText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
@@ -375,7 +363,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/new"))
@@ -385,7 +372,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswerView_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
@@ -408,7 +394,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void createAnswerView_questionNotExists_notFoundMessage() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/answers/new")
@@ -428,7 +413,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void editAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -446,7 +430,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswer_withoutCsrfToken_forbidden() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -462,7 +445,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswer_withCsrfInvalidToken_forbidden() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -479,7 +461,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
@@ -502,7 +483,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswer_tooShortText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
@@ -545,7 +525,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswer_emptyText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
@@ -588,7 +567,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void editAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
@@ -611,7 +589,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editAnswer_userUpdatesAnotherUsersAnswer_changeNotAllowed() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
@@ -632,7 +609,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void editAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/1000/edit"))
@@ -642,7 +618,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editAnswerView_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
@@ -676,7 +651,6 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
 	}
 
-	@WithMockUser(username = "user2")
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfEditNotFoundUrlsAndErrorMessages")
 	void editAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
@@ -709,7 +683,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void removeAnswer_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
@@ -722,7 +695,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void removeAnswer_withoutCsrfToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
@@ -733,7 +705,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void removeAnswer_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
@@ -745,7 +716,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void removeAnswer_userDeletesHisOwnAnswer_success() throws Exception {
 		mockMvc.perform(
 			post("/app/questions/1000/answers/1000/delete")
@@ -761,7 +731,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void removeAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
@@ -777,7 +746,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeAnswer_userDeletesAnotherUsersAnswer_changeNotAllowed() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
@@ -793,7 +761,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void removeAnswerView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/1000/delete"))
@@ -803,7 +770,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void removeAnswerView_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerEntity expectedAnswer = AnswerDataProvider.prepareExampleAnswer();
@@ -832,7 +798,6 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedAnswer.getUser().getUsername(), answerFromModel.getUser());
 	}
 
-	@WithMockUser(username = "user2")
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfDeleteNotFoundUrlsAndErrorMessages")
 	void removeAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
@@ -865,7 +830,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/pdf-export"))
@@ -875,7 +839,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/pdf-export")
@@ -888,7 +851,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/excel-export"))
@@ -898,7 +860,6 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/answers/excel-export")
@@ -910,7 +871,6 @@ class AnswerWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
-	@WithMockUser(username = "user")
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url, String nameOfTestCase) throws Exception {

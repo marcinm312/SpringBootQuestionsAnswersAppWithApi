@@ -50,7 +50,7 @@
                 onclick="window.location.href = 'delete/'">Usuń moje konto
         </button>
         <button class="btn btn-primary"
-                onclick="window.location.href = 'endOtherSessions/'">Wyloguj
+                onclick="window.location.href = 'expireOtherSessions/'">Wyloguj
             mnie z innych urządzeń
         </button>
     </div>

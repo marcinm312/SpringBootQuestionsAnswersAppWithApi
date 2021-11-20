@@ -12,7 +12,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -104,7 +103,6 @@ class UserRegistrationWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_withoutCsrfToken_forbidden() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
@@ -117,12 +115,12 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_withInvalidCsrfToken_forbidden() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
@@ -136,12 +134,12 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_simpleCase_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
@@ -163,12 +161,12 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_spacesInPassword_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
 		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
@@ -190,12 +188,12 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
+		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -222,12 +220,12 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_userWithTooShortLoginAfterTrim_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -254,12 +252,12 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_userAlreadyExists_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
@@ -287,12 +285,12 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_incorrectValues_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareIncorrectUserToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -322,12 +320,12 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createUser_emptyValues_validationError() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareEmptyUserToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
@@ -357,12 +355,12 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(tokenRepo, never()).save(any(TokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
-	@WithAnonymousUser
 	void activateUser_simpleCase_userActivated() throws Exception {
 		TokenEntity foundToken = TokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
@@ -380,7 +378,6 @@ class UserRegistrationWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void activateUser_tokenNotFound_userNotActivated() throws Exception {
 		String exampleNotExistingTokenValue = "000-000-000";
 		given(tokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
@@ -396,7 +393,6 @@ class UserRegistrationWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void activateUser_nullTokenValue_userNotActivated() throws Exception {
 		mockMvc.perform(get("/token"))
 				.andExpect(status().isBadRequest())

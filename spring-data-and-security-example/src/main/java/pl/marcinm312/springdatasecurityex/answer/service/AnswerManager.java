@@ -54,9 +54,12 @@ public class AnswerManager {
 	}
 
 	public List<AnswerGet> getAnswersByQuestionId(Long questionId) {
-		questionManager.getQuestion(questionId);
-		List<AnswerEntity> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
-		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
+		if (questionManager.checkIfQuestionExists(questionId)) {
+			List<AnswerEntity> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
+			return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
+		} else {
+			throw new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId);
+		}
 	}
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {

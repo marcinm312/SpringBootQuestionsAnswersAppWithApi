@@ -27,7 +27,7 @@ import java.util.Optional;
 @Service
 public class QuestionManager {
 
-	private static final String QUESTION_NOT_FOUND_WITH_ID = "Nie znaleziono pytania o id: ";
+	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
 
 	private final QuestionRepository questionRepository;
 	private final ExcelGenerator excelGenerator;
@@ -54,8 +54,12 @@ public class QuestionManager {
 
 	public QuestionGet getQuestion(Long questionId) {
 		QuestionEntity questionFromDB = questionRepository.findById(questionId)
-				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
+	}
+
+	public boolean checkIfQuestionExists(Long questionId) {
+		return questionRepository.existsById(questionId);
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {
@@ -79,7 +83,7 @@ public class QuestionManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
 	public boolean deleteQuestion(Long questionId, UserEntity user) {
@@ -93,7 +97,7 @@ public class QuestionManager {
 			} else {
 				throw new ChangeNotAllowedException();
 			}
-		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND_WITH_ID + questionId));
+		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
 	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype) throws IOException, DocumentException {

@@ -13,8 +13,6 @@ import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -111,7 +109,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void questionsGet_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions"))
@@ -121,7 +118,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void questionsGet_simpleCase_success() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions")
@@ -141,7 +137,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/new"))
@@ -151,7 +146,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestionView_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/new")
@@ -164,7 +158,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void createQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -181,7 +174,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_withoutCsrfToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -196,7 +188,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -212,7 +203,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_simpleCase_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -234,7 +224,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -256,7 +245,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitle_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
@@ -283,7 +271,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_tooShortTitleAfterTrim_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
 
@@ -310,7 +297,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
@@ -337,7 +323,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void editQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/edit"))
@@ -347,7 +332,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestionView_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
@@ -376,7 +360,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestionView_questionNotExists_notFoundMessage() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/edit")
@@ -396,7 +379,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void editQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -413,7 +395,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_withoutCsrfToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -428,7 +409,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
@@ -444,7 +424,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -466,7 +445,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -488,7 +466,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_tooShortTitle_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
@@ -522,7 +499,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void editQuestion_emptyTitle_validationErrors() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
@@ -556,7 +532,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -578,7 +553,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void editQuestion_userUpdatesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -600,7 +574,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void removeQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/1000/delete"))
@@ -610,7 +583,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeQuestionView_simpleCase_success() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		ModelAndView modelAndView = mockMvc.perform(
@@ -633,7 +605,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeQuestionView_questionNotExists_notFoundMessage() throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/delete")
@@ -653,7 +624,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void removeQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -666,7 +636,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeQuestion_withoutCsrfToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -677,7 +646,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -689,7 +657,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void removeQuestion_userDeletesHisOwnQuestion_success() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -705,7 +672,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "administrator", roles = {"ADMIN"})
 	void removeQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -721,7 +687,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user2")
 	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
@@ -737,7 +702,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/pdf-export"))
@@ -747,7 +711,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadPdf_simpleCase_success() throws Exception {
 
 		mockMvc.perform(
@@ -761,7 +724,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithAnonymousUser
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/excel-export"))
@@ -771,7 +733,6 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
-	@WithMockUser(username = "user")
 	void downloadExcel_simpleCase_success() throws Exception {
 		mockMvc.perform(
 						get("/app/questions/excel-export")

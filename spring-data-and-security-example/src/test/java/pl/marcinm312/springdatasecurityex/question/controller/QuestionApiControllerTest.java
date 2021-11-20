@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,25 +27,26 @@ import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig
 import pl.marcinm312.springdatasecurityex.config.security.jwt.JwtCreator;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
-import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
-import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
-import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
+import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
+import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
+import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
+import pl.marcinm312.springdatasecurityex.user.service.UserManager;
+import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -260,105 +264,68 @@ class QuestionApiControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfCreateQuestionGoodRequests")
+	void createQuestion_goodRequestBody_success(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
+								.content(mapper.writeValueAsString(questionToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
+		Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
 
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_nullDescription_success() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
-		String response = mockMvc.perform(
-						post("/api/questions")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
-
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfCreateQuestionGoodRequests() {
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(),
+						"createQuestion_simpleCase_success"),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(),
+						"createQuestion_nullDescription_success")
+		);
 	}
 
-	@Test
-	void createQuestion_tooShortTitle_badRequest() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfCreateQuestionBadRequests")
+	void createQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
+								.content(mapper.writeValueAsString(questionToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_tooShortTitleAfterTrim_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
-		mockMvc.perform(
-						post("/api/questions")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
-	}
-
-	@Test
-	void createQuestion_nullTitle_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithNullTitleToRequest();
-		mockMvc.perform(
-						post("/api/questions")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfCreateQuestionBadRequests() {
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest(),
+						"createQuestion_tooShortTitle_badRequest"),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest(),
+						"createQuestion_tooShortTitleAfterTrim_badRequest"),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest(),
+						"createQuestion_nullTitle_badRequest")
+		);
 	}
 
 	@Test
@@ -390,88 +357,68 @@ class QuestionApiControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void updateQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfUpdateAnswerGoodRequests")
+	void updateQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
+								.content(mapper.writeValueAsString(questionToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
+		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
+		Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
 
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void updateQuestion_nullDescription_success() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
-		String response = mockMvc.perform(
-						put("/api/questions/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
-
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(),
+						"updateQuestion_userUpdatesHisOwnQuestion_success"),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(),
+						"updateQuestion_nullDescription_success")
+		);
 	}
 
-	@Test
-	void updateQuestion_tooShortTitle_badRequest() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfUpdateQuestionBadRequests")
+	void updateQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
+			throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
+								.content(mapper.writeValueAsString(questionToRequest))
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void updateQuestion_nullTitle_badRequest() throws Exception {
-
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareQuestionWithNullTitleToRequest();
-		mockMvc.perform(
-						put("/api/questions/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isBadRequest());
-
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfUpdateQuestionBadRequests() {
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest(),
+						"updateQuestion_tooShortTitle_badRequest"),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest(),
+						"updateQuestion_tooShortTitleAfterTrim_badRequest"),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest(),
+						"updateQuestion_nullTitle_badRequest")
+		);
 	}
 
 	@Test
