@@ -55,7 +55,12 @@ div.toolbar {
     margin-bottom: 10px;
 }
 
+.fixed-table-toolbar .bs-bars {
+    width: 100%;
+}
+
 #toolbar {
+    width: 100%;
     margin-right: 4px;
 }
 
@@ -83,6 +88,11 @@ div.formbuttons {
 
 span.form-text {
     color: red;
+}
+
+#toolbar form {
+    display: inline-block;
+    float: right;
 }
 
 @media (max-width: 414px) {

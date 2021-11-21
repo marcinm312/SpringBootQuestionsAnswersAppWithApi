@@ -10,13 +10,13 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
-import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
@@ -50,10 +50,10 @@ public class QuestionWebController {
 	}
 
 	@GetMapping
-	public String questionsGet(Model model, Authentication authentication) {
+	public String questionsGet(Model model, Authentication authentication, @RequestParam(required = false) String keyword) {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		List<QuestionGet> questionList = questionManager.getQuestions();
+		List<QuestionGet> questionList = questionManager.searchQuestions(keyword);
 		log.info("questionList.size()={}", questionList.size());
 		model.addAttribute(QUESTION_LIST, questionList);
 		model.addAttribute(USER_LOGIN, userName);

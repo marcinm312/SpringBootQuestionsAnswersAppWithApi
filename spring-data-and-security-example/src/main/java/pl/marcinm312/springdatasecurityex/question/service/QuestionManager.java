@@ -48,6 +48,15 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
+	public List<QuestionGet> searchQuestions(String keyword) {
+		if (keyword == null || keyword.isEmpty()) {
+			return getQuestions();
+		} else {
+			List<QuestionEntity> questionsFromDB = questionRepository.search(keyword);
+			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
+		}
+	}
+
 	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
 		return questionRepository.findById(questionId);
 	}

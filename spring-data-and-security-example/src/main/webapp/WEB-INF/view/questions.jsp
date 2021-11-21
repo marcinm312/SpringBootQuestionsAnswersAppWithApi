@@ -55,6 +55,9 @@
                 onclick="window.location.href = 'excel-export/'">Eksportuj
             do Excel
         </button>
+        <form:form action="" method="GET" class="float-right">
+            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" />
+        </form:form>
     </div>
     <c:choose>
         <c:when test="${empty questionList}">
@@ -62,10 +65,8 @@
         </c:when>
         <c:otherwise>
             <table data-toggle="table" data-page-size="5" data-pagination="true"
-                   data-toolbar="#toolbar" data-page-list="[5,10,20,50]"
-                   data-search="true" data-show-columns="true" data-locale="pl-PL"
-                   data-show-columns-toggle-all="true"
-                   data-show-pagination-switch="true" aria-describedby="header">
+                   data-toolbar="#toolbar" data-page-list="[5,10,20,50]" data-locale="pl-PL"
+                   aria-describedby="header">
 
                 <thead class="thead-dark">
                 <tr>
