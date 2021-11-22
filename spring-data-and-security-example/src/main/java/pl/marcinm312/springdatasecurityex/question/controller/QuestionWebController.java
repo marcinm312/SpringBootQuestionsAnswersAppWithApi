@@ -30,6 +30,7 @@ public class QuestionWebController {
 	private static final String USER_LOGIN = "userLogin";
 	private static final String QUESTIONS_VIEW = "questions";
 	private static final String QUESTION = "question";
+	private static final String KEYWORD = "keyword";
 	private static final String CREATE_QUESTION_VIEW = "createQuestion";
 	private static final String OLD_QUESTION = "oldQuestion";
 	private static final String EDIT_QUESTION_VIEW = "editQuestion";
@@ -57,6 +58,7 @@ public class QuestionWebController {
 		log.info("questionList.size()={}", questionList.size());
 		model.addAttribute(QUESTION_LIST, questionList);
 		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(KEYWORD, keyword);
 		return QUESTIONS_VIEW;
 	}
 

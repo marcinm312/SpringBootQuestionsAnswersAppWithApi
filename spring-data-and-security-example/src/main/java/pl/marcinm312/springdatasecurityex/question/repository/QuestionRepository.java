@@ -15,7 +15,7 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
 	List<QuestionEntity> findAllByOrderByIdDesc();
 
 	@Query("SELECT q FROM QuestionEntity q LEFT JOIN FETCH q.user " +
-			"WHERE CONCAT(q.id, ' ', q.title, ' ', q.description, ' ', q.createdAt, ' ', q.updatedAt, ' ', q.user.username) LIKE %:keyword% " +
+			"WHERE LOWER(CONCAT(q.id, ' ', q.title, ' ', q.description, ' ', q.createdAt, ' ', q.updatedAt, ' ', q.user.username)) LIKE %:keyword% " +
 			"ORDER BY q.id DESC")
 	List<QuestionEntity> search(@Param("keyword") String keyword);
 }

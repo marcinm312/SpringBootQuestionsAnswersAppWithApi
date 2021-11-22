@@ -52,7 +52,7 @@ public class QuestionManager {
 		if (keyword == null || keyword.isEmpty()) {
 			return getQuestions();
 		} else {
-			List<QuestionEntity> questionsFromDB = questionRepository.search(keyword);
+			List<QuestionEntity> questionsFromDB = questionRepository.search(keyword.toLowerCase());
 			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 		}
 	}

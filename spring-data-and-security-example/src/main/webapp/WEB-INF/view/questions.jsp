@@ -56,7 +56,7 @@
             do Excel
         </button>
         <form:form action="" method="GET" class="float-right">
-            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" />
+            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${keyword}" />
         </form:form>
     </div>
     <c:choose>
