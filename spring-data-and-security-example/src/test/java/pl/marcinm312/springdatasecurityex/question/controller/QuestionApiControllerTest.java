@@ -17,6 +17,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -96,8 +99,8 @@ class QuestionApiControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		given(questionRepository.findAllByOrderByIdDesc())
-				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.getAllQuestions(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));

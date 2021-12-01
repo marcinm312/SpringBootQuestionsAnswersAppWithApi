@@ -11,6 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
@@ -39,8 +42,8 @@ class QuestionManagerTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		given(questionRepository.findAllByOrderByIdDesc())
-				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.getAllQuestions(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 	}
 

@@ -3,21 +3,24 @@ package pl.marcinm312.springdatasecurityex.question.service;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
-import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
-import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
-import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,16 +47,24 @@ public class QuestionManager {
 	}
 
 	public List<QuestionGet> getQuestions() {
-		List<QuestionEntity> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
-		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
+		return getQuestions(0, (int) questionRepository.count(), "id", Sort.Direction.DESC);
+	}
+
+	public List<QuestionGet> getQuestions(int pageNo, int pageSize, String sortField, Sort.Direction sortDirection) {
+		Page<QuestionEntity> questionsFromDB = questionRepository.getAllQuestions(PageRequest.of(pageNo, pageSize, Sort.by(sortDirection, sortField)));
+		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB.getContent());
 	}
 
 	public List<QuestionGet> searchQuestions(String keyword) {
+		return searchQuestions(keyword, 0, (int) questionRepository.count(), "id", Sort.Direction.DESC);
+	}
+
+	public List<QuestionGet> searchQuestions(String keyword, int pageNo, int pageSize, String sortField, Sort.Direction sortDirection) {
 		if (keyword == null || keyword.isEmpty()) {
 			return getQuestions();
 		} else {
-			List<QuestionEntity> questionsFromDB = questionRepository.search(keyword.toLowerCase());
-			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
+			Page<QuestionEntity> questionsFromDB = questionRepository.searchQuestions(keyword.toLowerCase(), PageRequest.of(pageNo, pageSize, Sort.by(sortDirection, sortField)));
+			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB.getContent());
 		}
 	}
 
