@@ -11,19 +11,20 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
-import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
+import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -42,15 +43,16 @@ class QuestionManagerTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		given(questionRepository.getAllQuestions(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"))))
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 	}
 
 	@Test
 	void getQuestions_simpleCase_success() {
-		List<QuestionGet> questionsResultList = questionManager.getQuestions();
-		MatcherAssert.assertThat(questionsResultList, Matchers.hasSize(3));
+		Filter filter = new Filter(null, 0, 5, "id", Sort.Direction.DESC);
+		Page<QuestionEntity> questionsResultList = questionManager.searchPaginatedQuestions(filter);
+		MatcherAssert.assertThat(questionsResultList.getContent(), Matchers.hasSize(3));
 	}
 
 	@Test

@@ -3,6 +3,8 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,12 +12,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
+import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -26,11 +31,9 @@ import java.util.List;
 @RequestMapping("/app/questions")
 public class QuestionWebController {
 
-	private static final String QUESTION_LIST = "questionList";
 	private static final String USER_LOGIN = "userLogin";
 	private static final String QUESTIONS_VIEW = "questions";
 	private static final String QUESTION = "question";
-	private static final String KEYWORD = "keyword";
 	private static final String CREATE_QUESTION_VIEW = "createQuestion";
 	private static final String OLD_QUESTION = "oldQuestion";
 	private static final String EDIT_QUESTION_VIEW = "editQuestion";
@@ -51,14 +54,29 @@ public class QuestionWebController {
 	}
 
 	@GetMapping
-	public String questionsGet(Model model, Authentication authentication, @RequestParam(required = false) String keyword) {
+	public String questionsGet(Model model, Authentication authentication,
+							   @RequestParam(required = false) String keyword,
+							   @RequestParam(required = false) Integer pageNo,
+							   @RequestParam(required = false) Integer pageSize,
+							   @RequestParam(required = false) String sortField,
+							   @RequestParam(required = false) Sort.Direction sortDirection) {
+
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		List<QuestionGet> questionList = questionManager.searchQuestions(keyword);
-		log.info("questionList.size()={}", questionList.size());
-		model.addAttribute(QUESTION_LIST, questionList);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Page<QuestionEntity> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
+		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+				paginatedQuestions.getContent());
+		String sortDir = filter.getSortDirection().name().toLowerCase();
+
+		model.addAttribute("questionList", questionList);
+		model.addAttribute("filter", filter);
+		model.addAttribute("sortDir", sortDir);
+		model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
+		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(KEYWORD, keyword);
+
 		return QUESTIONS_VIEW;
 	}
 

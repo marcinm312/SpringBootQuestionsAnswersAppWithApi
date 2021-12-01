@@ -2,12 +2,17 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
+import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
@@ -30,8 +35,15 @@ public class QuestionApiController {
 	}
 
 	@GetMapping
-	public List<QuestionGet> getQuestions() {
-		return questionManager.getQuestions();
+	public List<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,
+										  @RequestParam(required = false) Integer pageNo,
+										  @RequestParam(required = false) Integer pageSize,
+										  @RequestParam(required = false) String sortField,
+										  @RequestParam(required = false) Sort.Direction sortDirection) {
+
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Page<QuestionEntity> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
+		return QuestionMapper.convertQuestionEntityListToQuestionGetList(paginatedQuestions.getContent());
 	}
 
 	@GetMapping("/{questionId}")
