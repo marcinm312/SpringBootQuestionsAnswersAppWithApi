@@ -67,12 +67,12 @@ public class QuestionWebController {
 		Page<QuestionEntity> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
 				paginatedQuestions.getContent());
-		String sortDir = filter.getSortDirection().name().toLowerCase();
+		String sortDir = filter.getSortDirection().name().toUpperCase();
 
 		model.addAttribute("questionList", questionList);
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", sortDir.equals("asc") ? "desc" : "asc");
+		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
 		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
 		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
 		model.addAttribute(USER_LOGIN, userName);

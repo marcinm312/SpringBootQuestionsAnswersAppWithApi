@@ -68,12 +68,56 @@
 
                 <thead class="thead-dark">
                 <tr>
-                    <th scope="col">Id <i class="fa fa-fw fa-sort"></i></th>
-                    <th scope="col">Tytuł <i class="fa fa-fw fa-sort"></i></th>
-                    <th scope="col">Opis <i class="fa fa-fw fa-sort"></i></th>
-                    <th scope="col">Data utworzenia <i class="fa fa-fw fa-sort"></i></th>
-                    <th scope="col">Data modyfikacji <i class="fa fa-fw fa-sort"></i></th>
-                    <th scope="col">Użytkownik <i class="fa fa-fw fa-sort"></i></th>
+
+                    <c:url var="sortLinkId" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="id" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <c:url var="sortLinkTitle" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="title" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <c:url var="sortLinkDescription" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="description" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <c:url var="sortLinkCreatedAt" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="createdAt" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <c:url var="sortLinkUpdatedAt" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="updatedAt" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <c:url var="sortLinkUser" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="${filter.pageNo}" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="user.username" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+
+                    <th scope="col"><a href="${sortLinkId}">Id <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a href="${sortLinkTitle}">Tytuł <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a href="${sortLinkDescription}">Opis <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a href="${sortLinkCreatedAt}">Data utworzenia <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a href="${sortLinkUpdatedAt}">Data modyfikacji <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a href="${sortLinkUser}">Użytkownik <i class="fa fa-fw fa-sort"></i></a></th>
                     <th scope="col">Opcje</th>
                 </tr>
                 </thead>
