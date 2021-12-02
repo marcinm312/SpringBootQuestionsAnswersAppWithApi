@@ -56,7 +56,7 @@
             do Excel
         </button>
         <form:form action="" method="GET" class="float-right">
-            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${keyword}" />
+            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
         </form:form>
     </div>
     <c:choose>
@@ -64,18 +64,16 @@
             <p class="empty">Brak pytań</p>
         </c:when>
         <c:otherwise>
-            <table data-toggle="table" data-page-size="5" data-pagination="true"
-                   data-toolbar="#toolbar" data-page-list="[5,10,20,50]" data-locale="pl-PL"
-                   aria-describedby="header">
+            <table data-toggle="table" data-toolbar="#toolbar" aria-describedby="header">
 
                 <thead class="thead-dark">
                 <tr>
-                    <th scope="col" data-sortable="true">Id</th>
-                    <th scope="col" data-sortable="true">Tytuł</th>
-                    <th scope="col" data-sortable="true">Opis</th>
-                    <th scope="col" data-sortable="true">Data utworzenia</th>
-                    <th scope="col" data-sortable="true">Data modyfikacji</th>
-                    <th scope="col" data-sortable="true">Użytkownik</th>
+                    <th scope="col">Id <i class="fa fa-fw fa-sort"></i></th>
+                    <th scope="col">Tytuł <i class="fa fa-fw fa-sort"></i></th>
+                    <th scope="col">Opis <i class="fa fa-fw fa-sort"></i></th>
+                    <th scope="col">Data utworzenia <i class="fa fa-fw fa-sort"></i></th>
+                    <th scope="col">Data modyfikacji <i class="fa fa-fw fa-sort"></i></th>
+                    <th scope="col">Użytkownik <i class="fa fa-fw fa-sort"></i></th>
                     <th scope="col">Opcje</th>
                 </tr>
                 </thead>
@@ -110,8 +108,7 @@
     </c:choose>
 </div>
 
-<script
-        src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
         integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
         crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"
@@ -123,8 +120,5 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.3/bootstrap-table.min.js"
         integrity="sha512-Wm00XTqNHcGqQgiDlZVpK4QIhO2MmMJfzNJfh8wwbBC9BR0FtdJwPqDhEYy8jCfKEhWWZe/LDB6FwY7YE9QhMg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.3/locale/bootstrap-table-pl-PL.min.js"
-        integrity="sha512-ep85KahosNho/4kAbIhQHli2VnBHGRZJpv3GgXiDjzOhY0VW5pdKQ0sfG+OzYjN5Aqu7sTTW6V0Q+8y5i2/VEA=="
-        crossorigin="anonymous"></script>
 </body>
 </html>

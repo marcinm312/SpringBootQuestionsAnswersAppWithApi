@@ -19,6 +19,9 @@ public class Filter {
 	}
 
 	public String getKeyword() {
+		if (keyword == null) {
+			return "";
+		}
 		return keyword.toLowerCase();
 	}
 
