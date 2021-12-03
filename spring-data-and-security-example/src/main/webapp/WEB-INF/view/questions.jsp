@@ -148,6 +148,15 @@
                 </tbody>
             </table>
 
+            <div class = "row col-sm-10">
+                <div class = "col-sm-2">
+                    Liczba rekordów: ${totalItems}. Strona ${currentPage} z ${totalPages}
+                </div>
+                <div class = "col-sm-1">
+
+                </div>
+            </div>
+
         </c:otherwise>
     </c:choose>
 </div>

@@ -75,6 +75,7 @@ public class QuestionWebController {
 		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
 		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
 		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
+		model.addAttribute("currentPage", filter.getPageNo() + 1);
 		model.addAttribute(USER_LOGIN, userName);
 
 		return QUESTIONS_VIEW;
