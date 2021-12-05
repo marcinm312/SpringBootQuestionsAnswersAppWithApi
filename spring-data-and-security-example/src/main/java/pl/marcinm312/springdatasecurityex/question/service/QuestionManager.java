@@ -53,7 +53,7 @@ public class QuestionManager {
 	}
 
 	private Page<QuestionEntity> getPaginatedQuestions(Filter filter) {
-		return questionRepository.getPaginatedQuestions(PageRequest.of(filter.getPageNo(), filter.getPageSize(),
+		return questionRepository.getPaginatedQuestions(PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
 				Sort.by(filter.getSortDirection(), filter.getSortField())));
 	}
 

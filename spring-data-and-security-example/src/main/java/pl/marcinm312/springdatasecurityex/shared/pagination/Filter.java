@@ -26,8 +26,8 @@ public class Filter {
 	}
 
 	public Integer getPageNo() {
-		if (pageNo == null || pageNo < 0) {
-			return 0;
+		if (pageNo == null || pageNo < 1) {
+			return 1;
 		}
 		return pageNo;
 	}

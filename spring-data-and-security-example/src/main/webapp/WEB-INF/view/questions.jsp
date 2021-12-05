@@ -149,9 +149,9 @@
                 </tbody>
             </table>
 
-            <div class="fixed-table-pagination">
+            <div class="fixed-table-pagination clearfix">
                 <div class="float-left pagination-detail">
-                    <span class="pagination-info">Liczba rekordów: ${totalItems}. Strona ${currentPage} z ${totalPages}</span>
+                    <span class="pagination-info">Liczba rekordów: ${totalItems}. Strona ${filter.pageNo} z ${totalPages}</span>
                     <div class="page-list">
                         <div class="btn-group dropdown dropup">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -176,7 +176,7 @@
                         <c:param name="sortField" value="${filter.sortField}" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <paginator:display maxLinks="10" currPage="${currentPage}" totalPages="${totalPages}" uri="${searchUri}" />
+                    <paginator:display maxLinks="10" currPage="${filter.pageNo}" totalPages="${totalPages}" uri="${searchUri}" />
                 </div>
             </div>
 
