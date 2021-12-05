@@ -3,6 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="paginator" uri="/WEB-INF/tlds/Paginator" %>
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -148,12 +149,34 @@
                 </tbody>
             </table>
 
-            <div class = "row col-sm-10">
-                <div class = "col-sm-2">
-                    Liczba rekordów: ${totalItems}. Strona ${currentPage} z ${totalPages}
+            <div class="fixed-table-pagination">
+                <div class="float-left pagination-detail">
+                    <span class="pagination-info">Liczba rekordów: ${totalItems}. Strona ${currentPage} z ${totalPages}</span>
+                    <div class="page-list">
+                        <div class="btn-group dropdown dropup">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="page-size">5</span>
+                                <span class="caret"/>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a class="dropdown-item active" href="#">5</a>
+                                <a class="dropdown-item " href="#">10</a>
+                                <a class="dropdown-item " href="#">20</a>
+                                <a class="dropdown-item " href="#">50</a>
+                            </div>
+                        </div>
+                        rekordów na stronę
+                    </div>
                 </div>
-                <div class = "col-sm-1">
-
+                <div class="float-right pagination">
+                    <c:url var="searchUri" value="/app/questions">
+                        <c:param name="keyword" value="${filter.keyword}" />
+                        <c:param name="pageNo" value="xxx" />
+                        <c:param name="pageSize" value="${filter.pageSize}" />
+                        <c:param name="sortField" value="${filter.sortField}" />
+                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                    </c:url>
+                    <paginator:display maxLinks="10" currPage="${currentPage}" totalPages="${totalPages}" uri="${searchUri}" />
                 </div>
             </div>
 

@@ -21,7 +21,7 @@ import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
+import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 

@@ -12,7 +12,7 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
+import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;

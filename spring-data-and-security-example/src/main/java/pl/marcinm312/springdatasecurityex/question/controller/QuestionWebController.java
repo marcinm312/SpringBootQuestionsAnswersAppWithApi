@@ -20,7 +20,7 @@ import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
+import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 

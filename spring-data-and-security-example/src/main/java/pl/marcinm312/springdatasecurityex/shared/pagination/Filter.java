@@ -1,4 +1,4 @@
-package pl.marcinm312.springdatasecurityex.shared.pojo;
+package pl.marcinm312.springdatasecurityex.shared.pagination;
 
 import org.springframework.data.domain.Sort;
 

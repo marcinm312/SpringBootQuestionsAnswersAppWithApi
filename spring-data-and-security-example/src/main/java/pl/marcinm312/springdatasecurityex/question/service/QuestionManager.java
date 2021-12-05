@@ -20,7 +20,7 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
-import pl.marcinm312.springdatasecurityex.shared.pojo.Filter;
+import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.io.File;
