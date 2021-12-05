@@ -149,7 +149,7 @@
                 </tbody>
             </table>
 
-            <div class="fixed-table-pagination clearfix">
+            <div class="fixed-table-pagination paginationtoolbar clearfix">
                 <div class="float-left pagination-detail">
                     <span class="pagination-info">Liczba rekordów: ${totalItems}. Strona ${filter.pageNo} z ${totalPages}</span>
                     <div class="page-list">

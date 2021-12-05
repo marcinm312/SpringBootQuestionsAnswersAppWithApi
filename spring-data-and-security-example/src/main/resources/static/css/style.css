@@ -95,6 +95,19 @@ span.form-text {
     float: right;
 }
 
+.paginationtoolbar {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.paginationtoolbar .pagination-detail .page-list {
+    display: inline-block;
+}
+
+.paginationtoolbar .pagination * {
+    display: inline-block;
+}
+
 .paginatorList {
     margin: 2px 6px;
     list-style: none outside none;
