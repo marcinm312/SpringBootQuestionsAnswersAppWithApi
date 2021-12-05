@@ -58,6 +58,10 @@
         </button>
         <form:form action="" method="GET" class="float-right">
             <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
+            <input type="hidden" name="pageNo" value="1" />
+            <input type="hidden" name="pageSize" value="${filter.pageSize}" />
+            <input type="hidden" name="sortField" value="${filter.sortField}" />
+            <input type="hidden" name="sortDirection" value="${filter.sortDirection}" />
         </form:form>
     </div>
     <c:choose>
@@ -154,18 +158,20 @@
                     <span class="pagination-info">Liczba rekordów: <span class="bold"> ${totalItems}</span>. Strona
                         <span class="bold">${filter.pageNo} z ${totalPages}</span>.</span>
                     <div class="page-list">
-                        <div class="btn-group dropdown dropup">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                                <span class="page-size">5</span>
-                                <span class="caret"/>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item active" href="#">5</a>
-                                <a class="dropdown-item " href="#">10</a>
-                                <a class="dropdown-item " href="#">20</a>
-                                <a class="dropdown-item " href="#">50</a>
-                            </div>
-                        </div>
+                        <form:form action="" method="GET" id="pageSizeSelectForm" >
+                            <input type="hidden" name="keyword" value="${filter.keyword}" />
+                            <input type="hidden" name="pageNo" value="1" />
+                            <input type="hidden" name="sortField" value="${filter.sortField}" />
+                            <input type="hidden" name="sortDirection" value="${filter.sortDirection}" />
+                        </form:form>
+                        <select class="custom-select" name="pageSize" form="pageSizeSelectForm" onchange="this.form.submit()">
+                            <option selected hidden value="${filter.pageSize}">${filter.pageSize}</option>
+                            <option value="3">3</option>
+                            <option value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="50">50</option>
+                        </select>
                         rekordów na stronę
                     </div>
                 </div>

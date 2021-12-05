@@ -109,8 +109,16 @@ span.form-text {
     padding-bottom: 10px;
 }
 
-.paginationtoolbar .pagination-detail .page-list {
+.page-list {
     display: inline-block;
+}
+
+.paginationtoolbar .pagination-detail select {
+    width: 75px;
+}
+
+#pageSizeSelectForm {
+    display: none;
 }
 
 .paginationtoolbar .pagination * {
