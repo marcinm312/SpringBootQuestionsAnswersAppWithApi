@@ -61,7 +61,7 @@ public class QuestionManager {
 		if (filter.isKeywordEmpty()) {
 			return getPaginatedQuestions(filter);
 		} else {
-			return questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest.of(filter.getPageNo(),
+			return questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest.of(filter.getPageNo() - 1,
 					filter.getPageSize(), Sort.by(filter.getSortDirection(), filter.getSortField())));
 		}
 	}

@@ -113,12 +113,12 @@
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
 
-                    <th scope="col"><a href="${sortLinkId}">Id <i class="fa fa-fw fa-sort"></i></a></th>
-                    <th scope="col"><a href="${sortLinkTitle}">Tytuł <i class="fa fa-fw fa-sort"></i></a></th>
-                    <th scope="col"><a href="${sortLinkDescription}">Opis <i class="fa fa-fw fa-sort"></i></a></th>
-                    <th scope="col"><a href="${sortLinkCreatedAt}">Data utworzenia <i class="fa fa-fw fa-sort"></i></a></th>
-                    <th scope="col"><a href="${sortLinkUpdatedAt}">Data modyfikacji <i class="fa fa-fw fa-sort"></i></a></th>
-                    <th scope="col"><a href="${sortLinkUser}">Użytkownik <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkId}">Id <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkTitle}">Tytuł <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkDescription}">Opis <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkCreatedAt}">Data utworzenia <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkUpdatedAt}">Data modyfikacji <i class="fa fa-fw fa-sort"></i></a></th>
+                    <th scope="col"><a class="sortablelink" href="${sortLinkUser}">Użytkownik <i class="fa fa-fw fa-sort"></i></a></th>
                     <th scope="col">Opcje</th>
                 </tr>
                 </thead>
@@ -151,7 +151,8 @@
 
             <div class="fixed-table-pagination paginationtoolbar clearfix">
                 <div class="float-left pagination-detail">
-                    <span class="pagination-info">Liczba rekordów: ${totalItems}. Strona ${filter.pageNo} z ${totalPages}</span>
+                    <span class="pagination-info">Liczba rekordów: <span class="bold"> ${totalItems}</span>. Strona
+                        <span class="bold">${filter.pageNo} z ${totalPages}</span>.</span>
                     <div class="page-list">
                         <div class="btn-group dropdown dropup">
                             <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
@@ -174,9 +175,9 @@
                         <c:param name="pageNo" value="xxx" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="${filter.sortField}" />
-                        <c:param name="sortDirection" value="${reverseSortDir}" />
+                        <c:param name="sortDirection" value="${filter.sortDirection}" />
                     </c:url>
-                    <paginator:display maxLinks="10" currPage="${filter.pageNo}" totalPages="${totalPages}" uri="${searchUri}" />
+                    <paginator:display maxLinks="7" currPage="${filter.pageNo}" totalPages="${totalPages}" uri="${searchUri}" />
                 </div>
             </div>
 
