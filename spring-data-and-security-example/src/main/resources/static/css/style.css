@@ -13,7 +13,7 @@ button.btn-primary {
 }
 
 div.wrapper {
-    margin: 30px;
+    margin: 30px 30px 0 30px;
 }
 
 div.usertoolbar {
@@ -111,6 +111,14 @@ span.form-text {
 
 .page-list {
     display: inline-block;
+}
+
+.paginationtoolbar .pagination-detail {
+    margin-top: 5px;
+}
+
+.paginationtoolbar .pagination {
+    margin-top: 5px;
 }
 
 .paginationtoolbar .pagination-detail select {
