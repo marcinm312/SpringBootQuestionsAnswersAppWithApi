@@ -20,6 +20,7 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
@@ -52,17 +53,23 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
-	private Page<QuestionEntity> getPaginatedQuestions(Filter filter) {
-		return questionRepository.getPaginatedQuestions(PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
-				Sort.by(filter.getSortDirection(), filter.getSortField())));
+	private ListPage<QuestionGet> getPaginatedQuestions(Filter filter) {
+		Page<QuestionEntity> questionEntities = questionRepository.getPaginatedQuestions(PageRequest
+				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(), filter.getSortField())));
+		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+				questionEntities.getContent());
+		return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
 	}
 
-	public Page<QuestionEntity> searchPaginatedQuestions(Filter filter) {
+	public ListPage<QuestionGet> searchPaginatedQuestions(Filter filter) {
 		if (filter.isKeywordEmpty()) {
 			return getPaginatedQuestions(filter);
 		} else {
-			return questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest.of(filter.getPageNo() - 1,
-					filter.getPageSize(), Sort.by(filter.getSortDirection(), filter.getSortField())));
+			Page<QuestionEntity> questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
+					.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(), filter.getSortField())));
+			List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+					questionEntities.getContent());
+			return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
 		}
 	}
 

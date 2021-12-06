@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,20 +11,18 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/app/questions")
@@ -64,12 +61,10 @@ public class QuestionWebController {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
-		Page<QuestionEntity> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
-		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
-				paginatedQuestions.getContent());
+		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		String sortDir = filter.getSortDirection().name().toUpperCase();
 
-		model.addAttribute("questionList", questionList);
+		model.addAttribute("questionList", paginatedQuestions.getItemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
 		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
