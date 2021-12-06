@@ -13,9 +13,6 @@
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.3/css/all.css"
           integrity="sha384-SZXxX4whJ79/gErwcOYf+zWLeJdY/qpuqC4cAa9rOGUstPomtqpuNWT9wdPEn2fk" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.3/bootstrap-table.min.css"
-          integrity="sha512-5RNDl2gYvm6wpoVAU4J2+cMGZQeE2o4/AksK/bi355p/C31aRibC93EYxXczXq3ja2PJj60uifzcocu2Ca2FBg=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"/>
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
           integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2"
@@ -69,7 +66,7 @@
             <p class="empty">Brak pytań</p>
         </c:when>
         <c:otherwise>
-            <table data-toggle="table" data-toolbar="#toolbar" aria-describedby="header">
+            <table class="table table-bordered" aria-describedby="header">
 
                 <thead class="thead-dark">
                 <tr>
@@ -153,10 +150,10 @@
                 </tbody>
             </table>
 
-            <div class="fixed-table-pagination paginationtoolbar clearfix">
+            <div class="paginationtoolbar clearfix">
                 <div class="float-left pagination-detail">
-                    <span class="pagination-info">Liczba rekordów: <span class="bold"> ${totalItems}</span>. Strona
-                        <span class="bold">${filter.pageNo} z ${totalPages}</span>.</span>
+                    Liczba rekordów: <span class="bold"> ${totalItems}</span>. Strona
+                        <span class="bold">${filter.pageNo} z ${totalPages}</span>.
                     <div class="page-list">
                         <form:form action="" method="GET" id="pageSizeSelectForm" >
                             <input type="hidden" name="keyword" value="${filter.keyword}" />
@@ -183,7 +180,7 @@
                         <c:param name="sortField" value="${filter.sortField}" />
                         <c:param name="sortDirection" value="${filter.sortDirection}" />
                     </c:url>
-                    <paginator:display maxLinks="7" currPage="${filter.pageNo}" totalPages="${totalPages}" uri="${searchUri}" />
+                    <paginator:display maxLinks="5" currPage="${filter.pageNo}" totalPages="${totalPages}" uri="${searchUri}" />
                 </div>
             </div>
 
@@ -191,17 +188,5 @@
     </c:choose>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"
-        integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI="
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js"
-        integrity="sha512-ubuT8Z88WxezgSqf3RLuNi5lmjstiJcyezx34yIU2gAHonIi27Na7atqzUZCOoY4CExaoFumzOsFQ2Ch+I/HCw=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
-        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
-        crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.18.3/bootstrap-table.min.js"
-        integrity="sha512-Wm00XTqNHcGqQgiDlZVpK4QIhO2MmMJfzNJfh8wwbBC9BR0FtdJwPqDhEYy8jCfKEhWWZe/LDB6FwY7YE9QhMg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </body>
 </html>

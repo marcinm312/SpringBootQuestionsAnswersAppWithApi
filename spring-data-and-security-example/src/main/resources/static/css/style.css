@@ -13,7 +13,7 @@ button.btn-primary {
 }
 
 div.wrapper {
-    margin: 30px 30px 0 30px;
+    margin: 30px 30px 20px 30px;
 }
 
 div.usertoolbar {
@@ -61,7 +61,19 @@ div.toolbar {
 
 #toolbar {
     width: 100%;
-    margin-right: 4px;
+    margin: 0px 4px 10px 0;
+}
+
+table.table tbody tr td {
+    vertical-align: middle;
+}
+
+table.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+table.table tbody tr td:last-child {
+    width: 95px;
 }
 
 .sortablelink {
@@ -104,25 +116,20 @@ span.form-text {
     float: right;
 }
 
-.paginationtoolbar {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
 .page-list {
     display: inline-block;
 }
 
 .paginationtoolbar .pagination-detail {
-    margin-top: 5px;
-}
-
-.paginationtoolbar .pagination {
-    margin-top: 5px;
+    margin-bottom: 10px;
 }
 
 .paginationtoolbar .pagination-detail select {
     width: 75px;
+}
+
+ul.pagination {
+    margin: 0;
 }
 
 #pageSizeSelectForm {
