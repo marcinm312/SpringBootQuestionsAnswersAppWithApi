@@ -64,6 +64,10 @@ div.toolbar {
     margin: 0px 4px 10px 0;
 }
 
+#toolbar form input.search-input {
+    margin-bottom: 14px;
+}
+
 table.table tbody tr td {
     vertical-align: middle;
 }
