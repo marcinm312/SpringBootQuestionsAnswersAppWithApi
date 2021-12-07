@@ -2,7 +2,7 @@ package pl.marcinm312.springdatasecurityex.shared.model;
 
 import java.util.List;
 
-public class ListPage<T> {
+public class ListPage<T extends CommonsDTOFields> {
 
 	private final List<T> itemsList;
 	private final int totalPages;
