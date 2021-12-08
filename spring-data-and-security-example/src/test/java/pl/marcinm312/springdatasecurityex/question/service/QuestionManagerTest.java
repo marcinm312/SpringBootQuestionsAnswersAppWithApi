@@ -43,7 +43,7 @@ class QuestionManagerTest {
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
-		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "id"))))
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 	}
