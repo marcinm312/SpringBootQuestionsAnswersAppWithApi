@@ -61,7 +61,7 @@ div.toolbar {
 
 #toolbar {
     width: 100%;
-    margin: 0px 4px 10px 0;
+    margin: 0 4px 10px 0;
 }
 
 #toolbar form input.search-input {
