@@ -33,7 +33,7 @@ public class Filter {
 	}
 
 	public Integer getPageSize() {
-		if (pageSize == null || pageSize < 0) {
+		if (pageSize == null || pageSize < 1) {
 			return 5;
 		}
 		return pageSize;
