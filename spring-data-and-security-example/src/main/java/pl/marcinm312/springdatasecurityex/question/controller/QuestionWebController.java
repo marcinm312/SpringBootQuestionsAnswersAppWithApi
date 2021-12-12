@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.question.enums.QuestionSortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
@@ -55,12 +56,15 @@ public class QuestionWebController {
 							   @RequestParam(required = false) String keyword,
 							   @RequestParam(required = false) Integer pageNo,
 							   @RequestParam(required = false) Integer pageSize,
-							   @RequestParam(required = false) String sortField,
+							   @RequestParam(required = false) QuestionSortField sortField,
 							   @RequestParam(required = false) Sort.Direction sortDirection) {
 
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		if (sortField == null) {
+			sortField = QuestionSortField.ID;
+		}
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField.getField(), sortDirection);
 		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		String sortDir = filter.getSortDirection().name().toUpperCase();
 

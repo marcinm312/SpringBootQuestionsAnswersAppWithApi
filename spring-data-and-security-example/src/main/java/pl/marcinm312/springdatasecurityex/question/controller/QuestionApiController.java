@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.question.enums.QuestionSortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
@@ -35,10 +36,13 @@ public class QuestionApiController {
 	public ListPage<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,
 											  @RequestParam(required = false) Integer pageNo,
 											  @RequestParam(required = false) Integer pageSize,
-											  @RequestParam(required = false) String sortField,
+											  @RequestParam(required = false) QuestionSortField sortField,
 											  @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		if (sortField == null) {
+			sortField = QuestionSortField.ID;
+		}
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField.getField(), sortDirection);
 		return questionManager.searchPaginatedQuestions(filter);
 	}
 
