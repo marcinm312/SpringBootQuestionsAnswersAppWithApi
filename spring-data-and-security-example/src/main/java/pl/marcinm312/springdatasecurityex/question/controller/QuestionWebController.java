@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.question.enums.QuestionSortField;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
@@ -19,7 +19,7 @@ import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
-import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -56,15 +56,15 @@ public class QuestionWebController {
 							   @RequestParam(required = false) String keyword,
 							   @RequestParam(required = false) Integer pageNo,
 							   @RequestParam(required = false) Integer pageSize,
-							   @RequestParam(required = false) QuestionSortField sortField,
+							   @RequestParam(required = false) SortField sortField,
 							   @RequestParam(required = false) Sort.Direction sortDirection) {
 
 		log.info("Loading questions page");
 		String userName = authentication.getName();
 		if (sortField == null) {
-			sortField = QuestionSortField.ID;
+			sortField = SortField.ID;
 		}
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField.getField(), sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		String sortDir = filter.getSortDirection().name().toUpperCase();
 
@@ -148,13 +148,29 @@ public class QuestionWebController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.PDF);
+	public ResponseEntity<Object> downloadPdf(@RequestParam(required = false) String keyword,
+											  @RequestParam(required = false) SortField sortField,
+											  @RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
+
+		if (sortField == null) {
+			sortField = SortField.ID;
+		}
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.EXCEL);
+	public ResponseEntity<Object> downloadExcel(@RequestParam(required = false) String keyword,
+												@RequestParam(required = false) SortField sortField,
+												@RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
+
+		if (sortField == null) {
+			sortField = SortField.ID;
+		}
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {

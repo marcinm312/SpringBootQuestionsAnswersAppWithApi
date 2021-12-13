@@ -6,7 +6,7 @@
 
     <tag>
         <name>display</name>
-        <tag-class>pl.marcinm312.springdatasecurityex.shared.pagination.Paginator</tag-class>
+        <tag-class>pl.marcinm312.springdatasecurityex.shared.filter.Paginator</tag-class>
         <body-content>empty</body-content>
         <attribute>
             <name>uri</name>

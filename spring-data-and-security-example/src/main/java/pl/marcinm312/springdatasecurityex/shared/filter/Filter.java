@@ -1,4 +1,4 @@
-package pl.marcinm312.springdatasecurityex.shared.pagination;
+package pl.marcinm312.springdatasecurityex.shared.filter;
 
 import org.springframework.data.domain.Sort;
 
@@ -7,15 +7,23 @@ public class Filter {
 	private final String keyword;
 	private final Integer pageNo;
 	private final Integer pageSize;
-	private final String sortField;
+	private final SortField sortField;
 	private final Sort.Direction sortDirection;
 
-	public Filter(String keyword, Integer pageNo, Integer pageSize, String sortField, Sort.Direction sortDirection) {
+	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection) {
 		this.keyword = keyword;
 		this.pageNo = pageNo;
 		this.pageSize = pageSize;
 		this.sortField = sortField;
 		this.sortDirection = sortDirection;
+	}
+
+	public Filter(String keyword, SortField sortField, Sort.Direction sortDirection) {
+		this.keyword = keyword;
+		this.sortField = sortField;
+		this.sortDirection = sortDirection;
+		this.pageNo = null;
+		this.pageSize = null;
 	}
 
 	public String getKeyword() {
@@ -39,9 +47,9 @@ public class Filter {
 		return pageSize;
 	}
 
-	public String getSortField() {
-		if (sortField == null || sortField.isEmpty()) {
-			return "id";
+	public SortField getSortField() {
+		if (sortField == null) {
+			return SortField.ID;
 		}
 		return sortField;
 	}

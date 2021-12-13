@@ -46,12 +46,14 @@
                 onclick="window.location.href = 'new/'">Utwórz nowe pytanie
         </button>
         <button class="btn btn-primary"
-                onclick="window.location.href = 'pdf-export/'">Eksportuj do
-            PDF
+                onclick="window.location.href =
+                        'pdf-export/?keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}'">
+            Eksportuj do PDF
         </button>
         <button class="btn btn-primary"
-                onclick="window.location.href = 'excel-export/'">Eksportuj
-            do Excel
+                onclick="window.location.href =
+                        'excel-export/?keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}'">
+            Eksportuj do Excel
         </button>
         <form:form action="" method="GET" class="float-right">
             <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />

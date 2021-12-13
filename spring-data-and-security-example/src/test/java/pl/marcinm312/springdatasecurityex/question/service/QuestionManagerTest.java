@@ -20,8 +20,9 @@ import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
-import pl.marcinm312.springdatasecurityex.shared.pagination.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
@@ -50,7 +51,7 @@ class QuestionManagerTest {
 
 	@Test
 	void getQuestions_simpleCase_success() {
-		Filter filter = new Filter(null, 0, 5, "id", Sort.Direction.DESC);
+		Filter filter = new Filter(null, 0, 5, SortField.ID, Sort.Direction.DESC);
 		ListPage<QuestionGet> questionsResultList = questionManager.searchPaginatedQuestions(filter);
 		MatcherAssert.assertThat(questionsResultList.getItemsList(), Matchers.hasSize(3));
 	}

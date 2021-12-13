@@ -1,4 +1,4 @@
-package pl.marcinm312.springdatasecurityex.shared.pagination;
+package pl.marcinm312.springdatasecurityex.shared.filter;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;

@@ -1,6 +1,6 @@
-package pl.marcinm312.springdatasecurityex.question.enums;
+package pl.marcinm312.springdatasecurityex.shared.filter;
 
-public enum QuestionSortField {
+public enum SortField {
 
 	ID("id"),
 	TITLE("title"),
@@ -11,7 +11,7 @@ public enum QuestionSortField {
 
 	private final String field;
 
-	QuestionSortField(String field) {
+	SortField(String field) {
 		this.field = field;
 	}
 
