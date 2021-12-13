@@ -49,7 +49,7 @@ public class QuestionManager {
 	}
 
 	public List<QuestionGet> getAllQuestions() {
-		List<QuestionEntity> questionsFromDB = questionRepository.getAllQuestions();
+		List<QuestionEntity> questionsFromDB = questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "user.username"));
 		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
