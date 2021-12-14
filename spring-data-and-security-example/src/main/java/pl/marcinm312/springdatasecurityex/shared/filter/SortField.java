@@ -7,7 +7,8 @@ public enum SortField {
 	DESCRIPTION("description"),
 	CREATED_AT("createdAt"),
 	UPDATED_AT("updatedAt"),
-	USER("user.username");
+	USER("user.username"),
+	TEXT("text");
 
 	private final String field;
 
