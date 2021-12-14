@@ -6,13 +6,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
-import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -39,7 +39,7 @@ public class QuestionApiController {
 											  @RequestParam(required = false) SortField sortField,
 											  @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
@@ -76,7 +76,7 @@ public class QuestionApiController {
 											  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, sortField, sortDirection);
@@ -89,7 +89,7 @@ public class QuestionApiController {
 												@RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, sortField, sortDirection);

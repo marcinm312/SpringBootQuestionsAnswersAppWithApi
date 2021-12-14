@@ -61,7 +61,7 @@ public class QuestionWebController {
 
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
@@ -153,7 +153,7 @@ public class QuestionWebController {
 											  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, sortField, sortDirection);
@@ -166,7 +166,7 @@ public class QuestionWebController {
 												@RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == null) {
+		if (sortField == SortField.TEXT) {
 			sortField = SortField.ID;
 		}
 		Filter filter = new Filter(keyword, sortField, sortDirection);
