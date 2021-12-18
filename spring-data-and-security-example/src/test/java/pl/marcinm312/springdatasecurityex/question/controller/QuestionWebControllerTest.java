@@ -94,8 +94,15 @@ class QuestionWebControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.ASC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));

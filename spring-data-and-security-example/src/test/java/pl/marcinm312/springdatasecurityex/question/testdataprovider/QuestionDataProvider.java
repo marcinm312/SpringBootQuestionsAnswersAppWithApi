@@ -27,6 +27,15 @@ public class QuestionDataProvider {
 		return questions;
 	}
 
+	public static List<QuestionEntity> prepareExampleSearchedQuestionsList() {
+		List<QuestionEntity> questions = new ArrayList<>();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		questions.add(new QuestionEntity(1001L, "aaaa", "", user,
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
+		return questions;
+	}
+
 	public static QuestionEntity prepareExampleQuestion() {
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return new QuestionEntity(1000L, "bbbb", "bbbb",user,

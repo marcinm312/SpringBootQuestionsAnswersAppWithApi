@@ -99,8 +99,15 @@ class QuestionApiControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.ASC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
@@ -194,16 +201,24 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void getQuestions_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfQuestionsGetUrls")
+	void getQuestions_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+	}
+
+	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions",
+						"getQuestions_simpleCase_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"getQuestions_searchedQuestions_success")
+		);
 	}
 
 	@Test
@@ -606,18 +621,26 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadExcel_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadExcelUrls")
+	void downloadExcel_simpleCase_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/excel-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/excel-export",
+						"downloadExcel_simpleCase_success"),
+				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success")
+		);
 	}
 
 	private String prepareToken(String username, String password) throws Exception {
