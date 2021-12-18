@@ -61,9 +61,7 @@ public class QuestionWebController {
 
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		String sortDir = filter.getSortDirection().name().toUpperCase();
@@ -153,9 +151,7 @@ public class QuestionWebController {
 											  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
 		return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
 	}
@@ -166,9 +162,7 @@ public class QuestionWebController {
 												@RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
 		return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
 	}

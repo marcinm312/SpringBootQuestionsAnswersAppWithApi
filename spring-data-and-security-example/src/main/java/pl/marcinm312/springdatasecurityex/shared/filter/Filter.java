@@ -64,4 +64,11 @@ public class Filter {
 	public boolean isKeywordEmpty() {
 		return keyword == null || keyword.isEmpty();
 	}
+
+	public static SortField checkQuestionsSortField(SortField sortField) {
+		if (sortField == SortField.TEXT) {
+			sortField = SortField.ID;
+		}
+		return sortField;
+	}
 }

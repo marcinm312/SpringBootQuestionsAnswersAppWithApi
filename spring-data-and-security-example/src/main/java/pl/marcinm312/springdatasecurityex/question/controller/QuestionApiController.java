@@ -39,9 +39,7 @@ public class QuestionApiController {
 											  @RequestParam(required = false) SortField sortField,
 											  @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		return questionManager.searchPaginatedQuestions(filter);
 	}
@@ -76,9 +74,7 @@ public class QuestionApiController {
 											  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
 		return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
 	}
@@ -89,9 +85,7 @@ public class QuestionApiController {
 												@RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
-		if (sortField == SortField.TEXT) {
-			sortField = SortField.ID;
-		}
+		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
 		return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
 	}
