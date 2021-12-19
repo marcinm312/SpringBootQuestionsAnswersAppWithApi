@@ -217,6 +217,8 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions",
 						"getQuestions_simpleCase_success"),
 				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
 						"getQuestions_searchedQuestions_success")
 		);
 	}
