@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -201,24 +202,37 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfQuestionsGetUrls")
-	void getQuestions_parameterized_success(String url, String nameOfTestCase) throws Exception {
+	void getQuestions_parameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(get(url).header("Authorization", token))
+		String response = mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		ObjectNode root = (ObjectNode) new ObjectMapper().readTree(response);
+		int amountOfElements = root.get("itemsList").size();
+		Assertions.assertEquals(expectedElements, amountOfElements);
 	}
 
 	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions",
+				Arguments.of("/api/questions", 3,
 						"getQuestions_simpleCase_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
 						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
 						"getQuestions_searchedQuestions_success")
 		);
 	}
