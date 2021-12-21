@@ -233,7 +233,7 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"getQuestions_searchedQuestions_success"),
 				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
-						"getQuestions_searchedQuestions_success")
+						"getQuestions_paginatedQuestions_success")
 		);
 	}
 
@@ -616,18 +616,36 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadPdf_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadPdfUrls")
+	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/pdf-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/pdf-export",
+						"downloadPdf_simpleCase_success"),
+				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/pdf-export?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_paginatedQuestions_success")
+		);
 	}
 
 	@Test
@@ -639,7 +657,7 @@ class QuestionApiControllerTest {
 
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfDownloadExcelUrls")
-	void downloadExcel_simpleCase_success(String url, String nameOfTestCase) throws Exception {
+	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
@@ -655,7 +673,17 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions/excel-export",
 						"downloadExcel_simpleCase_success"),
 				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success")
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/excel-export?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_paginatedQuestions_success")
 		);
 	}
 
