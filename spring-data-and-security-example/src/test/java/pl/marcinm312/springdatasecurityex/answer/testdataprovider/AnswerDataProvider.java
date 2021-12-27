@@ -18,15 +18,25 @@ public class AnswerDataProvider {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
-		answers.add(new AnswerEntity(1000L, "answer1", question, user,
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
-		answers.add(new AnswerEntity(1001L, "answer2", question, user,
-				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 20, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 21, 10, 30, 30)));
 		answers.add(new AnswerEntity(1002L, "answer3", question, user,
 				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 30, 30)));
+		answers.add(new AnswerEntity(1001L, "answer2", question, user,
+				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 20, 10, 25, 30),
+				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 21, 10, 30, 30)));
+		answers.add(new AnswerEntity(1000L, "answer1", question, user,
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
+		return answers;
+	}
+
+	public static List<AnswerEntity> prepareExampleSearchedAnswersList() {
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+		List<AnswerEntity> answers = new ArrayList<>();
+		answers.add(new AnswerEntity(1000L, "answer1", question, user,
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
 		return answers;
 	}
 

@@ -71,4 +71,11 @@ public class Filter {
 		}
 		return sortField;
 	}
+
+	public static SortField checkAnswersSortField(SortField sortField) {
+		if (sortField == SortField.TITLE || sortField == SortField.DESCRIPTION) {
+			sortField = SortField.ID;
+		}
+		return sortField;
+	}
 }

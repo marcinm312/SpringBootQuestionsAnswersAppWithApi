@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.answer.controller;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -9,13 +10,15 @@ import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions/{questionId}/answers")
@@ -31,8 +34,16 @@ public class AnswerApiController {
 	}
 
 	@GetMapping
-	public List<AnswerGet> getAnswersByQuestionId(@PathVariable Long questionId) {
-		return answerManager.getAnswersByQuestionId(questionId);
+	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,
+										  @RequestParam(required = false) String keyword,
+										  @RequestParam(required = false) Integer pageNo,
+										  @RequestParam(required = false) Integer pageSize,
+										  @RequestParam(required = false) SortField sortField,
+										  @RequestParam(required = false) Sort.Direction sortDirection) {
+
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		return answerManager.searchPaginatedAnswers(questionId, filter);
 	}
 
 	@GetMapping("/{answerId}")
@@ -62,14 +73,26 @@ public class AnswerApiController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId)
+	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId,
+											  @RequestParam(required = false) String keyword,
+											  @RequestParam(required = false) SortField sortField,
+											  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException, ResourceNotFoundException {
-		return answerManager.generateAnswersFile(questionId, FileTypes.PDF);
+
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId)
+	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId,
+												@RequestParam(required = false) String keyword,
+												@RequestParam(required = false) SortField sortField,
+												@RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, ResourceNotFoundException, DocumentException {
-		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL);
+
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
 	}
 }

@@ -3,6 +3,9 @@ package pl.marcinm312.springdatasecurityex.answer.service;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +24,9 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.mail.MessagingException;
@@ -45,7 +50,7 @@ public class AnswerManager {
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionManager questionManager,
-			MailService mailService, ExcelGenerator excelGenerator, PdfGenerator pdfGenerator) {
+						 MailService mailService, ExcelGenerator excelGenerator, PdfGenerator pdfGenerator) {
 		this.answerRepository = answerRepository;
 		this.questionManager = questionManager;
 		this.mailService = mailService;
@@ -53,12 +58,41 @@ public class AnswerManager {
 		this.pdfGenerator = pdfGenerator;
 	}
 
-	public List<AnswerGet> getAnswersByQuestionId(Long questionId) {
-		if (questionManager.checkIfQuestionExists(questionId)) {
-			List<AnswerEntity> answersFromDB = answerRepository.findByQuestionIdOrderByIdDesc(questionId);
-			return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
+	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
+		List<AnswerEntity> answersFromDB = answerRepository.getAnswers(questionId,
+				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
+		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
+	}
+
+	private List<AnswerGet> searchAnswers(Long questionId, Filter filter) {
+		questionManager.checkIfQuestionExists(questionId);
+		if (filter.isKeywordEmpty()) {
+			return getAnswers(questionId, filter);
 		} else {
-			throw new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId);
+			List<AnswerEntity> answersFromDB = answerRepository.searchAnswers(questionId, filter.getKeyword(),
+					Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
+			return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
+		}
+	}
+
+	private ListPage<AnswerGet> getPaginatedAnswers(Long questionId, Filter filter) {
+		Page<AnswerEntity> answerEntities = answerRepository.getPaginatedAnswers(questionId,
+				PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
+						Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
+		List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
+		return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
+	}
+
+	public ListPage<AnswerGet> searchPaginatedAnswers(Long questionId, Filter filter) {
+		questionManager.checkIfQuestionExists(questionId);
+		if (filter.isKeywordEmpty()) {
+			return getPaginatedAnswers(questionId, filter);
+		} else {
+			Page<AnswerEntity> answerEntities = answerRepository.searchPaginatedAnswers(questionId, filter.getKeyword(),
+					PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
+							Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
+			List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
+			return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
 		}
 	}
 
@@ -130,10 +164,10 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype)
+	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype, Filter filter)
 			throws IOException, DocumentException {
 		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = getAnswersByQuestionId(questionId);
+		List<AnswerGet> answersList = searchAnswers(questionId, filter);
 		File file;
 		if (filetype.equals(FileTypes.EXCEL)) {
 			file = excelGenerator.generateAnswersExcelFile(answersList, question);

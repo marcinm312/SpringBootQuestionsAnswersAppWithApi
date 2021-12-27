@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.answer.controller;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,19 +11,21 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
+import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
-import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
-import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
-import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
@@ -31,7 +34,6 @@ public class AnswerWebController {
 	private static final String USER_LOGIN = "userLogin";
 	private static final String MESSAGE = "message";
 	private static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
-	private static final String ANSWER_LIST = "answerList";
 	private static final String QUESTION = "question";
 	private static final String ANSWER = "answer";
 	private static final String ANSWERS_VIEW = "answers";
@@ -55,19 +57,34 @@ public class AnswerWebController {
 	}
 
 	@GetMapping
-	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication) {
+	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication,
+							 @RequestParam(required = false) String keyword,
+							 @RequestParam(required = false) Integer pageNo,
+							 @RequestParam(required = false) Integer pageSize,
+							 @RequestParam(required = false) SortField sortField,
+							 @RequestParam(required = false) Sort.Direction sortDirection) {
+
 		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
-		List<AnswerGet> answerList;
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		String sortDir = filter.getSortDirection().name().toUpperCase();
+		ListPage<AnswerGet> paginatedAnswers;
 		QuestionGet question;
 		try {
-			answerList = answerManager.getAnswersByQuestionId(questionId);
-			log.info("answerList.size()={}", answerList.size());
+			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
+			log.info("Answers list size: {}", paginatedAnswers.getItemsList().size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			return getResourceNotFoundView(model, userName, e);
 		}
-		model.addAttribute(ANSWER_LIST, answerList);
+		model.addAttribute("questionId", questionId);
+		model.addAttribute("answerList", paginatedAnswers.getItemsList());
+		model.addAttribute("filter", filter);
+		model.addAttribute("sortDir", sortDir);
+		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
+		model.addAttribute("totalPages", paginatedAnswers.getTotalPages());
+		model.addAttribute("totalItems", paginatedAnswers.getTotalElements());
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(USER_LOGIN, userName);
 		return ANSWERS_VIEW;
@@ -156,13 +173,27 @@ public class AnswerWebController {
 	}
 
 	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId) throws IOException, DocumentException {
-		return answerManager.generateAnswersFile(questionId, FileTypes.PDF);
+	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId,
+											  @RequestParam(required = false) String keyword,
+											  @RequestParam(required = false) SortField sortField,
+											  @RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
+
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
 	}
 
 	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId) throws IOException, DocumentException {
-		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL);
+	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId,
+												@RequestParam(required = false) String keyword,
+												@RequestParam(required = false) SortField sortField,
+												@RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
+
+		sortField = Filter.checkAnswersSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {

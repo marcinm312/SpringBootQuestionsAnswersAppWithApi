@@ -96,8 +96,10 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
 	}
 
-	public boolean checkIfQuestionExists(Long questionId) {
-		return questionRepository.existsById(questionId);
+	public void checkIfQuestionExists(Long questionId) {
+		if (!questionRepository.existsById(questionId)) {
+			throw new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId);
+		}
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {

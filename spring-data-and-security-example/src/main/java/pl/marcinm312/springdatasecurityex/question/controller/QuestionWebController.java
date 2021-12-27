@@ -64,6 +64,7 @@ public class QuestionWebController {
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
+		log.info("Questions list size: {}", paginatedQuestions.getItemsList().size());
 		String sortDir = filter.getSortDirection().name().toUpperCase();
 
 		model.addAttribute("questionList", paginatedQuestions.getItemsList());
