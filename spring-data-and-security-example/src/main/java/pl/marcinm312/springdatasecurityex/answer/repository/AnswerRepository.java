@@ -32,5 +32,6 @@ public interface AnswerRepository extends JpaRepository<AnswerEntity, Long> {
 				"LOWER(CONCAT(a.id, ' ', a.text, ' ', a.createdAt, ' ', a.updatedAt, ' ', a.user.username)) LIKE %:keyword%")
 	Page<AnswerEntity> searchPaginatedAnswers(@Param("questionId") Long questionId, @Param("keyword") String keyword, Pageable pageable);
 
-	Optional<AnswerEntity> findByQuestionIdAndId(Long questionId, Long answerId);
+	@Query("SELECT a FROM AnswerEntity a LEFT JOIN FETCH a.user WHERE a.id = :answerId AND a.question.id = :questionId")
+	Optional<AnswerEntity> findByQuestionIdAndId(@Param("questionId") Long questionId, @Param("answerId") Long answerId);
 }

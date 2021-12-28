@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> {
@@ -30,4 +31,7 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, Long> 
 		countQuery = "SELECT COUNT(q) FROM QuestionEntity q LEFT JOIN q.user " +
 				"WHERE LOWER(CONCAT(q.id, ' ', q.title, ' ', q.description, ' ', q.createdAt, ' ', q.updatedAt, ' ', q.user.username)) LIKE %:keyword%")
 	Page<QuestionEntity> searchPaginatedQuestions(@Param("keyword") String keyword, Pageable pageable);
+
+	@Query("SELECT q FROM QuestionEntity q LEFT JOIN FETCH q.user WHERE q.id = :questionId")
+	Optional<QuestionEntity> findById(@Param("questionId") Long questionId);
 }
