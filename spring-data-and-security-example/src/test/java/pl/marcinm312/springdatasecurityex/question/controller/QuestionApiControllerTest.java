@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -96,8 +100,15 @@ class QuestionApiControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		given(questionRepository.findAllByOrderByIdDesc())
+		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.ASC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
@@ -191,22 +202,39 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void getQuestions_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfQuestionsGetUrls")
+	void getQuestions_parameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		String response = mockMvc.perform(
-						get("/api/questions")
-								.header("Authorization", token))
+		String response = mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
 
-		QuestionGet[] responseQuestionList = mapper.readValue(response, QuestionGet[].class);
-		int arrayExpectedSize = 3;
-		int arrayResultSize = responseQuestionList.length;
-		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
+		ObjectNode root = (ObjectNode) new ObjectMapper().readTree(response);
+		int amountOfElements = root.get("itemsList").size();
+		Assertions.assertEquals(expectedElements, amountOfElements);
+	}
+
+	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions", 3,
+						"getQuestions_simpleCase_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
+						"getQuestions_searchedQuestions_success"),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
+						"getQuestions_paginatedQuestions_success")
+		);
 	}
 
 	@Test
@@ -584,43 +612,79 @@ class QuestionApiControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/pdf-export"))
+						get("/api/questions/file-export?fileType=PDF"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadPdf_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadPdfUrls")
+	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/pdf-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/file-export?fileType=PDF",
+						"downloadPdf_simpleCase_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_paginatedQuestions_success")
+		);
 	}
 
 	@Test
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/excel-export"))
+						get("/api/questions/file-export?fileType=EXCEL"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadExcel_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadExcelUrls")
+	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/excel-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/file-export?fileType=EXCEL",
+						"downloadExcel_simpleCase_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_paginatedQuestions_success")
+		);
 	}
 
 	private String prepareToken(String username, String password) throws Exception {

@@ -3,21 +3,26 @@ package pl.marcinm312.springdatasecurityex.question.service;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
-import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
-import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
-import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,9 +48,42 @@ public class QuestionManager {
 		this.pdfGenerator = pdfGenerator;
 	}
 
-	public List<QuestionGet> getQuestions() {
-		List<QuestionEntity> questionsFromDB = questionRepository.findAllByOrderByIdDesc();
+	private List<QuestionGet> getQuestions(Filter filter) {
+		List<QuestionEntity> questionsFromDB = questionRepository.getQuestions(Sort.by(filter.getSortDirection(),
+				filter.getSortField().getField()));
 		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
+	}
+
+	private List<QuestionGet> searchQuestions(Filter filter) {
+		if (filter.isKeywordEmpty()) {
+			return getQuestions(filter);
+		} else {
+			List<QuestionEntity> questionsFromDB = questionRepository.searchQuestions(filter.getKeyword(),
+					Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
+			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
+		}
+	}
+
+	private ListPage<QuestionGet> getPaginatedQuestions(Filter filter) {
+		Page<QuestionEntity> questionEntities = questionRepository.getPaginatedQuestions(PageRequest
+				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
+						filter.getSortField().getField())));
+		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+				questionEntities.getContent());
+		return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
+	}
+
+	public ListPage<QuestionGet> searchPaginatedQuestions(Filter filter) {
+		if (filter.isKeywordEmpty()) {
+			return getPaginatedQuestions(filter);
+		} else {
+			Page<QuestionEntity> questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
+					.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
+							filter.getSortField().getField())));
+			List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+					questionEntities.getContent());
+			return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
+		}
 	}
 
 	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
@@ -58,8 +96,10 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
 	}
 
-	public boolean checkIfQuestionExists(Long questionId) {
-		return questionRepository.existsById(questionId);
+	public void checkIfQuestionExists(Long questionId) {
+		if (!questionRepository.existsById(questionId)) {
+			throw new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId);
+		}
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {
@@ -100,8 +140,9 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype) throws IOException, DocumentException {
-		List<QuestionGet> questionsList = getQuestions();
+	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype, Filter filter) throws IOException,
+			DocumentException {
+		List<QuestionGet> questionsList = searchQuestions(filter);
 		File file;
 		if (filetype.equals(FileTypes.EXCEL)) {
 			file = excelGenerator.generateQuestionsExcelFile(questionsList);

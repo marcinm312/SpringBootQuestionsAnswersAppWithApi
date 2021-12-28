@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -10,23 +11,24 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
+import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
-import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
-import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/app/questions")
 public class QuestionWebController {
 
-	private static final String QUESTION_LIST = "questionList";
 	private static final String USER_LOGIN = "userLogin";
 	private static final String QUESTIONS_VIEW = "questions";
 	private static final String QUESTION = "question";
@@ -50,13 +52,29 @@ public class QuestionWebController {
 	}
 
 	@GetMapping
-	public String questionsGet(Model model, Authentication authentication) {
+	public String questionsGet(Model model, Authentication authentication,
+							   @RequestParam(required = false) String keyword,
+							   @RequestParam(required = false) Integer pageNo,
+							   @RequestParam(required = false) Integer pageSize,
+							   @RequestParam(required = false) SortField sortField,
+							   @RequestParam(required = false) Sort.Direction sortDirection) {
+
 		log.info("Loading questions page");
 		String userName = authentication.getName();
-		List<QuestionGet> questionList = questionManager.getQuestions();
-		log.info("questionList.size()={}", questionList.size());
-		model.addAttribute(QUESTION_LIST, questionList);
+		sortField = Filter.checkQuestionsSortField(sortField);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
+		log.info("Questions list size: {}", paginatedQuestions.getItemsList().size());
+		String sortDir = filter.getSortDirection().name().toUpperCase();
+
+		model.addAttribute("questionList", paginatedQuestions.getItemsList());
+		model.addAttribute("filter", filter);
+		model.addAttribute("sortDir", sortDir);
+		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
+		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
+		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
 		model.addAttribute(USER_LOGIN, userName);
+
 		return QUESTIONS_VIEW;
 	}
 
@@ -128,14 +146,20 @@ public class QuestionWebController {
 		return getEditOrRemoveQuestionView(model, questionId, authentication, false);
 	}
 
-	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.PDF);
-	}
+	@GetMapping("/file-export")
+	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
+											   @RequestParam(required = false) String keyword,
+											   @RequestParam(required = false) SortField sortField,
+											   @RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
 
-	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.EXCEL);
+		sortField = Filter.checkQuestionsSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		if (fileType == FileTypes.PDF) {
+			return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
+		} else {
+			return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
+		}
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {

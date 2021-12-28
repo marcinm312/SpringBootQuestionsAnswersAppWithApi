@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,6 +15,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -42,6 +48,7 @@ import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isA;
@@ -91,8 +98,15 @@ class QuestionWebControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		given(questionRepository.findAllByOrderByIdDesc())
+		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
 				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
+		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
+				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.ASC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
@@ -117,11 +131,10 @@ class QuestionWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	void questionsGet_simpleCase_success() throws Exception {
-		ModelAndView modelAndView = mockMvc.perform(
-						get("/app/questions")
-								.with(user("user").password("password")))
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfQuestionsGetUrls")
+	void questionsGet_parameterized_success(String url, int arrayExpectedSize, String nameOfTestCase) throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("questions"))
 				.andExpect(model().attribute("userLogin", "user"))
@@ -131,9 +144,27 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		List<QuestionGet> questionsFromModel = (List<QuestionGet>) modelAndView.getModel().get("questionList");
-		int arrayExpectedSize = 3;
 		int arrayResultSize = questionsFromModel.size();
 		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
+	}
+
+	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
+		return Stream.of(
+				Arguments.of("/app/questions", 3,
+						"questionsGet_simpleCase_success"),
+				Arguments.of("/app/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
+						"questionsGet_searchedQuestions_success"),
+				Arguments.of("/app/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
+						"questionsGet_searchedQuestions_success"),
+				Arguments.of("/app/questions?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"questionsGet_searchedQuestions_success"),
+				Arguments.of("/app/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
+						"questionsGet_searchedQuestions_success"),
+				Arguments.of("/app/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
+						"questionsGet_searchedQuestions_success"),
+				Arguments.of("/app/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
+						"questionsGet_paginatedQuestions_success")
+		);
 	}
 
 	@Test
@@ -704,43 +735,79 @@ class QuestionWebControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/questions/pdf-export"))
+						get("/app/questions/file-export?fileType=PDF"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	void downloadPdf_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadPdfUrls")
+	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
-		mockMvc.perform(
-						get("/app/questions/pdf-export")
-								.with(user("user").password("password")))
+		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+		return Stream.of(
+				Arguments.of("/app/questions/file-export?fileType=PDF",
+						"downloadPdf_simpleCase_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadPdf_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_paginatedQuestions_success")
+		);
 	}
 
 	@Test
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/questions/excel-export"))
+						get("/app/questions/file-export?fileType=EXCEL"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
 	}
 
-	@Test
-	void downloadExcel_simpleCase_success() throws Exception {
-		mockMvc.perform(
-						get("/app/questions/excel-export")
-								.with(user("user").password("password")))
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadExcelUrls")
+	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
+		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+		return Stream.of(
+				Arguments.of("/app/questions/file-export?fileType=EXCEL",
+						"downloadExcel_simpleCase_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadExcel_searchedQuestions_success"),
+				Arguments.of("/app/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_paginatedQuestions_success")
+		);
 	}
 }

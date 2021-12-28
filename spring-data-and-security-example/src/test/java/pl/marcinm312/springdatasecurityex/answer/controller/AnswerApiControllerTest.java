@@ -1,6 +1,7 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,9 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -110,8 +114,17 @@ class AnswerApiControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 
-		given(answerRepository.findByQuestionIdOrderByIdDesc(1000L))
+		given(answerRepository.getAnswers(1000L, Sort.by(Sort.Direction.DESC, "id")))
 				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
+		given(answerRepository.searchAnswers(1000L, "answer1",
+				Sort.by(Sort.Direction.ASC, "id")))
+				.willReturn(AnswerDataProvider.prepareExampleSearchedAnswersList());
+		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
+		given(answerRepository.searchPaginatedAnswers(1000L, "answer1",
+				PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "id"))))
+				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleSearchedAnswersList()));
 		given(answerRepository.findByQuestionIdAndId(1000L, 1000L)).willReturn(Optional.of(answer));
 		given(answerRepository.findByQuestionIdAndId(1000L, 2000L)).willReturn(Optional.empty());
 		given(answerRepository.findByQuestionIdAndId(2000L, 1000L)).willReturn(Optional.empty());
@@ -135,32 +148,49 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	void getAnswersByQuestionId_withAnonymousUser_unauthorized() throws Exception {
+	void getAnswers_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
 						get("/api/questions/1000/answers"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void getAnswersByQuestionId_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfAnswersGetUrls")
+	void getAnswers_parameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		String response = mockMvc.perform(
-						get("/api/questions/1000/answers")
-								.header("Authorization", token))
+		String response = mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
 
-		AnswerGet[] responseAnswerList = mapper.readValue(response, AnswerGet[].class);
-		int arrayExpectedSize = 3;
-		int arrayResultSize = responseAnswerList.length;
-		Assertions.assertEquals(arrayExpectedSize, arrayResultSize);
+		ObjectNode root = (ObjectNode) new ObjectMapper().readTree(response);
+		int amountOfElements = root.get("itemsList").size();
+		Assertions.assertEquals(expectedElements, amountOfElements);
+	}
+
+	private static Stream<Arguments> examplesOfAnswersGetUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/1000/answers", 3,
+						"getAnswers_simpleCase_success"),
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
+						"getAnswers_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
+						"getAnswers_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC", 1,
+						"getAnswers_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC", 1,
+						"getAnswers_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
+						"getAnswers_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC", 3,
+						"getAnswers_paginatedAnswers_success")
+		);
 	}
 
 	@Test
-	void getAnswersByQuestionId_questionNotExists_notFound() throws Exception {
+	void getAnswers_questionNotExists_notFound() throws Exception {
 
 		String token = prepareToken("user", "password");
 
@@ -592,43 +622,79 @@ class AnswerApiControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/1000/answers/pdf-export"))
+						get("/api/questions/1000/answers/file-export?fileType=PDF"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadPdf_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadPdfUrls")
+	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/1000/answers/pdf-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF",
+						"downloadPdf_simpleCase_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+						"downloadPdf_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+						"downloadPdf_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+						"downloadPdf_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+						"downloadPdf_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadPdf_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_paginatedAnswers_success")
+		);
 	}
 
 	@Test
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/1000/answers/excel-export"))
+						get("/api/questions/1000/answers/file-export?fileType=EXCEL"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void downloadExcel_simpleCase_success() throws Exception {
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfDownloadExcelUrls")
+	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
-		mockMvc.perform(
-						get("/api/questions/1000/answers/excel-export")
-								.header("Authorization", token))
+		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
+	}
+
+	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL",
+						"downloadExcel_simpleCase_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+						"downloadExcel_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+						"downloadExcel_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+						"downloadExcel_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+						"downloadExcel_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+						"downloadExcel_searchedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_paginatedAnswers_success")
+		);
 	}
 
 	@ParameterizedTest(name = "{index} ''{1}''")
@@ -649,9 +715,9 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfQuestionNotFoundUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/2000/answers/pdf-export",
+				Arguments.of("/api/questions/2000/answers/file-export?fileType=PDF",
 						"downloadPdf_questionNotExists_notFound"),
-				Arguments.of("/api/questions/2000/answers/excel-export",
+				Arguments.of("/api/questions/2000/answers/file-export?fileType=EXCEL",
 						"downloadExcel_questionNotExists_notFound")
 		);
 	}

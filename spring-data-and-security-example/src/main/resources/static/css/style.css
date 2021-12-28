@@ -13,7 +13,7 @@ button.btn-primary {
 }
 
 div.wrapper {
-    margin: 30px;
+    margin: 30px 30px 20px 30px;
 }
 
 div.usertoolbar {
@@ -55,8 +55,38 @@ div.toolbar {
     margin-bottom: 10px;
 }
 
+.fixed-table-toolbar .bs-bars {
+    width: 100%;
+}
+
 #toolbar {
-    margin-right: 4px;
+    width: 100%;
+    margin: 0 4px 10px 0;
+}
+
+#toolbar form input.search-input {
+    margin-bottom: 14px;
+}
+
+table.table tbody tr td {
+    vertical-align: middle;
+}
+
+table.table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.075);
+}
+
+table.table tbody tr td:last-child {
+    width: 95px;
+}
+
+.sortablelink {
+    color: white;
+}
+
+.sortablelink:hover {
+    color: darkgray;
+    text-decoration: none;
 }
 
 div.section {
@@ -83,6 +113,35 @@ div.formbuttons {
 
 span.form-text {
     color: red;
+}
+
+#toolbar form {
+    display: inline-block;
+    float: right;
+}
+
+.page-list {
+    display: inline-block;
+}
+
+.paginationtoolbar .pagination-detail {
+    margin-bottom: 10px;
+}
+
+.paginationtoolbar .pagination-detail select {
+    width: 75px;
+}
+
+ul.pagination {
+    margin: 0;
+}
+
+#pageSizeSelectForm {
+    display: none;
+}
+
+.paginationtoolbar .pagination * {
+    display: inline-block;
 }
 
 @media (max-width: 414px) {

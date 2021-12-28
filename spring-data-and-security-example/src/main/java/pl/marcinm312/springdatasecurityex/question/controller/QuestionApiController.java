@@ -2,19 +2,22 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/questions")
@@ -30,8 +33,15 @@ public class QuestionApiController {
 	}
 
 	@GetMapping
-	public List<QuestionGet> getQuestions() {
-		return questionManager.getQuestions();
+	public ListPage<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,
+											  @RequestParam(required = false) Integer pageNo,
+											  @RequestParam(required = false) Integer pageSize,
+											  @RequestParam(required = false) SortField sortField,
+											  @RequestParam(required = false) Sort.Direction sortDirection) {
+
+		sortField = Filter.checkQuestionsSortField(sortField);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		return questionManager.searchPaginatedQuestions(filter);
 	}
 
 	@GetMapping("/{questionId}")
@@ -58,13 +68,19 @@ public class QuestionApiController {
 		return questionManager.deleteQuestion(questionId, user);
 	}
 
-	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.PDF);
-	}
+	@GetMapping("/file-export")
+	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
+											   @RequestParam(required = false) String keyword,
+											   @RequestParam(required = false) SortField sortField,
+											   @RequestParam(required = false) Sort.Direction sortDirection)
+			throws IOException, DocumentException {
 
-	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel() throws IOException, DocumentException {
-		return questionManager.generateQuestionsFile(FileTypes.EXCEL);
+		sortField = Filter.checkQuestionsSortField(sortField);
+		Filter filter = new Filter(keyword, sortField, sortDirection);
+		if (fileType == FileTypes.PDF) {
+			return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
+		} else {
+			return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
+		}
 	}
 }
