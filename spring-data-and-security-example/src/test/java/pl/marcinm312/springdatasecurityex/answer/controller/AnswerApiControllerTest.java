@@ -622,7 +622,7 @@ class AnswerApiControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/1000/answers/pdf-export"))
+						get("/api/questions/1000/answers/file-export?fileType=PDF"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -641,19 +641,19 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/1000/answers/pdf-export",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF",
 						"downloadPdf_simpleCase_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/pdf-export?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
 						"downloadPdf_paginatedAnswers_success")
 		);
 	}
@@ -661,7 +661,7 @@ class AnswerApiControllerTest {
 	@Test
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/1000/answers/excel-export"))
+						get("/api/questions/1000/answers/file-export?fileType=EXCEL"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -680,19 +680,19 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/1000/answers/excel-export",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL",
 						"downloadExcel_simpleCase_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers/excel-export?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
 						"downloadExcel_paginatedAnswers_success")
 		);
 	}
@@ -715,9 +715,9 @@ class AnswerApiControllerTest {
 
 	private static Stream<Arguments> examplesOfQuestionNotFoundUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/2000/answers/pdf-export",
+				Arguments.of("/api/questions/2000/answers/file-export?fileType=PDF",
 						"downloadPdf_questionNotExists_notFound"),
-				Arguments.of("/api/questions/2000/answers/excel-export",
+				Arguments.of("/api/questions/2000/answers/file-export?fileType=EXCEL",
 						"downloadExcel_questionNotExists_notFound")
 		);
 	}

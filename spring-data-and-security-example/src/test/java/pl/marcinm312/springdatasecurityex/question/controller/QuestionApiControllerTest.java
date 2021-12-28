@@ -612,7 +612,7 @@ class QuestionApiControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/pdf-export"))
+						get("/api/questions/file-export?fileType=PDF"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -631,19 +631,19 @@ class QuestionApiControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/pdf-export",
+				Arguments.of("/api/questions/file-export?fileType=PDF",
 						"downloadPdf_simpleCase_success"),
-				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/pdf-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/pdf-export?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
 						"downloadPdf_paginatedQuestions_success")
 		);
 	}
@@ -651,7 +651,7 @@ class QuestionApiControllerTest {
 	@Test
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
 		mockMvc.perform(
-						get("/api/questions/excel-export"))
+						get("/api/questions/file-export?fileType=EXCEL"))
 				.andExpect(status().isUnauthorized());
 	}
 
@@ -670,19 +670,19 @@ class QuestionApiControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
 		return Stream.of(
-				Arguments.of("/api/questions/excel-export",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL",
 						"downloadExcel_simpleCase_success"),
-				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/excel-export?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/excel-export?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
 						"downloadExcel_paginatedQuestions_success")
 		);
 	}

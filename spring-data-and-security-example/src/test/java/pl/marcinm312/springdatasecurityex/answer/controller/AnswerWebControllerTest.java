@@ -861,7 +861,7 @@ class AnswerWebControllerTest {
 	@Test
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/questions/1000/answers/pdf-export"))
+						get("/app/questions/1000/answers/file-export?fileType=PDF"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
@@ -880,19 +880,19 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
 		return Stream.of(
-				Arguments.of("/app/questions/1000/answers/pdf-export",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF",
 						"downloadPdf_simpleCase_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/pdf-export?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
 						"downloadPdf_paginatedAnswers_success")
 		);
 	}
@@ -900,7 +900,7 @@ class AnswerWebControllerTest {
 	@Test
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/questions/1000/answers/excel-export"))
+						get("/app/questions/1000/answers/file-export?fileType=EXCEL"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("http://localhost/loginPage"))
 				.andExpect(unauthenticated());
@@ -919,19 +919,19 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
 		return Stream.of(
-				Arguments.of("/app/questions/1000/answers/excel-export",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL",
 						"downloadExcel_simpleCase_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
-				Arguments.of("/app/questions/1000/answers/excel-export?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
 						"downloadExcel_paginatedAnswers_success")
 		);
 	}
@@ -951,9 +951,9 @@ class AnswerWebControllerTest {
 
 	private static Stream<Arguments> examplesOfQuestionNotFoundUrls() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/pdf-export",
+				Arguments.of("/app/questions/2000/answers/file-export?fileType=PDF",
 						"downloadPdf_questionNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/excel-export",
+				Arguments.of("/app/questions/2000/answers/file-export?fileType=EXCEL",
 						"downloadExcel_questionNotExists_notFound")
 		);
 	}

@@ -72,27 +72,20 @@ public class AnswerApiController {
 		return answerManager.deleteAnswer(questionId, answerId, user);
 	}
 
-	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf(@PathVariable Long questionId,
-											  @RequestParam(required = false) String keyword,
-											  @RequestParam(required = false) SortField sortField,
-											  @RequestParam(required = false) Sort.Direction sortDirection)
+	@GetMapping("/file-export")
+	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
+											   @RequestParam FileTypes fileType,
+											   @RequestParam(required = false) String keyword,
+											   @RequestParam(required = false) SortField sortField,
+											   @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException, ResourceNotFoundException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
-	}
-
-	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel(@PathVariable Long questionId,
-												@RequestParam(required = false) String keyword,
-												@RequestParam(required = false) SortField sortField,
-												@RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, ResourceNotFoundException, DocumentException {
-
-		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
-		return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
+		if (fileType == FileTypes.PDF) {
+			return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
+		} else {
+			return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
+		}
 	}
 }

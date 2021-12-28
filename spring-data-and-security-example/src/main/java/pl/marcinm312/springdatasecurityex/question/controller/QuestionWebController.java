@@ -146,26 +146,20 @@ public class QuestionWebController {
 		return getEditOrRemoveQuestionView(model, questionId, authentication, false);
 	}
 
-	@GetMapping("/pdf-export")
-	public ResponseEntity<Object> downloadPdf(@RequestParam(required = false) String keyword,
-											  @RequestParam(required = false) SortField sortField,
-											  @RequestParam(required = false) Sort.Direction sortDirection)
+	@GetMapping("/file-export")
+	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
+											   @RequestParam(required = false) String keyword,
+											   @RequestParam(required = false) SortField sortField,
+											   @RequestParam(required = false) Sort.Direction sortDirection)
 			throws IOException, DocumentException {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
-	}
-
-	@GetMapping("/excel-export")
-	public ResponseEntity<Object> downloadExcel(@RequestParam(required = false) String keyword,
-												@RequestParam(required = false) SortField sortField,
-												@RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, DocumentException {
-
-		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
-		return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
+		if (fileType == FileTypes.PDF) {
+			return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
+		} else {
+			return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
+		}
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {
