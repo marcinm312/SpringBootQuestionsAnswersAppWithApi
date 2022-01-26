@@ -165,7 +165,7 @@ class AnswerApiControllerTest {
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
 
-		ObjectNode root = (ObjectNode) new ObjectMapper().readTree(response);
+		ObjectNode root = (ObjectNode) mapper.readTree(response);
 		int amountOfElements = root.get("itemsList").size();
 		Assertions.assertEquals(expectedElements, amountOfElements);
 	}
