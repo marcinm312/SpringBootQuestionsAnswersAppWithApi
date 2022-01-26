@@ -122,6 +122,13 @@
             <artifactId>jackson-dataformat-xml</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>jaxen</groupId>
+            <artifactId>jaxen</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -2,6 +2,9 @@ package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Node;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,6 +51,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -204,7 +208,7 @@ class QuestionApiControllerTest {
 
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfQuestionsGetUrls")
-	void getQuestions_parameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
+	void getQuestions_jsonParameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user", "password");
 
@@ -215,6 +219,23 @@ class QuestionApiControllerTest {
 
 		ObjectNode root = (ObjectNode) new ObjectMapper().readTree(response);
 		int amountOfElements = root.get("itemsList").size();
+		Assertions.assertEquals(expectedElements, amountOfElements);
+	}
+
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfQuestionsGetUrls")
+	void getQuestions_xmlParameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String response = mockMvc.perform(get(url).header("Authorization", token).accept(MediaType.APPLICATION_XML))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType("application/xml;charset=UTF-8"))
+				.andReturn().getResponse().getContentAsString();
+
+		Document document = DocumentHelper.parseText(response);
+		List<Node> nodes = document.selectNodes("/ListPage/itemsList/itemsList");
+		int amountOfElements = nodes.size();
 		Assertions.assertEquals(expectedElements, amountOfElements);
 	}
 
