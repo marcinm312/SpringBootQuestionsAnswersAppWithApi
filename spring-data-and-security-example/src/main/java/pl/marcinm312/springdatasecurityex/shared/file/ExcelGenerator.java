@@ -7,12 +7,8 @@ import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -28,13 +24,10 @@ public class ExcelGenerator {
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-	public File generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
+	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
 
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
-
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi_" + fileId + ".xlsx";
 
 		String[] columns = {ID_COLUMN, TRESC_ODPOWIEDZI_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
@@ -119,24 +112,19 @@ public class ExcelGenerator {
 		questionSheet.autoSizeColumn(0);
 		questionSheet.autoSizeColumn(1);
 
-		FileOutputStream fileOut = new FileOutputStream(filePath);
-		workbook.write(fileOut);
-		fileOut.close();
-
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		workbook.write(outputStream);
+		outputStream.close();
 		workbook.close();
 
-		File file = new File(filePath);
 		log.info("Answers Excel file generated");
-		return file;
+		return outputStream.toByteArray();
 	}
 
-	public File generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
+	public byte[] generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
 
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
-
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania_" + fileId + ".xlsx";
 
 		String[] columns = { ID_COLUMN, TYTUL_COLUMN, OPIS_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
@@ -176,15 +164,13 @@ public class ExcelGenerator {
 			sheet.autoSizeColumn(i);
 		}
 
-		FileOutputStream fileOut = new FileOutputStream(filePath);
-		workbook.write(fileOut);
-		fileOut.close();
-
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		workbook.write(outputStream);
+		outputStream.close();
 		workbook.close();
 
-		File file = new File(filePath);
 		log.info("Questions Excel file generated");
-		return file;
+		return outputStream.toByteArray();
 	}
 
 	private CellStyle getDateCellStyle(Workbook workbook) {

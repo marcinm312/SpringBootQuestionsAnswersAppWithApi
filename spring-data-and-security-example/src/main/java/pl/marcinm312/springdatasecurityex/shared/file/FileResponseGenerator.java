@@ -5,21 +5,17 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-
 public class FileResponseGenerator {
 
 	private FileResponseGenerator() {
 
 	}
 
-	public static ResponseEntity<Object> generateResponseWithFile(File file) throws IOException {
-		ByteArrayResource resource = new ByteArrayResource(Files.readAllBytes(file.toPath()));
-		return ResponseEntity.ok().contentLength(file.length())
+	public static ResponseEntity<Object> generateResponseWithFile(byte[] bytes, String fileName) {
+		ByteArrayResource resource = new ByteArrayResource(bytes);
+		return ResponseEntity.ok().contentLength(bytes.length)
 				.contentType(MediaType.parseMediaType("application/octet-stream"))
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getName() + "\"")
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
 				.body(resource);
 	}
 }
