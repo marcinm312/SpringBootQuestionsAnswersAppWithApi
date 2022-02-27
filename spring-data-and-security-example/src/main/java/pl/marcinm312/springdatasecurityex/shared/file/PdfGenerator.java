@@ -10,12 +10,8 @@ import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -32,17 +28,16 @@ public class PdfGenerator {
 		helvetica12 = new Font(helvetica, 12);
 	}
 
-	public File generateQuestionsPdfFile(List<QuestionGet> questionsList) throws DocumentException, IOException {
+	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) throws DocumentException, IOException {
 
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
 
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Pytania_" + fileId + ".pdf";
-
 		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
-		PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		PdfWriter.getInstance(document, outputStream);
 		document.open();
+
 		Paragraph title = new Paragraph("Lista pytań", helvetica18);
 		title.setAlignment(Element.ALIGN_CENTER);
 		document.add(title);
@@ -70,24 +65,25 @@ public class PdfGenerator {
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);
 		document.add(table);
+
 		document.close();
-		File file = new File(filePath);
+		outputStream.close();
+
 		log.info("Questions PDF file generated");
-		return file;
+		return outputStream.toByteArray();
 	}
 
-	public File generateAnswersPdfFile(List<AnswerGet> answersList, QuestionGet question)
+	public byte[] generateAnswersPdfFile(List<AnswerGet> answersList, QuestionGet question)
 			throws DocumentException, IOException {
 
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
-		String filePath = "files" + FileSystems.getDefault().getSeparator() + "Odpowiedzi_" + fileId + ".pdf";
-
 		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
-		PdfWriter.getInstance(document, new FileOutputStream(filePath));
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		PdfWriter.getInstance(document, outputStream);
 		document.open();
+
 		Paragraph title = new Paragraph("Lista odpowiedzi", helvetica18);
 		title.setAlignment(Element.ALIGN_CENTER);
 		document.add(title);
@@ -118,10 +114,12 @@ public class PdfGenerator {
 		table.setTotalWidth(700);
 		table.setLockedWidth(true);
 		document.add(table);
+
 		document.close();
-		File file = new File(filePath);
+		outputStream.close();
+
 		log.info("Answers PDF file generated");
-		return file;
+		return outputStream.toByteArray();
 	}
 
 	private void createAndAddCellToTable(String text, BaseColor color, int alignment, Font font, PdfPTable table) {

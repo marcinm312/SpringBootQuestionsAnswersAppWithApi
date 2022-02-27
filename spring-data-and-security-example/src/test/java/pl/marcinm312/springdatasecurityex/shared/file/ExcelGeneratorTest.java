@@ -9,14 +9,13 @@ import org.junit.jupiter.api.Test;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerEntity;
 import pl.marcinm312.springdatasecurityex.answer.model.AnswerMapper;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,10 @@ class ExcelGeneratorTest {
 		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
-		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
+		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 
-		FileInputStream fis = new FileInputStream(questionsExcelFile);
-		Workbook wb = new XSSFWorkbook(fis);
+		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
 		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
@@ -63,17 +62,14 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet, evaluator, "B4", questionsList.get(2).getTitle());
 		checkCellStringValue(sheet, evaluator, "C4", questionsList.get(2).getDescription());
 		checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser());
-
-		Assertions.assertTrue(questionsExcelFile.getName().startsWith("Pytania"));
-		Assertions.assertTrue(questionsExcelFile.getName().endsWith(".xlsx"));
 	}
 
 	@Test
 	void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException {
-		File questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
+		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 
-		FileInputStream fis = new FileInputStream(questionsExcelFile);
-		Workbook wb = new XSSFWorkbook(fis);
+		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
 		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
@@ -83,9 +79,6 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet, evaluator, "D1", "Data utworzenia");
 		checkCellStringValue(sheet, evaluator, "E1", "Data modyfikacji");
 		checkCellStringValue(sheet, evaluator, "F1", "Użytkownik");
-
-		Assertions.assertTrue(questionsExcelFile.getName().startsWith("Pytania"));
-		Assertions.assertTrue(questionsExcelFile.getName().endsWith(".xlsx"));
 	}
 
 	private void checkCellStringValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, String expectedValue) {
@@ -115,10 +108,10 @@ class ExcelGeneratorTest {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 
-		File answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
+		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
-		FileInputStream fis = new FileInputStream(answersExcelFile);
-		Workbook wb = new XSSFWorkbook(fis);
+		Workbook wb = new XSSFWorkbook(inputStream);
 		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		Sheet sheet0 = wb.getSheetAt(0);
@@ -150,9 +143,6 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
 		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
 		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
-
-		Assertions.assertTrue(answersExcelFile.getName().startsWith("Odpowiedzi"));
-		Assertions.assertTrue(answersExcelFile.getName().endsWith(".xlsx"));
 	}
 
 	@Test
@@ -160,10 +150,10 @@ class ExcelGeneratorTest {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 
-		File answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
+		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
-		FileInputStream fis = new FileInputStream(answersExcelFile);
-		Workbook wb = new XSSFWorkbook(fis);
+		Workbook wb = new XSSFWorkbook(inputStream);
 		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
 		Sheet sheet0 = wb.getSheetAt(0);
@@ -187,8 +177,5 @@ class ExcelGeneratorTest {
 		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
 		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
 		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
-
-		Assertions.assertTrue(answersExcelFile.getName().startsWith("Odpowiedzi"));
-		Assertions.assertTrue(answersExcelFile.getName().endsWith(".xlsx"));
 	}
 }

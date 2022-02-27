@@ -20,12 +20,13 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
-import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -143,12 +144,17 @@ public class QuestionManager {
 	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype, Filter filter) throws IOException,
 			DocumentException {
 		List<QuestionGet> questionsList = searchQuestions(filter);
-		File file;
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String fileName = "Pytania_" + fileId;
+
+		byte[] bytes;
 		if (filetype.equals(FileTypes.EXCEL)) {
-			file = excelGenerator.generateQuestionsExcelFile(questionsList);
+			fileName += ".xlsx";
+			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
 		} else {
-			file = pdfGenerator.generateQuestionsPdfFile(questionsList);
+			fileName += ".pdf";
+			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		}
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
 }

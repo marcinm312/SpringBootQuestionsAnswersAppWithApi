@@ -30,8 +30,9 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.mail.MessagingException;
-import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -168,13 +169,18 @@ public class AnswerManager {
 			throws IOException, DocumentException {
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = searchAnswers(questionId, filter);
-		File file;
+		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String fileName = "Odpowiedzi_" + fileId;
+
+		byte[] bytes;
 		if (filetype.equals(FileTypes.EXCEL)) {
-			file = excelGenerator.generateAnswersExcelFile(answersList, question);
+			fileName += ".xlsx";
+			bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
 		} else {
-			file = pdfGenerator.generateAnswersPdfFile(answersList, question);
+			fileName += ".pdf";
+			bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		}
-		return FileResponseGenerator.generateResponseWithFile(file);
+		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
 
 	private String generateEmailContent(QuestionEntity question, AnswerEntity answer, boolean isNewAnswer) {
