@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.shared.file;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 
@@ -11,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-@Component
 public class ExcelGenerator {
 
 	private static final String ID_COLUMN = "Id";

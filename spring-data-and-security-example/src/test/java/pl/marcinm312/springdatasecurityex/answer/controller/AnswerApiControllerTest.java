@@ -30,25 +30,23 @@ import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.answer.repository.AnswerRepository;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
+import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
 import pl.marcinm312.springdatasecurityex.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springdatasecurityex.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springdatasecurityex.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
+import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
+import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
+import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
-import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
-import pl.marcinm312.springdatasecurityex.answer.testdataprovider.AnswerDataProvider;
-import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
-import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
-import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
 
 import javax.mail.MessagingException;
 import java.util.Objects;
@@ -73,8 +71,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class),
-		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
+		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
+		@SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerApiControllerTest {
 

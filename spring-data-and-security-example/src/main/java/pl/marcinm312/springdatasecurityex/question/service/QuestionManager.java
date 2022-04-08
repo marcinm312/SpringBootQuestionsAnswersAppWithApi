@@ -42,11 +42,10 @@ public class QuestionManager {
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	public QuestionManager(QuestionRepository questionRepository, ExcelGenerator excelGenerator,
-						   PdfGenerator pdfGenerator) {
+	public QuestionManager(QuestionRepository questionRepository) throws DocumentException, IOException {
 		this.questionRepository = questionRepository;
-		this.excelGenerator = excelGenerator;
-		this.pdfGenerator = pdfGenerator;
+		this.excelGenerator = new ExcelGenerator();
+		this.pdfGenerator = new PdfGenerator();
 	}
 
 	private List<QuestionGet> getQuestions(Filter filter) {

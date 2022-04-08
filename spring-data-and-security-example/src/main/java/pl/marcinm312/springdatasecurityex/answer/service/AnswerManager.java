@@ -51,12 +51,12 @@ public class AnswerManager {
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionManager questionManager,
-						 MailService mailService, ExcelGenerator excelGenerator, PdfGenerator pdfGenerator) {
+						 MailService mailService) throws DocumentException, IOException {
 		this.answerRepository = answerRepository;
 		this.questionManager = questionManager;
 		this.mailService = mailService;
-		this.excelGenerator = excelGenerator;
-		this.pdfGenerator = pdfGenerator;
+		this.excelGenerator = new ExcelGenerator();
+		this.pdfGenerator = new PdfGenerator();
 	}
 
 	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
