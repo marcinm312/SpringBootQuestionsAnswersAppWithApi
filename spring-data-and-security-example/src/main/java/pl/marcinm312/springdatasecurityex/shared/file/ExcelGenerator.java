@@ -50,13 +50,8 @@ public class ExcelGenerator {
 			row.createCell(0).setCellValue(answer.getId());
 			row.createCell(1).setCellValue(addValueWithNewLines(answer.getText()));
 
-			Cell creationDateCell = row.createCell(2);
-			creationDateCell.setCellValue(answer.getCreatedAtAsString());
-			creationDateCell.setCellStyle(dateCellStyle);
-
-			Cell modificationDateCell = row.createCell(3);
-			modificationDateCell.setCellValue(answer.getUpdatedAtAsString());
-			modificationDateCell.setCellStyle(dateCellStyle);
+			createCellWithDate(dateCellStyle, answer.getCreatedAtAsString(), row, 2);
+			createCellWithDate(dateCellStyle, answer.getUpdatedAtAsString(), row, 3);
 
 			row.createCell(4).setCellValue(answer.getUser());
 		}
@@ -89,17 +84,13 @@ public class ExcelGenerator {
 		Cell cellA4 = row4.createCell(0);
 		cellA4.setCellValue(DATA_UTWORZENIA_COLUMN);
 		cellA4.setCellStyle(headerCellStyle);
-		Cell cellB4 = row4.createCell(1);
-		cellB4.setCellValue(question.getCreatedAtAsString());
-		cellB4.setCellStyle(dateCellStyle);
+		createCellWithDate(dateCellStyle, question.getCreatedAtAsString(), row4, 1);
 
 		Row row5 = questionSheet.createRow(4);
 		Cell cellA5 = row5.createCell(0);
 		cellA5.setCellValue(DATA_MODYFIKACJI_COLUMN);
 		cellA5.setCellStyle(headerCellStyle);
-		Cell cellB5 = row5.createCell(1);
-		cellB5.setCellValue(question.getUpdatedAtAsString());
-		cellB5.setCellStyle(dateCellStyle);
+		createCellWithDate(dateCellStyle, question.getUpdatedAtAsString(), row5, 1);
 
 		Row row6 = questionSheet.createRow(5);
 		Cell cellA6 = row6.createCell(0);
@@ -147,13 +138,8 @@ public class ExcelGenerator {
 			row.createCell(1).setCellValue(question.getTitle());
 			row.createCell(2).setCellValue(addValueWithNewLines(question.getDescription()));
 
-			Cell creationDateCell = row.createCell(3);
-			creationDateCell.setCellValue(question.getCreatedAtAsString());
-			creationDateCell.setCellStyle(dateCellStyle);
-
-			Cell modificationDateCell = row.createCell(4);
-			modificationDateCell.setCellValue(question.getUpdatedAtAsString());
-			modificationDateCell.setCellStyle(dateCellStyle);
+			createCellWithDate(dateCellStyle, question.getCreatedAtAsString(), row, 3);
+			createCellWithDate(dateCellStyle, question.getUpdatedAtAsString(), row, 4);
 
 			row.createCell(5).setCellValue(question.getUser());
 		}
@@ -169,6 +155,12 @@ public class ExcelGenerator {
 
 		log.info("Questions Excel file generated");
 		return outputStream.toByteArray();
+	}
+
+	private void createCellWithDate(CellStyle dateCellStyle, String dateAsString, Row row, int column) {
+		Cell cellWithDate = row.createCell(column);
+		cellWithDate.setCellValue(dateAsString);
+		cellWithDate.setCellStyle(dateCellStyle);
 	}
 
 	private CellStyle getDateCellStyle(Workbook workbook) {
