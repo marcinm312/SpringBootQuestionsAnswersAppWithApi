@@ -16,7 +16,7 @@ public class PermissionsUtils {
 		Long objectUserId = entityWithUser.getUser().getId();
 		Long currentUserId = loggedUser.getId();
 		String currentUserRole = loggedUser.getRole();
-		log.info("objectUserId={}", objectUserId);
+		log.info("userIdFromEntity={}, objectClass={}", objectUserId, entityWithUser.getClass().getName());
 		log.info("currentUserId={}", currentUserId);
 		log.info("currentUserRole={}", currentUserRole);
 		return objectUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name());
