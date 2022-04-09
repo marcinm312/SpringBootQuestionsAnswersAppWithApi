@@ -3,6 +3,7 @@ package pl.marcinm312.springdatasecurityex.question.model;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
+import pl.marcinm312.springdatasecurityex.shared.model.EntityWithUser;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.persistence.*;
@@ -10,7 +11,7 @@ import java.util.Date;
 
 @Entity
 @Table(name = "questions")
-public class QuestionEntity extends AuditModel {
+public class QuestionEntity extends AuditModel implements EntityWithUser {
 
     @Id
     @GeneratedValue(generator = "question_generator")
