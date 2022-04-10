@@ -10,15 +10,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-public class ExcelGenerator {
+import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
 
-	private static final String ID_COLUMN = "Id";
-	private static final String ANSWER_TEXT_COLUMN = "Treść odpowiedzi";
-	private static final String CREATION_DATE_COLUMN = "Data utworzenia";
-	private static final String MODIFICATION_DATE_COLUMN = "Data modyfikacji";
-	private static final String USER_COLUMN = "Użytkownik";
-	private static final String QUESTION_TITLE_COLUMN = "Tytuł";
-	private static final String QUESTION_DESCRIPTION_COLUMN = "Opis";
+public class ExcelGenerator {
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
