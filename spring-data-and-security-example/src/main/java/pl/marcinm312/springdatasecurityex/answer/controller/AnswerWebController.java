@@ -182,11 +182,7 @@ public class AnswerWebController {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		if (fileType == FileTypes.PDF) {
-			return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
-		} else {
-			return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
-		}
+		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {

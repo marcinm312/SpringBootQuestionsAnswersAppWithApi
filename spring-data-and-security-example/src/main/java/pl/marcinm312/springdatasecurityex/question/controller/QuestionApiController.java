@@ -77,10 +77,6 @@ public class QuestionApiController {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		if (fileType == FileTypes.PDF) {
-			return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
-		} else {
-			return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
-		}
+		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 }
