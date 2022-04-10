@@ -13,12 +13,12 @@ import java.util.List;
 public class ExcelGenerator {
 
 	private static final String ID_COLUMN = "Id";
-	private static final String TRESC_ODPOWIEDZI_COLUMN = "Treść odpowiedzi";
-	private static final String DATA_UTWORZENIA_COLUMN = "Data utworzenia";
-	private static final String DATA_MODYFIKACJI_COLUMN = "Data modyfikacji";
-	private static final String UZYTKOWNIK_COLUMN = "Użytkownik";
-	private static final String TYTUL_COLUMN = "Tytuł";
-	private static final String OPIS_COLUMN = "Opis";
+	private static final String ANSWER_TEXT_COLUMN = "Treść odpowiedzi";
+	private static final String CREATION_DATE_COLUMN = "Data utworzenia";
+	private static final String MODIFICATION_DATE_COLUMN = "Data modyfikacji";
+	private static final String USER_COLUMN = "Użytkownik";
+	private static final String QUESTION_TITLE_COLUMN = "Tytuł";
+	private static final String QUESTION_DESCRIPTION_COLUMN = "Opis";
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
@@ -27,7 +27,7 @@ public class ExcelGenerator {
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
-		String[] columns = {ID_COLUMN, TRESC_ODPOWIEDZI_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
+		String[] columns = {ID_COLUMN, ANSWER_TEXT_COLUMN, CREATION_DATE_COLUMN, MODIFICATION_DATE_COLUMN, USER_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
 
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
@@ -62,41 +62,23 @@ public class ExcelGenerator {
 
 		Sheet questionSheet = workbook.createSheet("Pytanie");
 
-		Row row1 = questionSheet.createRow(0);
-		Cell cellA1 = row1.createCell(0);
-		cellA1.setCellValue(ID_COLUMN);
-		cellA1.setCellStyle(headerCellStyle);
-		row1.createCell(1).setCellValue(question.getId().toString());
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 0, ID_COLUMN,
+				question.getId().toString(), false);
 
-		Row row2 = questionSheet.createRow(1);
-		Cell cellA2 = row2.createCell(0);
-		cellA2.setCellValue(TYTUL_COLUMN);
-		cellA2.setCellStyle(headerCellStyle);
-		row2.createCell(1).setCellValue(question.getTitle());
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 1, QUESTION_TITLE_COLUMN,
+				question.getTitle(), false);
 
-		Row row3 = questionSheet.createRow(2);
-		Cell cellA3 = row3.createCell(0);
-		cellA3.setCellValue(OPIS_COLUMN);
-		cellA3.setCellStyle(headerCellStyle);
-		row3.createCell(1).setCellValue(addValueWithNewLines(question.getDescription()));
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 2, QUESTION_DESCRIPTION_COLUMN,
+				addValueWithNewLines(question.getDescription()), false);
 
-		Row row4 = questionSheet.createRow(3);
-		Cell cellA4 = row4.createCell(0);
-		cellA4.setCellValue(DATA_UTWORZENIA_COLUMN);
-		cellA4.setCellStyle(headerCellStyle);
-		createCellWithDate(dateCellStyle, question.getCreatedAtAsString(), row4, 1);
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 3, CREATION_DATE_COLUMN,
+				question.getCreatedAtAsString(), true);
 
-		Row row5 = questionSheet.createRow(4);
-		Cell cellA5 = row5.createCell(0);
-		cellA5.setCellValue(DATA_MODYFIKACJI_COLUMN);
-		cellA5.setCellStyle(headerCellStyle);
-		createCellWithDate(dateCellStyle, question.getUpdatedAtAsString(), row5, 1);
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 4, MODIFICATION_DATE_COLUMN,
+				question.getUpdatedAtAsString(), true);
 
-		Row row6 = questionSheet.createRow(5);
-		Cell cellA6 = row6.createCell(0);
-		cellA6.setCellValue(UZYTKOWNIK_COLUMN);
-		cellA6.setCellStyle(headerCellStyle);
-		row6.createCell(1).setCellValue(question.getUser());
+		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 5, USER_COLUMN,
+				question.getUser(), false);
 
 		questionSheet.autoSizeColumn(0);
 		questionSheet.autoSizeColumn(1);
@@ -115,7 +97,7 @@ public class ExcelGenerator {
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
 
-		String[] columns = { ID_COLUMN, TYTUL_COLUMN, OPIS_COLUMN, DATA_UTWORZENIA_COLUMN, DATA_MODYFIKACJI_COLUMN, UZYTKOWNIK_COLUMN};
+		String[] columns = {ID_COLUMN, QUESTION_TITLE_COLUMN, QUESTION_DESCRIPTION_COLUMN, CREATION_DATE_COLUMN, MODIFICATION_DATE_COLUMN, USER_COLUMN};
 		Workbook workbook = new XSSFWorkbook();
 		Sheet sheet = workbook.createSheet("Pytania");
 		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
@@ -155,6 +137,20 @@ public class ExcelGenerator {
 
 		log.info("Questions Excel file generated");
 		return outputStream.toByteArray();
+	}
+
+	private void createRowWithTwoColumns(CellStyle headerCellStyle, CellStyle dateCellStyle, Sheet sheet,
+										 int rowNumber, String firstValue, String secondValue, boolean isDate) {
+
+		Row row = sheet.createRow(rowNumber);
+		Cell firstCell = row.createCell(0);
+		firstCell.setCellValue(firstValue);
+		firstCell.setCellStyle(headerCellStyle);
+		if (isDate) {
+			createCellWithDate(dateCellStyle, secondValue, row, 1);
+		} else {
+			row.createCell(1).setCellValue(secondValue);
+		}
 	}
 
 	private void createCellWithDate(CellStyle dateCellStyle, String dateAsString, Row row, int column) {
