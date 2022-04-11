@@ -19,6 +19,6 @@ public class PermissionsUtils {
 		log.info("userIdFromEntity={}, objectClass={}", objectUserId, entityWithUser.getClass().getName());
 		log.info("currentUserId={}", currentUserId);
 		log.info("currentUserRole={}", currentUserRole);
-		return objectUserId.equals(currentUserId) || currentUserRole.equals(Roles.ROLE_ADMIN.name());
+		return objectUserId.equals(currentUserId) || Roles.ROLE_ADMIN.name().equals(currentUserRole);
 	}
 }

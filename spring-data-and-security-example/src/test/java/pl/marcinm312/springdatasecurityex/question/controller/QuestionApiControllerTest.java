@@ -359,7 +359,7 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = xmlMapper.readValue(response, QuestionGet.class);
-		if (responseQuestion.getDescription().equals("")) {
+		if ("".equals(responseQuestion.getDescription())) {
 			responseQuestion.setDescription(null);
 		}
 		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());

@@ -147,10 +147,10 @@ public class QuestionManager {
 		String fileName = "Pytania_" + fileId;
 
 		byte[] bytes;
-		if (filetype.equals(FileTypes.EXCEL)) {
+		if (filetype == FileTypes.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
-		} else if (filetype.equals(FileTypes.PDF)) {
+		} else if (filetype == FileTypes.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		} else {

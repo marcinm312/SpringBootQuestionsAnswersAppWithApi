@@ -82,7 +82,7 @@ public class AnswerWebController {
 		model.addAttribute("answerList", paginatedAnswers.getItemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
+		model.addAttribute("reverseSortDir", "ASC".equals(sortDir) ? "DESC" : "ASC");
 		model.addAttribute("totalPages", paginatedAnswers.getTotalPages());
 		model.addAttribute("totalItems", paginatedAnswers.getTotalElements());
 		model.addAttribute(QUESTION, question);

@@ -70,7 +70,7 @@ public class QuestionWebController {
 		model.addAttribute("questionList", paginatedQuestions.getItemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
+		model.addAttribute("reverseSortDir", "ASC".equals(sortDir) ? "DESC" : "ASC");
 		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
 		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
 		model.addAttribute(USER_LOGIN, userName);
