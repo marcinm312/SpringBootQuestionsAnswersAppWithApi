@@ -70,7 +70,7 @@ public class QuestionWebController {
 		model.addAttribute("questionList", paginatedQuestions.getItemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
-		model.addAttribute("reverseSortDir", sortDir.equals("ASC") ? "DESC" : "ASC");
+		model.addAttribute("reverseSortDir", "ASC".equals(sortDir) ? "DESC" : "ASC");
 		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
 		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
 		model.addAttribute(USER_LOGIN, userName);
@@ -155,11 +155,7 @@ public class QuestionWebController {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		if (fileType == FileTypes.PDF) {
-			return questionManager.generateQuestionsFile(FileTypes.PDF, filter);
-		} else {
-			return questionManager.generateQuestionsFile(FileTypes.EXCEL, filter);
-		}
+		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {

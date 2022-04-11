@@ -51,12 +51,12 @@ public class AnswerManager {
 
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionManager questionManager,
-						 MailService mailService, ExcelGenerator excelGenerator, PdfGenerator pdfGenerator) {
+						 MailService mailService) throws DocumentException, IOException {
 		this.answerRepository = answerRepository;
 		this.questionManager = questionManager;
 		this.mailService = mailService;
-		this.excelGenerator = excelGenerator;
-		this.pdfGenerator = pdfGenerator;
+		this.excelGenerator = new ExcelGenerator();
+		this.pdfGenerator = new PdfGenerator();
 	}
 
 	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
@@ -173,12 +173,14 @@ public class AnswerManager {
 		String fileName = "Odpowiedzi_" + fileId;
 
 		byte[] bytes;
-		if (filetype.equals(FileTypes.EXCEL)) {
+		if (filetype == FileTypes.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
-		} else {
+		} else if (filetype == FileTypes.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
+		} else {
+			return null;
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}

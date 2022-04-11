@@ -42,11 +42,10 @@ public class QuestionManager {
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
-	public QuestionManager(QuestionRepository questionRepository, ExcelGenerator excelGenerator,
-						   PdfGenerator pdfGenerator) {
+	public QuestionManager(QuestionRepository questionRepository) throws DocumentException, IOException {
 		this.questionRepository = questionRepository;
-		this.excelGenerator = excelGenerator;
-		this.pdfGenerator = pdfGenerator;
+		this.excelGenerator = new ExcelGenerator();
+		this.pdfGenerator = new PdfGenerator();
 	}
 
 	private List<QuestionGet> getQuestions(Filter filter) {
@@ -148,12 +147,14 @@ public class QuestionManager {
 		String fileName = "Pytania_" + fileId;
 
 		byte[] bytes;
-		if (filetype.equals(FileTypes.EXCEL)) {
+		if (filetype == FileTypes.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
-		} else {
+		} else if (filetype == FileTypes.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
+		} else {
+			return null;
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}

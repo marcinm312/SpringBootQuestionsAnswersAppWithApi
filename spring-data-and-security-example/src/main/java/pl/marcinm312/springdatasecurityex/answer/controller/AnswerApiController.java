@@ -82,10 +82,6 @@ public class AnswerApiController {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
-		if (fileType == FileTypes.PDF) {
-			return answerManager.generateAnswersFile(questionId, FileTypes.PDF, filter);
-		} else {
-			return answerManager.generateAnswersFile(questionId, FileTypes.EXCEL, filter);
-		}
+		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 }
