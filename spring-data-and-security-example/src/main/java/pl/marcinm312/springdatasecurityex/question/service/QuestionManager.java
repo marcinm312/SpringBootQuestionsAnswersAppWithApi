@@ -150,9 +150,11 @@ public class QuestionManager {
 		if (filetype.equals(FileTypes.EXCEL)) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
-		} else {
+		} else if (filetype.equals(FileTypes.PDF)) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
+		} else {
+			return null;
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}

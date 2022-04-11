@@ -176,9 +176,11 @@ public class AnswerManager {
 		if (filetype.equals(FileTypes.EXCEL)) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
-		} else {
+		} else if (filetype.equals(FileTypes.PDF)) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
+		} else {
+			return null;
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
