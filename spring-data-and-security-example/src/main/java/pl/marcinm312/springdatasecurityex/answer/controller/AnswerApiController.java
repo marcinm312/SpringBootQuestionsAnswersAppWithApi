@@ -1,25 +1,26 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
 import com.itextpdf.text.DocumentException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
-import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
+import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
-import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import javax.validation.Valid;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/questions/{questionId}/answers")
 public class AnswerApiController {
@@ -27,11 +28,6 @@ public class AnswerApiController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
-	@Autowired
-	public AnswerApiController(AnswerManager answerManager, UserManager userManager) {
-		this.answerManager = answerManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,

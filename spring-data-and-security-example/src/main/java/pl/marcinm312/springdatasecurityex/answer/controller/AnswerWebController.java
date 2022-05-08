@@ -1,8 +1,8 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
 import com.itextpdf.text.DocumentException;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -27,6 +27,8 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
+@Slf4j
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
@@ -47,14 +49,6 @@ public class AnswerWebController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.answerManager = answerManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication,

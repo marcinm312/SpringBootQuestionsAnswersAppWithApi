@@ -1,27 +1,15 @@
 package pl.marcinm312.springdatasecurityex.answer.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
+@Getter
+@Setter
 public class AnswerGet extends CommonsDTOFields {
 
 	private String text;
 	private String user;
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
 
 	@Override
 	public String toString() {
