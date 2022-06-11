@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.itextpdf.text.DocumentException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +19,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import javax.validation.Valid;
 import java.io.IOException;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionApiController {
@@ -26,11 +27,6 @@ public class QuestionApiController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
-	@Autowired
-	public QuestionApiController(QuestionManager questionManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public ListPage<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,

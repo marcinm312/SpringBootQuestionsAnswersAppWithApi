@@ -1,8 +1,15 @@
 package pl.marcinm312.springdatasecurityex.question.model.dto;
 
+import lombok.*;
+
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class QuestionCreateUpdate {
 
 	@NotBlank(message = "Pole to musi być wypełnione!")
@@ -11,37 +18,4 @@ public class QuestionCreateUpdate {
 
 	private String description;
 
-
-	public QuestionCreateUpdate() {
-
-	}
-
-	public QuestionCreateUpdate(String title, String description) {
-		this.title = title;
-		this.description = description;
-	}
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@Override
-	public String toString() {
-		return "QuestionCreateUpdate{" +
-				"title='" + title + '\'' +
-				", description='" + description + '\'' +
-				'}';
-	}
 }

@@ -1,8 +1,8 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
 import com.itextpdf.text.DocumentException;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -11,20 +11,22 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import java.io.IOException;
 
+@RequiredArgsConstructor
+@Slf4j
 @Controller
 @RequestMapping("/app/questions")
 public class QuestionWebController {
@@ -43,13 +45,6 @@ public class QuestionWebController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public QuestionWebController(QuestionManager questionManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public String questionsGet(Model model, Authentication authentication,

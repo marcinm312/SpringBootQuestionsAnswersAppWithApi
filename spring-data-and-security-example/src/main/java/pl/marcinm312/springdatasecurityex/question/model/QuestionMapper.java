@@ -1,16 +1,14 @@
 package pl.marcinm312.springdatasecurityex.question.model;
 
+import lombok.experimental.UtilityClass;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class QuestionMapper {
-
-	private QuestionMapper() {
-
-	}
 
 	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question) {
 		QuestionGet questionGet = new QuestionGet();

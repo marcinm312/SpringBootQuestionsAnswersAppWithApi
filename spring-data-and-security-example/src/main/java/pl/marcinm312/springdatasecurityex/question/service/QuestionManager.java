@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.service;
 
 import com.itextpdf.text.DocumentException;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class QuestionManager {
 
@@ -38,8 +39,6 @@ public class QuestionManager {
 	private final QuestionRepository questionRepository;
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
-
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	@Autowired
 	public QuestionManager(QuestionRepository questionRepository) throws DocumentException, IOException {
