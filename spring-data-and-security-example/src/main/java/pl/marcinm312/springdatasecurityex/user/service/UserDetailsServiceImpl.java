@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.service;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,17 +11,13 @@ import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
 	private final UserRepo userRepo;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public UserDetailsServiceImpl(UserRepo userRepo) {
-		this.userRepo = userRepo;
-	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

@@ -1,12 +1,10 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
+import lombok.experimental.UtilityClass;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 
+@UtilityClass
 public class UserMapper {
-
-	private UserMapper() {
-
-	}
 
 	public static UserGet convertUserToUserGet(UserEntity user) {
 		UserGet userGet = new UserGet();

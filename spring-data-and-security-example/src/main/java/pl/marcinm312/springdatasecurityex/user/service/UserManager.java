@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.service;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
@@ -20,8 +22,6 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class UserManager {
 
@@ -41,17 +43,6 @@ public class UserManager {
 	@Value("${activate.user.url}")
 	private String activationUrl;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
-					   SessionUtils sessionUtils) {
-		this.userRepo = userRepo;
-		this.passwordEncoder = passwordEncoder;
-		this.tokenRepo = tokenRepo;
-		this.mailService = mailService;
-		this.sessionUtils = sessionUtils;
-	}
 
 	public UserEntity getUserByAuthentication(Authentication authentication) {
 		String userName = authentication.getName();

@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.service;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
@@ -13,6 +13,8 @@ import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 
 import java.util.Date;
 
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class FirstUserCreator {
 
@@ -20,14 +22,6 @@ public class FirstUserCreator {
 	private final PasswordEncoder passwordEncoder;
 	private final Environment environment;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public FirstUserCreator(UserRepo userRepo, PasswordEncoder passwordEncoder, Environment environment) {
-		this.userRepo = userRepo;
-		this.passwordEncoder = passwordEncoder;
-		this.environment = environment;
-	}
 
 	@EventListener(ApplicationReadyEvent.class)
 	public UserEntity addFirstUser() {

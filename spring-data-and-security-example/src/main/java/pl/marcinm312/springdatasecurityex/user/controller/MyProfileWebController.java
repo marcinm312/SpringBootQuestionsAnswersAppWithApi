@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +15,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/app/myProfile")
 public class MyProfileWebController {
@@ -33,13 +34,6 @@ public class MyProfileWebController {
 	private final UserDataUpdateValidator userDataUpdateValidator;
 	private final UserPasswordUpdateValidator userPasswordUpdateValidator;
 
-	@Autowired
-	public MyProfileWebController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator,
-								  UserPasswordUpdateValidator userPasswordUpdateValidator) {
-		this.userManager = userManager;
-		this.userDataUpdateValidator = userDataUpdateValidator;
-		this.userPasswordUpdateValidator = userPasswordUpdateValidator;
-	}
 
 	@InitBinder("user")
 	private void initUserDataUpdateBinder(WebDataBinder binder) {

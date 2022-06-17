@@ -1,5 +1,8 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +11,9 @@ import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
 import javax.persistence.*;
 import java.util.*;
 
+@NoArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class UserEntity extends AuditModel implements UserDetails {
@@ -28,9 +34,6 @@ public class UserEntity extends AuditModel implements UserDetails {
 	private Date timeOfSessionExpiration;
 	private Date changePasswordDate;
 
-	public UserEntity() {
-
-	}
 
 	public UserEntity(String username, String password, String email) {
 		this.username = username;
@@ -38,55 +41,9 @@ public class UserEntity extends AuditModel implements UserDetails {
 		this.email = email;
 	}
 
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public void setEnabled(boolean isEnabled) {
-		this.isEnabled = isEnabled;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singleton(new SimpleGrantedAuthority(role));
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
 	}
 
 	@Override
@@ -102,27 +59,6 @@ public class UserEntity extends AuditModel implements UserDetails {
 	@Override
 	public boolean isCredentialsNonExpired() {
 		return true;
-	}
-
-	@Override
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public Date getTimeOfSessionExpiration() {
-		return timeOfSessionExpiration;
-	}
-
-	public void setTimeOfSessionExpiration(Date timeOfSessionExpiration) {
-		this.timeOfSessionExpiration = timeOfSessionExpiration;
-	}
-
-	public Date getChangePasswordDate() {
-		return changePasswordDate;
-	}
-
-	public void setChangePasswordDate(Date changePasswordDate) {
-		this.changePasswordDate = changePasswordDate;
 	}
 
 	public Date getDateToCompareInJwt() {

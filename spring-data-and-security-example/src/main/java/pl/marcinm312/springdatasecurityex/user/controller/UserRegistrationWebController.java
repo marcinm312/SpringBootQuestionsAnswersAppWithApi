@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,6 +12,7 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/")
 public class UserRegistrationWebController {
@@ -24,11 +25,6 @@ public class UserRegistrationWebController {
     private final UserManager userManager;
     private final UserCreateValidator userValidator;
 
-    @Autowired
-    public UserRegistrationWebController(UserManager userManager, UserCreateValidator userValidator) {
-        this.userManager = userManager;
-        this.userValidator = userValidator;
-    }
 
     @InitBinder("user")
     private void initBinder(WebDataBinder binder) {

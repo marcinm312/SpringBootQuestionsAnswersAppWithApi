@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.validator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -10,6 +10,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Component
 public class UserCreateValidator implements Validator {
 
@@ -21,10 +22,6 @@ public class UserCreateValidator implements Validator {
 
 	private final UserDetailsServiceImpl userDetailsService;
 
-	@Autowired
-	public UserCreateValidator(UserDetailsServiceImpl userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -48,5 +45,4 @@ public class UserCreateValidator implements Validator {
 			errors.rejectValue(CONFIRM_PASSWORD_FIELD, CONFIRM_PASSWORD_ERROR, "Hasła w obu polach muszą być takie same!");
 		}
 	}
-
 }

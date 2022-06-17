@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.validator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
@@ -11,6 +11,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Component
 public class UserDataUpdateValidator implements Validator {
 
@@ -20,10 +21,6 @@ public class UserDataUpdateValidator implements Validator {
 
 	private final UserDetailsServiceImpl userDetailsService;
 
-	@Autowired
-	public UserDataUpdateValidator(UserDetailsServiceImpl userDetailsService) {
-		this.userDetailsService = userDetailsService;
-	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -48,5 +45,4 @@ public class UserDataUpdateValidator implements Validator {
 			errors.rejectValue(USERNAME_FIELD, LOGGED_USER_NOT_EXISTS, "Zalogowany użytkownik nie istnieje w bazie danych!");
 		}
 	}
-
 }

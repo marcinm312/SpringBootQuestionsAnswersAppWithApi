@@ -1,5 +1,9 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
 
 import javax.persistence.Entity;
@@ -10,6 +14,10 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
 @Entity
 @Table(name = "tokens")
 public class TokenEntity extends AuditModel {
@@ -25,38 +33,6 @@ public class TokenEntity extends AuditModel {
 	@OneToOne
 	private UserEntity user;
 
-	public TokenEntity() {
-	}
-
-	public TokenEntity(Long id, String value, UserEntity user) {
-		this.id = id;
-		this.value = value;
-		this.user = user;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	public void setValue(String value) {
-		this.value = value;
-	}
-
-	public UserEntity getUser() {
-		return user;
-	}
-
-	public void setUser(UserEntity user) {
-		this.user = user;
-	}
 
 	@Override
 	public String toString() {

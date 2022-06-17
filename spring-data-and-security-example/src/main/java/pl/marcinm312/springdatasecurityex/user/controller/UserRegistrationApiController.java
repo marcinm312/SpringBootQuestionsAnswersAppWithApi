@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -11,6 +11,7 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
 public class UserRegistrationApiController {
@@ -18,11 +19,6 @@ public class UserRegistrationApiController {
 	private final UserManager userManager;
 	private final UserCreateValidator userValidator;
 
-	@Autowired
-	public UserRegistrationApiController(UserManager userManager, UserCreateValidator userValidator) {
-		this.userManager = userManager;
-		this.userValidator = userValidator;
-	}
 
 	@InitBinder("userCreate")
 	private void initBinder(WebDataBinder binder) {

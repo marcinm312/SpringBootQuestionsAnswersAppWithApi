@@ -1,7 +1,11 @@
 package pl.marcinm312.springdatasecurityex.user.model.dto;
 
+import lombok.Getter;
+import lombok.Setter;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
+@Getter
+@Setter
 public class UserGet extends CommonsDTOFields {
 
 	private String username;
@@ -9,37 +13,6 @@ public class UserGet extends CommonsDTOFields {
 	private boolean isEnabled;
 	private String email;
 
-	public String getUsername() {
-		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public void setEnabled(boolean enabled) {
-		isEnabled = enabled;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
 
 	@Override
 	public String toString() {
