@@ -180,7 +180,7 @@ public class UserManager {
 
 	private String getTokenUrl() {
 		if (activationUrl != null && !activationUrl.isEmpty() && activationUrl.startsWith("http")) {
-			return activationUrl;
+			return activationUrl.trim();
 		} else {
 			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 			String requestURL = request.getRequestURL().toString();
