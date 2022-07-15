@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
-import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -24,8 +23,6 @@ import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
-
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -172,7 +169,7 @@ public class AnswerWebController {
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, DocumentException, ResourceNotFoundException {
+			throws ResourceNotFoundException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);

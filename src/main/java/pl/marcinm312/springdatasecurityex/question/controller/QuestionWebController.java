@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
-import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -145,8 +144,7 @@ public class QuestionWebController {
 	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, DocumentException {
+											   @RequestParam(required = false) Sort.Direction sortDirection) {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);

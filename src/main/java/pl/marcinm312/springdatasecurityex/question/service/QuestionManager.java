@@ -16,6 +16,7 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
 import pl.marcinm312.springdatasecurityex.shared.file.FileResponseGenerator;
@@ -139,22 +140,25 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype, Filter filter) throws IOException,
-			DocumentException {
+	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype, Filter filter) {
+
 		List<QuestionGet> questionsList = searchQuestions(filter);
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
 		String fileName = "Pytania_" + fileId;
 
-		byte[] bytes;
+		byte[] bytes = null;
 		if (filetype == FileTypes.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
 		} else if (filetype == FileTypes.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
-		} else {
-			return null;
 		}
-		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
+
+		if (bytes != null) {
+			return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
+		} else {
+			throw new FileException("Wspierane są tylko następujące typy plików: EXCEL, PDF");
+		}
 	}
 }

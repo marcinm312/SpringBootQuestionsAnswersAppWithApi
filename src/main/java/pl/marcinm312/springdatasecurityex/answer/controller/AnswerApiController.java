@@ -74,7 +74,7 @@ public class AnswerApiController {
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, DocumentException, ResourceNotFoundException {
+			throws ResourceNotFoundException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
