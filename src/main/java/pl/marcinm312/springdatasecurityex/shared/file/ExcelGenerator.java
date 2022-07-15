@@ -5,9 +5,9 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.LoggerFactory;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.List;
 
 import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
@@ -16,121 +16,128 @@ public class ExcelGenerator {
 
 	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
-	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws IOException {
+	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) {
 
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
 		String[] columns = {ID_COLUMN, ANSWER_TEXT_COLUMN, CREATION_DATE_COLUMN, MODIFICATION_DATE_COLUMN, USER_COLUMN};
-		Workbook workbook = new XSSFWorkbook();
 
-		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
-		CellStyle dateCellStyle = getDateCellStyle(workbook);
+		try (Workbook workbook = new XSSFWorkbook();
+			 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-		Sheet answersSheet = workbook.createSheet("Odpowiedzi");
+			CellStyle headerCellStyle = getHeaderCellStyle(workbook);
+			CellStyle dateCellStyle = getDateCellStyle(workbook);
 
-		Row headerRow = answersSheet.createRow(0);
+			Sheet answersSheet = workbook.createSheet("Odpowiedzi");
 
-		for (int i = 0; i < columns.length; i++) {
-			Cell cell = headerRow.createCell(i);
-			cell.setCellValue(columns[i]);
-			cell.setCellStyle(headerCellStyle);
+			Row headerRow = answersSheet.createRow(0);
+
+			for (int i = 0; i < columns.length; i++) {
+				Cell cell = headerRow.createCell(i);
+				cell.setCellValue(columns[i]);
+				cell.setCellStyle(headerCellStyle);
+			}
+
+			int rowNum = 1;
+			for (AnswerGet answer : answersList) {
+				Row row = answersSheet.createRow(rowNum++);
+
+				row.createCell(0).setCellValue(answer.getId());
+				row.createCell(1).setCellValue(addValueWithNewLines(answer.getText()));
+
+				createCellWithDate(dateCellStyle, answer.getCreatedAtAsString(), row, 2);
+				createCellWithDate(dateCellStyle, answer.getUpdatedAtAsString(), row, 3);
+
+				row.createCell(4).setCellValue(answer.getUser());
+			}
+
+			for (int i = 0; i < columns.length; i++) {
+				answersSheet.autoSizeColumn(i);
+			}
+
+			Sheet questionSheet = workbook.createSheet("Pytanie");
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 0, ID_COLUMN,
+					question.getId().toString(), false);
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 1, QUESTION_TITLE_COLUMN,
+					question.getTitle(), false);
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 2, QUESTION_DESCRIPTION_COLUMN,
+					addValueWithNewLines(question.getDescription()), false);
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 3, CREATION_DATE_COLUMN,
+					question.getCreatedAtAsString(), true);
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 4, MODIFICATION_DATE_COLUMN,
+					question.getUpdatedAtAsString(), true);
+
+			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 5, USER_COLUMN,
+					question.getUser(), false);
+
+			questionSheet.autoSizeColumn(0);
+			questionSheet.autoSizeColumn(1);
+
+			workbook.write(outputStream);
+
+			log.info("Answers Excel file generated");
+			return outputStream.toByteArray();
+
+		} catch (Exception e) {
+			throw new FileException(e.getMessage());
 		}
-
-		int rowNum = 1;
-		for (AnswerGet answer : answersList) {
-			Row row = answersSheet.createRow(rowNum++);
-
-			row.createCell(0).setCellValue(answer.getId());
-			row.createCell(1).setCellValue(addValueWithNewLines(answer.getText()));
-
-			createCellWithDate(dateCellStyle, answer.getCreatedAtAsString(), row, 2);
-			createCellWithDate(dateCellStyle, answer.getUpdatedAtAsString(), row, 3);
-
-			row.createCell(4).setCellValue(answer.getUser());
-		}
-
-		for (int i = 0; i < columns.length; i++) {
-			answersSheet.autoSizeColumn(i);
-		}
-
-		Sheet questionSheet = workbook.createSheet("Pytanie");
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 0, ID_COLUMN,
-				question.getId().toString(), false);
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 1, QUESTION_TITLE_COLUMN,
-				question.getTitle(), false);
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 2, QUESTION_DESCRIPTION_COLUMN,
-				addValueWithNewLines(question.getDescription()), false);
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 3, CREATION_DATE_COLUMN,
-				question.getCreatedAtAsString(), true);
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 4, MODIFICATION_DATE_COLUMN,
-				question.getUpdatedAtAsString(), true);
-
-		createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 5, USER_COLUMN,
-				question.getUser(), false);
-
-		questionSheet.autoSizeColumn(0);
-		questionSheet.autoSizeColumn(1);
-
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		workbook.write(outputStream);
-		outputStream.close();
-		workbook.close();
-
-		log.info("Answers Excel file generated");
-		return outputStream.toByteArray();
 	}
 
-	public byte[] generateQuestionsExcelFile(List<QuestionGet> questionsList) throws IOException {
+	public byte[] generateQuestionsExcelFile(List<QuestionGet> questionsList) {
 
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());
 
 		String[] columns = {ID_COLUMN, QUESTION_TITLE_COLUMN, QUESTION_DESCRIPTION_COLUMN, CREATION_DATE_COLUMN, MODIFICATION_DATE_COLUMN, USER_COLUMN};
-		Workbook workbook = new XSSFWorkbook();
-		Sheet sheet = workbook.createSheet("Pytania");
-		CellStyle headerCellStyle = getHeaderCellStyle(workbook);
 
-		Row headerRow = sheet.createRow(0);
+		try (Workbook workbook = new XSSFWorkbook();
+			 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-		for (int i = 0; i < columns.length; i++) {
-			Cell cell = headerRow.createCell(i);
-			cell.setCellValue(columns[i]);
-			cell.setCellStyle(headerCellStyle);
+			Sheet sheet = workbook.createSheet("Pytania");
+			CellStyle headerCellStyle = getHeaderCellStyle(workbook);
+
+			Row headerRow = sheet.createRow(0);
+
+			for (int i = 0; i < columns.length; i++) {
+				Cell cell = headerRow.createCell(i);
+				cell.setCellValue(columns[i]);
+				cell.setCellStyle(headerCellStyle);
+			}
+
+			CellStyle dateCellStyle = getDateCellStyle(workbook);
+
+			int rowNum = 1;
+			for (QuestionGet question : questionsList) {
+				Row row = sheet.createRow(rowNum++);
+
+				row.createCell(0).setCellValue(question.getId());
+				row.createCell(1).setCellValue(question.getTitle());
+				row.createCell(2).setCellValue(addValueWithNewLines(question.getDescription()));
+
+				createCellWithDate(dateCellStyle, question.getCreatedAtAsString(), row, 3);
+				createCellWithDate(dateCellStyle, question.getUpdatedAtAsString(), row, 4);
+
+				row.createCell(5).setCellValue(question.getUser());
+			}
+
+			for (int i = 0; i < columns.length; i++) {
+				sheet.autoSizeColumn(i);
+			}
+
+			workbook.write(outputStream);
+
+			log.info("Questions Excel file generated");
+			return outputStream.toByteArray();
+
+		} catch (Exception e) {
+			throw new FileException(e.getMessage());
 		}
-
-		CellStyle dateCellStyle = getDateCellStyle(workbook);
-
-		int rowNum = 1;
-		for (QuestionGet question : questionsList) {
-			Row row = sheet.createRow(rowNum++);
-
-			row.createCell(0).setCellValue(question.getId());
-			row.createCell(1).setCellValue(question.getTitle());
-			row.createCell(2).setCellValue(addValueWithNewLines(question.getDescription()));
-
-			createCellWithDate(dateCellStyle, question.getCreatedAtAsString(), row, 3);
-			createCellWithDate(dateCellStyle, question.getUpdatedAtAsString(), row, 4);
-
-			row.createCell(5).setCellValue(question.getUser());
-		}
-
-		for (int i = 0; i < columns.length; i++) {
-			sheet.autoSizeColumn(i);
-		}
-
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		workbook.write(outputStream);
-		outputStream.close();
-		workbook.close();
-
-		log.info("Questions Excel file generated");
-		return outputStream.toByteArray();
 	}
 
 	private void createRowWithTwoColumns(CellStyle headerCellStyle, CellStyle dateCellStyle, Sheet sheet,

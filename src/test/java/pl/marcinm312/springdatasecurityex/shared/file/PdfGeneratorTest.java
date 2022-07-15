@@ -27,7 +27,7 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsPdfFile_simpleCase_success() throws IOException, DocumentException {
+	void generateQuestionsPdfFile_simpleCase_success() {
 		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
@@ -36,13 +36,13 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsPdfFile_emptyQuestionsList_success() throws IOException, DocumentException {
+	void generateQuestionsPdfFile_emptyQuestionsList_success() {
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
 		pdfGenerator.generateQuestionsPdfFile(new ArrayList<>());
 	}
 
 	@Test
-	void generateAnswersPdfFile_simpleCase_success() throws DocumentException, IOException {
+	void generateAnswersPdfFile_simpleCase_success() {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
@@ -53,7 +53,7 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateAnswersPdfFile_emptyAnswersList_success() throws DocumentException, IOException {
+	void generateAnswersPdfFile_emptyAnswersList_success() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 

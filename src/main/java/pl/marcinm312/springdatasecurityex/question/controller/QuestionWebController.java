@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
-import com.itextpdf.text.DocumentException;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -22,8 +21,6 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
-
-import java.io.IOException;
 
 @Controller
 @RequestMapping("/app/questions")
@@ -150,8 +147,7 @@ public class QuestionWebController {
 	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws IOException, DocumentException {
+											   @RequestParam(required = false) Sort.Direction sortDirection) {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
