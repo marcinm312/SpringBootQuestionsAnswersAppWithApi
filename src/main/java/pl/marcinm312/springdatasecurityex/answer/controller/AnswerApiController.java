@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
-import com.itextpdf.text.DocumentException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +17,6 @@ import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import javax.validation.Valid;
-import java.io.IOException;
 
 @RequiredArgsConstructor
 @RestController

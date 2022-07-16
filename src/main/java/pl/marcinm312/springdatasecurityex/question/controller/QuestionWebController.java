@@ -22,8 +22,6 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
-import java.io.IOException;
-
 @RequiredArgsConstructor
 @Slf4j
 @Controller
