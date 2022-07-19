@@ -73,6 +73,7 @@ public class PdfGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
+			document.close();
 			throw new FileException(e.getMessage());
 		}
 	}
@@ -122,6 +123,7 @@ public class PdfGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
+			document.close();
 			throw new FileException(e.getMessage());
 		}
 	}
