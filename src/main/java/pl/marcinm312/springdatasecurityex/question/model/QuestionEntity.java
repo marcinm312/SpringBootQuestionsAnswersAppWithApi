@@ -7,7 +7,7 @@ import lombok.ToString;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
-import pl.marcinm312.springdatasecurityex.shared.model.EntityWithUser;
+import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.persistence.*;
@@ -19,7 +19,7 @@ import java.util.Date;
 @Setter
 @Entity
 @Table(name = "questions")
-public class QuestionEntity extends AuditModel implements EntityWithUser {
+public class QuestionEntity extends AuditModel implements CommonEntityWithUser {
 
     @Id
     @GeneratedValue(generator = "question_generator")

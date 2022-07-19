@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
+import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,7 +21,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @Entity
 @Table(name = "tokens")
-public class TokenEntity extends AuditModel {
+public class TokenEntity extends AuditModel implements CommonEntityWithUser {
 
 	@Id
 	@GeneratedValue(generator = "token_id_generator")

@@ -7,6 +7,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
+import pl.marcinm312.springdatasecurityex.shared.model.CommonEntity;
 
 import javax.persistence.*;
 import java.util.*;
@@ -16,7 +17,7 @@ import java.util.*;
 @Setter
 @Entity
 @Table(name = "users")
-public class UserEntity extends AuditModel implements UserDetails {
+public class UserEntity extends AuditModel implements UserDetails, CommonEntity {
 
 	@Id
 	@GeneratedValue(generator = "user_generator")
