@@ -3,7 +3,7 @@ package pl.marcinm312.springdatasecurityex.config.security.jwt;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 
+@Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 
 	private static final String TOKEN_HEADER = "Authorization";
@@ -26,7 +27,6 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	private final UserDetailsServiceImpl userDetailsService;
 	private final Environment environment;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
 								  UserDetailsServiceImpl userDetailsService,

@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +31,7 @@ public class MultiHttpSecurityCustomConfig {
 		return new BCryptPasswordEncoder();
 	}
 
+	@RequiredArgsConstructor
 	@Configuration
 	@Order(1)
 	public static class ApiWebSecurityConfigurationAdapter {
@@ -41,19 +42,6 @@ public class MultiHttpSecurityCustomConfig {
 		private final RestAuthenticationFailureHandler failureHandler;
 		private final Environment environment;
 		private final AuthenticationConfiguration authenticationConfiguration;
-
-		@Autowired
-		public ApiWebSecurityConfigurationAdapter(UserDetailsServiceImpl userDetailsService, ObjectMapper objectMapper,
-												  RestAuthenticationSuccessHandler successHandler,
-												  RestAuthenticationFailureHandler failureHandler,
-												  Environment environment, AuthenticationConfiguration authenticationConfiguration) {
-			this.userDetailsService = userDetailsService;
-			this.objectMapper = objectMapper;
-			this.successHandler = successHandler;
-			this.failureHandler = failureHandler;
-			this.environment = environment;
-			this.authenticationConfiguration = authenticationConfiguration;
-		}
 
 		@Bean
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
@@ -83,7 +71,6 @@ public class MultiHttpSecurityCustomConfig {
 			authenticationFilter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
 			return authenticationFilter;
 		}
-
 	}
 
 	@Configuration

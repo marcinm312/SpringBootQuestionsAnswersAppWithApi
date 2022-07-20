@@ -1,18 +1,17 @@
 package pl.marcinm312.springdatasecurityex.config.security.utils;
 
-import org.slf4j.LoggerFactory;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
+@UtilityClass
+@Slf4j
 public class PermissionsUtils {
 
-	private PermissionsUtils() {
-
-	}
-
 	public static boolean checkIfUserIsPermitted (CommonEntityWithUser entityWithUser, UserEntity loggedUser) {
-		org.slf4j.Logger log = LoggerFactory.getLogger(PermissionsUtils.class);
+
 		Long objectUserId = entityWithUser.getUser().getId();
 		Long currentUserId = loggedUser.getId();
 		String currentUserRole = loggedUser.getRole();
