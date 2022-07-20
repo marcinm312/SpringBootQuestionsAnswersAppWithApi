@@ -1,15 +1,13 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
+import lombok.experimental.UtilityClass;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
+@UtilityClass
 public class FileResponseGenerator {
-
-	private FileResponseGenerator() {
-
-	}
 
 	public static ResponseEntity<Object> generateResponseWithFile(byte[] bytes, String fileName) {
 		ByteArrayResource resource = new ByteArrayResource(bytes);

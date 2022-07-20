@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.shared.mail;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -10,20 +10,15 @@ import org.springframework.stereotype.Service;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class MailService {
 
 	private final JavaMailSender javaMailSender;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
 	@Value("${spring.mail.username}")
 	private String emailFrom;
-
-	@Autowired
-	public MailService(JavaMailSender javaMailSender) {
-		this.javaMailSender = javaMailSender;
-	}
 
 	public void sendMail(String to, String subject, String text, boolean isHtmlContent) throws MessagingException {
 		log.info("Starting creating an email");

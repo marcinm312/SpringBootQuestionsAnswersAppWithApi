@@ -5,7 +5,7 @@ import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
@@ -16,14 +16,13 @@ import java.util.List;
 
 import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
 
+@Slf4j
 public class PdfGenerator {
 
 	private static final String OF_QUESTION = " pytania: ";
-
 	private final Font helvetica18;
 	private final Font helvetica12;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public PdfGenerator() throws DocumentException, IOException {
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);

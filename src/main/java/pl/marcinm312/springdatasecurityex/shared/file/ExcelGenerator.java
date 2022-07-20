@@ -1,8 +1,8 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.slf4j.LoggerFactory;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
@@ -12,9 +12,8 @@ import java.util.List;
 
 import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
 
+@Slf4j
 public class ExcelGenerator {
-
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
 
 	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) {
 

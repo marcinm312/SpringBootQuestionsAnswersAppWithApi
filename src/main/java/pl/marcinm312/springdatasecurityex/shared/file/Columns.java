@@ -1,10 +1,9 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
 class Columns {
-
-	private Columns() {
-
-	}
 
 	static final String ID_COLUMN = "Id";
 	static final String ANSWER_TEXT_COLUMN = "Treść odpowiedzi";
