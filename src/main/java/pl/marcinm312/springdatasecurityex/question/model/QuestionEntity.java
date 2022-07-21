@@ -34,6 +34,7 @@ public class QuestionEntity extends AuditModel implements CommonEntityWithUser {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @ToString.Exclude
     private UserEntity user;
 
     public QuestionEntity(String title, String description) {
@@ -42,11 +43,10 @@ public class QuestionEntity extends AuditModel implements CommonEntityWithUser {
     }
 
     public QuestionEntity(Long id, String title, String description, UserEntity user, Date createdAt, Date updatedAt) {
+        super(createdAt, updatedAt);
         this.id = id;
         this.title = title;
         this.description = description;
         this.user = user;
-        this.setCreatedAt(createdAt);
-        this.setUpdatedAt(updatedAt);
     }
 }
