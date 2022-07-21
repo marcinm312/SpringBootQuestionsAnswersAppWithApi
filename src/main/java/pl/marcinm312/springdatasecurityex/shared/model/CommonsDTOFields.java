@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Getter
@@ -19,15 +21,17 @@ public class CommonsDTOFields {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date updatedAt;
 
-
 	@JsonIgnore
-	public String getUpdatedAtAsString() {
-		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
-	}
+	private final Format dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@JsonIgnore
 	public String getCreatedAtAsString() {
-		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
+		return dateFormat.format(createdAt);
+	}
+
+	@JsonIgnore
+	public String getUpdatedAtAsString() {
+		return dateFormat.format(updatedAt);
 	}
 
 	@Override
