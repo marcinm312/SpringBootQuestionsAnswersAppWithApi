@@ -1,12 +1,13 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileResponseGenerator {
 
 	public static ResponseEntity<Object> generateResponseWithFile(byte[] bytes, String fileName) {

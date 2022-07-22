@@ -2,11 +2,12 @@ package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtCreator {
 
 	public static String createJWT(String subject, long expirationTime, byte[] secretBytes) {

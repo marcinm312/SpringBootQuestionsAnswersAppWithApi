@@ -1,8 +1,9 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class Columns {
 
 	static final String ID_COLUMN = "Id";

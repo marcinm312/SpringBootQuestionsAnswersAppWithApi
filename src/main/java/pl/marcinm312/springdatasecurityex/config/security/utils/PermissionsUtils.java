@@ -1,12 +1,13 @@
 package pl.marcinm312.springdatasecurityex.config.security.utils;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
 public class PermissionsUtils {
 

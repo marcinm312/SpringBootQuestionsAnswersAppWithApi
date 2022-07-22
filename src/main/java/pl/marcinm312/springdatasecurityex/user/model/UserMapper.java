@@ -1,9 +1,10 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
-import lombok.experimental.UtilityClass;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 
-@UtilityClass
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
 	public static UserGet convertUserToUserGet(UserEntity user) {
