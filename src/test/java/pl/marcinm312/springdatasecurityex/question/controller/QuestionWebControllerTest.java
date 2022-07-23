@@ -374,17 +374,17 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 
-		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		Assertions.assertEquals(expectedQuestion.getId(), oldQuestionFromModel.getId());
+		Assertions.assertEquals(expectedQuestion.getTitle(), oldQuestionFromModel.getTitle());
+		Assertions.assertEquals(expectedQuestion.getDescription(), oldQuestionFromModel.getDescription());
+		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
+
+		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
 		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
 		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
 		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
-
-		QuestionGet questionFromModel2 = (QuestionGet) modelAndView.getModel().get("question");
-		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel2.getId());
-		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel2.getTitle());
-		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel2.getDescription());
-		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel2.getUser());
 	}
 
 	@Test
