@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 public class QuestionMapper {
 
 	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question) {
+
 		return QuestionGet.builder()
 				.id(question.getId())
 				.title(question.getTitle())
