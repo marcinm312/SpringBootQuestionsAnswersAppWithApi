@@ -106,9 +106,7 @@ public class AnswerManager {
 	@Transactional
 	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, UserEntity user) {
 		return questionManager.getQuestionEntity(questionId).map(question -> {
-			AnswerEntity answer = new AnswerEntity(answerRequest.getText());
-			answer.setQuestion(question);
-			answer.setUser(user);
+			AnswerEntity answer = new AnswerEntity(answerRequest.getText(), question, user);
 			log.info("Adding answer = {}", answer);
 			AnswerEntity savedAnswer = answerRepository.save(answer);
 			try {

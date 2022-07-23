@@ -16,13 +16,13 @@ public class QuestionDataProvider {
 	public static List<QuestionEntity> prepareExampleQuestionsList() {
 		List<QuestionEntity> questions = new ArrayList<>();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		questions.add(buildQuestionObject(1002L, "bbbb", "bbbb", user,
+		questions.add(buildQuestionEntity(1002L, "bbbb", "bbbb", user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
-		questions.add(buildQuestionObject(1001L, "aaaa", "", user,
+		questions.add(buildQuestionEntity(1001L, "aaaa", "", user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
-		questions.add(buildQuestionObject(1000L, "cccc", "cccc", user,
+		questions.add(buildQuestionEntity(1000L, "cccc", "cccc", user,
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
 		return questions;
@@ -31,7 +31,7 @@ public class QuestionDataProvider {
 	public static List<QuestionEntity> prepareExampleSearchedQuestionsList() {
 		List<QuestionEntity> questions = new ArrayList<>();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		questions.add(buildQuestionObject(1001L, "aaaa", "", user,
+		questions.add(buildQuestionEntity(1001L, "aaaa", "", user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
 		return questions;
@@ -39,12 +39,12 @@ public class QuestionDataProvider {
 
 	public static QuestionEntity prepareExampleQuestion() {
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		return buildQuestionObject(1000L, "bbbb", "bbbb",user,
+		return buildQuestionEntity(1000L, "bbbb", "bbbb",user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30));
 	}
 
-	private static QuestionEntity buildQuestionObject(Long id, String title, String description, UserEntity user, Date createdAt, Date updatedAt) {
+	private static QuestionEntity buildQuestionEntity(Long id, String title, String description, UserEntity user, Date createdAt, Date updatedAt) {
 		return QuestionEntity.builder()
 				.id(id)
 				.title(title)

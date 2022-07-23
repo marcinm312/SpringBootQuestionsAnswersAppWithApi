@@ -1,9 +1,7 @@
 package pl.marcinm312.springdatasecurityex.answer.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
@@ -12,12 +10,13 @@ import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.persistence.*;
-import java.util.Date;
 
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @Getter
 @Setter
+@SuperBuilder
 @Entity
 @Table(name = "answers")
 public class AnswerEntity extends AuditModel implements CommonEntityWithUser {
@@ -42,18 +41,7 @@ public class AnswerEntity extends AuditModel implements CommonEntityWithUser {
 	@ToString.Exclude
 	private UserEntity user;
 
-	public AnswerEntity(String text) {
-		this.text = text;
-	}
-
-	public AnswerEntity(String text, UserEntity user) {
-		this.text = text;
-		this.user = user;
-	}
-
-	public AnswerEntity(Long id, String text, QuestionEntity question, UserEntity user, Date createdAt, Date updatedAt) {
-		super(createdAt, updatedAt);
-		this.id = id;
+	public AnswerEntity(String text, QuestionEntity question, UserEntity user) {
 		this.text = text;
 		this.question = question;
 		this.user = user;

@@ -269,7 +269,7 @@ class AnswerWebControllerTest {
 	void createAnswer_simpleCase_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/new")
@@ -491,7 +491,7 @@ class AnswerWebControllerTest {
 	void editAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -514,7 +514,7 @@ class AnswerWebControllerTest {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -556,7 +556,7 @@ class AnswerWebControllerTest {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -597,7 +597,7 @@ class AnswerWebControllerTest {
 	void editAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
