@@ -1,11 +1,14 @@
 package pl.marcinm312.springdatasecurityex.question.model.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
 @Getter
-@Setter
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuestionGet extends CommonsDTOFields {
 
 	private String title;

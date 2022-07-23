@@ -359,11 +359,13 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = xmlMapper.readValue(response, QuestionGet.class);
-		if ("".equals(responseQuestion.getDescription())) {
-			responseQuestion.setDescription(null);
-		}
+
 		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
+		if (questionToRequest.getDescription() == null) {
+			Assertions.assertEquals("", responseQuestion.getDescription());
+		} else {
+			Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
+		}
 
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}

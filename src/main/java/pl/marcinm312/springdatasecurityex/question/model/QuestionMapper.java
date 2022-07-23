@@ -3,7 +3,6 @@ package pl.marcinm312.springdatasecurityex.question.model;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
-import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,15 +11,14 @@ import java.util.stream.Collectors;
 public class QuestionMapper {
 
 	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question) {
-		QuestionGet questionGet = new QuestionGet();
-		questionGet.setId(question.getId());
-		questionGet.setTitle(question.getTitle());
-		questionGet.setDescription(question.getDescription());
-		questionGet.setCreatedAt(question.getCreatedAt());
-		questionGet.setUpdatedAt(question.getUpdatedAt());
-		UserEntity user = question.getUser();
-		questionGet.setUser(user.getUsername());
-		return questionGet;
+		return QuestionGet.builder()
+				.id(question.getId())
+				.title(question.getTitle())
+				.description(question.getDescription())
+				.createdAt(question.getCreatedAt())
+				.updatedAt(question.getUpdatedAt())
+				.user(question.getUser().getUsername())
+				.build();
 	}
 
 	public static List<QuestionGet> convertQuestionEntityListToQuestionGetList(List<QuestionEntity> questionList) {
