@@ -19,9 +19,7 @@ public class QuestionMapper {
 		questionGet.setCreatedAt(question.getCreatedAt());
 		questionGet.setUpdatedAt(question.getUpdatedAt());
 		UserEntity user = question.getUser();
-		if (user != null) {
-			questionGet.setUser(user.getUsername());
-		}
+		questionGet.setUser(user.getUsername());
 		return questionGet;
 	}
 

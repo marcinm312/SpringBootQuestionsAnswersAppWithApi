@@ -320,7 +320,7 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -346,7 +346,7 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -443,7 +443,7 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -522,7 +522,7 @@ class QuestionApiControllerTest {
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), adminUser));
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -547,7 +547,7 @@ class QuestionApiControllerTest {
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), secondUser));
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)

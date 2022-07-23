@@ -103,8 +103,7 @@ public class QuestionManager {
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {
-		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription());
-		question.setUser(user);
+		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription(), user);
 		log.info("Creating question = {}", question);
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
 	}

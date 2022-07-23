@@ -234,7 +234,7 @@ class QuestionWebControllerTest {
 	void createQuestion_simpleCase_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -255,7 +255,7 @@ class QuestionWebControllerTest {
 	void createQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -455,7 +455,7 @@ class QuestionWebControllerTest {
 	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -476,7 +476,7 @@ class QuestionWebControllerTest {
 	void editQuestion_emptyDescription_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -563,7 +563,7 @@ class QuestionWebControllerTest {
 	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), adminUser));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -584,7 +584,7 @@ class QuestionWebControllerTest {
 	void editQuestion_userUpdatesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription()));
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")

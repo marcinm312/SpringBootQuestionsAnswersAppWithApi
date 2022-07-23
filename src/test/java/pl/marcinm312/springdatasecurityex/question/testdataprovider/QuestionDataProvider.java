@@ -8,6 +8,7 @@ import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class QuestionDataProvider {
@@ -15,13 +16,13 @@ public class QuestionDataProvider {
 	public static List<QuestionEntity> prepareExampleQuestionsList() {
 		List<QuestionEntity> questions = new ArrayList<>();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		questions.add(new QuestionEntity(1002L, "bbbb", "bbbb", user,
+		questions.add(buildQuestionObject(1002L, "bbbb", "bbbb", user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
-		questions.add(new QuestionEntity(1001L, "aaaa", "", user,
+		questions.add(buildQuestionObject(1001L, "aaaa", "", user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
-		questions.add(new QuestionEntity(1000L, "cccc", "cccc", user,
+		questions.add(buildQuestionObject(1000L, "cccc", "cccc", user,
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30)));
 		return questions;
@@ -30,7 +31,7 @@ public class QuestionDataProvider {
 	public static List<QuestionEntity> prepareExampleSearchedQuestionsList() {
 		List<QuestionEntity> questions = new ArrayList<>();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		questions.add(new QuestionEntity(1001L, "aaaa", "", user,
+		questions.add(buildQuestionObject(1001L, "aaaa", "", user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30)));
 		return questions;
@@ -38,9 +39,20 @@ public class QuestionDataProvider {
 
 	public static QuestionEntity prepareExampleQuestion() {
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		return new QuestionEntity(1000L, "bbbb", "bbbb",user,
+		return buildQuestionObject(1000L, "bbbb", "bbbb",user,
 				DateProvider.prepareDate(2019, Calendar.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Calendar.SEPTEMBER, 10, 10, 25, 30));
+	}
+
+	private static QuestionEntity buildQuestionObject(Long id, String title, String description, UserEntity user, Date createdAt, Date updatedAt) {
+		return QuestionEntity.builder()
+				.id(id)
+				.title(title)
+				.description(description)
+				.user(user)
+				.createdAt(createdAt)
+				.updatedAt(updatedAt)
+				.build();
 	}
 
 	public static QuestionCreateUpdate prepareGoodQuestionToRequest() {
