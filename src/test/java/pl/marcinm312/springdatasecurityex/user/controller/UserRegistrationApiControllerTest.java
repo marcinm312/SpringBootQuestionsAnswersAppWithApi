@@ -104,7 +104,7 @@ class UserRegistrationApiControllerTest {
 	void createUser_goodUser_success(UserCreate userToRequest, String nameOfTestCase) throws Exception {
 		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		String response = mockMvc.perform(

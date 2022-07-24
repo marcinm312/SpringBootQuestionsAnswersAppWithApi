@@ -150,9 +150,7 @@ public class UserManager {
 
 	private void sendToken(UserEntity user) {
 		String tokenValue = UUID.randomUUID().toString();
-		TokenEntity token = new TokenEntity();
-		token.setUser(user);
-		token.setValue(tokenValue);
+		TokenEntity token = new TokenEntity(tokenValue, user);
 		tokenRepo.save(token);
 		String emailContent = generateEmailContent(user, tokenValue);
 		try {

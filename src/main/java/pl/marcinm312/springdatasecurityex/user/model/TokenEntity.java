@@ -1,9 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonEntityWithUser;
 
@@ -16,9 +14,10 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Setter
+@SuperBuilder
 @Entity
 @Table(name = "tokens")
 public class TokenEntity extends AuditModel implements CommonEntityWithUser {
@@ -34,6 +33,10 @@ public class TokenEntity extends AuditModel implements CommonEntityWithUser {
 	@OneToOne
 	private UserEntity user;
 
+	public TokenEntity(String value, UserEntity user) {
+		this.value = value;
+		this.user = user;
+	}
 
 	@Override
 	public String toString() {

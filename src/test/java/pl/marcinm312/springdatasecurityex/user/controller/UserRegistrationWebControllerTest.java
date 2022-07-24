@@ -144,7 +144,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
@@ -171,7 +171,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
 		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity(null, "123456789", user));
+		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
