@@ -14,7 +14,7 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
@@ -139,17 +139,17 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<Object> generateQuestionsFile(FileTypes filetype, Filter filter) {
+	public ResponseEntity<Object> generateQuestionsFile(FileType filetype, Filter filter) {
 
 		List<QuestionGet> questionsList = searchQuestions(filter);
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
 		String fileName = "Pytania_" + fileId;
 
 		byte[] bytes = null;
-		if (filetype == FileTypes.EXCEL) {
+		if (filetype == FileType.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
-		} else if (filetype == FileTypes.PDF) {
+		} else if (filetype == FileType.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		}

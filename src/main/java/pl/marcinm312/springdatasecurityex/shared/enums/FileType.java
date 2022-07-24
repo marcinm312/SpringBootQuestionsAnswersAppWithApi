@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.shared.enums;
 
-public enum FileTypes {
+public enum FileType {
 
 	PDF, EXCEL
 }

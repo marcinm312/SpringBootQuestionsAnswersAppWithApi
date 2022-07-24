@@ -18,7 +18,7 @@ import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
@@ -163,7 +163,7 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype, Filter filter) {
+	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileType filetype, Filter filter) {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = searchAnswers(questionId, filter);
@@ -171,10 +171,10 @@ public class AnswerManager {
 		String fileName = "Odpowiedzi_" + fileId;
 
 		byte[] bytes = null;
-		if (filetype == FileTypes.EXCEL) {
+		if (filetype == FileType.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
-		} else if (filetype == FileTypes.PDF) {
+		} else if (filetype == FileType.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		}
