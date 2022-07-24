@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
-import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
@@ -65,13 +65,18 @@ public class UserManager {
 
 	@Transactional
 	public UserGet addUser(UserCreate userRequest) {
-		UserEntity user = new UserEntity(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
+
 		Date currentDate = new Date();
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setEnabled(false);
-		user.setRole(Roles.ROLE_USER.name());
-		user.setTimeOfSessionExpiration(currentDate);
-		user.setChangePasswordDate(currentDate);
+		UserEntity user = UserEntity.builder()
+				.username(userRequest.getUsername())
+				.password(passwordEncoder.encode(userRequest.getPassword()))
+				.email(userRequest.getEmail())
+				.enabled(false)
+				.role(Role.ROLE_USER)
+				.timeOfSessionExpiration(currentDate)
+				.changePasswordDate(currentDate)
+				.build();
+
 		log.info("Creating user = {}", user);
 		UserEntity savedUser = userRepo.save(user);
 		sendToken(user);

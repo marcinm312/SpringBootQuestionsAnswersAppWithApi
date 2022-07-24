@@ -102,7 +102,11 @@ class UserRegistrationApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{1}''")
 	@MethodSource("examplesOfUserRegistrationGoodRequests")
 	void createUser_goodUser_success(UserCreate userToRequest, String nameOfTestCase) throws Exception {
-		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		UserEntity user = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password(userToRequest.getPassword())
+				.email(userToRequest.getEmail())
+				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);

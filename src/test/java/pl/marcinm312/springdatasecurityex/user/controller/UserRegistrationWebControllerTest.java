@@ -142,7 +142,11 @@ class UserRegistrationWebControllerTest {
 	@Test
 	void createUser_simpleCase_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
-		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		UserEntity user = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password(userToRequest.getPassword())
+				.email(userToRequest.getEmail())
+				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
@@ -169,7 +173,11 @@ class UserRegistrationWebControllerTest {
 	@Test
 	void createUser_spacesInPassword_success() throws Exception {
 		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
-		UserEntity user = new UserEntity(userToRequest.getUsername(), userToRequest.getPassword(), userToRequest.getEmail());
+		UserEntity user = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password(userToRequest.getPassword())
+				.email(userToRequest.getEmail())
+				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);

@@ -2,6 +2,7 @@ package pl.marcinm312.springdatasecurityex.user.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
 @Getter
@@ -9,7 +10,7 @@ import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 public class UserGet extends CommonsDTOFields {
 
 	private String username;
-	private String role;
+	private Role role;
 	private boolean isEnabled;
 	private String email;
 

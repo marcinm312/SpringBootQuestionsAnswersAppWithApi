@@ -1,11 +1,11 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonEntity;
 
@@ -13,8 +13,10 @@ import javax.persistence.*;
 import java.util.*;
 
 @NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Setter
+@SuperBuilder
 @Entity
 @Table(name = "users")
 public class UserEntity extends AuditModel implements UserDetails, CommonEntity {
@@ -28,23 +30,22 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 	private String username;
 
 	private String password;
-	private String role;
-	private boolean isEnabled;
+
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	@Column(name = "is_enabled")
+	private boolean enabled;
+
 	private String email;
 
 	private Date timeOfSessionExpiration;
 	private Date changePasswordDate;
 
 
-	public UserEntity(String username, String password, String email) {
-		this.username = username;
-		this.password = password;
-		this.email = email;
-	}
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority(role));
+		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
 	}
 
 	@Override
@@ -75,7 +76,7 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 				"id=" + id +
 				", username='" + username + '\'' +
 				", role='" + role + '\'' +
-				", isEnabled=" + isEnabled +
+				", enabled=" + enabled +
 				", timeOfSessionExpiration=" + timeOfSessionExpiration +
 				", changePasswordDate=" + changePasswordDate +
 				'}';

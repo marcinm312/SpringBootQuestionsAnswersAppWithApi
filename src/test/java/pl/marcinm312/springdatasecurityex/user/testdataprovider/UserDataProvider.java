@@ -2,7 +2,7 @@ package pl.marcinm312.springdatasecurityex.user.testdataprovider;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.testdataprovider.DateProvider;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
@@ -16,116 +16,117 @@ public class UserDataProvider {
 
 	public static UserEntity prepareExampleGoodAdministratorWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1000L);
-		user.setUsername("administrator");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_ADMIN.name());
-		user.setEnabled(true);
-		user.setEmail("admin@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1000L)
+				.username("administrator")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_ADMIN)
+				.enabled(true)
+				.email("admin@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1001L);
-		user.setUsername("user");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(true);
-		user.setEmail("test@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1001L)
+				.username("user")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleSecondGoodUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1002L);
-		user.setUsername("user2");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(true);
-		user.setEmail("test2@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1002L)
+				.username("user2")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.email("test2@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleDisabledUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1001L);
-		user.setUsername("user");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(false);
-		user.setEmail("test@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1001L)
+				.username("user")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleSecondDisabledUserWithEncodedPassword() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1003L);
-		user.setUsername("user3");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(false);
-		user.setEmail("test@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1003L)
+				.username("user3")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1003L);
-		user.setUsername("user3");
-		user.setPassword(passwordEncoder.encode(" pass "));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(true);
-		user.setEmail("test3@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30));
-		user.setUpdatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
-		user.setChangePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
-		user.setTimeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
-		return user;
+		return UserEntity.builder()
+				.id(1003L)
+				.username("user3")
+				.password(passwordEncoder.encode(" pass "))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.email("test3@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
+				.build();
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedAndChangedPassword() {
 		long currentTime = System.currentTimeMillis();
 		Date futureDate = new Date(currentTime + 10 * 60000);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-		UserEntity user = new UserEntity();
-		user.setId(1004L);
-		user.setUsername("user4");
-		user.setPassword(passwordEncoder.encode("password"));
-		user.setRole(Roles.ROLE_USER.name());
-		user.setEnabled(true);
-		user.setEmail("test4@abc.pl");
-		user.setCreatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30));
-		user.setUpdatedAt(futureDate);
-		user.setChangePasswordDate(futureDate);
-		user.setTimeOfSessionExpiration(futureDate);
-		return user;
+
+		return UserEntity.builder()
+				.id(1004L)
+				.username("user4")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.email("test4@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.updatedAt(futureDate)
+				.changePasswordDate(futureDate)
+				.timeOfSessionExpiration(futureDate)
+				.build();
 	}
 
 	public static UserCreate prepareGoodUserToRequest() {
