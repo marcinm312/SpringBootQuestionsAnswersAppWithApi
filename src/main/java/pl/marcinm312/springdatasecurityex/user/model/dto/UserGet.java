@@ -1,17 +1,20 @@
 package pl.marcinm312.springdatasecurityex.user.model.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
 @Getter
-@Setter
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserGet extends CommonsDTOFields {
 
 	private String username;
 	private Role role;
-	private boolean isEnabled;
+	private boolean enabled;
 	private String email;
 
 
@@ -20,7 +23,7 @@ public class UserGet extends CommonsDTOFields {
 		return "UserGet{" +
 				"username='" + username + '\'' +
 				", role='" + role + '\'' +
-				", isEnabled=" + isEnabled +
+				", enabled=" + enabled +
 				"} " + super.toString();
 	}
 
