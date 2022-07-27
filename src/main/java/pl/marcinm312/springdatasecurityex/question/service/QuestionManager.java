@@ -165,10 +165,9 @@ public class QuestionManager {
 			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
 		}
 
-		if (bytes != null) {
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
-		} else {
+		if (bytes == null) {
 			throw new FileException("Wspierane są tylko następujące typy plików: EXCEL, PDF");
 		}
+		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
 }

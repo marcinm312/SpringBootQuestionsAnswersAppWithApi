@@ -174,7 +174,7 @@ class AnswerApiControllerTest {
 						"getAnswers_simpleCase_success"),
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=0&sortField=DESCRIPTION&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
