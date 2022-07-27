@@ -26,7 +26,6 @@ public class AnswerApiController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
-
 	@GetMapping
 	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,
 										  @RequestParam(required = false) String keyword,
@@ -48,6 +47,7 @@ public class AnswerApiController {
 	@PostMapping
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
 							   Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
@@ -55,6 +55,7 @@ public class AnswerApiController {
 	@PutMapping("/{answerId}")
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
@@ -62,6 +63,7 @@ public class AnswerApiController {
 	@DeleteMapping("/{answerId}")
 	public boolean deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return answerManager.deleteAnswer(questionId, answerId, user);
 	}

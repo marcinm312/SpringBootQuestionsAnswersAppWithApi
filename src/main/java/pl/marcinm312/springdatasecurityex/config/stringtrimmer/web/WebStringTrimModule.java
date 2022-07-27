@@ -14,8 +14,8 @@ public class WebStringTrimModule {
 
 	@InitBinder
 	public void setupDefaultInitBinder(WebDataBinder binder) {
-		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 
+		binder.registerCustomEditor(String.class, new StringTrimmerEditor(true));
 		PropertyEditorSupport dummyEditor = new PropertyEditorSupport() {
 			@Override
 			public void setAsText(String text) throws IllegalArgumentException {

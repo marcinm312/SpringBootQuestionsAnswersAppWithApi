@@ -42,21 +42,21 @@ public class MyProfileApiController {
 	@PutMapping
 	public UserGet updateMyProfile(@Validated @RequestBody UserDataUpdate user, BindingResult bindingResult,
 								   Authentication authentication) throws BindException {
+
 		if (bindingResult.hasErrors()) {
 			throw new BindException(bindingResult);
-		} else {
-			return userManager.updateUserData(user, authentication);
 		}
+		return userManager.updateUserData(user, authentication);
 	}
 
 	@PutMapping("/updatePassword")
 	public UserGet updateMyPassword(@Validated @RequestBody UserPasswordUpdate user, BindingResult bindingResult,
 									Authentication authentication) throws BindException {
+
 		if (bindingResult.hasErrors()) {
 			throw new BindException(bindingResult);
-		} else {
-			return userManager.updateUserPassword(user, authentication);
 		}
+		return userManager.updateUserPassword(user, authentication);
 	}
 
 	@DeleteMapping

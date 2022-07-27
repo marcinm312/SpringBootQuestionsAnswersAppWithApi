@@ -19,6 +19,7 @@ public class SessionUtils {
 	private final SessionRegistry sessionRegistry;
 
 	public UserEntity expireUserSessions(UserEntity user, boolean expireCurrentSession, boolean isDeletingUser) {
+
 		log.info("Starting expiring user sessions. user={}, expireCurrentSession={}", user, expireCurrentSession);
 		List<SessionInformation> listOfSessionInformation = sessionRegistry.getAllSessions(user, true);
 		log.info("listOfSessionInformation.size()={}", listOfSessionInformation.size());
@@ -42,6 +43,7 @@ public class SessionUtils {
 	}
 
 	private void processSession(String username, SessionInformation sessionInformation) {
+
 		sessionInformation.expireNow();
 		log.info("Session {} of user {} has expired", sessionInformation.getSessionId(), username);
 	}

@@ -43,28 +43,31 @@ public class QuestionManager {
 
 	@Autowired
 	public QuestionManager(QuestionRepository questionRepository) throws DocumentException, IOException {
+
 		this.questionRepository = questionRepository;
 		this.excelGenerator = new ExcelGenerator();
 		this.pdfGenerator = new PdfGenerator();
 	}
 
 	private List<QuestionGet> getQuestions(Filter filter) {
+
 		List<QuestionEntity> questionsFromDB = questionRepository.getQuestions(Sort.by(filter.getSortDirection(),
 				filter.getSortField().getField()));
 		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
 	private List<QuestionGet> searchQuestions(Filter filter) {
+
 		if (filter.isKeywordEmpty()) {
 			return getQuestions(filter);
-		} else {
-			List<QuestionEntity> questionsFromDB = questionRepository.searchQuestions(filter.getKeyword(),
-					Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
-			return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 		}
+		List<QuestionEntity> questionsFromDB = questionRepository.searchQuestions(filter.getKeyword(),
+				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
+		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
 	}
 
 	private ListPage<QuestionGet> getPaginatedQuestions(Filter filter) {
+
 		Page<QuestionEntity> questionEntities = questionRepository.getPaginatedQuestions(PageRequest
 				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
 						filter.getSortField().getField())));
@@ -74,16 +77,16 @@ public class QuestionManager {
 	}
 
 	public ListPage<QuestionGet> searchPaginatedQuestions(Filter filter) {
+
 		if (filter.isKeywordEmpty()) {
 			return getPaginatedQuestions(filter);
-		} else {
-			Page<QuestionEntity> questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
-					.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
-							filter.getSortField().getField())));
-			List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
-					questionEntities.getContent());
-			return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
 		}
+		Page<QuestionEntity> questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
+				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
+						filter.getSortField().getField())));
+		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
+				questionEntities.getContent());
+		return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
 	}
 
 	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
@@ -91,6 +94,7 @@ public class QuestionManager {
 	}
 
 	public QuestionGet getQuestion(Long questionId) {
+
 		QuestionEntity questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
@@ -103,39 +107,46 @@ public class QuestionManager {
 	}
 
 	public QuestionGet createQuestion(QuestionCreateUpdate questionRequest, UserEntity user) {
+
 		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription(), user);
 		log.info("Creating question = {}", question);
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
 	}
 
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
+
 		log.info("Updating question");
 		return questionRepository.findById(questionId).map(question -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
-			if (isUserPermitted) {
-				log.info("Old question = {}", question);
-				question.setTitle(questionRequest.getTitle());
-				question.setDescription(questionRequest.getDescription());
-				log.info("New question = {}", question);
-				return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
-			} else {
+
+			if (!isUserPermitted) {
 				throw new ChangeNotAllowedException();
 			}
+
+			log.info("Old question = {}", question);
+			question.setTitle(questionRequest.getTitle());
+			question.setDescription(questionRequest.getDescription());
+			log.info("New question = {}", question);
+			return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
+
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
 	public boolean deleteQuestion(Long questionId, UserEntity user) {
+
 		log.info("Deleting question.id = {}", questionId);
 		return questionRepository.findById(questionId).map(question -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
-			if (isUserPermitted) {
-				questionRepository.delete(question);
-				return true;
-			} else {
+
+			if (!isUserPermitted) {
 				throw new ChangeNotAllowedException();
 			}
+
+			questionRepository.delete(question);
+			return true;
+
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 

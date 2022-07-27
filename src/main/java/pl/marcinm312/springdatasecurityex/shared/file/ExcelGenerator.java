@@ -154,12 +154,14 @@ public class ExcelGenerator {
 	}
 
 	private void createCellWithDate(CellStyle dateCellStyle, String dateAsString, Row row, int column) {
+
 		Cell cellWithDate = row.createCell(column);
 		cellWithDate.setCellValue(dateAsString);
 		cellWithDate.setCellStyle(dateCellStyle);
 	}
 
 	private CellStyle getDateCellStyle(Workbook workbook) {
+
 		CreationHelper createHelper = workbook.getCreationHelper();
 		CellStyle dateCellStyle = workbook.createCellStyle();
 		dateCellStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-MM-dd hh:mm:ss"));
@@ -167,6 +169,7 @@ public class ExcelGenerator {
 	}
 
 	private CellStyle getHeaderCellStyle(Workbook workbook) {
+
 		Font headerFont = workbook.createFont();
 		headerFont.setBold(true);
 		headerFont.setFontHeightInPoints((short) 14);
@@ -177,10 +180,10 @@ public class ExcelGenerator {
 	}
 
 	private String addValueWithNewLines(String value) {
+
 		if (value == null || value.isEmpty()) {
 			return "";
-		} else {
-			return value.replace("\n", " ");
 		}
+		return value.replace("\n", " ");
 	}
 }

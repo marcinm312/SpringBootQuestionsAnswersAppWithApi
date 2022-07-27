@@ -45,6 +45,7 @@ public class UserManager {
 
 
 	public UserEntity getUserByAuthentication(Authentication authentication) {
+
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<UserEntity> optionalUser = userRepo.findByUsername(userName);
@@ -52,13 +53,13 @@ public class UserManager {
 			UserEntity user = optionalUser.get();
 			log.info("Loaded user = {}", user);
 			return user;
-		} else {
-			log.error("User {} not found!", userName);
-			return null;
 		}
+		log.error("User {} not found!", userName);
+		return null;
 	}
 
 	public UserGet getUserDTOByAuthentication(Authentication authentication) {
+
 		UserEntity user = getUserByAuthentication(authentication);
 		return UserMapper.convertUserToUserGet(user);
 	}
@@ -86,6 +87,7 @@ public class UserManager {
 
 	@Transactional
 	public UserGet updateUserData(UserDataUpdate userRequest, Authentication authentication) {
+
 		log.info("Updating user");
 		UserEntity loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
@@ -103,6 +105,7 @@ public class UserManager {
 
 	@Transactional
 	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
+
 		log.info("Updating user password");
 		Date currentDate = new Date();
 		UserEntity loggedUser = getUserByAuthentication(authentication);
@@ -118,6 +121,7 @@ public class UserManager {
 
 	@Transactional
 	public boolean deleteUser(Authentication authentication) {
+
 		UserEntity user = getUserByAuthentication(authentication);
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
@@ -128,23 +132,24 @@ public class UserManager {
 
 	@Transactional
 	public UserGet activateUser(String tokenValue) {
+
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
-		if (optionalToken.isPresent()) {
-			TokenEntity token = optionalToken.get();
-			UserEntity user = token.getUser();
-			log.info("Activating user = {}", user);
-			user.setEnabled(true);
-			UserEntity savedUser = userRepo.save(user);
-			tokenRepo.delete(token);
-			log.info("User activated");
-			return UserMapper.convertUserToUserGet(savedUser);
-		} else {
+		if (optionalToken.isEmpty()) {
 			throw new TokenNotFoundException();
 		}
+		TokenEntity token = optionalToken.get();
+		UserEntity user = token.getUser();
+		log.info("Activating user = {}", user);
+		user.setEnabled(true);
+		UserEntity savedUser = userRepo.save(user);
+		tokenRepo.delete(token);
+		log.info("User activated");
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
 	public UserGet expireOtherSessions(Authentication authentication) {
+
 		log.info("Expiring sessions for user = {}", authentication.getName());
 		UserEntity user = getUserByAuthentication(authentication);
 		user = sessionUtils.expireUserSessions(user, false, false);
@@ -154,6 +159,7 @@ public class UserManager {
 	}
 
 	private void sendToken(UserEntity user) {
+
 		String tokenValue = UUID.randomUUID().toString();
 		TokenEntity token = new TokenEntity(tokenValue, user);
 		tokenRepo.save(token);
@@ -166,6 +172,7 @@ public class UserManager {
 	}
 
 	private String generateEmailContent(UserEntity user, String tokenValue) {
+
 		return new StringBuilder().append("Witaj ").append(user.getUsername())
 				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
 				.append("<br><a href=\"").append(getTokenUrl()).append(tokenValue)
@@ -173,13 +180,13 @@ public class UserManager {
 	}
 
 	private String getTokenUrl() {
+
 		if (activationUrl != null && !activationUrl.isEmpty() && activationUrl.startsWith("http")) {
 			return activationUrl.trim();
-		} else {
-			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-			String requestURL = request.getRequestURL().toString();
-			String servletPath = request.getServletPath();
-			return requestURL.replace(servletPath, "") + "/token?value=";
 		}
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		String requestURL = request.getRequestURL().toString();
+		String servletPath = request.getServletPath();
+		return requestURL.replace(servletPath, "") + "/token?value=";
 	}
 }

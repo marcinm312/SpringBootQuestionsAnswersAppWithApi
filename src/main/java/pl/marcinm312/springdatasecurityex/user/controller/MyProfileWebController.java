@@ -47,6 +47,7 @@ public class MyProfileWebController {
 
 	@GetMapping
 	public String myProfileView(Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		model.addAttribute(USER_LOGIN, userName);
@@ -57,19 +58,20 @@ public class MyProfileWebController {
 	@PostMapping("/update")
 	public String updateMyProfile(@ModelAttribute("user") @Validated UserDataUpdate user, BindingResult bindingResult,
 								  Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute(USER_LOGIN, userName);
 			model.addAttribute(USER, user);
 			return UPDATE_MY_PROFILE_VIEW;
-		} else {
-			userManager.updateUserData(user, authentication);
-			return COMMON_REDIRECT;
 		}
+		userManager.updateUserData(user, authentication);
+		return COMMON_REDIRECT;
 	}
 
 	@GetMapping("/update")
 	public String updateMyProfileView(Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		UserDataUpdate userDataUpdate = new UserDataUpdate(user.getUsername(), user.getEmail());
@@ -81,19 +83,20 @@ public class MyProfileWebController {
 	@PostMapping("/updatePassword")
 	public String updateMyPassword(@ModelAttribute("user2") @Validated UserPasswordUpdate user, BindingResult bindingResult,
 								   Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute(USER_LOGIN, userName);
 			model.addAttribute(USER_2, user);
 			return UPDATE_MY_PASSWORD_VIEW;
-		} else {
-			userManager.updateUserPassword(user, authentication);
-			return COMMON_REDIRECT;
 		}
+		userManager.updateUserPassword(user, authentication);
+		return COMMON_REDIRECT;
 	}
 
 	@GetMapping("/updatePassword")
 	public String updateMyPasswordView(Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER_2, new UserPasswordUpdate());
@@ -102,18 +105,21 @@ public class MyProfileWebController {
 
 	@GetMapping("/expireOtherSessions")
 	public String expireOtherSessions(Authentication authentication) {
+
 		userManager.expireOtherSessions(authentication);
 		return COMMON_REDIRECT;
 	}
 
 	@PostMapping("/delete")
 	public String deleteMyProfile(Authentication authentication) {
+
 		userManager.deleteUser(authentication);
 		return "redirect:../../..";
 	}
 
 	@GetMapping("/delete")
 	public String deleteMyProfileConfirmation(Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER_3, userManager.getUserByAuthentication(authentication));

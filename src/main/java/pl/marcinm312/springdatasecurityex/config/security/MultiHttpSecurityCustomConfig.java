@@ -45,6 +45,7 @@ public class MultiHttpSecurityCustomConfig {
 
 		@Bean
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+
 			http.antMatcher("/api/**")
 					.authorizeRequests().antMatchers(
 							"/api/login", "/api/registration", "/api/token"
@@ -64,6 +65,7 @@ public class MultiHttpSecurityCustomConfig {
 		}
 
 		public JsonObjectAuthenticationFilter authenticationFilter() throws Exception {
+
 			JsonObjectAuthenticationFilter authenticationFilter = new JsonObjectAuthenticationFilter(objectMapper);
 			authenticationFilter.setFilterProcessesUrl("/api/login");
 			authenticationFilter.setAuthenticationSuccessHandler(successHandler);
@@ -79,6 +81,7 @@ public class MultiHttpSecurityCustomConfig {
 
 		@Bean
 		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+
 			http.antMatcher("/**")
 					.authorizeRequests().antMatchers(
 							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",

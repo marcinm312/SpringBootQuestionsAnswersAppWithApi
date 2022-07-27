@@ -21,6 +21,7 @@ public class MailService {
 	private String emailFrom;
 
 	public void sendMail(String to, String subject, String text, boolean isHtmlContent) throws MessagingException {
+
 		log.info("Starting creating an email");
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);

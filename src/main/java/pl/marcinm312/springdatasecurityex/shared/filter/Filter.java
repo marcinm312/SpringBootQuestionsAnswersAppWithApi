@@ -25,7 +25,7 @@ public class Filter {
 		if (keyword == null) {
 			return "";
 		}
-		return keyword.toLowerCase();
+		return keyword.toLowerCase().trim();
 	}
 
 	public Integer getPageNo() {
@@ -57,7 +57,7 @@ public class Filter {
 	}
 
 	public boolean isKeywordEmpty() {
-		return keyword == null || keyword.isEmpty();
+		return getKeyword() == null || getKeyword().isEmpty();
 	}
 
 	public static SortField checkQuestionsSortField(SortField sortField) {

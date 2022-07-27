@@ -27,11 +27,11 @@ public class UserRegistrationApiController {
 
 	@PostMapping("/registration")
 	public UserGet createUser(@Validated @RequestBody UserCreate user, BindingResult bindingResult) throws BindException {
+
 		if (bindingResult.hasErrors()) {
 			throw new BindException(bindingResult);
-		} else {
-			return userManager.addUser(user);
 		}
+		return userManager.addUser(user);
 	}
 
 	@PutMapping("/token")

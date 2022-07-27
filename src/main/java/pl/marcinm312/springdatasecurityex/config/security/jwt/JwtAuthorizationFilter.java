@@ -31,6 +31,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	public JwtAuthorizationFilter(AuthenticationManager authenticationManager,
 								  UserDetailsServiceImpl userDetailsService,
 								  Environment environment) {
+
 		super(authenticationManager);
 		this.userDetailsService = userDetailsService;
 		this.environment = environment;
@@ -39,6 +40,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 									FilterChain filterChain) throws IOException, ServletException {
+
 		UsernamePasswordAuthenticationToken authentication = getAuthentication(request);
 		if (authentication == null) {
 			filterChain.doFilter(request, response);
@@ -49,6 +51,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 	}
 
 	private UsernamePasswordAuthenticationToken getAuthentication(HttpServletRequest request) {
+
 		String token = request.getHeader(TOKEN_HEADER);
 		String secret = environment.getProperty("jwt.secret");
 		if (secret != null && token != null && token.startsWith(TOKEN_PREFIX)) {
@@ -65,14 +68,14 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			}
 			if (userId != null && issuedAt != null) {
 				return getAndVerifyUserAndReturnAuthenticationToken(userId, issuedAt);
-			} else {
-				log.error("Username or creation date taken from the token is null!");
 			}
+			log.error("Username or creation date taken from the token is null!");
 		}
 		return null;
 	}
 
 	private UsernamePasswordAuthenticationToken getAndVerifyUserAndReturnAuthenticationToken(String userId, Date issuedAt) {
+
 		UserEntity user;
 		try {
 			user = userDetailsService.findUserById(Long.valueOf(userId));
@@ -82,9 +85,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		}
 		if (issuedAt.after(user.getDateToCompareInJwt())) {
 			return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
-		} else {
-			log.error("The token has expired due to logging out of the user or changing the password");
-			return null;
 		}
+		log.error("The token has expired due to logging out of the user or changing the password");
+		return null;
 	}
 }

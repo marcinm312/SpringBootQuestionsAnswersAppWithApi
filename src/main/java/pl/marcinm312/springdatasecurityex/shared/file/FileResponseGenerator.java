@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 public class FileResponseGenerator {
 
 	public static ResponseEntity<Object> generateResponseWithFile(byte[] bytes, String fileName) {
+
 		ByteArrayResource resource = new ByteArrayResource(bytes);
 		return ResponseEntity.ok().contentLength(bytes.length)
 				.contentType(MediaType.parseMediaType("application/octet-stream"))

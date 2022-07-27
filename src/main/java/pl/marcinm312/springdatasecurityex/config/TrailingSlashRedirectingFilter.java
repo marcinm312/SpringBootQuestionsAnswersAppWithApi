@@ -18,9 +18,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TrailingSlashRedirectingFilter extends OncePerRequestFilter {
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
+
 		if (!request.getRequestURI().endsWith("/")
 				&& (request.getRequestURI().contains("app") || request.getRequestURI().contains("register"))) {
 			ServletUriComponentsBuilder builder = ServletUriComponentsBuilder.fromRequest(request);

@@ -25,6 +25,7 @@ public class PdfGenerator {
 
 
 	public PdfGenerator() throws DocumentException, IOException {
+
 		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
 		helvetica18 = new Font(helvetica, 18);
 		helvetica12 = new Font(helvetica, 12);
@@ -128,6 +129,7 @@ public class PdfGenerator {
 	}
 
 	private void createAndAddCellToTable(String text, BaseColor color, int alignment, Font font, PdfPTable table) {
+
 		PdfPCell cell = new PdfPCell(new Paragraph(text, font));
 		cell.setBackgroundColor(color);
 		cell.setHorizontalAlignment(alignment);
@@ -139,6 +141,7 @@ public class PdfGenerator {
 	}
 
 	private void addCommonsColumnsHeaders(PdfPTable table) {
+
 		createAndAddCellToTable(CREATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable(MODIFICATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 		createAndAddCellToTable(USER_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);

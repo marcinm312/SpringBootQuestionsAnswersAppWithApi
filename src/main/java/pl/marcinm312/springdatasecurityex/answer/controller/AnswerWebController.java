@@ -84,6 +84,7 @@ public class AnswerWebController {
 	@PostMapping("/new")
 	public String createAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			QuestionGet question = questionManager.getQuestion(questionId);
@@ -91,15 +92,15 @@ public class AnswerWebController {
 			model.addAttribute(ANSWER, answer);
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_ANSWER_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			answerManager.addAnswer(questionId, answer, user);
-			return "redirect:..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		answerManager.addAnswer(questionId, answer, user);
+		return "redirect:..";
 	}
 
 	@GetMapping("/new")
 	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		QuestionGet question;
 		try {
@@ -116,6 +117,7 @@ public class AnswerWebController {
 	@PostMapping("/{answerId}/edit")
 	public String editAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							 Model model, @PathVariable Long questionId, @PathVariable Long answerId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			AnswerGet oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
@@ -125,16 +127,15 @@ public class AnswerWebController {
 			model.addAttribute(ANSWER, answer);
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_ANSWER_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			try {
-				answerManager.updateAnswer(questionId, answerId, answer, user);
-			} catch (ChangeNotAllowedException e) {
-				model.addAttribute(USER_LOGIN, userName);
-				return CHANGE_NOT_ALLOWED_VIEW;
-			}
-			return "redirect:../..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		try {
+			answerManager.updateAnswer(questionId, answerId, answer, user);
+		} catch (ChangeNotAllowedException e) {
+			model.addAttribute(USER_LOGIN, userName);
+			return CHANGE_NOT_ALLOWED_VIEW;
+		}
+		return "redirect:../..";
 	}
 
 	@GetMapping("/{answerId}/edit")
@@ -146,6 +147,7 @@ public class AnswerWebController {
 	@PostMapping("/{answerId}/delete")
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
@@ -199,8 +201,7 @@ public class AnswerWebController {
 		if (isEdit) {
 			model.addAttribute(OLD_ANSWER, answer);
 			return EDIT_ANSWER_VIEW;
-		} else {
-			return DELETE_ANSWER_VIEW;
 		}
+		return DELETE_ANSWER_VIEW;
 	}
 }
