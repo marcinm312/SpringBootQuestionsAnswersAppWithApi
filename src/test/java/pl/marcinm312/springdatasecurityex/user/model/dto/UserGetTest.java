@@ -10,7 +10,7 @@ class UserGetTest {
 	void equalsHashCode_differentCases() {
 		EqualsVerifier.forClass(UserGet.class)
 				.suppress(Warning.NONFINAL_FIELDS)
-				.withIgnoredFields("createdAt", "updatedAt")
+				.withIgnoredFields("createdAt", "updatedAt", "dateFormat")
 				.verify();
 	}
 }

@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
@@ -17,6 +17,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
 import javax.validation.Valid;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/questions")
 public class QuestionApiController {
@@ -24,11 +25,6 @@ public class QuestionApiController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
-	@Autowired
-	public QuestionApiController(QuestionManager questionManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public ListPage<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,
@@ -49,6 +45,7 @@ public class QuestionApiController {
 
 	@PostMapping
 	public QuestionGet createQuestion(@Valid @RequestBody QuestionCreateUpdate question, Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.createQuestion(question, user);
 	}
@@ -56,18 +53,20 @@ public class QuestionApiController {
 	@PutMapping("/{questionId}")
 	public QuestionGet updateQuestion(@PathVariable Long questionId, @Valid @RequestBody QuestionCreateUpdate questionRequest,
 								   Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.updateQuestion(questionId, questionRequest, user);
 	}
 
 	@DeleteMapping("/{questionId}")
 	public boolean deleteQuestion(@PathVariable Long questionId, Authentication authentication) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		return questionManager.deleteQuestion(questionId, user);
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
+	public ResponseEntity<Object> downloadFile(@RequestParam FileType fileType,
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection) {

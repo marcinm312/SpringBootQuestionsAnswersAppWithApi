@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.user.service;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,7 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import pl.marcinm312.springdatasecurityex.shared.enums.Roles;
+import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
+import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.exception.TokenNotFoundException;
 import pl.marcinm312.springdatasecurityex.user.model.TokenEntity;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
@@ -20,8 +22,6 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserGet;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
-import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
-import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +29,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
+@Slf4j
 @Service
 public class UserManager {
 
@@ -41,19 +43,9 @@ public class UserManager {
 	@Value("${activate.user.url}")
 	private String activationUrl;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public UserManager(UserRepo userRepo, PasswordEncoder passwordEncoder, TokenRepo tokenRepo, MailService mailService,
-					   SessionUtils sessionUtils) {
-		this.userRepo = userRepo;
-		this.passwordEncoder = passwordEncoder;
-		this.tokenRepo = tokenRepo;
-		this.mailService = mailService;
-		this.sessionUtils = sessionUtils;
-	}
 
 	public UserEntity getUserByAuthentication(Authentication authentication) {
+
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<UserEntity> optionalUser = userRepo.findByUsername(userName);
@@ -61,26 +53,31 @@ public class UserManager {
 			UserEntity user = optionalUser.get();
 			log.info("Loaded user = {}", user);
 			return user;
-		} else {
-			log.error("User {} not found!", userName);
-			return null;
 		}
+		log.error("User {} not found!", userName);
+		return null;
 	}
 
 	public UserGet getUserDTOByAuthentication(Authentication authentication) {
+
 		UserEntity user = getUserByAuthentication(authentication);
 		return UserMapper.convertUserToUserGet(user);
 	}
 
 	@Transactional
 	public UserGet addUser(UserCreate userRequest) {
-		UserEntity user = new UserEntity(userRequest.getUsername(), userRequest.getPassword(), userRequest.getEmail());
+
 		Date currentDate = new Date();
-		user.setPassword(passwordEncoder.encode(user.getPassword()));
-		user.setEnabled(false);
-		user.setRole(Roles.ROLE_USER.name());
-		user.setTimeOfSessionExpiration(currentDate);
-		user.setChangePasswordDate(currentDate);
+		UserEntity user = UserEntity.builder()
+				.username(userRequest.getUsername())
+				.password(passwordEncoder.encode(userRequest.getPassword()))
+				.email(userRequest.getEmail())
+				.enabled(false)
+				.role(Role.ROLE_USER)
+				.timeOfSessionExpiration(currentDate)
+				.changePasswordDate(currentDate)
+				.build();
+
 		log.info("Creating user = {}", user);
 		UserEntity savedUser = userRepo.save(user);
 		sendToken(user);
@@ -90,6 +87,7 @@ public class UserManager {
 
 	@Transactional
 	public UserGet updateUserData(UserDataUpdate userRequest, Authentication authentication) {
+
 		log.info("Updating user");
 		UserEntity loggedUser = getUserByAuthentication(authentication);
 		log.info("Old user = {}", loggedUser);
@@ -107,6 +105,7 @@ public class UserManager {
 
 	@Transactional
 	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
+
 		log.info("Updating user password");
 		Date currentDate = new Date();
 		UserEntity loggedUser = getUserByAuthentication(authentication);
@@ -122,6 +121,7 @@ public class UserManager {
 
 	@Transactional
 	public boolean deleteUser(Authentication authentication) {
+
 		UserEntity user = getUserByAuthentication(authentication);
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
@@ -132,23 +132,24 @@ public class UserManager {
 
 	@Transactional
 	public UserGet activateUser(String tokenValue) {
+
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
-		if (optionalToken.isPresent()) {
-			TokenEntity token = optionalToken.get();
-			UserEntity user = token.getUser();
-			log.info("Activating user = {}", user);
-			user.setEnabled(true);
-			UserEntity savedUser = userRepo.save(user);
-			tokenRepo.delete(token);
-			log.info("User activated");
-			return UserMapper.convertUserToUserGet(savedUser);
-		} else {
+		if (optionalToken.isEmpty()) {
 			throw new TokenNotFoundException();
 		}
+		TokenEntity token = optionalToken.get();
+		UserEntity user = token.getUser();
+		log.info("Activating user = {}", user);
+		user.setEnabled(true);
+		UserEntity savedUser = userRepo.save(user);
+		tokenRepo.delete(token);
+		log.info("User activated");
+		return UserMapper.convertUserToUserGet(savedUser);
 	}
 
 	@Transactional
 	public UserGet expireOtherSessions(Authentication authentication) {
+
 		log.info("Expiring sessions for user = {}", authentication.getName());
 		UserEntity user = getUserByAuthentication(authentication);
 		user = sessionUtils.expireUserSessions(user, false, false);
@@ -158,10 +159,9 @@ public class UserManager {
 	}
 
 	private void sendToken(UserEntity user) {
+
 		String tokenValue = UUID.randomUUID().toString();
-		TokenEntity token = new TokenEntity();
-		token.setUser(user);
-		token.setValue(tokenValue);
+		TokenEntity token = new TokenEntity(tokenValue, user);
 		tokenRepo.save(token);
 		String emailContent = generateEmailContent(user, tokenValue);
 		try {
@@ -172,6 +172,7 @@ public class UserManager {
 	}
 
 	private String generateEmailContent(UserEntity user, String tokenValue) {
+
 		return new StringBuilder().append("Witaj ").append(user.getUsername())
 				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
 				.append("<br><a href=\"").append(getTokenUrl()).append(tokenValue)
@@ -179,13 +180,13 @@ public class UserManager {
 	}
 
 	private String getTokenUrl() {
+
 		if (activationUrl != null && !activationUrl.isEmpty() && activationUrl.startsWith("http")) {
 			return activationUrl.trim();
-		} else {
-			HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
-			String requestURL = request.getRequestURL().toString();
-			String servletPath = request.getServletPath();
-			return requestURL.replace(servletPath, "") + "/token?value=";
 		}
+		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
+		String requestURL = request.getRequestURL().toString();
+		String servletPath = request.getServletPath();
+		return requestURL.replace(servletPath, "") + "/token?value=";
 	}
 }

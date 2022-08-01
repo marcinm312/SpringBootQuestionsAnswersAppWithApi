@@ -212,7 +212,11 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyProfile_goodUserWithLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
-		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
+		UserEntity savedUser = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password("password")
+				.email(userToRequest.getEmail())
+				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
@@ -237,7 +241,11 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyProfile_goodUserWithoutLoginChange_success() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
-		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
+		UserEntity savedUser = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password("password")
+				.email(userToRequest.getEmail())
+				.build();
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);

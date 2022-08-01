@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.controller;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -10,18 +10,20 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
-import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
+import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
+import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
+@RequiredArgsConstructor
+@Slf4j
 @Controller
 @RequestMapping("/app/questions")
 public class QuestionWebController {
@@ -40,13 +42,6 @@ public class QuestionWebController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public QuestionWebController(QuestionManager questionManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public String questionsGet(Model model, Authentication authentication,
@@ -78,20 +73,21 @@ public class QuestionWebController {
 	@PostMapping("/new")
 	public String createQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 								 Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_QUESTION_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			questionManager.createQuestion(question, user);
-			return "redirect:..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		questionManager.createQuestion(question, user);
+		return "redirect:..";
 	}
 
 	@GetMapping("/new")
 	public String createQuestionView(Model model, Authentication authentication) {
+
 		String userName = authentication.getName();
 		model.addAttribute(QUESTION, new QuestionCreateUpdate());
 		model.addAttribute(USER_LOGIN, userName);
@@ -101,6 +97,7 @@ public class QuestionWebController {
 	@PostMapping("/{questionId}/edit")
 	public String editQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			QuestionGet oldQuestion = questionManager.getQuestion(questionId);
@@ -108,16 +105,15 @@ public class QuestionWebController {
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_QUESTION_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			try {
-				questionManager.updateQuestion(questionId, question, user);
-			} catch (ChangeNotAllowedException e) {
-				model.addAttribute(USER_LOGIN, userName);
-				return CHANGE_NOT_ALLOWED_VIEW;
-			}
-			return "redirect:../..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		try {
+			questionManager.updateQuestion(questionId, question, user);
+		} catch (ChangeNotAllowedException e) {
+			model.addAttribute(USER_LOGIN, userName);
+			return CHANGE_NOT_ALLOWED_VIEW;
+		}
+		return "redirect:../..";
 	}
 
 	@GetMapping("/{questionId}/edit")
@@ -127,6 +123,7 @@ public class QuestionWebController {
 
 	@PostMapping("/{questionId}/delete")
 	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		try {
 			questionManager.deleteQuestion(questionId, user);
@@ -144,7 +141,7 @@ public class QuestionWebController {
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@RequestParam FileTypes fileType,
+	public ResponseEntity<Object> downloadFile(@RequestParam FileType fileType,
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection) {
@@ -155,13 +152,14 @@ public class QuestionWebController {
 	}
 
 	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {
+
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(MESSAGE, e.getMessage());
 		return RESOURCE_NOT_FOUND_VIEW;
 	}
 
-	private String getEditOrRemoveQuestionView(Model model, Long questionId, Authentication authentication,
-											   boolean isEdit) {
+	private String getEditOrRemoveQuestionView(Model model, Long questionId, Authentication authentication, boolean isEdit) {
+
 		String userName = authentication.getName();
 		QuestionGet question;
 		try {
@@ -174,8 +172,7 @@ public class QuestionWebController {
 		if (isEdit) {
 			model.addAttribute(OLD_QUESTION, question);
 			return EDIT_QUESTION_VIEW;
-		} else {
-			return DELETE_QUESTION_VIEW;
 		}
+		return DELETE_QUESTION_VIEW;
 	}
 }

@@ -1,10 +1,10 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class Columns {
-
-	private Columns() {
-
-	}
 
 	static final String ID_COLUMN = "Id";
 	static final String ANSWER_TEXT_COLUMN = "Treść odpowiedzi";

@@ -12,6 +12,7 @@ public class SecurityMessagesConfig {
 
 	@Bean
 	public MessageSource messageSource() {
+
 		Locale.setDefault(new Locale("pl", "PL"));
 		ReloadableResourceBundleMessageSource messageSource = new ReloadableResourceBundleMessageSource();
 		messageSource.addBasenames("classpath:org/springframework/security/messages");

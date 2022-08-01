@@ -174,7 +174,7 @@ class AnswerApiControllerTest {
 						"getAnswers_simpleCase_success"),
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=-1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
-				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=0&sortField=TITLE&sortDirection=ASC", 1,
+				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=0&sortField=DESCRIPTION&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=0&pageSize=5&sortField=TITLE&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
@@ -302,7 +302,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
@@ -396,7 +396,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -474,7 +474,7 @@ class AnswerApiControllerTest {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")

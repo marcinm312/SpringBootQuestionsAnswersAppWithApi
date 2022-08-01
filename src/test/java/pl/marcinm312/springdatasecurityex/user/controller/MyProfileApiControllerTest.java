@@ -160,10 +160,10 @@ class MyProfileApiControllerTest {
 	void updateMyProfile_withAnonymousUser_unauthorized() throws Exception {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
 		mockMvc.perform(
-				put("/api/myProfile")
-						.contentType(MediaType.APPLICATION_JSON)
-						.characterEncoding("utf-8")
-						.content(mapper.writeValueAsString(userToRequest)))
+						put("/api/myProfile")
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
 				.andExpect(status().isUnauthorized());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -176,7 +176,11 @@ class MyProfileApiControllerTest {
 	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUser,
 										  int numberOfExpireSessionInvocations, String nameOfTestCase) throws Exception {
 
-		UserEntity savedUser = new UserEntity(userToRequest.getUsername(), "password", userToRequest.getEmail());
+		UserEntity savedUser = UserEntity.builder()
+				.username(userToRequest.getUsername())
+				.password("password")
+				.email(userToRequest.getEmail())
+				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
@@ -184,11 +188,11 @@ class MyProfileApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		String response = mockMvc.perform(
-				put("/api/myProfile")
-						.header("Authorization", token)
-						.contentType(MediaType.APPLICATION_JSON)
-						.characterEncoding("utf-8")
-						.content(mapper.writeValueAsString(userToRequest)))
+						put("/api/myProfile")
+								.header("Authorization", token)
+								.contentType(MediaType.APPLICATION_JSON)
+								.characterEncoding("utf-8")
+								.content(mapper.writeValueAsString(userToRequest)))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
@@ -215,7 +219,7 @@ class MyProfileApiControllerTest {
 	@ParameterizedTest(name = "{index} ''{2}''")
 	@MethodSource("examplesOfUpdateMyProfileBadRequests")
 	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, Optional<UserEntity> foundUser,
-										  String nameOfTestCase) throws Exception {
+												  String nameOfTestCase) throws Exception {
 
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
 
@@ -408,8 +412,8 @@ class MyProfileApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		String response = mockMvc.perform(
-				delete("/api/myProfile")
-						.header("Authorization", token))
+						delete("/api/myProfile")
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andReturn().getResponse().getContentAsString();
 
@@ -441,8 +445,8 @@ class MyProfileApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		String response = mockMvc.perform(
-				put("/api/myProfile/expireOtherSessions")
-						.header("Authorization", token))
+						put("/api/myProfile/expireOtherSessions")
+								.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();

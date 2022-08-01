@@ -1,7 +1,9 @@
 package pl.marcinm312.springdatasecurityex.shared.filter;
 
+import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 
+@AllArgsConstructor
 public class Filter {
 
 	private final String keyword;
@@ -10,13 +12,6 @@ public class Filter {
 	private final SortField sortField;
 	private final Sort.Direction sortDirection;
 
-	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection) {
-		this.keyword = keyword;
-		this.pageNo = pageNo;
-		this.pageSize = pageSize;
-		this.sortField = sortField;
-		this.sortDirection = sortDirection;
-	}
 
 	public Filter(String keyword, SortField sortField, Sort.Direction sortDirection) {
 		this.keyword = keyword;
@@ -30,7 +25,7 @@ public class Filter {
 		if (keyword == null) {
 			return "";
 		}
-		return keyword.toLowerCase();
+		return keyword.toLowerCase().trim();
 	}
 
 	public Integer getPageNo() {
@@ -62,7 +57,7 @@ public class Filter {
 	}
 
 	public boolean isKeywordEmpty() {
-		return keyword == null || keyword.isEmpty();
+		return getKeyword() == null || getKeyword().isEmpty();
 	}
 
 	public static SortField checkQuestionsSortField(SortField sortField) {

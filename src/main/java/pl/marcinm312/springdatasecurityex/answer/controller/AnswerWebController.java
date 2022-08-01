@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.answer.controller;
 
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -15,7 +15,7 @@ import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
@@ -24,6 +24,8 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
+@RequiredArgsConstructor
+@Slf4j
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
@@ -44,14 +46,6 @@ public class AnswerWebController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
-	@Autowired
-	public AnswerWebController(QuestionManager questionManager, AnswerManager answerManager, UserManager userManager) {
-		this.questionManager = questionManager;
-		this.answerManager = answerManager;
-		this.userManager = userManager;
-	}
 
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication,
@@ -90,6 +84,7 @@ public class AnswerWebController {
 	@PostMapping("/new")
 	public String createAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			QuestionGet question = questionManager.getQuestion(questionId);
@@ -97,15 +92,15 @@ public class AnswerWebController {
 			model.addAttribute(ANSWER, answer);
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_ANSWER_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			answerManager.addAnswer(questionId, answer, user);
-			return "redirect:..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		answerManager.addAnswer(questionId, answer, user);
+		return "redirect:..";
 	}
 
 	@GetMapping("/new")
 	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		QuestionGet question;
 		try {
@@ -122,6 +117,7 @@ public class AnswerWebController {
 	@PostMapping("/{answerId}/edit")
 	public String editAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							 Model model, @PathVariable Long questionId, @PathVariable Long answerId, Authentication authentication) {
+
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
 			AnswerGet oldAnswer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
@@ -131,16 +127,15 @@ public class AnswerWebController {
 			model.addAttribute(ANSWER, answer);
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_ANSWER_VIEW;
-		} else {
-			UserEntity user = userManager.getUserByAuthentication(authentication);
-			try {
-				answerManager.updateAnswer(questionId, answerId, answer, user);
-			} catch (ChangeNotAllowedException e) {
-				model.addAttribute(USER_LOGIN, userName);
-				return CHANGE_NOT_ALLOWED_VIEW;
-			}
-			return "redirect:../..";
 		}
+		UserEntity user = userManager.getUserByAuthentication(authentication);
+		try {
+			answerManager.updateAnswer(questionId, answerId, answer, user);
+		} catch (ChangeNotAllowedException e) {
+			model.addAttribute(USER_LOGIN, userName);
+			return CHANGE_NOT_ALLOWED_VIEW;
+		}
+		return "redirect:../..";
 	}
 
 	@GetMapping("/{answerId}/edit")
@@ -152,6 +147,7 @@ public class AnswerWebController {
 	@PostMapping("/{answerId}/delete")
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model) {
+
 		UserEntity user = userManager.getUserByAuthentication(authentication);
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
@@ -171,7 +167,7 @@ public class AnswerWebController {
 
 	@GetMapping("/file-export")
 	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
-											   @RequestParam FileTypes fileType,
+											   @RequestParam FileType fileType,
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection)
@@ -205,8 +201,7 @@ public class AnswerWebController {
 		if (isEdit) {
 			model.addAttribute(OLD_ANSWER, answer);
 			return EDIT_ANSWER_VIEW;
-		} else {
-			return DELETE_ANSWER_VIEW;
 		}
+		return DELETE_ANSWER_VIEW;
 	}
 }

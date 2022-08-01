@@ -10,6 +10,7 @@ import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class AnswerDataProvider {
@@ -18,13 +19,13 @@ public class AnswerDataProvider {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
-		answers.add(new AnswerEntity(1002L, "answer3", question, user,
+		answers.add(buildAnswerEntity(1002L, "answer3", question, user,
 				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 30, 30)));
-		answers.add(new AnswerEntity(1001L, "answer2", question, user,
+		answers.add(buildAnswerEntity(1001L, "answer2", question, user,
 				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 20, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 21, 10, 30, 30)));
-		answers.add(new AnswerEntity(1000L, "answer1", question, user,
+		answers.add(buildAnswerEntity(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
 		return answers;
@@ -34,7 +35,7 @@ public class AnswerDataProvider {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
-		answers.add(new AnswerEntity(1000L, "answer1", question, user,
+		answers.add(buildAnswerEntity(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
 		return answers;
@@ -43,9 +44,20 @@ public class AnswerDataProvider {
 	public static AnswerEntity prepareExampleAnswer() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		return new AnswerEntity(1000L, "answer1", question, user,
+		return buildAnswerEntity(1000L, "answer1", question, user,
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+	}
+
+	private static AnswerEntity buildAnswerEntity(Long id, String text, QuestionEntity question, UserEntity user, Date createdAt, Date updatedAt) {
+		return AnswerEntity.builder()
+				.id(id)
+				.text(text)
+				.question(question)
+				.user(user)
+				.createdAt(createdAt)
+				.updatedAt(updatedAt)
+				.build();
 	}
 
 	public static AnswerCreateUpdate prepareGoodAnswerToRequest() {

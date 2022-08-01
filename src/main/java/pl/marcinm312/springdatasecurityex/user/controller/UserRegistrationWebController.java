@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -12,54 +12,52 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
+@RequiredArgsConstructor
 @Controller
 @RequestMapping("/")
 public class UserRegistrationWebController {
 
-    private static final String USER = "user";
-    private static final String REGISTER_VIEW = "register";
-    private static final String TOKEN_NOT_FOUND_VIEW = "tokenNotFound";
-    private static final String USER_ACTIVATION_VIEW = "userActivation";
-    
-    private final UserManager userManager;
-    private final UserCreateValidator userValidator;
+	private static final String USER = "user";
+	private static final String REGISTER_VIEW = "register";
+	private static final String TOKEN_NOT_FOUND_VIEW = "tokenNotFound";
+	private static final String USER_ACTIVATION_VIEW = "userActivation";
 
-    @Autowired
-    public UserRegistrationWebController(UserManager userManager, UserCreateValidator userValidator) {
-        this.userManager = userManager;
-        this.userValidator = userValidator;
-    }
+	private final UserManager userManager;
+	private final UserCreateValidator userValidator;
 
-    @InitBinder("user")
-    private void initBinder(WebDataBinder binder) {
-        binder.addValidators(userValidator);
-    }
 
-    @PostMapping("/register")
-    public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult,
-                             Model model) {
-        if (bindingResult.hasErrors()) {
-            model.addAttribute(USER, user);
-            return REGISTER_VIEW;
-        } else {
-            userManager.addUser(user);
-            return "redirect:..";
-        }
-    }
+	@InitBinder("user")
+	private void initBinder(WebDataBinder binder) {
+		binder.addValidators(userValidator);
+	}
 
-    @GetMapping("/register")
-    public String createUserView(Model model) {
-        model.addAttribute(USER, new UserCreate());
-        return REGISTER_VIEW;
-    }
+	@PostMapping("/register")
+	public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult,
+							 Model model) {
 
-    @GetMapping("/token")
-    public String activateUser(@RequestParam String value) {
-        try {
-            userManager.activateUser(value);
-        } catch (TokenNotFoundException e) {
-            return TOKEN_NOT_FOUND_VIEW;
-        }
-        return USER_ACTIVATION_VIEW;
-    }
+		if (bindingResult.hasErrors()) {
+			model.addAttribute(USER, user);
+			return REGISTER_VIEW;
+		}
+		userManager.addUser(user);
+		return "redirect:..";
+	}
+
+	@GetMapping("/register")
+	public String createUserView(Model model) {
+
+		model.addAttribute(USER, new UserCreate());
+		return REGISTER_VIEW;
+	}
+
+	@GetMapping("/token")
+	public String activateUser(@RequestParam String value) {
+
+		try {
+			userManager.activateUser(value);
+		} catch (TokenNotFoundException e) {
+			return TOKEN_NOT_FOUND_VIEW;
+		}
+		return USER_ACTIVATION_VIEW;
+	}
 }

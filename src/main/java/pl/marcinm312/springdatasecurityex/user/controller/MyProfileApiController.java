@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -14,6 +14,7 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/myProfile")
 public class MyProfileApiController {
@@ -22,13 +23,6 @@ public class MyProfileApiController {
 	private final UserDataUpdateValidator userDataUpdateValidator;
 	private final UserPasswordUpdateValidator userPasswordUpdateValidator;
 
-	@Autowired
-	public MyProfileApiController(UserManager userManager, UserDataUpdateValidator userDataUpdateValidator,
-								  UserPasswordUpdateValidator userPasswordUpdateValidator) {
-		this.userManager = userManager;
-		this.userDataUpdateValidator = userDataUpdateValidator;
-		this.userPasswordUpdateValidator = userPasswordUpdateValidator;
-	}
 
 	@InitBinder("userDataUpdate")
 	private void initUserDataUpdateBinder(WebDataBinder binder) {
@@ -48,21 +42,21 @@ public class MyProfileApiController {
 	@PutMapping
 	public UserGet updateMyProfile(@Validated @RequestBody UserDataUpdate user, BindingResult bindingResult,
 								   Authentication authentication) throws BindException {
+
 		if (bindingResult.hasErrors()) {
 			throw new BindException(bindingResult);
-		} else {
-			return userManager.updateUserData(user, authentication);
 		}
+		return userManager.updateUserData(user, authentication);
 	}
 
 	@PutMapping("/updatePassword")
 	public UserGet updateMyPassword(@Validated @RequestBody UserPasswordUpdate user, BindingResult bindingResult,
 									Authentication authentication) throws BindException {
+
 		if (bindingResult.hasErrors()) {
 			throw new BindException(bindingResult);
-		} else {
-			return userManager.updateUserPassword(user, authentication);
 		}
+		return userManager.updateUserPassword(user, authentication);
 	}
 
 	@DeleteMapping

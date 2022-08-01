@@ -1,7 +1,7 @@
 package pl.marcinm312.springdatasecurityex.answer.service;
 
 import com.itextpdf.text.DocumentException;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,7 +18,7 @@ import pl.marcinm312.springdatasecurityex.config.security.utils.PermissionsUtils
 import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
-import pl.marcinm312.springdatasecurityex.shared.enums.FileTypes;
+import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @Service
 public class AnswerManager {
 
@@ -48,11 +49,10 @@ public class AnswerManager {
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
-	private final org.slf4j.Logger log = LoggerFactory.getLogger(getClass());
-
 	@Autowired
 	public AnswerManager(AnswerRepository answerRepository, QuestionManager questionManager,
 						 MailService mailService) throws DocumentException, IOException {
+
 		this.answerRepository = answerRepository;
 		this.questionManager = questionManager;
 		this.mailService = mailService;
@@ -61,23 +61,25 @@ public class AnswerManager {
 	}
 
 	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
+
 		List<AnswerEntity> answersFromDB = answerRepository.getAnswers(questionId,
 				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
 		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
 	}
 
 	private List<AnswerGet> searchAnswers(Long questionId, Filter filter) {
+
 		questionManager.checkIfQuestionExists(questionId);
 		if (filter.isKeywordEmpty()) {
 			return getAnswers(questionId, filter);
-		} else {
-			List<AnswerEntity> answersFromDB = answerRepository.searchAnswers(questionId, filter.getKeyword(),
-					Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
-			return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
 		}
+		List<AnswerEntity> answersFromDB = answerRepository.searchAnswers(questionId, filter.getKeyword(),
+				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
+		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
 	}
 
 	private ListPage<AnswerGet> getPaginatedAnswers(Long questionId, Filter filter) {
+
 		Page<AnswerEntity> answerEntities = answerRepository.getPaginatedAnswers(questionId,
 				PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
 						Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
@@ -86,19 +88,20 @@ public class AnswerManager {
 	}
 
 	public ListPage<AnswerGet> searchPaginatedAnswers(Long questionId, Filter filter) {
+
 		questionManager.checkIfQuestionExists(questionId);
 		if (filter.isKeywordEmpty()) {
 			return getPaginatedAnswers(questionId, filter);
-		} else {
-			Page<AnswerEntity> answerEntities = answerRepository.searchPaginatedAnswers(questionId, filter.getKeyword(),
-					PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
-							Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
-			List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
-			return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
 		}
+		Page<AnswerEntity> answerEntities = answerRepository.searchPaginatedAnswers(questionId, filter.getKeyword(),
+				PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
+						Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
+		List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
+		return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
 	}
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
+
 		AnswerEntity answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 		return AnswerMapper.convertAnswerEntityToAnswerGet(answerFromDB);
@@ -106,20 +109,12 @@ public class AnswerManager {
 
 	@Transactional
 	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, UserEntity user) {
+
 		return questionManager.getQuestionEntity(questionId).map(question -> {
-			AnswerEntity answer = new AnswerEntity(answerRequest.getText());
-			answer.setQuestion(question);
-			answer.setUser(user);
+			AnswerEntity answer = new AnswerEntity(answerRequest.getText(), question, user);
 			log.info("Adding answer = {}", answer);
 			AnswerEntity savedAnswer = answerRepository.save(answer);
-			try {
-				String email = question.getUser().getEmail();
-				String subject = "Opublikowano odpowiedź na Twoje pytanie o id: " + question.getId();
-				String content = generateEmailContent(question, savedAnswer, true);
-				mailService.sendMail(email, subject, content, true);
-			} catch (MessagingException e) {
-				log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
-			}
+			sendEmail(question, "Opublikowano odpowiedź na Twoje pytanie o id: ", savedAnswer, true);
 			return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
 
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
@@ -127,29 +122,35 @@ public class AnswerManager {
 
 	@Transactional
 	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, UserEntity user) {
+
 		log.info("Updating answer");
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
-			if (isUserPermitted) {
-				log.info("Old answer = {}", answer);
-				answer.setText(answerRequest.getText());
-				log.info("New answer = {}", answer);
-				AnswerEntity savedAnswer = answerRepository.save(answer);
-				try {
-					QuestionEntity question = answer.getQuestion();
-					String email = question.getUser().getEmail();
-					String subject = "Zaktualizowano odpowiedź na Twoje pytanie o id: " + question.getId();
-					String content = generateEmailContent(question, savedAnswer, false);
-					mailService.sendMail(email, subject, content, true);
-				} catch (MessagingException e) {
-					log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
-				}
-				return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
-			} else {
+
+			if (!isUserPermitted) {
 				throw new ChangeNotAllowedException();
 			}
+
+			log.info("Old answer = {}", answer);
+			answer.setText(answerRequest.getText());
+			log.info("New answer = {}", answer);
+			AnswerEntity savedAnswer = answerRepository.save(answer);
+			QuestionEntity question = answer.getQuestion();
+			sendEmail(question, "Zaktualizowano odpowiedź na Twoje pytanie o id: ", savedAnswer, false);
+			return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
+	}
+
+	private void sendEmail(QuestionEntity question, String x, AnswerEntity savedAnswer, boolean isNewAnswer) {
+		try {
+			String email = question.getUser().getEmail();
+			String subject = x + question.getId();
+			String content = generateEmailContent(question, savedAnswer, isNewAnswer);
+			mailService.sendMail(email, subject, content, true);
+		} catch (MessagingException e) {
+			log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
+		}
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
@@ -157,16 +158,18 @@ public class AnswerManager {
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
-			if (isUserPermitted) {
-				answerRepository.delete(answer);
-				return true;
-			} else {
+
+			if (!isUserPermitted) {
 				throw new ChangeNotAllowedException();
 			}
+
+			answerRepository.delete(answer);
+			return true;
+
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileTypes filetype, Filter filter) {
+	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileType filetype, Filter filter) {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = searchAnswers(questionId, filter);
@@ -174,22 +177,22 @@ public class AnswerManager {
 		String fileName = "Odpowiedzi_" + fileId;
 
 		byte[] bytes = null;
-		if (filetype == FileTypes.EXCEL) {
+		if (filetype == FileType.EXCEL) {
 			fileName += ".xlsx";
 			bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
-		} else if (filetype == FileTypes.PDF) {
+		} else if (filetype == FileType.PDF) {
 			fileName += ".pdf";
 			bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
 		}
 
-		if (bytes != null) {
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
-		} else {
+		if (bytes == null) {
 			throw new FileException("Wspierane są tylko następujące typy plików: EXCEL, PDF");
 		}
+		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
 
 	private String generateEmailContent(QuestionEntity question, AnswerEntity answer, boolean isNewAnswer) {
+
 		UserEntity questionUser = question.getUser();
 		UserEntity answerUser = answer.getUser();
 		StringBuilder stringBuilder = new StringBuilder();

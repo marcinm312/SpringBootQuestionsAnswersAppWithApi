@@ -19,13 +19,13 @@ public class ApiStringTrimModule extends SimpleModule {
 
 			@Override
 			public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+
 				List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
 				String fieldName = jsonParser.currentName();
 				if (fieldsToNotTrim.contains(fieldName)) {
 					return jsonParser.getValueAsString();
-				} else {
-					return jsonParser.getValueAsString().trim();
 				}
+				return jsonParser.getValueAsString().trim();
 			}
 
 		});

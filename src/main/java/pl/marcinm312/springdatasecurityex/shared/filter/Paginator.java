@@ -1,9 +1,12 @@
 package pl.marcinm312.springdatasecurityex.shared.filter;
 
+import lombok.Setter;
+
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.Writer;
 
+@Setter
 public class Paginator extends SimpleTagSupport {
 
 	private String uri;
@@ -79,21 +82,5 @@ public class Paginator extends SimpleTagSupport {
 				.append(text)
 				.append("</a></li>");
 		return link.toString();
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
-	}
-
-	public void setCurrPage(int currPage) {
-		this.currPage = currPage;
-	}
-
-	public void setTotalPages(int totalPages) {
-		this.totalPages = totalPages;
-	}
-
-	public void setMaxLinks(int maxLinks) {
-		this.maxLinks = maxLinks;
 	}
 }

@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.shared.enums;
 
-public enum Roles {
+public enum FileType {
 
-	ROLE_USER, ROLE_ADMIN
+	PDF, EXCEL
 }

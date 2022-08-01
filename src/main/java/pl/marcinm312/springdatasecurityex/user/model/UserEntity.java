@@ -1,16 +1,25 @@
 package pl.marcinm312.springdatasecurityex.user.model;
 
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.marcinm312.springdatasecurityex.shared.enums.Role;
 import pl.marcinm312.springdatasecurityex.shared.model.AuditModel;
+import pl.marcinm312.springdatasecurityex.shared.model.CommonEntity;
 
 import javax.persistence.*;
 import java.util.*;
 
+@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
+@Setter
+@SuperBuilder
 @Entity
 @Table(name = "users")
-public class UserEntity extends AuditModel implements UserDetails {
+public class UserEntity extends AuditModel implements UserDetails, CommonEntity {
 
 	@Id
 	@GeneratedValue(generator = "user_generator")
@@ -21,72 +30,22 @@ public class UserEntity extends AuditModel implements UserDetails {
 	private String username;
 
 	private String password;
-	private String role;
-	private boolean isEnabled;
+
+	@Enumerated(EnumType.STRING)
+	private Role role;
+
+	@Column(name = "is_enabled")
+	private boolean enabled;
+
 	private String email;
 
 	private Date timeOfSessionExpiration;
 	private Date changePasswordDate;
 
-	public UserEntity() {
-
-	}
-
-	public UserEntity(String username, String password, String email) {
-		this.username = username;
-		this.password = password;
-		this.email = email;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public void setEnabled(boolean isEnabled) {
-		this.isEnabled = isEnabled;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return Collections.singleton(new SimpleGrantedAuthority(role));
-	}
-
-	@Override
-	public String getPassword() {
-		return password;
-	}
-
-	@Override
-	public String getUsername() {
-		return username;
+		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
 	}
 
 	@Override
@@ -104,27 +63,6 @@ public class UserEntity extends AuditModel implements UserDetails {
 		return true;
 	}
 
-	@Override
-	public boolean isEnabled() {
-		return isEnabled;
-	}
-
-	public Date getTimeOfSessionExpiration() {
-		return timeOfSessionExpiration;
-	}
-
-	public void setTimeOfSessionExpiration(Date timeOfSessionExpiration) {
-		this.timeOfSessionExpiration = timeOfSessionExpiration;
-	}
-
-	public Date getChangePasswordDate() {
-		return changePasswordDate;
-	}
-
-	public void setChangePasswordDate(Date changePasswordDate) {
-		this.changePasswordDate = changePasswordDate;
-	}
-
 	public Date getDateToCompareInJwt() {
 		List<Date> dates = new ArrayList<>();
 		dates.add(getTimeOfSessionExpiration());
@@ -138,7 +76,7 @@ public class UserEntity extends AuditModel implements UserDetails {
 				"id=" + id +
 				", username='" + username + '\'' +
 				", role='" + role + '\'' +
-				", isEnabled=" + isEnabled +
+				", enabled=" + enabled +
 				", timeOfSessionExpiration=" + timeOfSessionExpiration +
 				", changePasswordDate=" + changePasswordDate +
 				'}';

@@ -2,9 +2,17 @@ package pl.marcinm312.springdatasecurityex.shared.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
+@Getter
+@NoArgsConstructor
+@SuperBuilder
 public class CommonsDTOFields {
 
 	private Long id;
@@ -15,38 +23,17 @@ public class CommonsDTOFields {
 	@JsonInclude(JsonInclude.Include.NON_NULL)
 	private Date updatedAt;
 
-	public Long getId() {
-		return id;
-	}
+	@JsonIgnore
+	private final Format dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Date getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(Date createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public Date getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(Date updatedAt) {
-		this.updatedAt = updatedAt;
+	@JsonIgnore
+	public String getCreatedAtAsString() {
+		return dateFormat.format(createdAt);
 	}
 
 	@JsonIgnore
 	public String getUpdatedAtAsString() {
-		return getUpdatedAt().toString().substring(0, 19).replace("T", " ");
-	}
-
-	@JsonIgnore
-	public String getCreatedAtAsString() {
-		return getCreatedAt().toString().substring(0, 19).replace("T", " ");
+		return dateFormat.format(updatedAt);
 	}
 
 	@Override

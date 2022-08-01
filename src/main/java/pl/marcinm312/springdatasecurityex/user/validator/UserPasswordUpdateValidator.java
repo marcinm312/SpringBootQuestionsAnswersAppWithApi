@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.user.validator;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -11,6 +11,7 @@ import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
+@RequiredArgsConstructor
 @Component
 public class UserPasswordUpdateValidator implements Validator {
 
@@ -25,11 +26,6 @@ public class UserPasswordUpdateValidator implements Validator {
 	private final UserManager userManager;
 	private final PasswordEncoder passwordEncoder;
 
-	@Autowired
-	public UserPasswordUpdateValidator(UserManager userManager, PasswordEncoder passwordEncoder) {
-		this.userManager = userManager;
-		this.passwordEncoder = passwordEncoder;
-	}
 
 	@Override
 	public boolean supports(Class<?> clazz) {

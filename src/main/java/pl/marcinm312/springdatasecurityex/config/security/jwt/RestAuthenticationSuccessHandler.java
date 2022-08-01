@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.config.security.jwt;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -10,15 +10,11 @@ import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+@RequiredArgsConstructor
 @Component
 public class RestAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 	private final Environment environment;
-
-	@Autowired
-	public RestAuthenticationSuccessHandler(Environment environment) {
-		this.environment = environment;
-	}
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,

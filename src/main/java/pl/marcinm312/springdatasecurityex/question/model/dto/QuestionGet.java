@@ -1,36 +1,19 @@
 package pl.marcinm312.springdatasecurityex.question.model.dto;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springdatasecurityex.shared.model.CommonsDTOFields;
 
+@Getter
+@SuperBuilder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuestionGet extends CommonsDTOFields {
 
 	private String title;
 	private String description;
 	private String user;
-
-	public String getTitle() {
-		return title;
-	}
-
-	public void setTitle(String title) {
-		this.title = title;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	public String getUser() {
-		return user;
-	}
-
-	public void setUser(String user) {
-		this.user = user;
-	}
 
 	@Override
 	public String toString() {
