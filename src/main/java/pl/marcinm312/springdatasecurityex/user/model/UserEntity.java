@@ -13,7 +13,6 @@ import javax.persistence.*;
 import java.util.*;
 
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @SuperBuilder

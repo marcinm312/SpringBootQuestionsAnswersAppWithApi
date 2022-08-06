@@ -14,7 +14,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
 @Setter
 @SuperBuilder

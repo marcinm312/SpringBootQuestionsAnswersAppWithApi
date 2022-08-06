@@ -12,7 +12,6 @@ import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import javax.persistence.*;
 
 @NoArgsConstructor
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @ToString
 @Getter
 @Setter
