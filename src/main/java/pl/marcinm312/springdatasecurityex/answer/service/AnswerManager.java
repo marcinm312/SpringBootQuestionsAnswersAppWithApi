@@ -1,8 +1,7 @@
 package pl.marcinm312.springdatasecurityex.answer.service;
 
-import com.itextpdf.text.DocumentException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,11 +30,11 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
 import javax.mail.MessagingException;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class AnswerManager {
@@ -49,16 +48,6 @@ public class AnswerManager {
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
-	@Autowired
-	public AnswerManager(AnswerRepository answerRepository, QuestionManager questionManager,
-						 MailService mailService) throws DocumentException, IOException {
-
-		this.answerRepository = answerRepository;
-		this.questionManager = questionManager;
-		this.mailService = mailService;
-		this.excelGenerator = new ExcelGenerator();
-		this.pdfGenerator = new PdfGenerator();
-	}
 
 	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
 

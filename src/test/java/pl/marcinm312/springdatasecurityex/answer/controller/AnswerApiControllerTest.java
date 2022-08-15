@@ -40,6 +40,8 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -72,7 +74,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
-		@SpyBean(RestAuthenticationFailureHandler.class)})
+		@SpyBean(RestAuthenticationFailureHandler.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerApiControllerTest {
 

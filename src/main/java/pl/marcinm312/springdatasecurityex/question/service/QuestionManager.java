@@ -1,8 +1,7 @@
 package pl.marcinm312.springdatasecurityex.question.service;
 
-import com.itextpdf.text.DocumentException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -25,12 +24,12 @@ import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@RequiredArgsConstructor
 @Slf4j
 @Service
 public class QuestionManager {
@@ -41,13 +40,6 @@ public class QuestionManager {
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
-	@Autowired
-	public QuestionManager(QuestionRepository questionRepository) throws DocumentException, IOException {
-
-		this.questionRepository = questionRepository;
-		this.excelGenerator = new ExcelGenerator();
-		this.pdfGenerator = new PdfGenerator();
-	}
 
 	private List<QuestionGet> getQuestions(Filter filter) {
 
