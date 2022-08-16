@@ -595,11 +595,40 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
+	}
+
+	@Test
+	void editQuestion_questionNotExists_notFoundMessage() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
+
+	 	ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/2000/edit")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
@@ -718,12 +747,34 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
+	void removeQuestion_questionNotExists_notFoundMessage() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/2000/delete")
+								.with(user("user2").password("password"))
+								.with(csrf()))
+				.andExpect(status().isOk())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
+	}
+
+	@Test
 	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("user2").password("password"))
 								.with(csrf()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))

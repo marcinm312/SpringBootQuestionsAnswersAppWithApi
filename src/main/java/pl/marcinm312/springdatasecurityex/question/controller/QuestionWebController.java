@@ -22,6 +22,8 @@ import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequiredArgsConstructor
 @Slf4j
 @Controller
@@ -96,7 +98,7 @@ public class QuestionWebController {
 
 	@PostMapping("/{questionId}/edit")
 	public String editQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
-							   Model model, @PathVariable Long questionId, Authentication authentication) {
+							   Model model, @PathVariable Long questionId, Authentication authentication, HttpServletResponse response) {
 
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
@@ -110,10 +112,17 @@ public class QuestionWebController {
 		try {
 			questionManager.updateQuestion(questionId, question, user);
 		} catch (ChangeNotAllowedException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			return CHANGE_NOT_ALLOWED_VIEW;
+			return getChangeNotAllowedView(model, response, userName);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
 		}
 		return "redirect:../..";
+	}
+
+	private String getChangeNotAllowedView(Model model, HttpServletResponse response, String userName) {
+		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+		model.addAttribute(USER_LOGIN, userName);
+		return CHANGE_NOT_ALLOWED_VIEW;
 	}
 
 	@GetMapping("/{questionId}/edit")
@@ -122,15 +131,17 @@ public class QuestionWebController {
 	}
 
 	@PostMapping("/{questionId}/delete")
-	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model) {
+	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model,
+								 HttpServletResponse response) {
 
 		UserEntity user = userManager.getUserByAuthentication(authentication);
+		String userName = authentication.getName();
 		try {
 			questionManager.deleteQuestion(questionId, user);
 		} catch (ChangeNotAllowedException e) {
-			String userName = authentication.getName();
-			model.addAttribute(USER_LOGIN, userName);
-			return CHANGE_NOT_ALLOWED_VIEW;
+			return getChangeNotAllowedView(model, response, userName);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
 		}
 		return "redirect:../..";
 	}

@@ -94,7 +94,11 @@ public class AnswerWebController {
 			return CREATE_ANSWER_VIEW;
 		}
 		UserEntity user = userManager.getUserByAuthentication(authentication);
-		answerManager.addAnswer(questionId, answer, user);
+		try {
+			answerManager.addAnswer(questionId, answer, user);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
+		}
 		return "redirect:..";
 	}
 
@@ -132,10 +136,16 @@ public class AnswerWebController {
 		try {
 			answerManager.updateAnswer(questionId, answerId, answer, user);
 		} catch (ChangeNotAllowedException e) {
-			model.addAttribute(USER_LOGIN, userName);
-			return CHANGE_NOT_ALLOWED_VIEW;
+			return getChangeNotAllowedView(model, userName);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
 		}
 		return "redirect:../..";
+	}
+
+	private String getChangeNotAllowedView(Model model, String userName) {
+		model.addAttribute(USER_LOGIN, userName);
+		return CHANGE_NOT_ALLOWED_VIEW;
 	}
 
 	@GetMapping("/{answerId}/edit")
@@ -149,12 +159,13 @@ public class AnswerWebController {
 							   Authentication authentication, Model model) {
 
 		UserEntity user = userManager.getUserByAuthentication(authentication);
+		String userName = authentication.getName();
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
 		} catch (ChangeNotAllowedException e) {
-			String userName = authentication.getName();
-			model.addAttribute(USER_LOGIN, userName);
-			return CHANGE_NOT_ALLOWED_VIEW;
+			return getChangeNotAllowedView(model, userName);
+		} catch (ResourceNotFoundException e) {
+			return getResourceNotFoundView(model, userName, e);
 		}
 		return "redirect:../..";
 	}
