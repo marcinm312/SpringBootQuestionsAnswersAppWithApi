@@ -21,6 +21,7 @@ import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundExcep
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
+import pl.marcinm312.springdatasecurityex.shared.utils.ControllerUtils;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 
@@ -33,15 +34,12 @@ import javax.servlet.http.HttpServletResponse;
 public class AnswerWebController {
 
 	private static final String USER_LOGIN = "userLogin";
-	private static final String MESSAGE = "message";
-	private static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
 	private static final String QUESTION = "question";
 	private static final String ANSWER = "answer";
 	private static final String ANSWERS_VIEW = "answers";
 	private static final String CREATE_ANSWER_VIEW = "createAnswer";
 	private static final String OLD_ANSWER = "oldAnswer";
 	private static final String EDIT_ANSWER_VIEW = "editAnswer";
-	private static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
 	private static final String DELETE_ANSWER_VIEW = "deleteAnswer";
 
 	private final QuestionManager questionManager;
@@ -70,7 +68,7 @@ public class AnswerWebController {
 			log.info("Answers list size: {}", paginatedAnswers.getItemsList().size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		model.addAttribute("questionId", questionId);
 		model.addAttribute("answerList", paginatedAnswers.getItemsList());
@@ -102,7 +100,7 @@ public class AnswerWebController {
 		try {
 			answerManager.addAnswer(questionId, answer, user);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		return "redirect:..";
 	}
@@ -116,7 +114,7 @@ public class AnswerWebController {
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(ANSWER, new AnswerCreateUpdate());
@@ -144,19 +142,11 @@ public class AnswerWebController {
 		try {
 			answerManager.updateAnswer(questionId, answerId, answer, user);
 		} catch (ChangeNotAllowedException e) {
-			return getChangeNotAllowedView(model, userName, e, response);
+			return ControllerUtils.getChangeNotAllowedView(model, userName, e, response);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		return "redirect:../..";
-	}
-
-	private String getChangeNotAllowedView(Model model, String userName, ChangeNotAllowedException e,
-										   HttpServletResponse response) {
-
-		response.setStatus(e.getHttpStatus());
-		model.addAttribute(USER_LOGIN, userName);
-		return CHANGE_NOT_ALLOWED_VIEW;
 	}
 
 	@GetMapping("/{answerId}/edit")
@@ -175,9 +165,9 @@ public class AnswerWebController {
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
 		} catch (ChangeNotAllowedException e) {
-			return getChangeNotAllowedView(model, userName, e, response);
+			return ControllerUtils.getChangeNotAllowedView(model, userName, e, response);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		return "redirect:../..";
 	}
@@ -202,15 +192,6 @@ public class AnswerWebController {
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 
-	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e,
-										   HttpServletResponse response) {
-
-		response.setStatus(e.getHttpStatus());
-		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(MESSAGE, e.getMessage());
-		return RESOURCE_NOT_FOUND_VIEW;
-	}
-
 	private String getEditOrRemoveAnswerView(Model model, Long questionId, Long answerId, Authentication authentication,
 											 boolean isEdit, HttpServletResponse response) {
 		String userName = authentication.getName();
@@ -220,7 +201,7 @@ public class AnswerWebController {
 			answer = answerManager.getAnswerByQuestionIdAndAnswerId(questionId, answerId);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e, response);
+			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		model.addAttribute(ANSWER, answer);
 		model.addAttribute(QUESTION, question);
