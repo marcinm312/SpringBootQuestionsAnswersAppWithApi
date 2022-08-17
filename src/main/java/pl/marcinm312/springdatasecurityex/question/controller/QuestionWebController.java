@@ -74,10 +74,11 @@ public class QuestionWebController {
 
 	@PostMapping("/new")
 	public String createQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
-								 Model model, Authentication authentication) {
+								 Model model, Authentication authentication, HttpServletResponse response) {
 
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			model.addAttribute(QUESTION, question);
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_QUESTION_VIEW;
@@ -102,6 +103,7 @@ public class QuestionWebController {
 
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			QuestionGet oldQuestion = questionManager.getQuestion(questionId);
 			model.addAttribute(OLD_QUESTION, oldQuestion);
 			model.addAttribute(QUESTION, question);
@@ -112,22 +114,26 @@ public class QuestionWebController {
 		try {
 			questionManager.updateQuestion(questionId, question, user);
 		} catch (ChangeNotAllowedException e) {
-			return getChangeNotAllowedView(model, response, userName);
+			return getChangeNotAllowedView(model, userName, e, response);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e);
+			return getResourceNotFoundView(model, userName, e, response);
 		}
 		return "redirect:../..";
 	}
 
-	private String getChangeNotAllowedView(Model model, HttpServletResponse response, String userName) {
-		response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+	private String getChangeNotAllowedView(Model model, String userName, ChangeNotAllowedException e,
+										   HttpServletResponse response) {
+
+		response.setStatus(e.getHttpStatus());
 		model.addAttribute(USER_LOGIN, userName);
 		return CHANGE_NOT_ALLOWED_VIEW;
 	}
 
 	@GetMapping("/{questionId}/edit")
-	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
-		return getEditOrRemoveQuestionView(model, questionId, authentication, true);
+	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication,
+								   HttpServletResponse response) {
+
+		return getEditOrRemoveQuestionView(model, questionId, authentication, true, response);
 	}
 
 	@PostMapping("/{questionId}/delete")
@@ -139,16 +145,18 @@ public class QuestionWebController {
 		try {
 			questionManager.deleteQuestion(questionId, user);
 		} catch (ChangeNotAllowedException e) {
-			return getChangeNotAllowedView(model, response, userName);
+			return getChangeNotAllowedView(model, userName, e, response);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e);
+			return getResourceNotFoundView(model, userName, e, response);
 		}
 		return "redirect:../..";
 	}
 
 	@GetMapping("/{questionId}/delete")
-	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication) {
-		return getEditOrRemoveQuestionView(model, questionId, authentication, false);
+	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication,
+									 HttpServletResponse response) {
+
+		return getEditOrRemoveQuestionView(model, questionId, authentication, false, response);
 	}
 
 	@GetMapping("/file-export")
@@ -162,21 +170,24 @@ public class QuestionWebController {
 		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 
-	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e) {
+	private String getResourceNotFoundView(Model model, String userName, ResourceNotFoundException e,
+										   HttpServletResponse response) {
 
+		response.setStatus(e.getHttpStatus());
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(MESSAGE, e.getMessage());
 		return RESOURCE_NOT_FOUND_VIEW;
 	}
 
-	private String getEditOrRemoveQuestionView(Model model, Long questionId, Authentication authentication, boolean isEdit) {
+	private String getEditOrRemoveQuestionView(Model model, Long questionId, Authentication authentication,
+											   boolean isEdit, HttpServletResponse response) {
 
 		String userName = authentication.getName();
 		QuestionGet question;
 		try {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
-			return getResourceNotFoundView(model, userName, e);
+			return getResourceNotFoundView(model, userName, e, response);
 		}
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(USER_LOGIN, userName);
