@@ -40,6 +40,8 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -79,7 +81,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
-		@SpyBean(RestAuthenticationFailureHandler.class)})
+		@SpyBean(RestAuthenticationFailureHandler.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerWebControllerTest {
 
@@ -204,7 +206,7 @@ class AnswerWebControllerTest {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/answers")
 								.with(user("user").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"))
@@ -288,6 +290,33 @@ class AnswerWebControllerTest {
 	}
 
 	@Test
+	void createAnswer_questionNotExists_notFoundMessage() throws Exception {
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/2000/answers/new")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().attributeExists("userLogin", "answer"))
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
+	}
+
+	@Test
 	void createAnswer_tooShortText_validationErrors() throws Exception {
 		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
@@ -297,6 +326,7 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("createAnswer"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("answer", "text"))
@@ -331,6 +361,7 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("createAnswer"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("answer", "text"))
@@ -365,6 +396,7 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("createAnswer"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("answer", "text"))
@@ -425,7 +457,7 @@ class AnswerWebControllerTest {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/answers/new")
 								.with(user("user2").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attributeExists("message", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user2"))
@@ -521,6 +553,7 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("editAnswer"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("answer", "text"))
@@ -563,6 +596,7 @@ class AnswerWebControllerTest {
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("editAnswer"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("answer", "text"))
@@ -624,11 +658,40 @@ class AnswerWebControllerTest {
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+				any(String.class), any(String.class), eq(true));
+		verify(answerRepository, never()).save(any(AnswerEntity.class));
+	}
+
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
+	void editAnswer_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
+															  String nameOfTestCase) throws Exception {
+
+		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post(url + "edit")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("text", answerToRequest.getText()))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -679,13 +742,13 @@ class AnswerWebControllerTest {
 	}
 
 	@ParameterizedTest(name = "{index} ''{2}''")
-	@MethodSource("examplesOfEditNotFoundUrlsAndErrorMessages")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void editAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
 																	String nameOfTestCase) throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
-						get(url)
+						get(url + "edit")
 								.with(user("user2").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attributeExists("message", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user2"))
@@ -696,17 +759,6 @@ class AnswerWebControllerTest {
 
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
-	}
-
-	private static Stream<Arguments> examplesOfEditNotFoundUrlsAndErrorMessages() {
-		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/edit", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
-						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/edit", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
-						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/edit", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
-						"answerAndQuestionNotExists_notFound")
-		);
 	}
 
 	@Test
@@ -778,11 +830,35 @@ class AnswerWebControllerTest {
 						post("/app/questions/1000/answers/1000/delete")
 								.with(user("user").password("password"))
 								.with(csrf()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(answerRepository, never()).delete(any(AnswerEntity.class));
+	}
+
+	@ParameterizedTest(name = "{index} ''{2}''")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
+	void removeAnswer_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
+																String nameOfTestCase) throws Exception {
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post(url + "delete")
+								.with(user("user").password("password"))
+								.with(csrf()))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 
 		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
@@ -826,13 +902,13 @@ class AnswerWebControllerTest {
 	}
 
 	@ParameterizedTest(name = "{index} ''{2}''")
-	@MethodSource("examplesOfDeleteNotFoundUrlsAndErrorMessages")
+	@MethodSource("examplesOfNotFoundUrlsAndErrorMessages")
 	void removeAnswerView_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
 																	String nameOfTestCase) throws Exception {
 		ModelAndView modelAndView = mockMvc.perform(
-						get(url)
+						get(url + "delete")
 								.with(user("user2").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attributeExists("message", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user2"))
@@ -845,13 +921,13 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 	}
 
-	private static Stream<Arguments> examplesOfDeleteNotFoundUrlsAndErrorMessages() {
+	private static Stream<Arguments> examplesOfNotFoundUrlsAndErrorMessages() {
 		return Stream.of(
-				Arguments.of("/app/questions/2000/answers/1000/delete", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
+				Arguments.of("/app/questions/2000/answers/1000/", "Nie znaleziono odpowiedzi o id: 1000 na pytanie o id: 2000",
 						"questionNotExists_notFound"),
-				Arguments.of("/app/questions/1000/answers/2000/delete", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
+				Arguments.of("/app/questions/1000/answers/2000/", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 1000",
 						"answerNotExists_notFound"),
-				Arguments.of("/app/questions/2000/answers/2000/delete", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
+				Arguments.of("/app/questions/2000/answers/2000/", "Nie znaleziono odpowiedzi o id: 2000 na pytanie o id: 2000",
 						"answerAndQuestionNotExists_notFound")
 		);
 	}

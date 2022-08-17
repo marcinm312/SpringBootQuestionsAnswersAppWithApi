@@ -36,6 +36,8 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.repository.QuestionRepository;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.file.ExcelGenerator;
+import pl.marcinm312.springdatasecurityex.shared.file.PdfGenerator;
 import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
@@ -72,7 +74,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		})
 @MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
-		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
+		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class),
+		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 @WebAppConfiguration
 class QuestionWebControllerTest {
@@ -283,6 +286,7 @@ class QuestionWebControllerTest {
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
 				.andExpect(view().name("createQuestion"))
+				.andExpect(status().isBadRequest())
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"))
 				.andExpect(model().attributeExists("question", "userLogin"))
@@ -308,6 +312,7 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"))
@@ -334,6 +339,7 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("createQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("question", "title"))
@@ -392,7 +398,7 @@ class QuestionWebControllerTest {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/edit")
 								.with(user("user").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attributeExists("message", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user"))
@@ -503,6 +509,7 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("editQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeExists("userLogin", "question", "oldQuestion"))
@@ -536,6 +543,7 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("editQuestion"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeExists("userLogin", "question", "oldQuestion"))
@@ -592,11 +600,40 @@ class QuestionWebControllerTest {
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+
+		verify(questionRepository, never()).save(any(QuestionEntity.class));
+	}
+
+	@Test
+	void editQuestion_questionNotExists_notFoundMessage() throws Exception {
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(questionRepository.save(any(QuestionEntity.class)))
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
+
+	 	ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/2000/edit")
+								.with(user("user2").password("password"))
+								.with(csrf())
+								.param("title", questionToRequest.getTitle())
+								.param("description", questionToRequest.getDescription()))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
@@ -637,7 +674,7 @@ class QuestionWebControllerTest {
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/delete")
 								.with(user("user").password("password")))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("resourceNotFound"))
 				.andExpect(model().attributeExists("message", "userLogin"))
 				.andExpect(model().attribute("userLogin", "user"))
@@ -715,12 +752,34 @@ class QuestionWebControllerTest {
 	}
 
 	@Test
+	void removeQuestion_questionNotExists_notFoundMessage() throws Exception {
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/questions/2000/delete")
+								.with(user("user2").password("password"))
+								.with(csrf()))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("resourceNotFound"))
+				.andExpect(model().hasNoErrors())
+				.andExpect(model().attribute("userLogin", "user2"))
+				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String messageFromModel = (String) modelAndView.getModel().get("message");
+		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
+		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
+
+		verify(questionRepository, never()).delete(any(QuestionEntity.class));
+	}
+
+	@Test
 	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("user2").password("password"))
 								.with(csrf()))
-				.andExpect(status().isOk())
+				.andExpect(status().isForbidden())
 				.andExpect(view().name("changeNotAllowed"))
 				.andExpect(model().hasNoErrors())
 				.andExpect(model().attribute("userLogin", "user2"))

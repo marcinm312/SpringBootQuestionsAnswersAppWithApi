@@ -15,6 +15,8 @@ import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springdatasecurityex.user.validator.UserPasswordUpdateValidator;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/app/myProfile")
@@ -57,10 +59,11 @@ public class MyProfileWebController {
 
 	@PostMapping("/update")
 	public String updateMyProfile(@ModelAttribute("user") @Validated UserDataUpdate user, BindingResult bindingResult,
-								  Model model, Authentication authentication) {
+								  Model model, Authentication authentication, HttpServletResponse response) {
 
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			model.addAttribute(USER_LOGIN, userName);
 			model.addAttribute(USER, user);
 			return UPDATE_MY_PROFILE_VIEW;
@@ -82,10 +85,11 @@ public class MyProfileWebController {
 
 	@PostMapping("/updatePassword")
 	public String updateMyPassword(@ModelAttribute("user2") @Validated UserPasswordUpdate user, BindingResult bindingResult,
-								   Model model, Authentication authentication) {
+								   Model model, Authentication authentication, HttpServletResponse response) {
 
 		String userName = authentication.getName();
 		if (bindingResult.hasErrors()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			model.addAttribute(USER_LOGIN, userName);
 			model.addAttribute(USER_2, user);
 			return UPDATE_MY_PASSWORD_VIEW;

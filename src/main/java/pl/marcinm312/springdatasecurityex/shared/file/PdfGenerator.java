@@ -6,6 +6,7 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
@@ -17,6 +18,7 @@ import java.util.List;
 import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
 
 @Slf4j
+@Component
 public class PdfGenerator {
 
 	private static final String OF_QUESTION = " pytania: ";
