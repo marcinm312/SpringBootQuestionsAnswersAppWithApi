@@ -213,6 +213,7 @@ class UserRegistrationWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
 								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"))
@@ -245,6 +246,7 @@ class UserRegistrationWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
 								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "username"))
@@ -278,6 +280,7 @@ class UserRegistrationWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
 								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "username"))
@@ -310,6 +313,7 @@ class UserRegistrationWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
 								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "username"))
@@ -345,6 +349,7 @@ class UserRegistrationWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
 								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
 				.andExpect(model().attributeHasFieldErrors("user", "username"))
@@ -392,7 +397,7 @@ class UserRegistrationWebControllerTest {
 
 		mockMvc.perform(
 						get("/token?value=" + exampleNotExistingTokenValue))
-				.andExpect(status().isOk())
+				.andExpect(status().isNotFound())
 				.andExpect(view().name("tokenNotFound"))
 				.andExpect(unauthenticated());
 

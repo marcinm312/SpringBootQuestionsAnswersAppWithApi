@@ -12,6 +12,8 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserCreate;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
+import javax.servlet.http.HttpServletResponse;
+
 @RequiredArgsConstructor
 @Controller
 @RequestMapping("/")
@@ -33,9 +35,10 @@ public class UserRegistrationWebController {
 
 	@PostMapping("/register")
 	public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult,
-							 Model model) {
+							 Model model, HttpServletResponse response) {
 
 		if (bindingResult.hasErrors()) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			model.addAttribute(USER, user);
 			return REGISTER_VIEW;
 		}
@@ -51,11 +54,12 @@ public class UserRegistrationWebController {
 	}
 
 	@GetMapping("/token")
-	public String activateUser(@RequestParam String value) {
+	public String activateUser(@RequestParam String value, HttpServletResponse response) {
 
 		try {
 			userManager.activateUser(value);
 		} catch (TokenNotFoundException e) {
+			response.setStatus(e.getHttpStatus());
 			return TOKEN_NOT_FOUND_VIEW;
 		}
 		return USER_ACTIVATION_VIEW;
