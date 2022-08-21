@@ -33,7 +33,7 @@ public class PdfGenerator {
 		helvetica12 = new Font(helvetica, 12);
 	}
 
-	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) {
+	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) throws FileException {
 
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
@@ -80,7 +80,7 @@ public class PdfGenerator {
 		}
 	}
 
-	public byte[] generateAnswersPdfFile(List<AnswerGet> answersList, QuestionGet question) {
+	public byte[] generateAnswersPdfFile(List<AnswerGet> answersList, QuestionGet question) throws FileException {
 
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());

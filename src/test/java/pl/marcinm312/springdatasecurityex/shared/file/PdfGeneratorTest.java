@@ -12,6 +12,7 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsPdfFile_simpleCase_success() {
+	void generateQuestionsPdfFile_simpleCase_success() throws FileException {
 		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
@@ -36,13 +37,13 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsPdfFile_emptyQuestionsList_success() {
+	void generateQuestionsPdfFile_emptyQuestionsList_success() throws FileException {
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateQuestionsPdfFile(new ArrayList<>()));
 		pdfGenerator.generateQuestionsPdfFile(new ArrayList<>());
 	}
 
 	@Test
-	void generateAnswersPdfFile_simpleCase_success() {
+	void generateAnswersPdfFile_simpleCase_success() throws FileException {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
@@ -53,7 +54,7 @@ class PdfGeneratorTest {
 	}
 
 	@Test
-	void generateAnswersPdfFile_emptyAnswersList_success() {
+	void generateAnswersPdfFile_emptyAnswersList_success() throws FileException {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 

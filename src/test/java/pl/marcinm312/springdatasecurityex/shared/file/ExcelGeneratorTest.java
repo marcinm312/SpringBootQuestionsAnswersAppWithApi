@@ -14,6 +14,7 @@ import pl.marcinm312.springdatasecurityex.question.model.QuestionEntity;
 import pl.marcinm312.springdatasecurityex.question.model.QuestionMapper;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -30,7 +31,7 @@ class ExcelGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsExcelFile_simpleCase_success() throws IOException {
+	void generateQuestionsExcelFile_simpleCase_success() throws IOException, FileException {
 		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
@@ -65,7 +66,7 @@ class ExcelGeneratorTest {
 	}
 
 	@Test
-	void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException {
+	void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException, FileException {
 		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 
@@ -102,7 +103,7 @@ class ExcelGeneratorTest {
 	}
 
 	@Test
-	void generateAnswersExcelFile_simpleCase_success() throws IOException {
+	void generateAnswersExcelFile_simpleCase_success() throws IOException, FileException {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
@@ -146,7 +147,7 @@ class ExcelGeneratorTest {
 	}
 
 	@Test
-	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException {
+	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException, FileException {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
 

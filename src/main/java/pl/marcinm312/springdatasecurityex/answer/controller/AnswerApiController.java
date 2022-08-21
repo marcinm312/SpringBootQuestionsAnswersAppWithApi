@@ -9,6 +9,7 @@ import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.answer.service.AnswerManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
@@ -74,7 +75,7 @@ public class AnswerApiController {
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws ResourceNotFoundException {
+			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);

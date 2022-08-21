@@ -142,7 +142,7 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<Object> generateQuestionsFile(FileType filetype, Filter filter) {
+	public ResponseEntity<Object> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
 
 		List<QuestionGet> questionsList = searchQuestions(filter);
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());

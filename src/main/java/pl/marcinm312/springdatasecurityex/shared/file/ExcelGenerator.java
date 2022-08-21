@@ -17,7 +17,7 @@ import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
 @Component
 public class ExcelGenerator {
 
-	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) {
+	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws FileException {
 
 		log.info("Starting generating answers Excel file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
@@ -90,7 +90,7 @@ public class ExcelGenerator {
 		}
 	}
 
-	public byte[] generateQuestionsExcelFile(List<QuestionGet> questionsList) {
+	public byte[] generateQuestionsExcelFile(List<QuestionGet> questionsList) throws FileException {
 
 		log.info("Starting generating questions Excel file");
 		log.info("questionsList.size()={}", questionsList.size());

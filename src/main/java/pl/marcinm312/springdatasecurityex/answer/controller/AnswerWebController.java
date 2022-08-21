@@ -17,6 +17,7 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.service.QuestionManager;
 import pl.marcinm312.springdatasecurityex.shared.enums.FileType;
 import pl.marcinm312.springdatasecurityex.shared.exception.ChangeNotAllowedException;
+import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 import pl.marcinm312.springdatasecurityex.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springdatasecurityex.shared.filter.Filter;
 import pl.marcinm312.springdatasecurityex.shared.filter.SortField;
@@ -185,7 +186,7 @@ public class AnswerWebController {
 											   @RequestParam(required = false) String keyword,
 											   @RequestParam(required = false) SortField sortField,
 											   @RequestParam(required = false) Sort.Direction sortDirection)
-			throws ResourceNotFoundException {
+			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, sortField, sortDirection);
