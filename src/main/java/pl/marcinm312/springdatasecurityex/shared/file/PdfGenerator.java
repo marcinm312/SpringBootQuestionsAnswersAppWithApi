@@ -1,36 +1,32 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
+import be.quodlibet.boxable.BaseTable;
+import be.quodlibet.boxable.datatable.DataTable;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
+import java.util.*;
 
 @Slf4j
 @Component
 public class PdfGenerator {
 
 	private static final String OF_QUESTION = " pytania: ";
-	private final Font helvetica18;
-	private final Font helvetica12;
 
 
-	public PdfGenerator() throws DocumentException, IOException {
+	public PdfGenerator() {
 
-		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
-		helvetica18 = new Font(helvetica, 18);
-		helvetica12 = new Font(helvetica, 12);
 	}
 
 	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) throws FileException {
@@ -38,44 +34,61 @@ public class PdfGenerator {
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
 
-		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
-		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			PdfWriter.getInstance(document, outputStream);
-			document.open();
+		try (PDDocument document = new PDDocument();
+			 ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-			Paragraph title = new Paragraph("Lista pytań", helvetica18);
-			title.setAlignment(Element.ALIGN_CENTER);
-			document.add(title);
-			document.add(Chunk.NEWLINE);
-			PdfPTable table = new PdfPTable(6);
-			createAndAddCellToTable(ID_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(QUESTION_TITLE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(QUESTION_DESCRIPTION_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			addCommonsColumnsHeaders(table);
-			for (QuestionGet question : questionsList) {
-				createAndAddCellToTable(question.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getTitle(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getDescription(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-				createAndAddCellToTable(question.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-				createAndAddCellToTable(question.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
+			PDPage page = new PDPage(new PDRectangle(PDRectangle.A4.getHeight(), PDRectangle.A4.getWidth()));
+			document.addPage(page);
+
+			PDPageContentStream contentStream = new PDPageContentStream(document, page);
+
+			contentStream.beginText();
+			contentStream.setFont(PDType1Font.HELVETICA_BOLD, 22);
+			contentStream.newLineAtOffset(50, 500);
+			contentStream.showText("Document title");
+			contentStream.endText();
+			contentStream.close();
+
+			List<List> data = new ArrayList();
+			data.add(new ArrayList<>(
+					Arrays.asList("Column One", "Column Two", "Column Three", "Column Four", "Column Five")));
+			for (int i = 1; i <= 100; i++) {
+				data.add(new ArrayList<>(
+						Arrays.asList(
+								"Row " + i + " Col One",
+								"Row " + i + " Col Two yyyyyyyyyyyyy yyyyyy yyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyy",
+								"Row " + i + " Col Three yyyyyyyyyyyyy yyyyyy yyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyy yyyyyyyyyyyyy yyyyyy yyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyyyyyyyyyyy yyyyyyyyyyyy yyyyyy",
+								"Row " + i + " Col Four",
+								"Row " + i + " Col Five"
+						)));
 			}
-			int[] widths = {40, 150, 150, 120, 120, 120};
-			table.setWidths(widths);
-			table.setTotalWidth(700);
-			table.setLockedWidth(true);
-			document.add(table);
 
-			document.close();
+			//Dummy Table
+			float margin = 50;
+// starting y position is whole page height subtracted by top and bottom margin
+			float yStartNewPage = page.getMediaBox().getHeight() - (2 * margin);
+// we want table across whole page width (subtracted by left and right margin ofcourse)
+			float tableWidth = page.getMediaBox().getWidth() - (2 * margin);
+
+			float yStart = yStartNewPage;
+			float bottomMargin = 70;
+
+			BaseTable dataTable = new BaseTable(yStart, yStartNewPage, bottomMargin, tableWidth, margin, document, page, true, true);
+			DataTable t = new DataTable(dataTable, page);
+			t.addListToTable(data, DataTable.HASHEADER);
+			dataTable.draw();
+
+			//contentStream.close();
+			//document.addPage(page);
+
+			document.save(outputStream);
+
+			//int[] widths = {40, 150, 150, 120, 120, 120};
 
 			log.info("Questions PDF file generated");
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			document.close();
 			throw new FileException(e.getMessage());
 		}
 	}
@@ -85,67 +98,29 @@ public class PdfGenerator {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
-		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			PdfWriter.getInstance(document, outputStream);
-			document.open();
 
-			Paragraph title = new Paragraph("Lista odpowiedzi", helvetica18);
-			title.setAlignment(Element.ALIGN_CENTER);
-			document.add(title);
-			document.add(Chunk.NEWLINE);
-			Paragraph questionTitle = new Paragraph(QUESTION_TITLE_COLUMN + OF_QUESTION + question.getTitle(), helvetica12);
-			document.add(questionTitle);
-			Paragraph questionDescription = new Paragraph(QUESTION_DESCRIPTION_COLUMN + OF_QUESTION + question.getDescription(), helvetica12);
-			document.add(questionDescription);
-			Paragraph questionUser = new Paragraph(USER_COLUMN + ": " + question.getUser(), helvetica12);
-			document.add(questionUser);
-			document.add(Chunk.NEWLINE);
-			PdfPTable table = new PdfPTable(5);
-			createAndAddCellToTable(ID_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(ANSWER_TEXT_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			addCommonsColumnsHeaders(table);
-			for (AnswerGet answer : answersList) {
-				createAndAddCellToTable(answer.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getText(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-			}
-			int[] widths = {40, 300, 120, 120, 120};
-			table.setWidths(widths);
-			table.setTotalWidth(700);
-			table.setLockedWidth(true);
-			document.add(table);
+			//int[] widths = {40, 300, 120, 120, 120};
 
-			document.close();
+			String jasperReportTemplate = "src/main/resources/AnswersReport.jrxml";
+
+			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(answersList);
+
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put("questionTitle", question.getTitle());
+			parameters.put("questionDescription", question.getDescription());
+			parameters.put("userName", question.getUser());
+			parameters.put("answersDataSource", dataSource);
+
+			JasperReport jasperReport = JasperCompileManager.compileReport(jasperReportTemplate);
+			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+			JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
 
 			log.info("Answers PDF file generated");
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			document.close();
 			throw new FileException(e.getMessage());
 		}
-	}
-
-	private void createAndAddCellToTable(String text, BaseColor color, int alignment, Font font, PdfPTable table) {
-
-		PdfPCell cell = new PdfPCell(new Paragraph(text, font));
-		cell.setBackgroundColor(color);
-		cell.setHorizontalAlignment(alignment);
-		cell.setPaddingBottom(4);
-		cell.setPaddingLeft(4);
-		cell.setPaddingRight(4);
-		cell.setPaddingTop(4);
-		table.addCell(cell);
-	}
-
-	private void addCommonsColumnsHeaders(PdfPTable table) {
-
-		createAndAddCellToTable(CREATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable(MODIFICATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable(USER_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
 	}
 }
