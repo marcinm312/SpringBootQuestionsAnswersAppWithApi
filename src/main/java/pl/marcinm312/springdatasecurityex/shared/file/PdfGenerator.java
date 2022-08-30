@@ -16,6 +16,7 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.*;
 
 @Slf4j
@@ -100,9 +101,10 @@ public class PdfGenerator {
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-			//int[] widths = {40, 300, 120, 120, 120};
+			JRPropertiesUtil jrPropertiesUtil = JRPropertiesUtil.getInstance(DefaultJasperReportsContext.getInstance());
+			jrPropertiesUtil.setProperty("net.sf.jasperreports.default.pdf.encoding", "Cp1250");
 
-			String jasperReportTemplate = "src/main/resources/AnswersReport.jrxml";
+			InputStream jasperReportTemplate = getClass().getResourceAsStream("/AnswersReport.jrxml");
 
 			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(answersList);
 

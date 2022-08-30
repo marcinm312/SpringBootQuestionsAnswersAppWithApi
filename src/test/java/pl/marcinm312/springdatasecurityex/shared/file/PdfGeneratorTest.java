@@ -1,6 +1,6 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-import com.itextpdf.text.DocumentException;
+//import com.itextpdf.text.DocumentException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class PdfGeneratorTest {
 	private PdfGenerator pdfGenerator;
 
 	@BeforeEach
-	void setup() throws DocumentException, IOException {
+	void setup() /*throws DocumentException, IOException*/ {
 		pdfGenerator = new PdfGenerator();
 	}
 

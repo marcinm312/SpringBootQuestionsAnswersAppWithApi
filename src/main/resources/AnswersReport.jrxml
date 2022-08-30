@@ -61,10 +61,10 @@
 				</textElement>
 				<text><![CDATA[Lista odpowiedzi]]></text>
 			</staticText>
-			<textField>
+			<textField textAdjust="StretchHeight">
 				<reportElement x="20" y="30" width="760" height="49" uuid="673b75c8-9049-4645-b54c-87f36421cf88"/>
 				<textElement>
-					<font size="12"/>
+					<font size="12" isBold="false"/>
 				</textElement>
 				<textFieldExpression><![CDATA["Tytuł pytania: " + $P{questionTitle} + "\nOpis pytania: " + $P{questionDescription} + "\nUżytkownik: " + $P{userName}]]></textFieldExpression>
 			</textField>
@@ -92,8 +92,17 @@
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="50" height="30" uuid="41d4085f-c946-4646-9555-5f28519430ff"/>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="50" height="30" uuid="41d4085f-c946-4646-9555-5f28519430ff">
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+								</reportElement>
+								<textElement>
+									<font fontName="SansSerif"/>
+									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -107,8 +116,17 @@
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="350" height="30" uuid="755f9ba0-a873-4f8d-bace-b8b42d24beb0"/>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="350" height="30" uuid="755f9ba0-a873-4f8d-bace-b8b42d24beb0">
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+								</reportElement>
+								<textElement>
+									<font fontName="SansSerif"/>
+									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{text}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -122,8 +140,16 @@
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="120" height="30" uuid="f093b225-37c6-438c-8e75-403d7d0732a5"/>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="120" height="30" uuid="f093b225-37c6-438c-8e75-403d7d0732a5">
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+								</reportElement>
+								<textElement>
+									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{createdAtAsString}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -137,8 +163,16 @@
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="120" height="30" uuid="cae9172e-a2e6-4157-9316-3742dea52b70"/>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="120" height="30" uuid="cae9172e-a2e6-4157-9316-3742dea52b70">
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+								</reportElement>
+								<textElement>
+									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{updatedAtAsString}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
@@ -152,8 +186,16 @@
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
-							<textField>
-								<reportElement x="0" y="0" width="120" height="30" uuid="f534e852-e5b9-4bfd-9bdf-92fbe9ddb4de"/>
+							<textField textAdjust="StretchHeight">
+								<reportElement x="0" y="0" width="120" height="30" uuid="f534e852-e5b9-4bfd-9bdf-92fbe9ddb4de">
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+								</reportElement>
+								<textElement>
+									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+								</textElement>
 								<textFieldExpression><![CDATA[$F{user}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
