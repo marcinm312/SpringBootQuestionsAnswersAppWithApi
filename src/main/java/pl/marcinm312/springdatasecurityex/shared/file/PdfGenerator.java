@@ -103,6 +103,7 @@ public class PdfGenerator {
 
 			JRPropertiesUtil jrPropertiesUtil = JRPropertiesUtil.getInstance(DefaultJasperReportsContext.getInstance());
 			jrPropertiesUtil.setProperty("net.sf.jasperreports.default.pdf.encoding", "Cp1250");
+			jrPropertiesUtil.setProperty("net.sf.jasperreports.compiler.xml.parser.cache.schemas", "false");
 
 			InputStream jasperReportTemplate = getClass().getResourceAsStream("/AnswersReport.jrxml");
 
