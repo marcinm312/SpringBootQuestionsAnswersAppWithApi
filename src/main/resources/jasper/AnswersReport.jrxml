@@ -91,9 +91,9 @@
 								<text><![CDATA[Id]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField textAdjust="StretchHeight">
-								<reportElement x="0" y="0" width="50" height="30" uuid="41d4085f-c946-4646-9555-5f28519430ff">
+								<reportElement x="0" y="0" width="50" height="20" uuid="41d4085f-c946-4646-9555-5f28519430ff">
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
@@ -115,13 +115,13 @@
 								<text><![CDATA[Tytuł]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField textAdjust="StretchHeight">
-								<reportElement x="0" y="0" width="350" height="30" uuid="755f9ba0-a873-4f8d-bace-b8b42d24beb0">
-									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
+								<reportElement x="0" y="0" width="350" height="20" uuid="755f9ba0-a873-4f8d-bace-b8b42d24beb0">
 									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 								</reportElement>
 								<textElement>
 									<font fontName="SansSerif"/>
@@ -139,9 +139,9 @@
 								<text><![CDATA[Data utworzenia]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField textAdjust="StretchHeight">
-								<reportElement x="0" y="0" width="120" height="30" uuid="f093b225-37c6-438c-8e75-403d7d0732a5">
+								<reportElement x="0" y="0" width="120" height="20" uuid="f093b225-37c6-438c-8e75-403d7d0732a5">
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
@@ -162,9 +162,9 @@
 								<text><![CDATA[Data modyfikacji]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField textAdjust="StretchHeight">
-								<reportElement x="0" y="0" width="120" height="30" uuid="cae9172e-a2e6-4157-9316-3742dea52b70">
+								<reportElement x="0" y="0" width="120" height="20" uuid="cae9172e-a2e6-4157-9316-3742dea52b70">
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
@@ -185,9 +185,9 @@
 								<text><![CDATA[Użytkownik]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:detailCell style="Table_TD" height="30">
+						<jr:detailCell style="Table_TD" height="20">
 							<textField textAdjust="StretchHeight">
-								<reportElement x="0" y="0" width="120" height="30" uuid="f534e852-e5b9-4bfd-9bdf-92fbe9ddb4de">
+								<reportElement x="0" y="0" width="120" height="20" uuid="f534e852-e5b9-4bfd-9bdf-92fbe9ddb4de">
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 									<property name="com.jaspersoft.studio.unit.leftIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
