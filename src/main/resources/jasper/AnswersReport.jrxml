@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.20.0.final using JasperReports Library version 6.20.0-2bc7ab61c56f459e8176eb05c7705e145cd400ad  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AnswersReport" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="51e57292-e5f8-4853-822c-e1de3362e6d4">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AnswersReport" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="762" leftMargin="40" rightMargin="40" topMargin="40" bottomMargin="40" uuid="51e57292-e5f8-4853-822c-e1de3362e6d4">
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<style name="Table_TH" mode="Opaque" backcolor="#FFA500">
 		<box>
@@ -53,7 +53,7 @@
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="79" splitType="Stretch">
+		<band height="90" splitType="Stretch">
 			<staticText>
 				<reportElement x="280" y="0" width="200" height="30" uuid="779bab37-40bf-40e8-b47b-f2f4a207d2b3"/>
 				<textElement textAlignment="Center">
@@ -62,7 +62,7 @@
 				<text><![CDATA[Lista odpowiedzi]]></text>
 			</staticText>
 			<textField textAdjust="StretchHeight">
-				<reportElement x="20" y="30" width="760" height="49" uuid="673b75c8-9049-4645-b54c-87f36421cf88"/>
+				<reportElement x="0" y="40" width="760" height="50" uuid="673b75c8-9049-4645-b54c-87f36421cf88"/>
 				<textElement>
 					<font size="12" isBold="false"/>
 				</textElement>
@@ -73,7 +73,7 @@
 	<detail>
 		<band height="238" splitType="Stretch">
 			<componentElement>
-				<reportElement x="20" y="10" width="760" height="228" uuid="64ba81d2-6bac-4278-a69b-8a92d6afa024">
+				<reportElement x="0" y="20" width="760" height="218" uuid="64ba81d2-6bac-4278-a69b-8a92d6afa024">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
@@ -87,7 +87,9 @@
 						<jr:columnHeader style="Table_CH" height="20">
 							<staticText>
 								<reportElement x="0" y="0" width="50" height="20" uuid="4507ccd6-81e0-4451-8ef1-edef235c3a74"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11"/>
+								</textElement>
 								<text><![CDATA[Id]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -99,9 +101,9 @@
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
 								</reportElement>
+								<box padding="2"/>
 								<textElement>
-									<font fontName="SansSerif"/>
-									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+									<font fontName="SansSerif" size="11"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
 							</textField>
@@ -111,8 +113,10 @@
 						<jr:columnHeader style="Table_CH" height="20">
 							<staticText>
 								<reportElement x="0" y="0" width="350" height="20" uuid="d0a21274-04a7-46c8-b0f6-d196c3f212ea"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
-								<text><![CDATA[Tytuł]]></text>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11"/>
+								</textElement>
+								<text><![CDATA[Treść odpowiedzi]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="20">
@@ -123,9 +127,9 @@
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
 									<property name="com.jaspersoft.studio.unit.height" value="pixel"/>
 								</reportElement>
+								<box padding="2"/>
 								<textElement>
-									<font fontName="SansSerif"/>
-									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+									<font fontName="SansSerif" size="11"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{text}]]></textFieldExpression>
 							</textField>
@@ -135,7 +139,9 @@
 						<jr:columnHeader style="Table_CH" height="20">
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="20" uuid="6bc8328a-f5c6-46d6-8508-49ab3690b015"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11"/>
+								</textElement>
 								<text><![CDATA[Data utworzenia]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -147,8 +153,9 @@
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
 								</reportElement>
+								<box padding="2"/>
 								<textElement>
-									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+									<font size="11"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{createdAtAsString}]]></textFieldExpression>
 							</textField>
@@ -158,7 +165,9 @@
 						<jr:columnHeader style="Table_CH" height="20">
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="20" uuid="797bbe5b-350a-405d-80ef-e15f9b307cfa"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11"/>
+								</textElement>
 								<text><![CDATA[Data modyfikacji]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -170,8 +179,9 @@
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
 								</reportElement>
+								<box padding="2"/>
 								<textElement>
-									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+									<font size="11"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{updatedAtAsString}]]></textFieldExpression>
 							</textField>
@@ -181,7 +191,9 @@
 						<jr:columnHeader style="Table_CH" height="20">
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="20" uuid="e10b4323-c921-4356-ad6a-0cf516466d20"/>
-								<textElement textAlignment="Center" verticalAlignment="Middle"/>
+								<textElement textAlignment="Center" verticalAlignment="Middle">
+									<font size="11"/>
+								</textElement>
 								<text><![CDATA[Użytkownik]]></text>
 							</staticText>
 						</jr:columnHeader>
@@ -193,8 +205,9 @@
 									<property name="com.jaspersoft.studio.unit.rightIndent" value="px"/>
 									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
 								</reportElement>
+								<box padding="2"/>
 								<textElement>
-									<paragraph leftIndent="2" rightIndent="2" spacingAfter="2"/>
+									<font size="11"/>
 								</textElement>
 								<textFieldExpression><![CDATA[$F{user}]]></textFieldExpression>
 							</textField>
