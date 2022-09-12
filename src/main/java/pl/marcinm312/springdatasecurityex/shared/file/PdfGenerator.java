@@ -23,11 +23,16 @@ import java.util.*;
 @Component
 public class PdfGenerator {
 
-	private static final String OF_QUESTION = " pytania: ";
+	private final JasperReport answersCompiledReport;
 
+	public PdfGenerator() throws JRException {
 
-	public PdfGenerator() {
+		JRPropertiesUtil jrPropertiesUtil = JRPropertiesUtil.getInstance(DefaultJasperReportsContext.getInstance());
+		jrPropertiesUtil.setProperty("net.sf.jasperreports.default.pdf.encoding", "Cp1250");
+		jrPropertiesUtil.setProperty("net.sf.jasperreports.compiler.xml.parser.cache.schemas", "false");
 
+		InputStream answersReportTemplate = getClass().getResourceAsStream("/jasper/AnswersReport.jrxml");
+		answersCompiledReport = JasperCompileManager.compileReport(answersReportTemplate);
 	}
 
 	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) throws FileException {
@@ -101,12 +106,6 @@ public class PdfGenerator {
 
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-			JRPropertiesUtil jrPropertiesUtil = JRPropertiesUtil.getInstance(DefaultJasperReportsContext.getInstance());
-			jrPropertiesUtil.setProperty("net.sf.jasperreports.default.pdf.encoding", "Cp1250");
-			jrPropertiesUtil.setProperty("net.sf.jasperreports.compiler.xml.parser.cache.schemas", "false");
-
-			InputStream jasperReportTemplate = getClass().getResourceAsStream("/jasper/AnswersReport.jrxml");
-
 			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(answersList);
 
 			Map<String, Object> parameters = new HashMap<>();
@@ -115,8 +114,7 @@ public class PdfGenerator {
 			parameters.put("userName", question.getUser());
 			parameters.put("answersDataSource", dataSource);
 
-			JasperReport jasperReport = JasperCompileManager.compileReport(jasperReportTemplate);
-			JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, new JREmptyDataSource());
+			JasperPrint jasperPrint = JasperFillManager.fillReport(answersCompiledReport, parameters, new JREmptyDataSource());
 			JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
 
 			log.info("Answers PDF file generated");
