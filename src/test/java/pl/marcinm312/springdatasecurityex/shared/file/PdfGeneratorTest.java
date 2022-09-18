@@ -1,6 +1,5 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-//import com.itextpdf.text.DocumentException;
 import net.sf.jasperreports.engine.JRException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +14,6 @@ import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,7 +22,7 @@ class PdfGeneratorTest {
 	private PdfGenerator pdfGenerator;
 
 	@BeforeEach
-	void setup() throws JRException /*throws DocumentException, IOException*/ {
+	void setup() throws JRException {
 		pdfGenerator = new PdfGenerator();
 	}
 
