@@ -86,6 +86,7 @@ public class ExcelGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
+			log.error("Error while generating answers Excel file: {}", e.getMessage());
 			throw new FileException(e.getMessage());
 		}
 	}
@@ -137,6 +138,7 @@ public class ExcelGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
+			log.error("Error while generating questions Excel file: {}", e.getMessage());
 			throw new FileException(e.getMessage());
 		}
 	}

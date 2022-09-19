@@ -1,36 +1,35 @@
 package pl.marcinm312.springdatasecurityex.shared.file;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.stereotype.Component;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 import pl.marcinm312.springdatasecurityex.shared.exception.FileException;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-
-import static pl.marcinm312.springdatasecurityex.shared.file.Columns.*;
+import java.io.InputStream;
+import java.util.*;
 
 @Slf4j
 @Component
 public class PdfGenerator {
 
-	private static final String OF_QUESTION = " pytania: ";
-	private final Font helvetica18;
-	private final Font helvetica12;
+	private final JasperReport questionsCompiledReport;
+	private final JasperReport answersCompiledReport;
 
+	public PdfGenerator() throws JRException {
 
-	public PdfGenerator() throws DocumentException, IOException {
+		JRPropertiesUtil jrPropertiesUtil = JRPropertiesUtil.getInstance(DefaultJasperReportsContext.getInstance());
+		jrPropertiesUtil.setProperty("net.sf.jasperreports.default.pdf.encoding", "Cp1250");
+		jrPropertiesUtil.setProperty("net.sf.jasperreports.compiler.xml.parser.cache.schemas", "false");
 
-		BaseFont helvetica = BaseFont.createFont(BaseFont.HELVETICA, BaseFont.CP1250, BaseFont.EMBEDDED);
-		helvetica18 = new Font(helvetica, 18);
-		helvetica12 = new Font(helvetica, 12);
+		InputStream questionsReportTemplate = getClass().getResourceAsStream("/jasper/QuestionsReport.jrxml");
+		questionsCompiledReport = JasperCompileManager.compileReport(questionsReportTemplate);
+
+		InputStream answersReportTemplate = getClass().getResourceAsStream("/jasper/AnswersReport.jrxml");
+		answersCompiledReport = JasperCompileManager.compileReport(answersReportTemplate);
 	}
 
 	public byte[] generateQuestionsPdfFile(List<QuestionGet> questionsList) throws FileException {
@@ -38,44 +37,20 @@ public class PdfGenerator {
 		log.info("Starting generating questions PDF file");
 		log.info("questionsList.size()={}", questionsList.size());
 
-		Document document = new Document(PageSize.A4.rotate(), 20, 20, 20, 20);
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			PdfWriter.getInstance(document, outputStream);
-			document.open();
 
-			Paragraph title = new Paragraph("Lista pytań", helvetica18);
-			title.setAlignment(Element.ALIGN_CENTER);
-			document.add(title);
-			document.add(Chunk.NEWLINE);
-			PdfPTable table = new PdfPTable(6);
-			createAndAddCellToTable(ID_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(QUESTION_TITLE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(QUESTION_DESCRIPTION_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			addCommonsColumnsHeaders(table);
-			for (QuestionGet question : questionsList) {
-				createAndAddCellToTable(question.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getTitle(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getDescription(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(question.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-				createAndAddCellToTable(question.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-				createAndAddCellToTable(question.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-			}
-			int[] widths = {40, 150, 150, 120, 120, 120};
-			table.setWidths(widths);
-			table.setTotalWidth(700);
-			table.setLockedWidth(true);
-			document.add(table);
+			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(questionsList);
 
-			document.close();
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put("questionsDataSource", dataSource);
+
+			printJasperPdf(questionsCompiledReport, parameters, outputStream);
 
 			log.info("Questions PDF file generated");
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			document.close();
+			log.error("Error while generating questions PDF file: {}", e.getMessage());
 			throw new FileException(e.getMessage());
 		}
 	}
@@ -85,67 +60,31 @@ public class PdfGenerator {
 		log.info("Starting generating answers PDF file for question = {}", question);
 		log.info("answersList.size()={}", answersList.size());
 
-		Document document = new Document(PageSize.A4.rotate(), 70, 70, 20, 20);
 		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-			PdfWriter.getInstance(document, outputStream);
-			document.open();
 
-			Paragraph title = new Paragraph("Lista odpowiedzi", helvetica18);
-			title.setAlignment(Element.ALIGN_CENTER);
-			document.add(title);
-			document.add(Chunk.NEWLINE);
-			Paragraph questionTitle = new Paragraph(QUESTION_TITLE_COLUMN + OF_QUESTION + question.getTitle(), helvetica12);
-			document.add(questionTitle);
-			Paragraph questionDescription = new Paragraph(QUESTION_DESCRIPTION_COLUMN + OF_QUESTION + question.getDescription(), helvetica12);
-			document.add(questionDescription);
-			Paragraph questionUser = new Paragraph(USER_COLUMN + ": " + question.getUser(), helvetica12);
-			document.add(questionUser);
-			document.add(Chunk.NEWLINE);
-			PdfPTable table = new PdfPTable(5);
-			createAndAddCellToTable(ID_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			createAndAddCellToTable(ANSWER_TEXT_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-			addCommonsColumnsHeaders(table);
-			for (AnswerGet answer : answersList) {
-				createAndAddCellToTable(answer.getId().toString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getText(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getCreatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getUpdatedAtAsString(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12, table);
-				createAndAddCellToTable(answer.getUser(), BaseColor.WHITE, Element.ALIGN_LEFT, helvetica12,
-						table);
-			}
-			int[] widths = {40, 300, 120, 120, 120};
-			table.setWidths(widths);
-			table.setTotalWidth(700);
-			table.setLockedWidth(true);
-			document.add(table);
+			JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(answersList);
 
-			document.close();
+			Map<String, Object> parameters = new HashMap<>();
+			parameters.put("questionTitle", question.getTitle());
+			parameters.put("questionDescription", question.getDescription());
+			parameters.put("userName", question.getUser());
+			parameters.put("answersDataSource", dataSource);
+
+			printJasperPdf(answersCompiledReport, parameters, outputStream);
 
 			log.info("Answers PDF file generated");
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			document.close();
+			log.error("Error while generating answers PDF file: {}", e.getMessage());
 			throw new FileException(e.getMessage());
 		}
 	}
 
-	private void createAndAddCellToTable(String text, BaseColor color, int alignment, Font font, PdfPTable table) {
+	private void printJasperPdf(JasperReport compiledReport, Map<String, Object> parameters, ByteArrayOutputStream outputStream)
+			throws JRException {
 
-		PdfPCell cell = new PdfPCell(new Paragraph(text, font));
-		cell.setBackgroundColor(color);
-		cell.setHorizontalAlignment(alignment);
-		cell.setPaddingBottom(4);
-		cell.setPaddingLeft(4);
-		cell.setPaddingRight(4);
-		cell.setPaddingTop(4);
-		table.addCell(cell);
-	}
-
-	private void addCommonsColumnsHeaders(PdfPTable table) {
-
-		createAndAddCellToTable(CREATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable(MODIFICATION_DATE_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
-		createAndAddCellToTable(USER_COLUMN, BaseColor.GRAY, Element.ALIGN_CENTER, helvetica12, table);
+		JasperPrint jasperPrint = JasperFillManager.fillReport(compiledReport, parameters, new JREmptyDataSource());
+		JasperExportManager.exportReportToPdfStream(jasperPrint, outputStream);
 	}
 }
