@@ -158,7 +158,9 @@ public class QuestionManager {
 		}
 
 		if (bytes == null) {
-			throw new FileException("Wspierane są tylko następujące typy plików: EXCEL, PDF");
+			String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
+			log.error(errorMessage);
+			throw new FileException(errorMessage);
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}

@@ -42,7 +42,8 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
 			try {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 			} catch (IOException ex) {
-				log.error("Error while sending error: {}", ex.getMessage());
+				String errorMessage = String.format("Error while sending error: %s", ex.getMessage());
+				log.error(errorMessage, ex);
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			}
 			return null;

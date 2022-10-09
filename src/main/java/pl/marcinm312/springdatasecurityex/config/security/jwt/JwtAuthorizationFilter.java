@@ -80,7 +80,8 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		try {
 			user = userDetailsService.findUserById(Long.valueOf(userId));
 		} catch (Exception exc) {
-			log.error("Error while searching user: {} {}", exc.getClass().getName(), exc.getMessage());
+			String errorMessage = String.format("Error while searching user: %s %s", exc.getClass().getName(), exc.getMessage());
+			log.error(errorMessage, exc);
 			return null;
 		}
 		if (issuedAt.after(user.getDateToCompareInJwt())) {

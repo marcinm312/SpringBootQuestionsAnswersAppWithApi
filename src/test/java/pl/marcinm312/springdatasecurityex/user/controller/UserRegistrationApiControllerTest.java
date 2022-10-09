@@ -41,7 +41,6 @@ import pl.marcinm312.springdatasecurityex.user.testdataprovider.TokenDataProvide
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
-import javax.mail.MessagingException;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -88,7 +87,7 @@ class UserRegistrationApiControllerTest {
 	private final ObjectMapper mapper = new ObjectMapper();
 
 	@BeforeEach
-	void setup() throws MessagingException {
+	void setup() {
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 		doNothing().when(tokenRepo).delete(isA(TokenEntity.class));
 

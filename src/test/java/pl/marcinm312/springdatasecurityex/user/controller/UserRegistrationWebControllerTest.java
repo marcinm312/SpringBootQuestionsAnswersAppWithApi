@@ -35,7 +35,6 @@ import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider
 import pl.marcinm312.springdatasecurityex.config.security.utils.SessionUtils;
 import pl.marcinm312.springdatasecurityex.user.validator.UserCreateValidator;
 
-import javax.mail.MessagingException;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -81,7 +80,7 @@ class UserRegistrationWebControllerTest {
 
 
 	@BeforeEach
-	void setup() throws MessagingException {
+	void setup() {
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
 		doNothing().when(tokenRepo).delete(isA(TokenEntity.class));
 

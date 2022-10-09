@@ -50,7 +50,6 @@ import pl.marcinm312.springdatasecurityex.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springdatasecurityex.user.service.UserManager;
 import pl.marcinm312.springdatasecurityex.user.testdataprovider.UserDataProvider;
 
-import javax.mail.MessagingException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -109,7 +108,7 @@ class AnswerWebControllerTest {
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
 	@BeforeEach
-	void setup() throws MessagingException {
+	void setup() {
 		AnswerEntity answer = AnswerDataProvider.prepareExampleAnswer();
 
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));

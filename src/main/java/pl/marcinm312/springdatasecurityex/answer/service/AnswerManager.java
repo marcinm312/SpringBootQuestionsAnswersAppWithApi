@@ -29,7 +29,6 @@ import pl.marcinm312.springdatasecurityex.shared.mail.MailService;
 import pl.marcinm312.springdatasecurityex.shared.model.ListPage;
 import pl.marcinm312.springdatasecurityex.user.model.UserEntity;
 
-import javax.mail.MessagingException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -114,6 +113,7 @@ public class AnswerManager {
 
 		log.info("Updating answer");
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
+
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
 
@@ -128,18 +128,16 @@ public class AnswerManager {
 			QuestionEntity question = answer.getQuestion();
 			sendEmail(question, "Zaktualizowano odpowiedź na Twoje pytanie o id: ", savedAnswer, false);
 			return AnswerMapper.convertAnswerEntityToAnswerGet(savedAnswer);
+
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	private void sendEmail(QuestionEntity question, String x, AnswerEntity savedAnswer, boolean isNewAnswer) {
-		try {
-			String email = question.getUser().getEmail();
-			String subject = x + question.getId();
-			String content = generateEmailContent(question, savedAnswer, isNewAnswer);
-			mailService.sendMail(email, subject, content, true);
-		} catch (MessagingException e) {
-			log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
-		}
+	private void sendEmail(QuestionEntity question, String subject, AnswerEntity savedAnswer, boolean isNewAnswer) {
+
+		String email = question.getUser().getEmail();
+		subject = subject + question.getId();
+		String content = generateEmailContent(question, savedAnswer, isNewAnswer);
+		mailService.sendMail(email, subject, content, true);
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
@@ -176,7 +174,9 @@ public class AnswerManager {
 		}
 
 		if (bytes == null) {
-			throw new FileException("Wspierane są tylko następujące typy plików: EXCEL, PDF");
+			String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
+			log.error(errorMessage);
+			throw new FileException(errorMessage);
 		}
 		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}

@@ -50,8 +50,9 @@ public class PdfGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			log.error("Error while generating questions PDF file: {}", e.getMessage());
-			throw new FileException(e.getMessage());
+			String errorMessage = String.format("Błąd podczas eksportu pytań do pliku PDF: %s", e.getMessage());
+			log.error(errorMessage, e);
+			throw new FileException(errorMessage);
 		}
 	}
 
@@ -76,8 +77,9 @@ public class PdfGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			log.error("Error while generating answers PDF file: {}", e.getMessage());
-			throw new FileException(e.getMessage());
+			String errorMessage = String.format("Błąd podczas eksportu odpowiedzi do pliku PDF: %s", e.getMessage());
+			log.error(errorMessage, e);
+			throw new FileException(errorMessage);
 		}
 	}
 

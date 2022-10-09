@@ -23,7 +23,6 @@ import pl.marcinm312.springdatasecurityex.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springdatasecurityex.user.repository.TokenRepo;
 import pl.marcinm312.springdatasecurityex.user.repository.UserRepo;
 
-import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Optional;
@@ -164,11 +163,7 @@ public class UserManager {
 		TokenEntity token = new TokenEntity(tokenValue, user);
 		tokenRepo.save(token);
 		String emailContent = generateEmailContent(user, tokenValue);
-		try {
-			mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
-		} catch (MessagingException e) {
-			log.error("An error occurred while sending the email. [MESSAGE]: {}", e.getMessage());
-		}
+		mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
 
 	private String generateEmailContent(UserEntity user, String tokenValue) {

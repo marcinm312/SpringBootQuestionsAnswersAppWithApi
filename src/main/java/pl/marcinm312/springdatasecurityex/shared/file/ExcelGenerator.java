@@ -86,8 +86,9 @@ public class ExcelGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			log.error("Error while generating answers Excel file: {}", e.getMessage());
-			throw new FileException(e.getMessage());
+			String errorMessage = String.format("Błąd podczas eksportu odpowiedzi do pliku Excel: %s", e.getMessage());
+			log.error(errorMessage, e);
+			throw new FileException(errorMessage);
 		}
 	}
 
@@ -138,8 +139,9 @@ public class ExcelGenerator {
 			return outputStream.toByteArray();
 
 		} catch (Exception e) {
-			log.error("Error while generating questions Excel file: {}", e.getMessage());
-			throw new FileException(e.getMessage());
+			String errorMessage = String.format("Błąd podczas eksportu pytań do pliku Excel: %s", e.getMessage());
+			log.error(errorMessage, e);
+			throw new FileException(errorMessage);
 		}
 	}
 

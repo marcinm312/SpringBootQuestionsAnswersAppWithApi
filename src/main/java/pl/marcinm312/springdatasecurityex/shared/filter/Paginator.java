@@ -1,11 +1,14 @@
 package pl.marcinm312.springdatasecurityex.shared.filter;
 
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
+import java.io.IOException;
 import java.io.Writer;
 
+@Slf4j
 @Setter
 public class Paginator extends SimpleTagSupport {
 
@@ -59,8 +62,10 @@ public class Paginator extends SimpleTagSupport {
 
 			out.write("</ul>");
 
-		} catch (java.io.IOException ex) {
-			throw new JspException("Error in Paginator tag", ex);
+		} catch (IOException ex) {
+			String errorMessage = String.format("Error in Paginator tag: %s", ex.getMessage());
+			log.error(errorMessage, ex);
+			throw new JspException(errorMessage, ex);
 		}
 	}
 
