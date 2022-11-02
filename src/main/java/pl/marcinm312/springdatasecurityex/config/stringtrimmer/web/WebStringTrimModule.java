@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.InitBinder;
 
 import java.beans.PropertyEditorSupport;
-import java.util.Arrays;
 import java.util.List;
 
 @ControllerAdvice
@@ -23,7 +22,7 @@ public class WebStringTrimModule {
 			}
 		};
 
-		List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
+		List<String> fieldsToNotTrim = List.of("currentPassword", "password", "confirmPassword");
 		for (String fieldName : fieldsToNotTrim) {
 			binder.registerCustomEditor(String.class, fieldName, dummyEditor);
 		}
