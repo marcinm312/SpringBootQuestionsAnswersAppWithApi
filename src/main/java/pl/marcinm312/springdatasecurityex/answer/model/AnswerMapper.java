@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import pl.marcinm312.springdatasecurityex.answer.model.dto.AnswerGet;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnswerMapper {
@@ -22,6 +21,6 @@ public class AnswerMapper {
 	}
 
 	public static List<AnswerGet> convertAnswerEntityListToAnswerGetList(List<AnswerEntity> answerList) {
-		return answerList.stream().map(AnswerMapper::convertAnswerEntityToAnswerGet).collect(Collectors.toList());
+		return answerList.stream().map(AnswerMapper::convertAnswerEntityToAnswerGet).toList();
 	}
 }
