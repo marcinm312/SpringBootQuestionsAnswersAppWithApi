@@ -185,18 +185,25 @@ public class AnswerManager {
 
 		UserEntity questionUser = question.getUser();
 		UserEntity answerUser = answer.getUser();
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Witaj ").append(questionUser.getUsername()).append(",")
-				.append("<br><br>Użytkownik <b>").append(answerUser.getUsername());
+		String mailMessage;
 		if (isNewAnswer) {
-			stringBuilder.append("</b> opublikował odpowiedź na Twoje pytanie:");
+			mailMessage = "opublikował odpowiedź na Twoje pytanie:";
 		} else {
-			stringBuilder.append("</b> zaktualizował odpowiedź na Twoje pytanie:");
+			mailMessage = "zaktualizował odpowiedź na Twoje pytanie:";
 		}
-		stringBuilder.append("<br><br><b>Tytuł:</b><br>").append(question.getTitle())
-				.append("<br><br><b>Opis:</b><br>").append(question.getDescription())
-				.append("<br><br><br><b>Treść odpowiedzi:</b><br>")
-				.append(answer.getText().replace("\n", "<br>"));
-		return stringBuilder.toString();
+		String questionDescription =  question.getDescription().replace("\n", "<br>");
+		String answerText = answer.getText().replace("\n", "<br>");
+		String mailTemplate = """
+				Witaj %s,<br>
+				<br>Użytkownik <b>%s</b> %s<br>
+				<br><b>Tytuł:</b><br>
+				%s<br>
+				<br><b>Opis:</b><br>
+				%s<br>
+				<br>
+				<br><b>Treść odpowiedzi:</b><br>
+				%s""";
+		return String.format(mailTemplate, questionUser.getUsername(), answerUser.getUsername(), mailMessage,
+				question.getTitle(), questionDescription, answerText);
 	}
 }
