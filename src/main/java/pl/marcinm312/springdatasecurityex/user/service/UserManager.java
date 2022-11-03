@@ -168,10 +168,12 @@ public class UserManager {
 
 	private String generateEmailContent(UserEntity user, String tokenValue) {
 
-		return new StringBuilder().append("Witaj ").append(user.getUsername())
-				.append(",<br><br>Potwierdź swój adres email, klikając w poniższy link:")
-				.append("<br><a href=\"").append(getTokenUrl()).append(tokenValue)
-				.append("\">Aktywuj konto</a>").toString();
+		String mailTemplate =
+			"""
+			Witaj %s,<br>
+			<br>Potwierdź swój adres email, klikając w poniższy link:
+			<br><a href="%s">Aktywuj konto</a>""";
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl() + tokenValue);
 	}
 
 	private String getTokenUrl() {
