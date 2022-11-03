@@ -169,10 +169,10 @@ public class UserManager {
 	private String generateEmailContent(UserEntity user, String tokenValue) {
 
 		String mailTemplate =
-			"""
-			Witaj %s,<br>
-			<br>Potwierdź swój adres email, klikając w poniższy link:
-			<br><a href="%s">Aktywuj konto</a>""";
+				"""
+						Witaj %s,<br>
+						<br>Potwierdź swój adres email, klikając w poniższy link:
+						<br><a href="%s">Aktywuj konto</a>""";
 		return String.format(mailTemplate, user.getUsername(), getTokenUrl() + tokenValue);
 	}
 
