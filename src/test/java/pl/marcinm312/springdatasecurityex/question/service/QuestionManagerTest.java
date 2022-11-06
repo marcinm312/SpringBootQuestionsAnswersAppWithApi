@@ -53,7 +53,7 @@ class QuestionManagerTest {
 	void getQuestions_simpleCase_success() {
 		Filter filter = new Filter(null, 0, 5, SortField.ID, Sort.Direction.DESC);
 		ListPage<QuestionGet> questionsResultList = questionManager.searchPaginatedQuestions(filter);
-		MatcherAssert.assertThat(questionsResultList.getItemsList(), Matchers.hasSize(3));
+		MatcherAssert.assertThat(questionsResultList.itemsList(), Matchers.hasSize(3));
 	}
 
 	@Test

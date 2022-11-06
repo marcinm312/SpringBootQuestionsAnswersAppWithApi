@@ -30,9 +30,7 @@ public class UserGet extends CommonsDTOFields {
 	@Override
 	public final boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof UserGet)) return false;
-
-		UserGet userGet = (UserGet) o;
+		if (!(o instanceof UserGet userGet)) return false;
 
 		if (isEnabled() != userGet.isEnabled()) return false;
 		if (getUsername() != null ? !getUsername().equals(userGet.getUsername()) : userGet.getUsername() != null)

@@ -25,9 +25,7 @@ public class AnswerGet extends CommonsDTOFields {
 	@Override
 	public final boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof AnswerGet)) return false;
-
-		AnswerGet answerGet = (AnswerGet) o;
+		if (!(o instanceof AnswerGet answerGet)) return false;
 
 		if (getText() != null ? !getText().equals(answerGet.getText()) : answerGet.getText() != null) return false;
 		if (getId() != null ? !getId().equals(answerGet.getId()) : answerGet.getId() != null) return false;

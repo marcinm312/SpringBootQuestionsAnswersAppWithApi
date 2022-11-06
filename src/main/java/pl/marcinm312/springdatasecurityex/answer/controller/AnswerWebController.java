@@ -66,18 +66,18 @@ public class AnswerWebController {
 		QuestionGet question;
 		try {
 			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
-			log.info("Answers list size: {}", paginatedAnswers.getItemsList().size());
+			log.info("Answers list size: {}", paginatedAnswers.itemsList().size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
 		}
 		model.addAttribute("questionId", questionId);
-		model.addAttribute("answerList", paginatedAnswers.getItemsList());
+		model.addAttribute("answerList", paginatedAnswers.itemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
 		model.addAttribute("reverseSortDir", "ASC".equals(sortDir) ? "DESC" : "ASC");
-		model.addAttribute("totalPages", paginatedAnswers.getTotalPages());
-		model.addAttribute("totalItems", paginatedAnswers.getTotalElements());
+		model.addAttribute("totalPages", paginatedAnswers.totalPages());
+		model.addAttribute("totalItems", paginatedAnswers.totalElements());
 		model.addAttribute(QUESTION, question);
 		model.addAttribute(USER_LOGIN, userName);
 		return ANSWERS_VIEW;

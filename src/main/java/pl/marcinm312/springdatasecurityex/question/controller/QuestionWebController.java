@@ -57,15 +57,15 @@ public class QuestionWebController {
 		sortField = Filter.checkQuestionsSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
-		log.info("Questions list size: {}", paginatedQuestions.getItemsList().size());
+		log.info("Questions list size: {}", paginatedQuestions.itemsList().size());
 		String sortDir = filter.getSortDirection().name().toUpperCase();
 
-		model.addAttribute("questionList", paginatedQuestions.getItemsList());
+		model.addAttribute("questionList", paginatedQuestions.itemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
 		model.addAttribute("reverseSortDir", "ASC".equals(sortDir) ? "DESC" : "ASC");
-		model.addAttribute("totalPages", paginatedQuestions.getTotalPages());
-		model.addAttribute("totalItems", paginatedQuestions.getTotalElements());
+		model.addAttribute("totalPages", paginatedQuestions.totalPages());
+		model.addAttribute("totalItems", paginatedQuestions.totalElements());
 		model.addAttribute(USER_LOGIN, userName);
 
 		return QUESTIONS_VIEW;
