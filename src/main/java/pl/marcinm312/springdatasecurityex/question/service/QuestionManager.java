@@ -89,7 +89,7 @@ public class QuestionManager {
 
 		QuestionEntity questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
-		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB);
+		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB, false);
 	}
 
 	public void checkIfQuestionExists(Long questionId) {
@@ -102,7 +102,7 @@ public class QuestionManager {
 
 		QuestionEntity question = new QuestionEntity(questionRequest.getTitle(), questionRequest.getDescription(), user);
 		log.info("Creating question = {}", question);
-		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
+		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question), true);
 	}
 
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
@@ -120,7 +120,7 @@ public class QuestionManager {
 			question.setTitle(questionRequest.getTitle());
 			question.setDescription(questionRequest.getDescription());
 			log.info("New question = {}", question);
-			return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question));
+			return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question), true);
 
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}

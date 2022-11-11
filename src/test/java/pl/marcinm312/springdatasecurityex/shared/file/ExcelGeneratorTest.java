@@ -107,7 +107,7 @@ class ExcelGeneratorTest {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
@@ -149,7 +149,7 @@ class ExcelGeneratorTest {
 	@Test
 	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException, FileException {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
