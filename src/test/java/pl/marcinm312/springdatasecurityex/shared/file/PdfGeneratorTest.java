@@ -46,7 +46,7 @@ class PdfGeneratorTest {
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateAnswersPdfFile(answersList, questionGet));
 		pdfGenerator.generateAnswersPdfFile(answersList, questionGet);
@@ -55,7 +55,7 @@ class PdfGeneratorTest {
 	@Test
 	void generateAnswersPdfFile_emptyAnswersList_success() throws FileException {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question);
+		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		Assertions.assertDoesNotThrow(() -> pdfGenerator.generateAnswersPdfFile(new ArrayList<>(), questionGet));
 		pdfGenerator.generateAnswersPdfFile(new ArrayList<>(), questionGet);

@@ -5,24 +5,28 @@ import lombok.NoArgsConstructor;
 import pl.marcinm312.springdatasecurityex.question.model.dto.QuestionGet;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class QuestionMapper {
 
-	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question) {
+	public static QuestionGet convertQuestionEntityToQuestionGet(QuestionEntity question, boolean isCreateOrUpdate) {
 
-		return QuestionGet.builder()
+		var builder = QuestionGet.builder()
 				.id(question.getId())
 				.title(question.getTitle())
 				.description(question.getDescription())
-				.createdAt(question.getCreatedAt())
-				.updatedAt(question.getUpdatedAt())
-				.user(question.getUser().getUsername())
-				.build();
+				.user(question.getUser().getUsername());
+
+		if (!isCreateOrUpdate) {
+			builder = builder.
+					createdAt(question.getCreatedAt())
+					.updatedAt(question.getUpdatedAt());
+		}
+
+		return builder.build();
 	}
 
 	public static List<QuestionGet> convertQuestionEntityListToQuestionGetList(List<QuestionEntity> questionList) {
-		return questionList.stream().map(QuestionMapper::convertQuestionEntityToQuestionGet).collect(Collectors.toList());
+		return questionList.stream().map(question -> convertQuestionEntityToQuestionGet(question, false)).toList();
 	}
 }

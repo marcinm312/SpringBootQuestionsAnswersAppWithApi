@@ -187,7 +187,7 @@ public class ExcelGenerator {
 
 	private String addValueWithNewLines(String value) {
 
-		if (value == null || value.isEmpty()) {
+		if (value == null || value.isBlank()) {
 			return "";
 		}
 		return value.replace("\n", " ");

@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -20,7 +19,7 @@ public class ApiStringTrimModule extends SimpleModule {
 			@Override
 			public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
 
-				List<String> fieldsToNotTrim = Arrays.asList("currentPassword", "password", "confirmPassword");
+				List<String> fieldsToNotTrim = List.of("currentPassword", "password", "confirmPassword");
 				String fieldName = jsonParser.currentName();
 				if (fieldsToNotTrim.contains(fieldName)) {
 					return jsonParser.getValueAsString();
