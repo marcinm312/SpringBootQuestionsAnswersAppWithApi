@@ -88,6 +88,13 @@ public class MultiHttpSecurityCustomConfig {
 							"/css/style.css", "/css/signin.css", "/favicon.ico",
 							"/js/clearPasswordsFieldsInRegistrationForm.js")
 					.permitAll()
+
+					.antMatchers("/swagger-ui.html").permitAll()
+					.antMatchers("/swagger-ui/**").permitAll()
+					.antMatchers("/v2/api-docs").permitAll()
+					.antMatchers("/webjars/**").permitAll()
+					.antMatchers("/swagger-resources/**").permitAll()
+
 					.anyRequest().authenticated()
 					.and().formLogin().loginPage("/loginPage").loginProcessingUrl("/authenticate").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
