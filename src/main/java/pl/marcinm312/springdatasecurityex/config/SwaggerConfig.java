@@ -2,7 +2,6 @@ package pl.marcinm312.springdatasecurityex.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.*;
@@ -41,7 +40,7 @@ public class SwaggerConfig {
 	public Docket api() {
 
 		return new Docket(DocumentationType.SWAGGER_2)
-				.ignoredParameterTypes(UsernamePasswordAuthenticationToken.class, Authentication.class)
+				.ignoredParameterTypes(Authentication.class)
 				.securityContexts(Collections.singletonList(securityContext()))
 				.securitySchemes(Collections.singletonList(getApiKey()))
 				.select()
