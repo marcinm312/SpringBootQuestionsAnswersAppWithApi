@@ -29,6 +29,9 @@
         nie posiadasz konta, kliknij przycisk <span class="bold">Zarejestruj
 				się</span>
     </p>
+    <button class="btn btn-outline-primary"
+                onclick="window.location.href = 'swagger-ui/'">Dokumentacja API
+    </button>
 </div>
 </body>
 </html>
