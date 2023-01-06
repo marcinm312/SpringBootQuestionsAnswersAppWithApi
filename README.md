@@ -22,7 +22,7 @@ This application is a bit similar to the discussion forum. After registration of
 8. Apache POI
 9. JasperReports
 10. Lombok
-11. JUnit, Mockito
+11. JUnit, Mockito, MockMvc
 12. Swagger
 13. HTML, JSP, CSS
 14. Bootstrap
