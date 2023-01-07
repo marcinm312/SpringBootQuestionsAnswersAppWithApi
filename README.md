@@ -59,7 +59,7 @@ First, create a database with any name, e.g. `questions_answers_app`. You will u
 
 #### 3. Create a launch configuration in your favorite IDE
 
-Using the example of IntelliJ IDE, select **JDK (Java) version 17**. Select the main class: `pl.marcinm312.springdatasecurityex.SpringDataAndSecurityExampleApplication` and set the environment variables as described above.
+Using the example of IntelliJ IDE, select **JDK (Java) version 17**. Select the main class: `pl.marcinm312.springquestionsanswers.SpringBootQuestionsAnswersApplication` and set the environment variables as described above.
 
 #### 4. Run the application using the configuration created in the previous step.
 
@@ -72,7 +72,7 @@ Using the example of IntelliJ IDE, select **JDK (Java) version 17**. Select the 
 Type the following commands from the root directory of the project:
 ```bash
 mvn clean package
-java -Dfile.encoding=UTF-8 -jar spring-data-and-security-example-0.0.1-SNAPSHOT.war
+java -Dfile.encoding=UTF-8 -jar spring-boot-questions-answers-0.0.1-SNAPSHOT.war
 ```
 
 ## API documentation

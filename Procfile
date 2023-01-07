@@ -1,1 +1,0 @@
-web: java $JAVA_OPTS -jar target/dependency/webapp-runner.jar --proxy-base-url https://questions-answers-marcinm312-2.herokuapp.com --port $PORT target/*.war

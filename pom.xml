@@ -9,10 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>pl.marcinm312</groupId>
-    <artifactId>spring-data-and-security-example</artifactId>
+    <artifactId>spring-boot-questions-answers</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>spring-data-and-security-example</name>
-    <description>Demo project for Spring Boot</description>
+    <name>spring-boot-questions-answers</name>
     <packaging>war</packaging>
 
     <properties>
