@@ -72,7 +72,7 @@ Using the example of IntelliJ IDE, select **JDK (Java) version 17**. Select the 
 Type the following commands from the root directory of the project:
 ```bash
 mvn clean package
-java -Dfile.encoding=UTF-8 -jar spring-boot-questions-answers-0.0.1-SNAPSHOT.war
+java -Dfile.encoding=UTF-8 -jar target/spring-boot-questions-answers-0.0.1-SNAPSHOT.war
 ```
 
 ## API documentation
