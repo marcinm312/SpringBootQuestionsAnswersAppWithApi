@@ -99,7 +99,7 @@ public class UserDataProvider {
 		return UserEntity.builder()
 				.id(1003L)
 				.username("user3")
-				.password(passwordEncoder.encode(" pass "))
+				.password(passwordEncoder.encode(" pas "))
 				.role(Role.ROLE_USER)
 				.enabled(true)
 				.email("test3@abc.pl")
@@ -138,7 +138,7 @@ public class UserDataProvider {
 	}
 
 	public static UserCreate prepareIncorrectUserToRequest() {
-		return new UserCreate("aa", "passw", "passw", "email");
+		return new UserCreate("aa", "pass", "pass", "email");
 	}
 
 	public static UserCreate prepareEmptyUserToRequest() {
@@ -150,7 +150,7 @@ public class UserDataProvider {
 	}
 
 	public static UserCreate prepareUserWithSpacesInPasswordToRequest() {
-		return new UserCreate("user", " pass ", " pass ", "test@abc.pl");
+		return new UserCreate("user", " pas ", " pas ", "test@abc.pl");
 	}
 
 	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
@@ -194,7 +194,7 @@ public class UserDataProvider {
 	}
 
 	public static UserPasswordUpdate prepareUserPasswordUpdateWithTooShortPasswordToRequest() {
-		return new UserPasswordUpdate("password", "passw", "passw");
+		return new UserPasswordUpdate("password", "pass", "pass");
 	}
 
 	public static UserPasswordUpdate prepareEmptyUserPasswordUpdateToRequest() {
@@ -202,6 +202,6 @@ public class UserDataProvider {
 	}
 
 	public static UserPasswordUpdate prepareUserPasswordUpdateWithSpacesInPassToRequest() {
-		return new UserPasswordUpdate(" pass ", " pas  ", " pas  ");
+		return new UserPasswordUpdate(" pas ", " pa  ", " pa  ");
 	}
 }

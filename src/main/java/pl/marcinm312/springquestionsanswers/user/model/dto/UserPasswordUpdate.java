@@ -18,10 +18,10 @@ public class UserPasswordUpdate {
 	private String currentPassword;
 
 	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
+	@Size(min = 5, message = "Pole to musi zawierać minimum 5 znaków")
 	private String password;
 
 	@NotBlank(message = "Pole to musi być wypełnione!")
-	@Size(min = 6, message = "Pole to musi zawierać minimum 6 znaków")
+	@Size(min = 5, message = "Pole to musi zawierać minimum 5 znaków")
 	private String confirmPassword;
 }

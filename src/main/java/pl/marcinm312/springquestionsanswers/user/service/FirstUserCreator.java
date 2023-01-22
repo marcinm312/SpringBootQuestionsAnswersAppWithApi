@@ -26,7 +26,7 @@ public class FirstUserCreator {
 	@EventListener(ApplicationReadyEvent.class)
 	public UserEntity addFirstUser() {
 
-		String login = "administrator";
+		String login = "admin";
 		if (userRepo.findByUsername(login).isEmpty()) {
 			String password = environment.getProperty("admin.default.password");
 			String email = environment.getProperty("admin.default.email");

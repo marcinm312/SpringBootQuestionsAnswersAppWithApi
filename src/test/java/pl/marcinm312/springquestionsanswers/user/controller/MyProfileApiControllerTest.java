@@ -320,7 +320,7 @@ class MyProfileApiControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
 
-		String token = prepareToken("user3", " pass ");
+		String token = prepareToken("user3", " pas ");
 
 		String response = mockMvc.perform(
 						put("/api/myProfile/updatePassword")
