@@ -133,7 +133,11 @@ class UserRegistrationApiControllerTest {
 				Arguments.of(UserDataProvider.prepareGoodUserToRequest(),
 						"createUser_simpleCase_success"),
 				Arguments.of(UserDataProvider.prepareUserWithSpacesInPasswordToRequest(),
-						"createUser_spacesInPassword_success")
+						"createUser_spacesInPassword_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserWithActivationUrlToRequest(),
+						"createUser_userWithActivationUrl_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserWithIncorrectActivationUrlToRequest(),
+						"createUser_userWithIncorrectActivationUrl_success")
 		);
 	}
 

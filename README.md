@@ -28,20 +28,19 @@ This application is a bit similar to the discussion forum. After registration of
 14. Bootstrap
 
 ## Environment variables that need to be set:
-1. **ACTIVATE_USER_URL** - Sets a link to activate the user account in the email. You can set an empty value ("" or " " - without quotes) when using the default built-in application frontend. If the link in the email should redirect to another page, enter its address, e.g. `http://localhost:3000/api/token?value=`. The value of the token (in this case, the value of the "value" parameter) will be added by the application to the end of the URL.
-2. **ADMIN_DEFAULT_EMAIL** - The e-mail address that will be set to the first user (administrator) when the application is launched for the first time. Value example: `abcd@example.com`.
-3. **ADMIN_DEFAULT_PASSWORD** - The password that will be set for the first user (administrator) when the application is started for the first time. After the first login as administrator, it is recommended to change its password in the application, leaving the old value of this environment variable. Value example: `password`.
-4. **JDBC_DATABASE_URL** - URL to the database. Value example: `jdbc:postgresql://localhost:5432/database_name`.
-5. **JDBC_DATABASE_USERNAME** - Database username. Value example: `postgres`.
-6. **JDBC_DATABASE_PASSWORD** - Database user password. Value example: `yourPassword`.
-7. **JWT_SECRET** - The password needed to hash the JWT signature. It should be remembered that the secret should be long and consist of different characters, because by breaking the secret, you can impersonate the authorization service and enter your data in payload.
-8. **JWT_EXP_MINUTES** - The time, expressed in minutes, that determines how long the JWT token is valid. Value example: `60`.
-9. **LOGGING_FILE_NAME** - Log file path and name. Names can be an exact location (for instance, `C://logs/server.log`) or relative (for instance, `logs/server.log`) to the current directory (project root directory or directory containing packaged war/jar file). You can set an empty value ("" or " " - without quotes) when using only console logs (without saving logs to a file).
-10. **MAIL_HOST** - SMTP server host. Value example: `smtp.office365.com`.
-11. **MAIL_PORT** - SMTP server port. Value example: `587`.
-12. **MAIL_USERNAME** - The username (login) of the mail server. Value example: `example.user@abcde.com`.
-13. **MAIL_PASSWORD** - Mail server user password. Value example: `yourPassword`.
-14. **TIME_ZONE** - Time zone, for instance `Europe/Warsaw`.
+1. **ADMIN_DEFAULT_EMAIL** - The e-mail address that will be set to the first user (administrator) when the application is launched for the first time. Value example: `abcd@example.com`.
+2. **ADMIN_DEFAULT_PASSWORD** - The password that will be set for the first user (administrator) when the application is started for the first time. After the first login as administrator, it is recommended to change its password in the application, leaving the old value of this environment variable. Value example: `password`.
+3. **JDBC_DATABASE_URL** - URL to the database. Value example: `jdbc:postgresql://localhost:5432/database_name`.
+4. **JDBC_DATABASE_USERNAME** - Database username. Value example: `postgres`.
+5. **JDBC_DATABASE_PASSWORD** - Database user password. Value example: `yourPassword`.
+6. **JWT_SECRET** - The password needed to hash the JWT signature. It should be remembered that the secret should be long and consist of different characters, because by breaking the secret, you can impersonate the authorization service and enter your data in payload.
+7. **JWT_EXP_MINUTES** - The time, expressed in minutes, that determines how long the JWT token is valid. Value example: `60`.
+8. **LOGGING_FILE_NAME** - Log file path and name. Names can be an exact location (for instance, `C://logs/server.log`) or relative (for instance, `logs/server.log`) to the current directory (project root directory or directory containing packaged war/jar file). You can set an empty value ("" or " " - without quotes) when using only console logs (without saving logs to a file).
+9. **MAIL_HOST** - SMTP server host. Value example: `smtp.office365.com`.
+10. **MAIL_PORT** - SMTP server port. Value example: `587`.
+11. **MAIL_USERNAME** - The username (login) of the mail server. Value example: `example.user@abcde.com`.
+12. **MAIL_PASSWORD** - Mail server user password. Value example: `yourPassword`.
+13. **TIME_ZONE** - Time zone, for instance `Europe/Warsaw`.
 
 ## Steps to Setup
 

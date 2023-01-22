@@ -133,6 +133,14 @@ public class UserDataProvider {
 		return new UserCreate("user", "password", "password", "test@abc.pl");
 	}
 
+	public static UserCreate prepareGoodUserWithActivationUrlToRequest() {
+		return new UserCreate("user", "password", "password", "test@abc.pl", "http://localhost:3000/api/token?value=");
+	}
+
+	public static UserCreate prepareGoodUserWithIncorrectActivationUrlToRequest() {
+		return new UserCreate("user", "password", "password", "test@abc.pl", "incorrectUrl");
+	}
+
 	public static UserCreate prepareUserWithConfirmPasswordErrorToRequest() {
 		return new UserCreate("user", "password", "anotherPassword", "test@abc.pl");
 	}

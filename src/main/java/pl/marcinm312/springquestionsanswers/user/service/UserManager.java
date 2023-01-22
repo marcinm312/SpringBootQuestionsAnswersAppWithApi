@@ -2,7 +2,6 @@ package pl.marcinm312.springquestionsanswers.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,9 +37,6 @@ public class UserManager {
 	private final TokenRepo tokenRepo;
 	private final MailService mailService;
 	private final SessionUtils sessionUtils;
-
-	@Value("${activate.user.url}")
-	private String activationUrl;
 
 
 	public UserEntity getUserByAuthentication(Authentication authentication) {
@@ -79,7 +75,7 @@ public class UserManager {
 
 		log.info("Creating user = {}", user);
 		UserEntity savedUser = userRepo.save(user);
-		sendToken(user);
+		sendToken(user, userRequest.getActivationUrl());
 		log.info("User created");
 		return UserMapper.convertUserToUserGet(savedUser, true);
 	}
@@ -157,28 +153,28 @@ public class UserManager {
 		return UserMapper.convertUserToUserGet(savedUser, true);
 	}
 
-	private void sendToken(UserEntity user) {
+	private void sendToken(UserEntity user, String activationUrl) {
 
 		String tokenValue = UUID.randomUUID().toString();
 		TokenEntity token = new TokenEntity(tokenValue, user);
 		tokenRepo.save(token);
-		String emailContent = generateEmailContent(user, tokenValue);
+		String emailContent = generateEmailContent(user, tokenValue, activationUrl);
 		mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
 
-	private String generateEmailContent(UserEntity user, String tokenValue) {
+	private String generateEmailContent(UserEntity user, String tokenValue, String activationUrl) {
 
 		String mailTemplate =
 				"""
 						Witaj %s,<br>
 						<br>Potwierdź swój adres email, klikając w poniższy link:
 						<br><a href="%s">Aktywuj konto</a>""";
-		return String.format(mailTemplate, user.getUsername(), getTokenUrl() + tokenValue);
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl) + tokenValue);
 	}
 
-	private String getTokenUrl() {
+	private String getTokenUrl(String activationUrl) {
 
-		if (activationUrl != null && !activationUrl.isEmpty() && activationUrl.startsWith("http")) {
+		if (activationUrl != null && activationUrl.startsWith("http")) {
 			return activationUrl.trim();
 		}
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
