@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.question.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -142,7 +143,7 @@ public class QuestionManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<Object> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
+	public ResponseEntity<ByteArrayResource> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
 
 		List<QuestionGet> questionsList = searchQuestions(filter);
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());

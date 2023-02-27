@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.question.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -82,7 +83,7 @@ public class QuestionWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_QUESTION_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		questionManager.createQuestion(question, user);
 		return "redirect:..";
 	}
@@ -109,7 +110,7 @@ public class QuestionWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_QUESTION_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			questionManager.updateQuestion(questionId, question, user);
 		} catch (ChangeNotAllowedException e) {
@@ -131,7 +132,7 @@ public class QuestionWebController {
 	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model,
 								 HttpServletResponse response) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		String userName = authentication.getName();
 		try {
 			questionManager.deleteQuestion(questionId, user);
@@ -151,10 +152,10 @@ public class QuestionWebController {
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws FileException {
 
 		sortField = Filter.checkQuestionsSortField(sortField);

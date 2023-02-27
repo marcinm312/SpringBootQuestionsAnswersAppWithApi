@@ -41,7 +41,7 @@ public class UserPasswordUpdateValidator implements Validator {
 		String confirmPassword = user.getConfirmPassword();
 
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		UserEntity loggedUser = userManager.getUserByAuthentication(authentication);
+		UserEntity loggedUser = userManager.getUserFromDB(authentication);
 
 		if (!passwordEncoder.matches(currentPassword, loggedUser.getPassword())) {
 			errors.rejectValue(CURRENT_PASSWORD_FIELD, CURRENT_PASSWORD_ERROR, "Podano nieprawidłowe hasło");

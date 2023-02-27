@@ -1,6 +1,7 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -49,7 +50,7 @@ public class AnswerApiController {
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
 							   Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
@@ -57,7 +58,7 @@ public class AnswerApiController {
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
 
@@ -65,16 +66,16 @@ public class AnswerApiController {
 	public boolean deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.deleteAnswer(questionId, answerId, user);
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
-											   @RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
+														  @RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);

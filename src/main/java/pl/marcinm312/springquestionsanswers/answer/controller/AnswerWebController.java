@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -97,7 +98,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_ANSWER_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			answerManager.addAnswer(questionId, answer, user);
 		} catch (ResourceNotFoundException e) {
@@ -139,7 +140,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_ANSWER_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			answerManager.updateAnswer(questionId, answerId, answer, user);
 		} catch (ChangeNotAllowedException e) {
@@ -161,7 +162,7 @@ public class AnswerWebController {
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model, HttpServletResponse response) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		String userName = authentication.getName();
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
@@ -181,11 +182,11 @@ public class AnswerWebController {
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
-											   @RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
+														  @RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);

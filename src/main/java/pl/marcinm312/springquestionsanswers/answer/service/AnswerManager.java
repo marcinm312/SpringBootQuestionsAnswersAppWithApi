@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.answer.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -156,7 +157,7 @@ public class AnswerManager {
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	public ResponseEntity<Object> generateAnswersFile(Long questionId, FileType filetype, Filter filter)
+	public ResponseEntity<ByteArrayResource> generateAnswersFile(Long questionId, FileType filetype, Filter filter)
 			throws FileException {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
