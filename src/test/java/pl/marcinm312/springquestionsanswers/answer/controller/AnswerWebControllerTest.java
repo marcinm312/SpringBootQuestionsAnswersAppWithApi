@@ -119,11 +119,6 @@ class AnswerWebControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 
-		given(answerRepository.getAnswers(1000L, Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.searchAnswers(1000L, "answer1",
-				Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleSearchedAnswersList());
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
@@ -271,6 +266,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/new")
@@ -291,6 +287,7 @@ class AnswerWebControllerTest {
 	@Test
 	void createAnswer_questionNotExists_notFoundMessage() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/2000/answers/new")
@@ -523,6 +520,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -631,6 +629,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -651,6 +650,7 @@ class AnswerWebControllerTest {
 	@Test
 	void editAnswer_userUpdatesAnotherUsersAnswer_changeNotAllowed() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -674,6 +674,7 @@ class AnswerWebControllerTest {
 															  String nameOfTestCase) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post(url + "edit")
@@ -795,6 +796,7 @@ class AnswerWebControllerTest {
 
 	@Test
 	void removeAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		mockMvc.perform(
 			post("/app/questions/1000/answers/1000/delete")
 					.with(user("user2").password("password"))
@@ -810,6 +812,7 @@ class AnswerWebControllerTest {
 
 	@Test
 	void removeAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
 								.with(user("administrator").password("password").roles("ADMIN"))
@@ -825,6 +828,7 @@ class AnswerWebControllerTest {
 
 	@Test
 	void removeAnswer_userDeletesAnotherUsersAnswer_changeNotAllowed() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
 								.with(user("user").password("password"))
@@ -843,6 +847,7 @@ class AnswerWebControllerTest {
 	void removeAnswer_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
 																String nameOfTestCase) throws Exception {
 
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		ModelAndView modelAndView = mockMvc.perform(
 						post(url + "delete")
 								.with(user("user").password("password"))

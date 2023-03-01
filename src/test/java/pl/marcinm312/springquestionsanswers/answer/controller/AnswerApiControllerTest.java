@@ -112,12 +112,7 @@ class AnswerApiControllerTest {
 
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-
-		given(answerRepository.getAnswers(1000L, Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.searchAnswers(1000L, "answer1",
-				Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleSearchedAnswersList());
+		
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
@@ -279,6 +274,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						post("/api/questions/2000/answers")
 								.header("Authorization", token)
@@ -304,6 +300,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
@@ -398,6 +395,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -476,6 +474,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -501,6 +500,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -526,6 +526,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user2", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put(url)
 								.header("Authorization", token)
@@ -555,6 +556,7 @@ class AnswerApiControllerTest {
 	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
 
 		String token = prepareToken("user2", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -571,6 +573,7 @@ class AnswerApiControllerTest {
 	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
 
 		String token = prepareToken("administrator", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -587,6 +590,7 @@ class AnswerApiControllerTest {
 	void deleteAnswer_userDeletesAnotherUsersAnswer_forbidden() throws Exception {
 
 		String token = prepareToken("user", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -606,6 +610,7 @@ class AnswerApiControllerTest {
 														 String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user2", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete(url)

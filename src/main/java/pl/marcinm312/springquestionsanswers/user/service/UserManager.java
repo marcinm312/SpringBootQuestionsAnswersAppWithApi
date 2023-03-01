@@ -54,7 +54,7 @@ public class UserManager {
 	}
 
 	public UserEntity getUserFromAuthentication(Authentication authentication) {
-		return (UserEntity) authentication.getPrincipal();
+		return userRepo.getUserFromAuthentication(authentication);
 	}
 
 	@Transactional

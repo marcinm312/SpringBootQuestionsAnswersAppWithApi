@@ -98,10 +98,6 @@ class QuestionWebControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
-		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
@@ -238,6 +234,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -259,6 +256,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/new")
@@ -445,6 +443,7 @@ class QuestionWebControllerTest {
 	@Test
 	void editQuestion_withCsrfInvalidToken_forbidden() throws Exception {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -462,6 +461,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -483,6 +483,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -572,6 +573,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), adminUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -593,6 +595,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
@@ -614,6 +617,7 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 	 	ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/2000/edit")
@@ -723,6 +727,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("user").password("password"))
@@ -738,6 +743,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("administrator").password("password").roles("ADMIN"))
@@ -753,6 +759,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_questionNotExists_notFoundMessage() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/2000/delete")
 								.with(user("user2").password("password"))
@@ -775,6 +782,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
 								.with(user("user2").password("password"))
