@@ -21,6 +21,7 @@ import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedExc
 import pl.marcinm312.springquestionsanswers.shared.exception.FileException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
+import pl.marcinm312.springquestionsanswers.shared.filter.LimitExceededException;
 import pl.marcinm312.springquestionsanswers.shared.filter.SortField;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.shared.utils.ControllerUtils;
@@ -71,6 +72,8 @@ public class AnswerWebController {
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
+		} catch (LimitExceededException e) {
+			return ControllerUtils.getLimitExceededView(model, userName, e, response);
 		}
 		model.addAttribute("questionId", questionId);
 		model.addAttribute("answerList", paginatedAnswers.itemsList());

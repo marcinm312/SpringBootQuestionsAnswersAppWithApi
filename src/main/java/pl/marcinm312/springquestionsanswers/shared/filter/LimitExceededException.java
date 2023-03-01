@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 public class LimitExceededException extends RuntimeException {
 
 	public LimitExceededException(int limit) {
-		super("Przekroczono liczbę wierszy " + limit);
+		super(String.format("Strona nie może zawierać więcej niż %d rekordów", limit));
 	}
 
 	public int getHttpStatus() {
