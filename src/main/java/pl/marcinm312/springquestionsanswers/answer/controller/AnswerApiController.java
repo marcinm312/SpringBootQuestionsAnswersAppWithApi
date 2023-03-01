@@ -75,11 +75,13 @@ public class AnswerApiController {
 														  @RequestParam FileType fileType,
 														  @RequestParam(required = false) String keyword,
 														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Integer pageNo,
+														  @RequestParam(required = false) Integer pageSize,
 														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 }

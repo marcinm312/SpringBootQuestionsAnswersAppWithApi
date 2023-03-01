@@ -12,14 +12,8 @@ public class Filter {
 	private final SortField sortField;
 	private final Sort.Direction sortDirection;
 
+	public static final int ROWS_LIMIT = 5000;
 
-	public Filter(String keyword, SortField sortField, Sort.Direction sortDirection) {
-		this.keyword = keyword;
-		this.sortField = sortField;
-		this.sortDirection = sortDirection;
-		this.pageNo = null;
-		this.pageSize = null;
-	}
 
 	public String getKeyword() {
 		if (keyword == null) {
@@ -38,6 +32,8 @@ public class Filter {
 	public Integer getPageSize() {
 		if (pageSize == null || pageSize < 1) {
 			return 5;
+		} else if (pageSize > ROWS_LIMIT) {
+			throw new LimitExceededException(ROWS_LIMIT);
 		}
 		return pageSize;
 	}

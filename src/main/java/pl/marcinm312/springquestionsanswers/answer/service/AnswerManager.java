@@ -49,24 +49,6 @@ public class AnswerManager {
 	private final PdfGenerator pdfGenerator;
 
 
-	private List<AnswerGet> getAnswers(Long questionId, Filter filter) {
-
-		List<AnswerEntity> answersFromDB = answerRepository.getAnswers(questionId,
-				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
-		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
-	}
-
-	private List<AnswerGet> searchAnswers(Long questionId, Filter filter) {
-
-		questionManager.checkIfQuestionExists(questionId);
-		if (filter.isKeywordEmpty()) {
-			return getAnswers(questionId, filter);
-		}
-		List<AnswerEntity> answersFromDB = answerRepository.searchAnswers(questionId, filter.getKeyword(),
-				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
-		return AnswerMapper.convertAnswerEntityListToAnswerGetList(answersFromDB);
-	}
-
 	private ListPage<AnswerGet> getPaginatedAnswers(Long questionId, Filter filter) {
 
 		Page<AnswerEntity> answerEntities = answerRepository.getPaginatedAnswers(questionId,
@@ -161,7 +143,7 @@ public class AnswerManager {
 			throws FileException {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
-		List<AnswerGet> answersList = searchAnswers(questionId, filter);
+		List<AnswerGet> answersList = searchPaginatedAnswers(questionId, filter).itemsList();
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
 		String fileName = "Odpowiedzi_" + fileId;
 

@@ -42,23 +42,6 @@ public class QuestionManager {
 	private final PdfGenerator pdfGenerator;
 
 
-	private List<QuestionGet> getQuestions(Filter filter) {
-
-		List<QuestionEntity> questionsFromDB = questionRepository.getQuestions(Sort.by(filter.getSortDirection(),
-				filter.getSortField().getField()));
-		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
-	}
-
-	private List<QuestionGet> searchQuestions(Filter filter) {
-
-		if (filter.isKeywordEmpty()) {
-			return getQuestions(filter);
-		}
-		List<QuestionEntity> questionsFromDB = questionRepository.searchQuestions(filter.getKeyword(),
-				Sort.by(filter.getSortDirection(), filter.getSortField().getField()));
-		return QuestionMapper.convertQuestionEntityListToQuestionGetList(questionsFromDB);
-	}
-
 	private ListPage<QuestionGet> getPaginatedQuestions(Filter filter) {
 
 		Page<QuestionEntity> questionEntities = questionRepository.getPaginatedQuestions(PageRequest
@@ -145,7 +128,7 @@ public class QuestionManager {
 
 	public ResponseEntity<ByteArrayResource> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
 
-		List<QuestionGet> questionsList = searchQuestions(filter);
+		List<QuestionGet> questionsList = searchPaginatedQuestions(filter).itemsList();
 		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
 		String fileName = "Pytania_" + fileId;
 

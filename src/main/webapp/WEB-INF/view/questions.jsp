@@ -46,12 +46,12 @@
         </button>
         <button class="btn btn-primary"
                 onclick="window.location.href =
-                        'file-export/?fileType=PDF&keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}'">
+                        'file-export/?fileType=PDF&keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}&pageNo=${filter.pageNo}&pageSize=${filter.pageSize}'">
             Eksportuj do PDF
         </button>
         <button class="btn btn-primary"
                 onclick="window.location.href =
-                        'file-export/?fileType=EXCEL&keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}'">
+                        'file-export/?fileType=EXCEL&keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}&pageNo=${filter.pageNo}&pageSize=${filter.pageSize}'">
             Eksportuj do Excel
         </button>
         <form:form action="" method="GET" class="float-right">
