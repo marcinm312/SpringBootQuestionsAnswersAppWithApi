@@ -45,7 +45,7 @@
             hasło
         </button>
         <button class="btn btn-primary"
-                onclick="window.location.href = 'delete/'">Usuń moje konto
+                onclick="window.location.href = 'delete/'">Usuń konto
         </button>
         <button class="btn btn-primary"
                 onclick="window.location.href = 'expireOtherSessions/'">Wyloguj
