@@ -26,7 +26,6 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
-        <sonar.dependencyCheck.htmlReportPath>target/dependency-check-report.html</sonar.dependencyCheck.htmlReportPath>
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
     </properties>
@@ -251,27 +250,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <!-- https://mvnrepository.com/artifact/org.owasp/dependency-check-maven -->
-            <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>8.1.1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>aggregate</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <formats>
-                        <format>json</format>
-                        <format>html</format>
-                    </formats>
-                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
-                </configuration>
             </plugin>
 
         </plugins>
