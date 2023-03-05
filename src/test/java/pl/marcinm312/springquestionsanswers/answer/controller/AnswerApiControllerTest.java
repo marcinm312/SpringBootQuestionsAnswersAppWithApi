@@ -42,6 +42,7 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
+import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
@@ -116,6 +117,9 @@ class AnswerApiControllerTest {
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
+		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5000,
+				Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
 		given(answerRepository.searchPaginatedAnswers(1000L, "answer1",
 				PageRequest.of(0, 5, Sort.by(Sort.Direction.ASC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleSearchedAnswersList()));
@@ -179,7 +183,36 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC", 3,
+						"getAnswers_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC", 3,
 						"getAnswers_paginatedAnswers_success")
+		);
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfTooLargePageSizeUrls")
+	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String receivedErrorMessage = Objects.requireNonNull(
+				mockMvc.perform(get(url).header("Authorization", token))
+						.andExpect(status().isBadRequest())
+						.andReturn().getResolvedException()).getMessage();
+
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"getAnswers_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_tooLargePageSize_badRequest")
 		);
 	}
 
@@ -658,6 +691,8 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadPdf_paginatedAnswers_success")
 		);
 	}
@@ -697,6 +732,8 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadExcel_paginatedAnswers_success")
 		);
 	}

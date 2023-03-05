@@ -44,6 +44,7 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
+import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
@@ -107,6 +108,8 @@ class QuestionApiControllerTest {
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.ASC, "id"))))
@@ -252,7 +255,36 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"getQuestions_searchedQuestions_success"),
 				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
+						"getQuestions_paginatedQuestions_success"),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3,
 						"getQuestions_paginatedQuestions_success")
+		);
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfTooLargePageSizeUrls")
+	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String receivedErrorMessage = Objects.requireNonNull(
+				mockMvc.perform(get(url).header("Authorization", token))
+				.andExpect(status().isBadRequest())
+				.andReturn().getResolvedException()).getMessage();
+
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions?pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"getQuestions_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_tooLargePageSize_badRequest")
 		);
 	}
 
@@ -705,6 +737,8 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
 				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_paginatedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
 						"downloadPdf_paginatedQuestions_success")
 		);
 	}
@@ -744,6 +778,8 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
 				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_paginatedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
 						"downloadExcel_paginatedQuestions_success")
 		);
 	}
