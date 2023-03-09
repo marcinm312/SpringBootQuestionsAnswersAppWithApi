@@ -40,29 +40,28 @@ class ExcelGeneratorTest {
 
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
-		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
-		checkCellStringValue(sheet, evaluator, "A1", "Id");
-		checkCellStringValue(sheet, evaluator, "B1", "Tytuł");
-		checkCellStringValue(sheet, evaluator, "C1", "Opis");
-		checkCellStringValue(sheet, evaluator, "D1", "Data utworzenia");
-		checkCellStringValue(sheet, evaluator, "E1", "Data modyfikacji");
-		checkCellStringValue(sheet, evaluator, "F1", "Użytkownik");
+		checkCellStringValue(sheet, "A1", "Id");
+		checkCellStringValue(sheet, "B1", "Tytuł");
+		checkCellStringValue(sheet, "C1", "Opis");
+		checkCellStringValue(sheet, "D1", "Data utworzenia");
+		checkCellStringValue(sheet, "E1", "Data modyfikacji");
+		checkCellStringValue(sheet, "F1", "Użytkownik");
 
-		checkCellNumberValue(sheet, evaluator, "A2", questionsList.get(0).getId());
-		checkCellStringValue(sheet, evaluator, "B2", questionsList.get(0).getTitle());
-		checkCellStringValue(sheet, evaluator, "C2", questionsList.get(0).getDescription());
-		checkCellStringValue(sheet, evaluator, "F2", questionsList.get(0).getUser());
+		checkCellNumberValue(sheet, "A2", questionsList.get(0).getId());
+		checkCellStringValue(sheet, "B2", questionsList.get(0).getTitle());
+		checkCellStringValue(sheet, "C2", questionsList.get(0).getDescription());
+		checkCellStringValue(sheet, "F2", questionsList.get(0).getUser());
 
-		checkCellNumberValue(sheet, evaluator, "A3", questionsList.get(1).getId());
-		checkCellStringValue(sheet, evaluator, "B3", questionsList.get(1).getTitle());
-		checkCellStringValue(sheet, evaluator, "C3", questionsList.get(1).getDescription());
-		checkCellStringValue(sheet, evaluator, "F3", questionsList.get(1).getUser());
+		checkCellNumberValue(sheet, "A3", questionsList.get(1).getId());
+		checkCellStringValue(sheet, "B3", questionsList.get(1).getTitle());
+		checkCellStringValue(sheet, "C3", questionsList.get(1).getDescription());
+		checkCellStringValue(sheet, "F3", questionsList.get(1).getUser());
 
-		checkCellNumberValue(sheet, evaluator, "A4", questionsList.get(2).getId());
-		checkCellStringValue(sheet, evaluator, "B4", questionsList.get(2).getTitle());
-		checkCellStringValue(sheet, evaluator, "C4", questionsList.get(2).getDescription());
-		checkCellStringValue(sheet, evaluator, "F4", questionsList.get(2).getUser());
+		checkCellNumberValue(sheet, "A4", questionsList.get(2).getId());
+		checkCellStringValue(sheet, "B4", questionsList.get(2).getTitle());
+		checkCellStringValue(sheet, "C4", questionsList.get(2).getDescription());
+		checkCellStringValue(sheet, "F4", questionsList.get(2).getUser());
 	}
 
 	@Test
@@ -72,33 +71,30 @@ class ExcelGeneratorTest {
 
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
-		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
 
-		checkCellStringValue(sheet, evaluator, "A1", "Id");
-		checkCellStringValue(sheet, evaluator, "B1", "Tytuł");
-		checkCellStringValue(sheet, evaluator, "C1", "Opis");
-		checkCellStringValue(sheet, evaluator, "D1", "Data utworzenia");
-		checkCellStringValue(sheet, evaluator, "E1", "Data modyfikacji");
-		checkCellStringValue(sheet, evaluator, "F1", "Użytkownik");
+		checkCellStringValue(sheet, "A1", "Id");
+		checkCellStringValue(sheet, "B1", "Tytuł");
+		checkCellStringValue(sheet, "C1", "Opis");
+		checkCellStringValue(sheet, "D1", "Data utworzenia");
+		checkCellStringValue(sheet, "E1", "Data modyfikacji");
+		checkCellStringValue(sheet, "F1", "Użytkownik");
 	}
 
-	private void checkCellStringValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, String expectedValue) {
+	private void checkCellStringValue(Sheet sheet, String stringCellRef, String expectedValue) {
 		CellReference cellReference = new CellReference(stringCellRef);
 		Row row = sheet.getRow(cellReference.getRow());
 		Cell cell = row.getCell(cellReference.getCol());
 
-		CellValue cellValue = evaluator.evaluate(cell);
-		String stringValue = cellValue.getStringValue();
+		String stringValue = cell.getStringCellValue();
 		Assertions.assertEquals(expectedValue, stringValue);
 	}
 
-	private void checkCellNumberValue(Sheet sheet, FormulaEvaluator evaluator, String stringCellRef, Long expectedValue) {
+	private void checkCellNumberValue(Sheet sheet, String stringCellRef, Long expectedValue) {
 		CellReference cellReference = new CellReference(stringCellRef);
 		Row row = sheet.getRow(cellReference.getRow());
 		Cell cell = row.getCell(cellReference.getCol());
 
-		CellValue cellValue = evaluator.evaluate(cell);
-		Long numberValue = (long) cellValue.getNumberValue();
+		Long numberValue = (long) cell.getNumericCellValue();
 		Assertions.assertEquals(expectedValue, numberValue);
 	}
 
@@ -113,37 +109,35 @@ class ExcelGeneratorTest {
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
 		Workbook wb = new XSSFWorkbook(inputStream);
-		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-
 		Sheet sheet0 = wb.getSheetAt(0);
 
-		checkCellStringValue(sheet0, evaluator, "A1", "Id");
-		checkCellStringValue(sheet0, evaluator, "B1", "Treść odpowiedzi");
-		checkCellStringValue(sheet0, evaluator, "C1", "Data utworzenia");
-		checkCellStringValue(sheet0, evaluator, "D1", "Data modyfikacji");
-		checkCellStringValue(sheet0, evaluator, "E1", "Użytkownik");
+		checkCellStringValue(sheet0, "A1", "Id");
+		checkCellStringValue(sheet0, "B1", "Treść odpowiedzi");
+		checkCellStringValue(sheet0, "C1", "Data utworzenia");
+		checkCellStringValue(sheet0, "D1", "Data modyfikacji");
+		checkCellStringValue(sheet0, "E1", "Użytkownik");
 
-		checkCellNumberValue(sheet0, evaluator, "A2", answersList.get(0).getId());
-		checkCellStringValue(sheet0, evaluator, "B2", answersList.get(0).getText());
-		checkCellStringValue(sheet0, evaluator, "E2", answersList.get(0).getUser());
+		checkCellNumberValue(sheet0, "A2", answersList.get(0).getId());
+		checkCellStringValue(sheet0, "B2", answersList.get(0).getText());
+		checkCellStringValue(sheet0, "E2", answersList.get(0).getUser());
 
-		checkCellNumberValue(sheet0, evaluator, "A4", answersList.get(2).getId());
-		checkCellStringValue(sheet0, evaluator, "B4", answersList.get(2).getText());
-		checkCellStringValue(sheet0, evaluator, "E4", answersList.get(2).getUser());
+		checkCellNumberValue(sheet0, "A4", answersList.get(2).getId());
+		checkCellStringValue(sheet0, "B4", answersList.get(2).getText());
+		checkCellStringValue(sheet0, "E4", answersList.get(2).getUser());
 
 		Sheet sheet1 = wb.getSheetAt(1);
 
-		checkCellStringValue(sheet1, evaluator, "A1", "Id");
-		checkCellStringValue(sheet1, evaluator, "A2", "Tytuł");
-		checkCellStringValue(sheet1, evaluator, "A3", "Opis");
-		checkCellStringValue(sheet1, evaluator, "A4", "Data utworzenia");
-		checkCellStringValue(sheet1, evaluator, "A5", "Data modyfikacji");
-		checkCellStringValue(sheet1, evaluator, "A6", "Użytkownik");
+		checkCellStringValue(sheet1, "A1", "Id");
+		checkCellStringValue(sheet1, "A2", "Tytuł");
+		checkCellStringValue(sheet1, "A3", "Opis");
+		checkCellStringValue(sheet1, "A4", "Data utworzenia");
+		checkCellStringValue(sheet1, "A5", "Data modyfikacji");
+		checkCellStringValue(sheet1, "A6", "Użytkownik");
 
-		checkCellStringValue(sheet1, evaluator, "B1", questionGet.getId().toString());
-		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
-		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
-		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
+		checkCellStringValue(sheet1, "B1", questionGet.getId().toString());
+		checkCellStringValue(sheet1, "B2", questionGet.getTitle());
+		checkCellStringValue(sheet1, "B3", questionGet.getDescription());
+		checkCellStringValue(sheet1, "B6", questionGet.getUser());
 	}
 
 	@Test
@@ -155,28 +149,26 @@ class ExcelGeneratorTest {
 		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
 		Workbook wb = new XSSFWorkbook(inputStream);
-		FormulaEvaluator evaluator = wb.getCreationHelper().createFormulaEvaluator();
-
 		Sheet sheet0 = wb.getSheetAt(0);
 
-		checkCellStringValue(sheet0, evaluator, "A1", "Id");
-		checkCellStringValue(sheet0, evaluator, "B1", "Treść odpowiedzi");
-		checkCellStringValue(sheet0, evaluator, "C1", "Data utworzenia");
-		checkCellStringValue(sheet0, evaluator, "D1", "Data modyfikacji");
-		checkCellStringValue(sheet0, evaluator, "E1", "Użytkownik");
+		checkCellStringValue(sheet0, "A1", "Id");
+		checkCellStringValue(sheet0, "B1", "Treść odpowiedzi");
+		checkCellStringValue(sheet0, "C1", "Data utworzenia");
+		checkCellStringValue(sheet0, "D1", "Data modyfikacji");
+		checkCellStringValue(sheet0, "E1", "Użytkownik");
 
 		Sheet sheet1 = wb.getSheetAt(1);
 
-		checkCellStringValue(sheet1, evaluator, "A1", "Id");
-		checkCellStringValue(sheet1, evaluator, "A2", "Tytuł");
-		checkCellStringValue(sheet1, evaluator, "A3", "Opis");
-		checkCellStringValue(sheet1, evaluator, "A4", "Data utworzenia");
-		checkCellStringValue(sheet1, evaluator, "A5", "Data modyfikacji");
-		checkCellStringValue(sheet1, evaluator, "A6", "Użytkownik");
+		checkCellStringValue(sheet1, "A1", "Id");
+		checkCellStringValue(sheet1, "A2", "Tytuł");
+		checkCellStringValue(sheet1, "A3", "Opis");
+		checkCellStringValue(sheet1, "A4", "Data utworzenia");
+		checkCellStringValue(sheet1, "A5", "Data modyfikacji");
+		checkCellStringValue(sheet1, "A6", "Użytkownik");
 
-		checkCellStringValue(sheet1, evaluator, "B1", questionGet.getId().toString());
-		checkCellStringValue(sheet1, evaluator, "B2", questionGet.getTitle());
-		checkCellStringValue(sheet1, evaluator, "B3", questionGet.getDescription());
-		checkCellStringValue(sheet1, evaluator, "B6", questionGet.getUser());
+		checkCellStringValue(sheet1, "B1", questionGet.getId().toString());
+		checkCellStringValue(sheet1, "B2", questionGet.getTitle());
+		checkCellStringValue(sheet1, "B3", questionGet.getDescription());
+		checkCellStringValue(sheet1, "B6", questionGet.getUser());
 	}
 }
