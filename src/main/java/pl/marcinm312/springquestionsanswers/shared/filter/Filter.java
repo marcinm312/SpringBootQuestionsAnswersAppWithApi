@@ -1,9 +1,7 @@
 package pl.marcinm312.springquestionsanswers.shared.filter;
 
-import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 
-@AllArgsConstructor
 public class Filter {
 
 	private final String keyword;
@@ -14,6 +12,16 @@ public class Filter {
 
 	public static final int ROWS_LIMIT = 5000;
 
+	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection) {
+		if (pageSize != null && pageSize > ROWS_LIMIT) {
+			throw new LimitExceededException(ROWS_LIMIT);
+		}
+		this.pageSize = pageSize;
+		this.keyword = keyword;
+		this.pageNo = pageNo;
+		this.sortField = sortField;
+		this.sortDirection = sortDirection;
+	}
 
 	public String getKeyword() {
 		if (keyword == null) {
@@ -32,8 +40,6 @@ public class Filter {
 	public Integer getPageSize() {
 		if (pageSize == null || pageSize < 1) {
 			return 5;
-		} else if (pageSize > ROWS_LIMIT) {
-			throw new LimitExceededException(ROWS_LIMIT);
 		}
 		return pageSize;
 	}

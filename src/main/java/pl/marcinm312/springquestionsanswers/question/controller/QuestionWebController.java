@@ -57,15 +57,16 @@ public class QuestionWebController {
 		log.info("Loading questions page");
 		String userName = authentication.getName();
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
-		String sortDir = filter.getSortDirection().name().toUpperCase();
 		ListPage<QuestionGet> paginatedQuestions;
+		Filter filter;
 		try {
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 			paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 			log.info("Questions list size: {}", paginatedQuestions.itemsList().size());
 		} catch (LimitExceededException e) {
 			return ControllerUtils.getLimitExceededView(model, userName, e, response);
 		}
+		String sortDir = filter.getSortDirection().name().toUpperCase();
 		model.addAttribute("questionList", paginatedQuestions.itemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);

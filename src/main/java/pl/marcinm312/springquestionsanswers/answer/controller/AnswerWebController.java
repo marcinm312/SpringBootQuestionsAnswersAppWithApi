@@ -62,11 +62,11 @@ public class AnswerWebController {
 		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
-		String sortDir = filter.getSortDirection().name().toUpperCase();
 		ListPage<AnswerGet> paginatedAnswers;
 		QuestionGet question;
+		Filter filter;
 		try {
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
 			log.info("Answers list size: {}", paginatedAnswers.itemsList().size());
 			question = questionManager.getQuestion(questionId);
@@ -75,6 +75,7 @@ public class AnswerWebController {
 		} catch (LimitExceededException e) {
 			return ControllerUtils.getLimitExceededView(model, userName, e, response);
 		}
+		String sortDir = filter.getSortDirection().name().toUpperCase();
 		model.addAttribute("questionId", questionId);
 		model.addAttribute("answerList", paginatedAnswers.itemsList());
 		model.addAttribute("filter", filter);
