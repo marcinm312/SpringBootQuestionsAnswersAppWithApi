@@ -1,5 +1,6 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
@@ -31,10 +32,10 @@ public class AnswerApiController {
 	@GetMapping
 	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,
 										  @RequestParam(required = false) String keyword,
-										  @RequestParam(required = false) Integer pageNo,
-										  @RequestParam(required = false) Integer pageSize,
-										  @RequestParam(required = false) SortField sortField,
-										  @RequestParam(required = false) Sort.Direction sortDirection) {
+										  @RequestParam(required = false) @Parameter(description = "Default value: `1`") Integer pageNo,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `5`") Integer pageSize,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `ID`") SortField sortField,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection) {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
@@ -74,10 +75,10 @@ public class AnswerApiController {
 	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
 														  @RequestParam FileType fileType,
 														  @RequestParam(required = false) String keyword,
-														  @RequestParam(required = false) SortField sortField,
-														  @RequestParam(required = false) Integer pageNo,
-														  @RequestParam(required = false) Integer pageSize,
-														  @RequestParam(required = false) Sort.Direction sortDirection)
+														  @RequestParam(required = false) @Parameter(description = "Default value: `1`") Integer pageNo,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `5`") Integer pageSize,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `ID`") SortField sortField,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);

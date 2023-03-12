@@ -13,7 +13,7 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI customizeOpenAPI() {
-		final String securitySchemeName = "bearerAuth";
+		final String securitySchemeName = "Bearer Authentication";
 		return new OpenAPI()
 				.addSecurityItem(new SecurityRequirement()
 						.addList(securitySchemeName))
@@ -23,7 +23,14 @@ public class SwaggerConfig {
 								.type(SecurityScheme.Type.HTTP)
 								.scheme("bearer")
 								.bearerFormat("JWT")
-								.description("login-api-controller -> /api/login")));
+								.description("""
+										JWT token can be obtained by providing correct username and password in the API by Swagger:
+										1. Select a definition: public-apis;
+										2. Select controller: login-api-controller;
+										3. Select endpoint: /api/login;
+										4. Execute request with correct username and password;
+										5. Copy Bearer token from authorization response header.
+										""")));
 	}
 
 	@Bean
