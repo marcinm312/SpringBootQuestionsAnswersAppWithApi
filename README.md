@@ -77,4 +77,4 @@ java -Dfile.encoding=UTF-8 -jar target/spring-boot-questions-answers-0.0.1-SNAPS
 
 ## API documentation
 After launching the application, the API documentation is available at the URL:
-http://localhost:8080/swagger-ui/index.html/
+http://localhost:8080/swagger-ui/index.html

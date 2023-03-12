@@ -37,7 +37,7 @@ public class SwaggerConfig {
 	public GroupedOpenApi publicApi() {
 
 		return GroupedOpenApi.builder()
-				.group("public-apis")
+				.group("1. public-apis")
 				.pathsToMatch("/api/**")
 				.pathsToExclude("/api/actuator/**")
 				.build();
@@ -46,7 +46,7 @@ public class SwaggerConfig {
 	@Bean
 	public GroupedOpenApi actuatorApi() {
 		return GroupedOpenApi.builder()
-				.group("actuators")
+				.group("2. actuators")
 				.pathsToMatch("/api/actuator/**")
 				.build();
 	}
