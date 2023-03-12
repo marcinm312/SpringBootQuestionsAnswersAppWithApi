@@ -113,7 +113,7 @@ class QuestionWebControllerTest {
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -626,7 +626,7 @@ class QuestionWebControllerTest {
 
 		mockMvc.perform(
 						post("/app/questions/1000/edit")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
@@ -634,7 +634,7 @@ class QuestionWebControllerTest {
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
@@ -795,13 +795,13 @@ class QuestionWebControllerTest {
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		mockMvc.perform(
 						post("/app/questions/1000/delete")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}

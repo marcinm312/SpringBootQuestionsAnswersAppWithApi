@@ -554,7 +554,7 @@ class QuestionApiControllerTest {
 	@Test
 	void updateQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
@@ -652,7 +652,7 @@ class QuestionApiControllerTest {
 	@Test
 	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(

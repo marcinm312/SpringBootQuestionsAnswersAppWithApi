@@ -82,7 +82,7 @@ class MyProfileWebControllerTest {
 	@BeforeEach
 	void setup() {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
 		given(userRepo.findByUsername("user3")).willReturn(Optional.of(userWithSpacesInPass));
 
 		doNothing().when(userRepo).delete(isA(UserEntity.class));

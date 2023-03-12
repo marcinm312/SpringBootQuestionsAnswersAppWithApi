@@ -64,7 +64,7 @@ class LoginWebControllerTest {
 	@BeforeEach
 	void setup() {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
 		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
 
@@ -94,8 +94,8 @@ class LoginWebControllerTest {
 	@Test
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-						formLogin("/authenticate").user("administrator").password("password"))
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+						formLogin("/authenticate").user("admin").password("password"))
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 	}
 
 	@ParameterizedTest(name = "{index} ''{2}''")
@@ -111,7 +111,7 @@ class LoginWebControllerTest {
 	private static Stream<Arguments> examplesOfUnauthenticatedErrors() {
 		return Stream.of(
 				Arguments.of("user", "invalid", "formLogin_userWithBadCredentials_unauthenticated"),
-				Arguments.of("administrator", "invalid", "formLogin_administratorWithBadCredentials_unauthenticated"),
+				Arguments.of("admin", "invalid", "formLogin_administratorWithBadCredentials_unauthenticated"),
 				Arguments.of("lalala", "password", "formLogin_notExistingUser_unauthenticated"),
 				Arguments.of("user3", "password", "formLogin_disabledUser_unauthenticated")
 		);

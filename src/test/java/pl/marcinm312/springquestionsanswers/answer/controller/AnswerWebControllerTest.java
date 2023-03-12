@@ -137,7 +137,7 @@ class AnswerWebControllerTest {
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -682,14 +682,14 @@ class AnswerWebControllerTest {
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -864,13 +864,13 @@ class AnswerWebControllerTest {
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}

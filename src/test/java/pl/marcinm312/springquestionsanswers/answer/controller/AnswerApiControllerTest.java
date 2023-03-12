@@ -502,7 +502,7 @@ class AnswerApiControllerTest {
 	@Test
 	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
@@ -605,7 +605,7 @@ class AnswerApiControllerTest {
 	@Test
 	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(

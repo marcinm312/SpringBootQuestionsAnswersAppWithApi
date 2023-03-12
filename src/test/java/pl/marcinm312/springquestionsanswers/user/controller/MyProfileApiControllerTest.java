@@ -124,7 +124,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void getMyProfile_loggedAdminUser_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 		String response = mockMvc.perform(
