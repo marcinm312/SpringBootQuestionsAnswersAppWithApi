@@ -1,10 +1,12 @@
 package pl.marcinm312.springquestionsanswers.config.security.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import pl.marcinm312.springquestionsanswers.config.security.model.LoginCredentials;
 
+@SecurityRequirements
 @RestController
 public class LoginApiController {
 

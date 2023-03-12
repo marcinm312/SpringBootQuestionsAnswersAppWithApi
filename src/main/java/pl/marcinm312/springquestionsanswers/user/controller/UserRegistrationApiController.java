@@ -1,5 +1,6 @@
 package pl.marcinm312.springquestionsanswers.user.controller;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
@@ -11,6 +12,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.validator.UserCreateValidator;
 
+@SecurityRequirements
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api")
