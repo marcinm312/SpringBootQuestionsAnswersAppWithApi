@@ -1,7 +1,6 @@
 package pl.marcinm312.springquestionsanswers.question.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,6 @@ import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
-@Slf4j
 @Controller
 @RequestMapping("/app/questions")
 public class QuestionWebController {
@@ -54,7 +52,6 @@ public class QuestionWebController {
 							   @RequestParam(required = false) SortField sortField,
 							   @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		log.info("Loading questions page");
 		String userName = authentication.getName();
 		sortField = Filter.checkQuestionsSortField(sortField);
 		ListPage<QuestionGet> paginatedQuestions;
@@ -62,7 +59,6 @@ public class QuestionWebController {
 		try {
 			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 			paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
-			log.info("Questions list size: {}", paginatedQuestions.itemsList().size());
 		} catch (LimitExceededException e) {
 			return ControllerUtils.getLimitExceededView(model, userName, e, response);
 		}

@@ -126,6 +126,7 @@ public class UserManager {
 	@Transactional
 	public UserGet activateUser(String tokenValue) {
 
+		log.info("Token value = {}", tokenValue);
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isEmpty()) {
 			throw new TokenNotFoundException();

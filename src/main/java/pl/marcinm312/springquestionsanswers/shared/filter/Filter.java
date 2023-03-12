@@ -1,7 +1,9 @@
 package pl.marcinm312.springquestionsanswers.shared.filter;
 
+import lombok.ToString;
 import org.springframework.data.domain.Sort;
 
+@ToString
 public class Filter {
 
 	private final String keyword;

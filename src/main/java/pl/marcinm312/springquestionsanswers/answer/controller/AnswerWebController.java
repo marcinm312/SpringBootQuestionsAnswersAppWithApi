@@ -1,7 +1,6 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +30,6 @@ import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
-@Slf4j
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
@@ -59,7 +57,6 @@ public class AnswerWebController {
 							 @RequestParam(required = false) SortField sortField,
 							 @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
 		sortField = Filter.checkAnswersSortField(sortField);
 		ListPage<AnswerGet> paginatedAnswers;
@@ -68,7 +65,6 @@ public class AnswerWebController {
 		try {
 			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
-			log.info("Answers list size: {}", paginatedAnswers.itemsList().size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);

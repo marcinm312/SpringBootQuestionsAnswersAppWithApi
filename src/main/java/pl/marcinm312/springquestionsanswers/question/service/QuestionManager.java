@@ -36,41 +36,41 @@ import java.util.Optional;
 public class QuestionManager {
 
 	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
+	private static final String LOADING_QUESTION_MESSAGE = "Loading question with id: {}";
 
 	private final QuestionRepository questionRepository;
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
 
-	private ListPage<QuestionGet> getPaginatedQuestions(Filter filter) {
-
-		Page<QuestionEntity> questionEntities = questionRepository.getPaginatedQuestions(PageRequest
-				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
-						filter.getSortField().getField())));
-		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
-				questionEntities.getContent());
-		return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
-	}
-
 	public ListPage<QuestionGet> searchPaginatedQuestions(Filter filter) {
 
+		log.info("Loading questions");
+		Page<QuestionEntity> questionEntities;
+		log.info(filter.toString());
 		if (filter.isKeywordEmpty()) {
-			return getPaginatedQuestions(filter);
+			questionEntities = questionRepository.getPaginatedQuestions(PageRequest
+					.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
+							filter.getSortField().getField())));
+		} else {
+			questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
+					.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
+							filter.getSortField().getField())));
 		}
-		Page<QuestionEntity> questionEntities = questionRepository.searchPaginatedQuestions(filter.getKeyword(), PageRequest
-				.of(filter.getPageNo() - 1, filter.getPageSize(), Sort.by(filter.getSortDirection(),
-						filter.getSortField().getField())));
 		List<QuestionGet> questionList = QuestionMapper.convertQuestionEntityListToQuestionGetList(
 				questionEntities.getContent());
+		log.info("Questions list size: {}", questionList.size());
 		return new ListPage<>(questionList, questionEntities.getTotalPages(), questionEntities.getTotalElements());
 	}
 
 	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
+		log.info(LOADING_QUESTION_MESSAGE, questionId);
 		return questionRepository.findById(questionId);
 	}
 
 	public QuestionGet getQuestion(Long questionId) {
 
+		log.info(LOADING_QUESTION_MESSAGE, questionId);
 		QuestionEntity questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB, false);
@@ -92,6 +92,7 @@ public class QuestionManager {
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
 
 		log.info("Updating question");
+		log.info(LOADING_QUESTION_MESSAGE, questionId);
 		return questionRepository.findById(questionId).map(question -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
 			log.info("isUserPermitted = {}", isUserPermitted);

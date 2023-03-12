@@ -41,6 +41,7 @@ public class AnswerManager {
 
 	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
 	private static final String ANSWER_NOT_FOUND = "Nie znaleziono odpowiedzi o id: %d na pytanie o id: %d";
+	private static final String LOADING_ANSWER_MESSAGE = "Loading answer by: question.id={}, answer.id={}";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
@@ -49,30 +50,29 @@ public class AnswerManager {
 	private final PdfGenerator pdfGenerator;
 
 
-	private ListPage<AnswerGet> getPaginatedAnswers(Long questionId, Filter filter) {
-
-		Page<AnswerEntity> answerEntities = answerRepository.getPaginatedAnswers(questionId,
-				PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
-						Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
-		List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
-		return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
-	}
-
 	public ListPage<AnswerGet> searchPaginatedAnswers(Long questionId, Filter filter) {
 
+		log.info("Loading answers for question.id = {}", questionId);
 		questionManager.checkIfQuestionExists(questionId);
+		Page<AnswerEntity> answerEntities;
+		log.info(filter.toString());
 		if (filter.isKeywordEmpty()) {
-			return getPaginatedAnswers(questionId, filter);
+			answerEntities = answerRepository.getPaginatedAnswers(questionId,
+					PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
+							Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
+		} else {
+			answerEntities = answerRepository.searchPaginatedAnswers(questionId, filter.getKeyword(),
+					PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
+							Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
 		}
-		Page<AnswerEntity> answerEntities = answerRepository.searchPaginatedAnswers(questionId, filter.getKeyword(),
-				PageRequest.of(filter.getPageNo() - 1, filter.getPageSize(),
-						Sort.by(filter.getSortDirection(), filter.getSortField().getField())));
 		List<AnswerGet> answerList = AnswerMapper.convertAnswerEntityListToAnswerGetList(answerEntities.getContent());
+		log.info("Answers list size: {}", answerList.size());
 		return new ListPage<>(answerList, answerEntities.getTotalPages(), answerEntities.getTotalElements());
 	}
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 
+		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
 		AnswerEntity answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 		return AnswerMapper.convertAnswerEntityToAnswerGet(answerFromDB, false);
@@ -95,6 +95,7 @@ public class AnswerManager {
 	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, UserEntity user) {
 
 		log.info("Updating answer");
+		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
@@ -125,6 +126,7 @@ public class AnswerManager {
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
 		log.info("Deleting answer.id = {}", answerId);
+		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
 			log.info("isUserPermitted = {}", isUserPermitted);
@@ -174,7 +176,7 @@ public class AnswerManager {
 		} else {
 			mailMessage = "zaktualizował odpowiedź na Twoje pytanie:";
 		}
-		String questionDescription =  question.getDescription().replace("\n", "<br>");
+		String questionDescription = question.getDescription().replace("\n", "<br>");
 		String answerText = answer.getText().replace("\n", "<br>");
 		String mailTemplate = """
 				Witaj %s,<br>
