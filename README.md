@@ -24,8 +24,9 @@ This application is a bit similar to the discussion forum. After registration of
 10. Lombok
 11. Spring Boot Starter Test, JUnit, Mockito, MockMvc
 12. Swagger
-13. HTML, JSP, CSS
-14. Bootstrap
+13. Actuator
+14. HTML, JSP, CSS
+15. Bootstrap
 
 ## Environment variables that need to be set:
 1. **ADMIN_DEFAULT_EMAIL** - The e-mail address that will be set to the first user (administrator) when the application is launched for the first time. Value example: `abcd@example.com`.
@@ -76,4 +77,4 @@ java -Dfile.encoding=UTF-8 -jar target/spring-boot-questions-answers-0.0.1-SNAPS
 
 ## API documentation
 After launching the application, the API documentation is available at the URL:
-http://localhost:8080/swagger-ui/
+http://localhost:8080/swagger-ui/index.html/
