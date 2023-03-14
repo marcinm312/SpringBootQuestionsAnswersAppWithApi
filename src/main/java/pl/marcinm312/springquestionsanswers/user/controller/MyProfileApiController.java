@@ -7,6 +7,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
+import pl.marcinm312.springquestionsanswers.user.model.UserMapper;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
@@ -36,7 +38,9 @@ public class MyProfileApiController {
 
 	@GetMapping
 	public UserGet getMyProfile(Authentication authentication) {
-		return userManager.getUserDTOByAuthentication(authentication);
+
+		UserEntity user = userManager.getUserFromDB(authentication);
+		return UserMapper.convertUserToUserGet(user, false);
 	}
 
 	@PutMapping

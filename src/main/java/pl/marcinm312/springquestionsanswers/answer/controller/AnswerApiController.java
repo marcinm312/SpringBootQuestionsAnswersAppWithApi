@@ -1,6 +1,8 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,10 +32,10 @@ public class AnswerApiController {
 	@GetMapping
 	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,
 										  @RequestParam(required = false) String keyword,
-										  @RequestParam(required = false) Integer pageNo,
-										  @RequestParam(required = false) Integer pageSize,
-										  @RequestParam(required = false) SortField sortField,
-										  @RequestParam(required = false) Sort.Direction sortDirection) {
+										  @RequestParam(required = false) @Parameter(description = "Default value: `1`") Integer pageNo,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `5`") Integer pageSize,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `ID`") SortField sortField,
+										  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection) {
 
 		sortField = Filter.checkAnswersSortField(sortField);
 		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
@@ -49,7 +51,7 @@ public class AnswerApiController {
 	public AnswerGet addAnswer(@PathVariable Long questionId, @Valid @RequestBody AnswerCreateUpdate answer,
 							   Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.addAnswer(questionId, answer, user);
 	}
 
@@ -57,7 +59,7 @@ public class AnswerApiController {
 	public AnswerGet updateAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								  @Valid @RequestBody AnswerCreateUpdate answerRequest, Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.updateAnswer(questionId, answerId, answerRequest, user);
 	}
 
@@ -65,20 +67,22 @@ public class AnswerApiController {
 	public boolean deleteAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 								Authentication authentication) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		return answerManager.deleteAnswer(questionId, answerId, user);
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
-											   @RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
+														  @RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `1`") Integer pageNo,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `5`") Integer pageSize,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `ID`") SortField sortField,
+														  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 }

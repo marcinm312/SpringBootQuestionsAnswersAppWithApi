@@ -39,7 +39,7 @@ public class UserManager {
 	private final SessionUtils sessionUtils;
 
 
-	public UserEntity getUserByAuthentication(Authentication authentication) {
+	public UserEntity getUserFromDB(Authentication authentication) {
 
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
@@ -53,10 +53,8 @@ public class UserManager {
 		return null;
 	}
 
-	public UserGet getUserDTOByAuthentication(Authentication authentication) {
-
-		UserEntity user = getUserByAuthentication(authentication);
-		return UserMapper.convertUserToUserGet(user, false);
+	public UserEntity getUserFromAuthentication(Authentication authentication) {
+		return userRepo.getUserFromAuthentication(authentication);
 	}
 
 	@Transactional
@@ -84,7 +82,7 @@ public class UserManager {
 	public UserGet updateUserData(UserDataUpdate userRequest, Authentication authentication) {
 
 		log.info("Updating user");
-		UserEntity loggedUser = getUserByAuthentication(authentication);
+		UserEntity loggedUser = getUserFromDB(authentication);
 		log.info("Old user = {}", loggedUser);
 		String oldUserName = loggedUser.getUsername();
 		if (!oldUserName.equals(userRequest.getUsername())) {
@@ -103,7 +101,7 @@ public class UserManager {
 
 		log.info("Updating user password");
 		Date currentDate = new Date();
-		UserEntity loggedUser = getUserByAuthentication(authentication);
+		UserEntity loggedUser = getUserFromDB(authentication);
 		log.info("Old user = {}", loggedUser);
 		loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		loggedUser.setChangePasswordDate(currentDate);
@@ -117,7 +115,7 @@ public class UserManager {
 	@Transactional
 	public boolean deleteUser(Authentication authentication) {
 
-		UserEntity user = getUserByAuthentication(authentication);
+		UserEntity user = getUserFromDB(authentication);
 		log.info("Deleting user = {}", user);
 		userRepo.delete(user);
 		log.info("User deleted");
@@ -128,6 +126,7 @@ public class UserManager {
 	@Transactional
 	public UserGet activateUser(String tokenValue) {
 
+		log.info("Token value = {}", tokenValue);
 		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
 		if (optionalToken.isEmpty()) {
 			throw new TokenNotFoundException();
@@ -146,7 +145,7 @@ public class UserManager {
 	public UserGet expireOtherSessions(Authentication authentication) {
 
 		log.info("Expiring sessions for user = {}", authentication.getName());
-		UserEntity user = getUserByAuthentication(authentication);
+		UserEntity user = getUserFromDB(authentication);
 		user = sessionUtils.expireUserSessions(user, false, false);
 		UserEntity savedUser = userRepo.save(user);
 		log.info("Sessions for user expired");

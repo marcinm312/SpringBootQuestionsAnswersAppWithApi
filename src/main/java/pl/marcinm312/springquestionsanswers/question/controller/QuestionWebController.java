@@ -1,7 +1,7 @@
 package pl.marcinm312.springquestionsanswers.question.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -18,6 +18,7 @@ import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedExc
 import pl.marcinm312.springquestionsanswers.shared.exception.FileException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
+import pl.marcinm312.springquestionsanswers.shared.filter.LimitExceededException;
 import pl.marcinm312.springquestionsanswers.shared.filter.SortField;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.shared.utils.ControllerUtils;
@@ -27,7 +28,6 @@ import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
-@Slf4j
 @Controller
 @RequestMapping("/app/questions")
 public class QuestionWebController {
@@ -45,21 +45,24 @@ public class QuestionWebController {
 
 
 	@GetMapping
-	public String questionsGet(Model model, Authentication authentication,
+	public String questionsGet(Model model, Authentication authentication, HttpServletResponse response,
 							   @RequestParam(required = false) String keyword,
 							   @RequestParam(required = false) Integer pageNo,
 							   @RequestParam(required = false) Integer pageSize,
 							   @RequestParam(required = false) SortField sortField,
 							   @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		log.info("Loading questions page");
 		String userName = authentication.getName();
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
-		ListPage<QuestionGet> paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
-		log.info("Questions list size: {}", paginatedQuestions.itemsList().size());
+		ListPage<QuestionGet> paginatedQuestions;
+		Filter filter;
+		try {
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+			paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
+		} catch (LimitExceededException e) {
+			return ControllerUtils.getLimitExceededView(model, userName, e, response);
+		}
 		String sortDir = filter.getSortDirection().name().toUpperCase();
-
 		model.addAttribute("questionList", paginatedQuestions.itemsList());
 		model.addAttribute("filter", filter);
 		model.addAttribute("sortDir", sortDir);
@@ -82,7 +85,7 @@ public class QuestionWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_QUESTION_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		questionManager.createQuestion(question, user);
 		return "redirect:..";
 	}
@@ -109,7 +112,7 @@ public class QuestionWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_QUESTION_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			questionManager.updateQuestion(questionId, question, user);
 		} catch (ChangeNotAllowedException e) {
@@ -131,7 +134,7 @@ public class QuestionWebController {
 	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model,
 								 HttpServletResponse response) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		String userName = authentication.getName();
 		try {
 			questionManager.deleteQuestion(questionId, user);
@@ -151,14 +154,16 @@ public class QuestionWebController {
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Integer pageNo,
+														  @RequestParam(required = false) Integer pageSize,
+														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws FileException {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 

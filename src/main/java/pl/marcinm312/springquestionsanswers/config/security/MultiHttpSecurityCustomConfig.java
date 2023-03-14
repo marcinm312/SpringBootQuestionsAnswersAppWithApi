@@ -43,6 +43,8 @@ public class MultiHttpSecurityCustomConfig {
 		private final Environment environment;
 		private final AuthenticationConfiguration authenticationConfiguration;
 
+		private static final String ADMIN_ROLE = "ADMIN";
+
 		@Bean
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
@@ -50,6 +52,7 @@ public class MultiHttpSecurityCustomConfig {
 					.authorizeRequests().antMatchers(
 							"/api/login", "/api/registration", "/api/token"
 					).permitAll()
+					.antMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated()
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
@@ -89,11 +92,8 @@ public class MultiHttpSecurityCustomConfig {
 							"/js/clearPasswordsFieldsInRegistrationForm.js")
 					.permitAll()
 
-					.antMatchers("/swagger-ui.html").permitAll()
-					.antMatchers("/swagger-ui/**").permitAll()
-					.antMatchers("/v2/api-docs").permitAll()
-					.antMatchers("/webjars/**").permitAll()
-					.antMatchers("/swagger-resources/**").permitAll()
+					.antMatchers("/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
+							"/swagger-resources/**","/configuration/**","/v3/api-docs/**").permitAll()
 
 					.anyRequest().authenticated()
 					.and().formLogin().loginPage("/loginPage").loginProcessingUrl("/authenticate").permitAll()

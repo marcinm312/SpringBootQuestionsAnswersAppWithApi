@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FileResponseGenerator {
 
-	public static ResponseEntity<Object> generateResponseWithFile(byte[] bytes, String fileName) {
+	public static ResponseEntity<ByteArrayResource> generateResponseWithFile(byte[] bytes, String fileName) {
 
 		ByteArrayResource resource = new ByteArrayResource(bytes);
 		return ResponseEntity.ok().contentLength(bytes.length)

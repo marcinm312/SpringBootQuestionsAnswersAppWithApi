@@ -61,7 +61,7 @@ class LoginApiControllerTest {
 	@BeforeEach
 	void setup() {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
 		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
 
@@ -117,7 +117,7 @@ class LoginApiControllerTest {
 	private static Stream<Arguments> examplesOfAuthorized() {
 		return Stream.of(
 				Arguments.of("user", "password", "login_userWithGoodCredentials_success"),
-				Arguments.of("administrator", "password", "login_administratorWithGoodCredentials_success")
+				Arguments.of("admin", "password", "login_administratorWithGoodCredentials_success")
 		);
 	}
 
@@ -125,7 +125,7 @@ class LoginApiControllerTest {
 		return Stream.of(
 				Arguments.of("user", "invalid", "Niepoprawne dane uwierzytelniające",
 						"login_userWithBadCredentials_unauthenticated"),
-				Arguments.of("administrator", "invalid", "Niepoprawne dane uwierzytelniające",
+				Arguments.of("admin", "invalid", "Niepoprawne dane uwierzytelniające",
 						"login_administratorWithBadCredentials_unauthenticated"),
 				Arguments.of("lalala", "password", "Niepoprawne dane uwierzytelniające",
 						"login_notExistingUser_unauthenticated"),

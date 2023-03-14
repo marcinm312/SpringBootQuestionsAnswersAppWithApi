@@ -42,6 +42,7 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
+import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
@@ -112,13 +113,11 @@ class AnswerApiControllerTest {
 
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-
-		given(answerRepository.getAnswers(1000L, Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.searchAnswers(1000L, "answer1",
-				Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleSearchedAnswersList());
+		
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
+		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5000,
 				Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
 		given(answerRepository.searchPaginatedAnswers(1000L, "answer1",
@@ -184,7 +183,36 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"getAnswers_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC", 3,
+						"getAnswers_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC", 3,
 						"getAnswers_paginatedAnswers_success")
+		);
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfTooLargePageSizeUrls")
+	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String receivedErrorMessage = Objects.requireNonNull(
+				mockMvc.perform(get(url).header("Authorization", token))
+						.andExpect(status().isBadRequest())
+						.andReturn().getResolvedException()).getMessage();
+
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions/1000/answers?pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"getAnswers_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_tooLargePageSize_badRequest")
 		);
 	}
 
@@ -279,6 +307,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						post("/api/questions/2000/answers")
 								.header("Authorization", token)
@@ -304,6 +333,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
@@ -398,6 +428,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -471,11 +502,12 @@ class AnswerApiControllerTest {
 	@Test
 	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
@@ -501,6 +533,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -526,6 +559,7 @@ class AnswerApiControllerTest {
 		String token = prepareToken("user2", "password");
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put(url)
 								.header("Authorization", token)
@@ -555,6 +589,7 @@ class AnswerApiControllerTest {
 	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
 
 		String token = prepareToken("user2", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -570,7 +605,8 @@ class AnswerApiControllerTest {
 	@Test
 	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -587,6 +623,7 @@ class AnswerApiControllerTest {
 	void deleteAnswer_userDeletesAnotherUsersAnswer_forbidden() throws Exception {
 
 		String token = prepareToken("user", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
@@ -606,6 +643,7 @@ class AnswerApiControllerTest {
 														 String nameOfTestCase) throws Exception {
 
 		String token = prepareToken("user2", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete(url)
@@ -653,6 +691,8 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadPdf_paginatedAnswers_success")
 		);
 	}
@@ -692,6 +732,8 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
 				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_paginatedAnswers_success"),
+				Arguments.of("/api/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadExcel_paginatedAnswers_success")
 		);
 	}

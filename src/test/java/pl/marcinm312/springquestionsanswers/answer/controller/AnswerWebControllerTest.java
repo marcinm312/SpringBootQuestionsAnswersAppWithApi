@@ -42,6 +42,7 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
+import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
@@ -119,12 +120,10 @@ class AnswerWebControllerTest {
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 
-		given(answerRepository.getAnswers(1000L, Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleAnswersList());
-		given(answerRepository.searchAnswers(1000L, "answer1",
-				Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(AnswerDataProvider.prepareExampleSearchedAnswersList());
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
+				Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
+		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5000,
 				Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(AnswerDataProvider.prepareExampleAnswersList()));
 		given(answerRepository.searchPaginatedAnswers(1000L, "answer1",
@@ -138,7 +137,7 @@ class AnswerWebControllerTest {
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
-		given(userRepo.findByUsername("administrator")).willReturn(Optional.of(adminUser));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -196,7 +195,52 @@ class AnswerWebControllerTest {
 				Arguments.of("/app/questions/1000/answers?keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"answersGet_searchedAnswers_success"),
 				Arguments.of("/app/questions/1000/answers?pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC", 3,
+						"answersGet_paginatedAnswers_success"),
+				Arguments.of("/app/questions/1000/answers?pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC", 3,
 						"answersGet_paginatedAnswers_success")
+		);
+	}
+
+	@Test
+	void answersGet_tooLargePageSize_badRequest() throws Exception {
+
+		String url = "/app/questions/1000/answers?pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC";
+		ModelAndView modelAndView = mockMvc.perform(
+						get(url).with(user("user").password("password")))
+				.andExpect(status().isBadRequest())
+				.andExpect(view().name("limitExceeded"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+
+		String receivedErrorMessage = (String) modelAndView.getModel().get("message");
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfTooLargePageSizeUrls")
+	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+
+		String receivedErrorMessage = Objects.requireNonNull(
+				mockMvc.perform(get(url).with(user("user").password("password")))
+						.andExpect(status().isBadRequest())
+						.andReturn().getResolvedException()).getMessage();
+
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+		return Stream.of(
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_tooLargePageSize_badRequest"),
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_tooLargePageSize_badRequest")
 		);
 	}
 
@@ -271,6 +315,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/new")
@@ -291,6 +336,7 @@ class AnswerWebControllerTest {
 	@Test
 	void createAnswer_questionNotExists_notFoundMessage() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/2000/answers/new")
@@ -523,6 +569,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -631,17 +678,18 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
@@ -651,6 +699,7 @@ class AnswerWebControllerTest {
 	@Test
 	void editAnswer_userUpdatesAnotherUsersAnswer_changeNotAllowed() throws Exception {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit")
@@ -674,6 +723,7 @@ class AnswerWebControllerTest {
 															  String nameOfTestCase) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post(url + "edit")
@@ -795,6 +845,7 @@ class AnswerWebControllerTest {
 
 	@Test
 	void removeAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		mockMvc.perform(
 			post("/app/questions/1000/answers/1000/delete")
 					.with(user("user2").password("password"))
@@ -810,21 +861,23 @@ class AnswerWebControllerTest {
 
 	@Test
 	void removeAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
-								.with(user("administrator").password("password").roles("ADMIN"))
+								.with(user("admin").password("password").roles("ADMIN"))
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("administrator").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 
 		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
 	@Test
 	void removeAnswer_userDeletesAnotherUsersAnswer_changeNotAllowed() throws Exception {
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/delete")
 								.with(user("user").password("password"))
@@ -843,6 +896,7 @@ class AnswerWebControllerTest {
 	void removeAnswer_questionOrAnswerNotExists_notFoundMessage(String url, String expectedErrorMessage,
 																String nameOfTestCase) throws Exception {
 
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		ModelAndView modelAndView = mockMvc.perform(
 						post(url + "delete")
 								.with(user("user").password("password"))
@@ -966,6 +1020,8 @@ class AnswerWebControllerTest {
 				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedAnswers_success"),
 				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadPdf_paginatedAnswers_success"),
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadPdf_paginatedAnswers_success")
 		);
 	}
@@ -1005,6 +1061,8 @@ class AnswerWebControllerTest {
 				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&keyword=answer1&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedAnswers_success"),
 				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TITLE&sortDirection=DESC",
+						"downloadExcel_paginatedAnswers_success"),
+				Arguments.of("/app/questions/1000/answers/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TITLE&sortDirection=DESC",
 						"downloadExcel_paginatedAnswers_success")
 		);
 	}

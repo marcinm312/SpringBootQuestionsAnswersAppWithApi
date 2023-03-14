@@ -44,6 +44,7 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
+import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
@@ -106,11 +107,9 @@ class QuestionApiControllerTest {
 	@BeforeEach
 	void setup() {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
-		given(questionRepository.getQuestions(Sort.by(Sort.Direction.DESC, "id")))
-				.willReturn(QuestionDataProvider.prepareExampleQuestionsList());
-		given(questionRepository.searchQuestions("aaaa", Sort.by(Sort.Direction.ASC, "id")))
-				.willReturn(QuestionDataProvider.prepareExampleSearchedQuestionsList());
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
+				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
+		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.ASC, "id"))))
@@ -256,7 +255,36 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
 						"getQuestions_searchedQuestions_success"),
 				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
+						"getQuestions_paginatedQuestions_success"),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3,
 						"getQuestions_paginatedQuestions_success")
+		);
+	}
+
+	@ParameterizedTest(name = "{index} ''{1}''")
+	@MethodSource("examplesOfTooLargePageSizeUrls")
+	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+
+		String token = prepareToken("user", "password");
+
+		String receivedErrorMessage = Objects.requireNonNull(
+				mockMvc.perform(get(url).header("Authorization", token))
+				.andExpect(status().isBadRequest())
+				.andReturn().getResolvedException()).getMessage();
+
+		int rowsLimit = Filter.ROWS_LIMIT;
+		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+	}
+
+	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+		return Stream.of(
+				Arguments.of("/api/questions?pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"getQuestions_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_tooLargePageSize_badRequest"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_tooLargePageSize_badRequest")
 		);
 	}
 
@@ -324,6 +352,7 @@ class QuestionApiControllerTest {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -350,6 +379,7 @@ class QuestionApiControllerTest {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -449,6 +479,7 @@ class QuestionApiControllerTest {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -523,11 +554,12 @@ class QuestionApiControllerTest {
 	@Test
 	void updateQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), adminUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -553,6 +585,7 @@ class QuestionApiControllerTest {
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), secondUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -574,6 +607,7 @@ class QuestionApiControllerTest {
 		String token = prepareToken("user", "password");
 
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/2000")
 								.header("Authorization", token)
@@ -602,6 +636,7 @@ class QuestionApiControllerTest {
 	void deleteQuestion_userDeletesHisOwnQuestion_success() throws Exception {
 
 		String token = prepareToken("user", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
@@ -617,7 +652,8 @@ class QuestionApiControllerTest {
 	@Test
 	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("administrator", "password");
+		String token = prepareToken("admin", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
@@ -634,6 +670,7 @@ class QuestionApiControllerTest {
 	void deleteQuestion_userDeletesAnotherUsersQuestion_forbidden() throws Exception {
 
 		String token = prepareToken("user2", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000")
@@ -651,6 +688,7 @@ class QuestionApiControllerTest {
 	void deleteQuestion_questionNotExists_notFound() throws Exception {
 
 		String token = prepareToken("user", "password");
+		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/2000")
@@ -699,6 +737,8 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadPdf_searchedQuestions_success"),
 				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadPdf_paginatedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
 						"downloadPdf_paginatedQuestions_success")
 		);
 	}
@@ -738,6 +778,8 @@ class QuestionApiControllerTest {
 				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
 						"downloadExcel_searchedQuestions_success"),
 				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
+						"downloadExcel_paginatedQuestions_success"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
 						"downloadExcel_paginatedQuestions_success")
 		);
 	}

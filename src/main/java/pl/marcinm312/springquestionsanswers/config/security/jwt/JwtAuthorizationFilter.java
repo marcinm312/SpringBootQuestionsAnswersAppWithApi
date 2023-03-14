@@ -85,7 +85,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			return null;
 		}
 		if (issuedAt.after(user.getDateToCompareInJwt())) {
-			return new UsernamePasswordAuthenticationToken(user.getUsername(), null, user.getAuthorities());
+			return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 		}
 		log.error("The token has expired due to logging out of the user or changing the password");
 		return null;

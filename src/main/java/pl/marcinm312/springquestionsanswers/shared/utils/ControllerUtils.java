@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.ui.Model;
 import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
+import pl.marcinm312.springquestionsanswers.shared.filter.LimitExceededException;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -12,8 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 public class ControllerUtils {
 
 	private static final String CHANGE_NOT_ALLOWED_VIEW = "changeNotAllowed";
-	private static final String MESSAGE = "message";
 	private static final String RESOURCE_NOT_FOUND_VIEW = "resourceNotFound";
+	private static final String LIMIT_EXCEEDED_VIEW = "limitExceeded";
+
+	private static final String MESSAGE = "message";
 	private static final String USER_LOGIN = "userLogin";
 
 	public static String getChangeNotAllowedView(Model model, String userName, ChangeNotAllowedException e,
@@ -31,5 +34,14 @@ public class ControllerUtils {
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(MESSAGE, e.getMessage());
 		return RESOURCE_NOT_FOUND_VIEW;
+	}
+
+	public static String getLimitExceededView(Model model, String userName, LimitExceededException e,
+												 HttpServletResponse response) {
+
+		response.setStatus(e.getHttpStatus());
+		model.addAttribute(USER_LOGIN, userName);
+		model.addAttribute(MESSAGE, e.getMessage());
+		return LIMIT_EXCEEDED_VIEW;
 	}
 }

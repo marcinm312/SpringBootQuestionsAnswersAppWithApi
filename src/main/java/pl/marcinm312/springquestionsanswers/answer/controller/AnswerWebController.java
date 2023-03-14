@@ -1,7 +1,7 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +20,7 @@ import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedExc
 import pl.marcinm312.springquestionsanswers.shared.exception.FileException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
+import pl.marcinm312.springquestionsanswers.shared.filter.LimitExceededException;
 import pl.marcinm312.springquestionsanswers.shared.filter.SortField;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.shared.utils.ControllerUtils;
@@ -29,7 +30,6 @@ import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
-@Slf4j
 @Controller
 @RequestMapping("/app/questions/{questionId}/answers")
 public class AnswerWebController {
@@ -57,20 +57,21 @@ public class AnswerWebController {
 							 @RequestParam(required = false) SortField sortField,
 							 @RequestParam(required = false) Sort.Direction sortDirection) {
 
-		log.info("Loading answers page for question.id = {}", questionId);
 		String userName = authentication.getName();
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
-		String sortDir = filter.getSortDirection().name().toUpperCase();
 		ListPage<AnswerGet> paginatedAnswers;
 		QuestionGet question;
+		Filter filter;
 		try {
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
-			log.info("Answers list size: {}", paginatedAnswers.itemsList().size());
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
 			return ControllerUtils.getResourceNotFoundView(model, userName, e, response);
+		} catch (LimitExceededException e) {
+			return ControllerUtils.getLimitExceededView(model, userName, e, response);
 		}
+		String sortDir = filter.getSortDirection().name().toUpperCase();
 		model.addAttribute("questionId", questionId);
 		model.addAttribute("answerList", paginatedAnswers.itemsList());
 		model.addAttribute("filter", filter);
@@ -97,7 +98,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return CREATE_ANSWER_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			answerManager.addAnswer(questionId, answer, user);
 		} catch (ResourceNotFoundException e) {
@@ -139,7 +140,7 @@ public class AnswerWebController {
 			model.addAttribute(USER_LOGIN, userName);
 			return EDIT_ANSWER_VIEW;
 		}
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		try {
 			answerManager.updateAnswer(questionId, answerId, answer, user);
 		} catch (ChangeNotAllowedException e) {
@@ -161,7 +162,7 @@ public class AnswerWebController {
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model, HttpServletResponse response) {
 
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromAuthentication(authentication);
 		String userName = authentication.getName();
 		try {
 			answerManager.deleteAnswer(questionId, answerId, user);
@@ -181,15 +182,17 @@ public class AnswerWebController {
 	}
 
 	@GetMapping("/file-export")
-	public ResponseEntity<Object> downloadFile(@PathVariable Long questionId,
-											   @RequestParam FileType fileType,
-											   @RequestParam(required = false) String keyword,
-											   @RequestParam(required = false) SortField sortField,
-											   @RequestParam(required = false) Sort.Direction sortDirection)
+	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
+														  @RequestParam FileType fileType,
+														  @RequestParam(required = false) String keyword,
+														  @RequestParam(required = false) SortField sortField,
+														  @RequestParam(required = false) Integer pageNo,
+														  @RequestParam(required = false) Integer pageSize,
+														  @RequestParam(required = false) Sort.Direction sortDirection)
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 

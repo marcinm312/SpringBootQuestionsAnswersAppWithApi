@@ -1,50 +1,53 @@
 package pl.marcinm312.springquestionsanswers.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.core.Authentication;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.service.*;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
-
-import java.util.Collections;
-import java.util.List;
 
 @Configuration
-@EnableSwagger2
 public class SwaggerConfig {
 
-	private ApiKey getApiKey() {
-		return new ApiKey("JWT", "Authorization", "header");
-	}
-
-	private SecurityContext securityContext() {
-
-		return SecurityContext.builder()
-				.securityReferences(defaultAuth())
-				.build();
-	}
-
-	private List<SecurityReference> defaultAuth() {
-
-		AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
-		AuthorizationScope[] authorizationScopes = new AuthorizationScope[1];
-		authorizationScopes[0] = authorizationScope;
-		return List.of(new SecurityReference("JWT", authorizationScopes));
+	@Bean
+	public OpenAPI customizeOpenAPI() {
+		final String securitySchemeName = "Bearer Authentication";
+		return new OpenAPI()
+				.addSecurityItem(new SecurityRequirement()
+						.addList(securitySchemeName))
+				.components(new Components()
+						.addSecuritySchemes(securitySchemeName, new SecurityScheme()
+								.name(securitySchemeName)
+								.type(SecurityScheme.Type.HTTP)
+								.scheme("bearer")
+								.bearerFormat("JWT")
+								.description("""
+										JWT token can be obtained by providing correct username and password in the API by Swagger:
+										1. Select a definition: public-apis;
+										2. Select controller: login-api-controller;
+										3. Select endpoint: /api/login;
+										4. Execute request with correct username and password;
+										5. Copy Bearer token from authorization response header.
+										""")));
 	}
 
 	@Bean
-	public Docket api() {
+	public GroupedOpenApi publicApi() {
 
-		return new Docket(DocumentationType.SWAGGER_2)
-				.ignoredParameterTypes(Authentication.class)
-				.securityContexts(Collections.singletonList(securityContext()))
-				.securitySchemes(Collections.singletonList(getApiKey()))
-				.select()
-				.paths(PathSelectors.ant("/api/**"))
+		return GroupedOpenApi.builder()
+				.group("1. public-apis")
+				.pathsToMatch("/api/**")
+				.pathsToExclude("/api/actuator/**")
+				.build();
+	}
+
+	@Bean
+	public GroupedOpenApi actuatorApi() {
+		return GroupedOpenApi.builder()
+				.group("2. actuators")
+				.pathsToMatch("/api/actuator/**")
 				.build();
 	}
 }

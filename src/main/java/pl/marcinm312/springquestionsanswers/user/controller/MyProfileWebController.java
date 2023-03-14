@@ -51,7 +51,7 @@ public class MyProfileWebController {
 	public String myProfileView(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromDB(authentication);
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER_3, user);
 		return MY_PROFILE_VIEW;
@@ -76,7 +76,7 @@ public class MyProfileWebController {
 	public String updateMyProfileView(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();
-		UserEntity user = userManager.getUserByAuthentication(authentication);
+		UserEntity user = userManager.getUserFromDB(authentication);
 		UserDataUpdate userDataUpdate = new UserDataUpdate(user.getUsername(), user.getEmail());
 		model.addAttribute(USER_LOGIN, userName);
 		model.addAttribute(USER, userDataUpdate);
@@ -126,7 +126,7 @@ public class MyProfileWebController {
 
 		String userName = authentication.getName();
 		model.addAttribute(USER_LOGIN, userName);
-		model.addAttribute(USER_3, userManager.getUserByAuthentication(authentication));
+		model.addAttribute(USER_3, userManager.getUserFromDB(authentication));
 		return DELETE_MY_PROFILE_VIEW;
 	}
 }

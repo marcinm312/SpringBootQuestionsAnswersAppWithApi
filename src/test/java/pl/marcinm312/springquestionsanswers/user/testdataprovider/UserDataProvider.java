@@ -18,7 +18,7 @@ public class UserDataProvider {
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1000L)
-				.username("administrator")
+				.username("admin")
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
