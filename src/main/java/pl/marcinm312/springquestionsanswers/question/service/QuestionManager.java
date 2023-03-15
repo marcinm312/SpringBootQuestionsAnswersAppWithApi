@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import pl.marcinm312.springquestionsanswers.config.security.utils.PermissionsUtils;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionMapper;
@@ -89,6 +90,7 @@ public class QuestionManager {
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionRepository.save(question), true);
 	}
 
+	@Transactional
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
 
 		log.info("Updating question");
