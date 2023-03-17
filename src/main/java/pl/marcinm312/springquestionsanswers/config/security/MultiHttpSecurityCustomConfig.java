@@ -48,11 +48,11 @@ public class MultiHttpSecurityCustomConfig {
 		@Bean
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
-			http.antMatcher("/api/**")
-					.authorizeRequests().antMatchers(
+			http.securityMatcher("/api/**")
+					.authorizeHttpRequests().requestMatchers(
 							"/api/login", "/api/registration", "/api/token"
 					).permitAll()
-					.antMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
+					.requestMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated()
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
@@ -85,14 +85,14 @@ public class MultiHttpSecurityCustomConfig {
 		@Bean
 		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 
-			http.antMatcher("/**")
-					.authorizeRequests().antMatchers(
+			http.securityMatcher("/**")
+					.authorizeHttpRequests().requestMatchers(
 							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
 							"/css/style.css", "/css/signin.css", "/favicon.ico",
 							"/js/clearPasswordsFieldsInRegistrationForm.js")
 					.permitAll()
 
-					.antMatchers("/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
+					.requestMatchers("/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
 							"/swagger-resources/**","/configuration/**","/v3/api-docs/**").permitAll()
 
 					.anyRequest().authenticated()

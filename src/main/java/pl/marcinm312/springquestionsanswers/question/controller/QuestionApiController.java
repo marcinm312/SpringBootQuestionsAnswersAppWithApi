@@ -18,7 +18,7 @@ import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController

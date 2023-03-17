@@ -7,7 +7,7 @@ import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedExc
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springquestionsanswers.shared.filter.LimitExceededException;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ControllerUtils {

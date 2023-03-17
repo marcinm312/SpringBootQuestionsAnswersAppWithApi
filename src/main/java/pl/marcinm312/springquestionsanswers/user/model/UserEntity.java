@@ -9,7 +9,7 @@ import pl.marcinm312.springquestionsanswers.shared.enums.Role;
 import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.*;
 
 @NoArgsConstructor

@@ -18,8 +18,8 @@ public class QuestionMapper {
 				.user(question.getUser().getUsername());
 
 		if (!isCreateOrUpdate) {
-			builder = builder.
-					createdAt(question.getCreatedAt())
+			builder = builder
+					.createdAt(question.getCreatedAt())
 					.updatedAt(question.getUpdatedAt());
 		}
 

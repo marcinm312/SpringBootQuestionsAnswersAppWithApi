@@ -22,7 +22,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;

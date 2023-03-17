@@ -25,7 +25,7 @@ import pl.marcinm312.springquestionsanswers.shared.utils.ControllerUtils;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller

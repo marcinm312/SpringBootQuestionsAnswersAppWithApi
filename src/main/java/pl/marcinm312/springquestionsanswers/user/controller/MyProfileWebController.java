@@ -15,7 +15,7 @@ import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springquestionsanswers.user.validator.UserPasswordUpdateValidator;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller

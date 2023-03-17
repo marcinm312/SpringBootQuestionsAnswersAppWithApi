@@ -3,8 +3,8 @@ package pl.marcinm312.springquestionsanswers.shared.filter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.SimpleTagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
 import java.io.Writer;
 

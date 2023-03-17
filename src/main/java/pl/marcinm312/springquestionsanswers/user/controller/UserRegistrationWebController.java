@@ -12,7 +12,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.validator.UserCreateValidator;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller
