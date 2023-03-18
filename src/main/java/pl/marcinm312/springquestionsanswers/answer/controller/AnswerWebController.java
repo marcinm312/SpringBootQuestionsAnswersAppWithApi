@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/app/questions/{questionId}/answers")
+@RequestMapping("/app/questions/{questionId}/answers/")
 public class AnswerWebController {
 
 	private static final String USER_LOGIN = "userLogin";
@@ -84,7 +84,7 @@ public class AnswerWebController {
 		return ANSWERS_VIEW;
 	}
 
-	@PostMapping("/new")
+	@PostMapping("/new/")
 	public String createAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication,
 							   HttpServletResponse response) {
@@ -107,7 +107,7 @@ public class AnswerWebController {
 		return "redirect:..";
 	}
 
-	@GetMapping("/new")
+	@GetMapping("/new/")
 	public String createAnswerView(Model model, @PathVariable Long questionId, Authentication authentication,
 								   HttpServletResponse response) {
 
@@ -124,7 +124,7 @@ public class AnswerWebController {
 		return CREATE_ANSWER_VIEW;
 	}
 
-	@PostMapping("/{answerId}/edit")
+	@PostMapping("/{answerId}/edit/")
 	public String editAnswer(@ModelAttribute("answer") @Validated AnswerCreateUpdate answer, BindingResult bindingResult,
 							 Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 							 Authentication authentication, HttpServletResponse response) {
@@ -151,14 +151,14 @@ public class AnswerWebController {
 		return "redirect:../..";
 	}
 
-	@GetMapping("/{answerId}/edit")
+	@GetMapping("/{answerId}/edit/")
 	public String editAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								 Authentication authentication, HttpServletResponse response) {
 
 		return getEditOrRemoveAnswerView(model, questionId, answerId, authentication, true, response);
 	}
 
-	@PostMapping("/{answerId}/delete")
+	@PostMapping("/{answerId}/delete/")
 	public String removeAnswer(@PathVariable Long questionId, @PathVariable Long answerId,
 							   Authentication authentication, Model model, HttpServletResponse response) {
 
@@ -174,14 +174,14 @@ public class AnswerWebController {
 		return "redirect:../..";
 	}
 
-	@GetMapping("/{answerId}/delete")
+	@GetMapping("/{answerId}/delete/")
 	public String removeAnswerView(Model model, @PathVariable Long questionId, @PathVariable Long answerId,
 								   Authentication authentication, HttpServletResponse response) {
 
 		return getEditOrRemoveAnswerView(model, questionId, answerId, authentication, false, response);
 	}
 
-	@GetMapping("/file-export")
+	@GetMapping("/file-export/")
 	public ResponseEntity<ByteArrayResource> downloadFile(@PathVariable Long questionId,
 														  @RequestParam FileType fileType,
 														  @RequestParam(required = false) String keyword,

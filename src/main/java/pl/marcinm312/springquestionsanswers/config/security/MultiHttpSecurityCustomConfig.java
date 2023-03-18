@@ -96,9 +96,9 @@ public class MultiHttpSecurityCustomConfig {
 							"/swagger-resources/**","/configuration/**","/v3/api-docs/**").permitAll()
 
 					.anyRequest().authenticated()
-					.and().formLogin().loginPage("/loginPage").loginProcessingUrl("/authenticate").permitAll()
+					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage").sessionRegistry(sessionRegistry());
+					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry());
 			return http.build();
 		}
 

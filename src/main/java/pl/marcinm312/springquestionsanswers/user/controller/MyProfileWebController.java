@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/app/myProfile")
+@RequestMapping("/app/myProfile/")
 public class MyProfileWebController {
 
 	private static final String USER_LOGIN = "userLogin";
@@ -57,7 +57,7 @@ public class MyProfileWebController {
 		return MY_PROFILE_VIEW;
 	}
 
-	@PostMapping("/update")
+	@PostMapping("/update/")
 	public String updateMyProfile(@ModelAttribute("user") @Validated UserDataUpdate user, BindingResult bindingResult,
 								  Model model, Authentication authentication, HttpServletResponse response) {
 
@@ -72,7 +72,7 @@ public class MyProfileWebController {
 		return COMMON_REDIRECT;
 	}
 
-	@GetMapping("/update")
+	@GetMapping("/update/")
 	public String updateMyProfileView(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();
@@ -83,7 +83,7 @@ public class MyProfileWebController {
 		return UPDATE_MY_PROFILE_VIEW;
 	}
 
-	@PostMapping("/updatePassword")
+	@PostMapping("/updatePassword/")
 	public String updateMyPassword(@ModelAttribute("user2") @Validated UserPasswordUpdate user, BindingResult bindingResult,
 								   Model model, Authentication authentication, HttpServletResponse response) {
 
@@ -98,7 +98,7 @@ public class MyProfileWebController {
 		return COMMON_REDIRECT;
 	}
 
-	@GetMapping("/updatePassword")
+	@GetMapping("/updatePassword/")
 	public String updateMyPasswordView(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();
@@ -107,21 +107,21 @@ public class MyProfileWebController {
 		return UPDATE_MY_PASSWORD_VIEW;
 	}
 
-	@GetMapping("/expireOtherSessions")
+	@GetMapping("/expireOtherSessions/")
 	public String expireOtherSessions(Authentication authentication) {
 
 		userManager.expireOtherSessions(authentication);
 		return COMMON_REDIRECT;
 	}
 
-	@PostMapping("/delete")
+	@PostMapping("/delete/")
 	public String deleteMyProfile(Authentication authentication) {
 
 		userManager.deleteUser(authentication);
 		return "redirect:../../..";
 	}
 
-	@GetMapping("/delete")
+	@GetMapping("/delete/")
 	public String deleteMyProfileConfirmation(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();

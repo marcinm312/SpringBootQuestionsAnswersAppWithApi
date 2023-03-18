@@ -33,7 +33,7 @@ public class UserRegistrationWebController {
 		binder.addValidators(userValidator);
 	}
 
-	@PostMapping("/register")
+	@PostMapping("/register/")
 	public String createUser(@ModelAttribute("user") @Validated UserCreate user, BindingResult bindingResult,
 							 Model model, HttpServletResponse response) {
 
@@ -46,14 +46,14 @@ public class UserRegistrationWebController {
 		return "redirect:..";
 	}
 
-	@GetMapping("/register")
+	@GetMapping("/register/")
 	public String createUserView(Model model) {
 
 		model.addAttribute(USER, new UserCreate());
 		return REGISTER_VIEW;
 	}
 
-	@GetMapping("/token")
+	@GetMapping("/token/")
 	public String activateUser(@RequestParam String value, HttpServletResponse response) {
 
 		try {

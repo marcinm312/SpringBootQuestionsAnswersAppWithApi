@@ -22,7 +22,7 @@
 </button>
 
 <div class="container">
-    <form:form class="form-signin" method="post" action="${pageContext.request.contextPath}/authenticate">
+    <form:form class="form-signin" method="post" action="${pageContext.request.contextPath}/authenticate/">
 
         <h1 class="h3 mb-3 font-weight-normal">Uzupełnij dane</h1>
 

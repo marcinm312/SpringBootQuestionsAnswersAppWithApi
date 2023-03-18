@@ -179,6 +179,6 @@ public class UserManager {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		String requestURL = request.getRequestURL().toString();
 		String servletPath = request.getServletPath();
-		return requestURL.replace(servletPath, "") + "/token?value=";
+		return requestURL.replace(servletPath, "") + "/token/?value=";
 	}
 }
