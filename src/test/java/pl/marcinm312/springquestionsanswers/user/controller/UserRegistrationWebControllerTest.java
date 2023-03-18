@@ -94,7 +94,7 @@ class UserRegistrationWebControllerTest {
 	@Test
 	void createUserView_simpleCase_success() throws Exception {
 		mockMvc.perform(
-						get("/register"))
+						get("/register/"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("register"))
 				.andExpect(model().attributeExists("user"))
@@ -106,7 +106,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
 		mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword())
@@ -124,7 +124,7 @@ class UserRegistrationWebControllerTest {
 		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 
 		mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf().useInvalidToken())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -151,7 +151,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -182,7 +182,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -206,7 +206,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -239,7 +239,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -273,7 +273,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -306,7 +306,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -342,7 +342,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/register")
+						post("/register/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("password", userToRequest.getPassword())
@@ -380,7 +380,7 @@ class UserRegistrationWebControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
 
 		mockMvc.perform(
-						get("/token?value=" + exampleExistingTokenValue))
+						get("/token/?value=" + exampleExistingTokenValue))
 				.andExpect(status().isOk())
 				.andExpect(view().name("userActivation"))
 				.andExpect(unauthenticated());
@@ -395,7 +395,7 @@ class UserRegistrationWebControllerTest {
 		given(tokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
 
 		mockMvc.perform(
-						get("/token?value=" + exampleNotExistingTokenValue))
+						get("/token/?value=" + exampleNotExistingTokenValue))
 				.andExpect(status().isNotFound())
 				.andExpect(view().name("tokenNotFound"))
 				.andExpect(unauthenticated());
@@ -406,7 +406,7 @@ class UserRegistrationWebControllerTest {
 
 	@Test
 	void activateUser_nullTokenValue_userNotActivated() throws Exception {
-		mockMvc.perform(get("/token"))
+		mockMvc.perform(get("/token/"))
 				.andExpect(status().isBadRequest())
 				.andExpect(unauthenticated());
 
