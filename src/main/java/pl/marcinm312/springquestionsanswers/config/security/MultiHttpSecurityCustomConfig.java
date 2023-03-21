@@ -1,6 +1,7 @@
 package pl.marcinm312.springquestionsanswers.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -86,19 +87,27 @@ public class MultiHttpSecurityCustomConfig {
 		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/**")
-					.authorizeHttpRequests().requestMatchers(
-							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-							"/css/style.css", "/css/signin.css", "/favicon.ico",
-							"/js/clearPasswordsFieldsInRegistrationForm.js")
-					.permitAll()
+					.authorizeHttpRequests()
 
-					.requestMatchers("/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
-							"/swagger-resources/**","/configuration/**","/v3/api-docs/**").permitAll()
+					.requestMatchers(
+							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
+							"/favicon.ico",
+							//CSS
+							"/css/style.css", "/css/signin.css",
+							//JS
+							"/js/clearPasswordsFieldsInRegistrationForm.js",
+							//SWAGGER
+							"/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
+							"/swagger-resources/**","/configuration/**","/v3/api-docs/**")
+					.permitAll()
+					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
 					.anyRequest().authenticated()
+
 					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
 					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry());
+
 			return http.build();
 		}
 
