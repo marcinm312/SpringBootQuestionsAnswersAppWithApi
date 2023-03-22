@@ -50,11 +50,17 @@ public class MultiHttpSecurityCustomConfig {
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/api/**")
-					.authorizeHttpRequests().requestMatchers(
-							"/api/login", "/api/registration", "/api/token"
-					).permitAll()
+					.authorizeHttpRequests()
+
+					.shouldFilterAllDispatcherTypes(true)
+
+					.requestMatchers(
+							"/api/login", "/api/registration", "/api/token")
+					.permitAll()
+
 					.requestMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated()
+
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
 					.addFilter(new JwtAuthorizationFilter(authenticationManager(authenticationConfiguration), userDetailsService, environment))
@@ -89,6 +95,8 @@ public class MultiHttpSecurityCustomConfig {
 			http.securityMatcher("/**")
 					.authorizeHttpRequests()
 
+					.shouldFilterAllDispatcherTypes(true)
+
 					.requestMatchers(
 							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
 							"/favicon.ico",
@@ -102,7 +110,8 @@ public class MultiHttpSecurityCustomConfig {
 					.permitAll()
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
-					.anyRequest().authenticated()
+					.requestMatchers("/app/**").authenticated()
+					.anyRequest().denyAll()
 
 					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
