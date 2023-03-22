@@ -110,7 +110,10 @@ public class MultiHttpSecurityCustomConfig {
 					.permitAll()
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
-					.requestMatchers("/app/**").authenticated()
+					.requestMatchers(
+							"/app/**",
+							"/js/clearChangePasswordForm.js")
+					.authenticated()
 					.anyRequest().denyAll()
 
 					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
