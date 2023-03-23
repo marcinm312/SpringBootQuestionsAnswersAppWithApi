@@ -5,13 +5,13 @@ import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntityWithUser;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
-import javax.validation.constraints.NotBlank;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
 
 @NoArgsConstructor
 @Getter

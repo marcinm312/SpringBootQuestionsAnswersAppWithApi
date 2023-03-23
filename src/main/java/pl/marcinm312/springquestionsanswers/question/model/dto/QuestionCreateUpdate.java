@@ -2,8 +2,8 @@ package pl.marcinm312.springquestionsanswers.question.model.dto;
 
 import lombok.*;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Size;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @NoArgsConstructor
 @AllArgsConstructor

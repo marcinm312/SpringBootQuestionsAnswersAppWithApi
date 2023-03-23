@@ -8,8 +8,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import pl.marcinm312.springquestionsanswers.shared.exception.RuntimeMailException;
 
-import javax.mail.MessagingException;
-import javax.mail.internet.MimeMessage;
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Slf4j
 @RequiredArgsConstructor

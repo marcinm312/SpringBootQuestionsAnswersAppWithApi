@@ -72,42 +72,42 @@
                 <thead class="thead-dark">
                 <tr>
 
-                    <c:url var="sortLinkId" value="/app/questions">
+                    <c:url var="sortLinkId" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="ID" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <c:url var="sortLinkTitle" value="/app/questions">
+                    <c:url var="sortLinkTitle" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="TITLE" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <c:url var="sortLinkDescription" value="/app/questions">
+                    <c:url var="sortLinkDescription" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="DESCRIPTION" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <c:url var="sortLinkCreatedAt" value="/app/questions">
+                    <c:url var="sortLinkCreatedAt" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="CREATED_AT" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <c:url var="sortLinkUpdatedAt" value="/app/questions">
+                    <c:url var="sortLinkUpdatedAt" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
                         <c:param name="sortField" value="UPDATED_AT" />
                         <c:param name="sortDirection" value="${reverseSortDir}" />
                     </c:url>
-                    <c:url var="sortLinkUser" value="/app/questions">
+                    <c:url var="sortLinkUser" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="${filter.pageNo}" />
                         <c:param name="pageSize" value="${filter.pageSize}" />
@@ -178,7 +178,7 @@
                     </div>
                 </div>
                 <div class="float-right pagination">
-                    <c:url var="searchUri" value="/app/questions">
+                    <c:url var="searchUri" value="/app/questions/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="xxx" />
                         <c:param name="pageSize" value="${filter.pageSize}" />

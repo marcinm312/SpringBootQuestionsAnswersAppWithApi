@@ -22,7 +22,7 @@
         listy pytań
     </button>
     <button class="btn btn-primary"
-            onclick="window.location.href = 'register'">Zarejestruj się
+            onclick="window.location.href = 'register/'">Zarejestruj się
     </button>
     <p class="message">
         Aby przejść do listy pytań, niezbędne będzie zalogowanie się. Jeżeli

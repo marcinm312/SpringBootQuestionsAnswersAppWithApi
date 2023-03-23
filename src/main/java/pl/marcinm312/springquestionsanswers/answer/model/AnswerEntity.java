@@ -9,7 +9,7 @@ import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @NoArgsConstructor
 @ToString

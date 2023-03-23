@@ -78,7 +78,7 @@ class LoginWebControllerTest {
 	@Test
 	void getLoginPage_simpleCase_success() throws Exception {
 		mockMvc.perform(
-						get("/loginPage"))
+						get("/loginPage/"))
 				.andExpect(status().isOk())
 				.andExpect(view().name("loginForm"))
 				.andExpect(unauthenticated());
@@ -87,14 +87,14 @@ class LoginWebControllerTest {
 	@Test
 	void formLogin_userWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-						formLogin("/authenticate").user("user").password("password"))
+						formLogin("/authenticate/").user("user").password("password"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 	}
 
 	@Test
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
 		mockMvc.perform(
-						formLogin("/authenticate").user("admin").password("password"))
+						formLogin("/authenticate/").user("admin").password("password"))
 				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 	}
 
@@ -103,8 +103,8 @@ class LoginWebControllerTest {
 	void formLogin_badCredentials_unauthenticated(String username, String password, String nameOfTestCase)
 			throws Exception {
 		mockMvc.perform(
-						formLogin("/authenticate").user(username).password(password))
-				.andExpect(redirectedUrl("/loginPage?error"))
+						formLogin("/authenticate/").user(username).password(password))
+				.andExpect(redirectedUrl("/loginPage/?error"))
 				.andExpect(unauthenticated());
 	}
 

@@ -25,11 +25,11 @@ import pl.marcinm312.springquestionsanswers.shared.utils.ControllerUtils;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/app/questions")
+@RequestMapping("/app/questions/")
 public class QuestionWebController {
 
 	private static final String USER_LOGIN = "userLogin";
@@ -74,7 +74,7 @@ public class QuestionWebController {
 		return QUESTIONS_VIEW;
 	}
 
-	@PostMapping("/new")
+	@PostMapping("/new/")
 	public String createQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 								 Model model, Authentication authentication, HttpServletResponse response) {
 
@@ -90,7 +90,7 @@ public class QuestionWebController {
 		return "redirect:..";
 	}
 
-	@GetMapping("/new")
+	@GetMapping("/new/")
 	public String createQuestionView(Model model, Authentication authentication) {
 
 		String userName = authentication.getName();
@@ -99,7 +99,7 @@ public class QuestionWebController {
 		return CREATE_QUESTION_VIEW;
 	}
 
-	@PostMapping("/{questionId}/edit")
+	@PostMapping("/{questionId}/edit/")
 	public String editQuestion(@ModelAttribute("question") @Validated QuestionCreateUpdate question, BindingResult bindingResult,
 							   Model model, @PathVariable Long questionId, Authentication authentication, HttpServletResponse response) {
 
@@ -123,14 +123,14 @@ public class QuestionWebController {
 		return "redirect:../..";
 	}
 
-	@GetMapping("/{questionId}/edit")
+	@GetMapping("/{questionId}/edit/")
 	public String editQuestionView(Model model, @PathVariable Long questionId, Authentication authentication,
 								   HttpServletResponse response) {
 
 		return getEditOrRemoveQuestionView(model, questionId, authentication, true, response);
 	}
 
-	@PostMapping("/{questionId}/delete")
+	@PostMapping("/{questionId}/delete/")
 	public String removeQuestion(@PathVariable Long questionId, Authentication authentication, Model model,
 								 HttpServletResponse response) {
 
@@ -146,14 +146,14 @@ public class QuestionWebController {
 		return "redirect:../..";
 	}
 
-	@GetMapping("/{questionId}/delete")
+	@GetMapping("/{questionId}/delete/")
 	public String removeQuestionView(Model model, @PathVariable Long questionId, Authentication authentication,
 									 HttpServletResponse response) {
 
 		return getEditOrRemoveQuestionView(model, questionId, authentication, false, response);
 	}
 
-	@GetMapping("/file-export")
+	@GetMapping("/file-export/")
 	public ResponseEntity<ByteArrayResource> downloadFile(@RequestParam FileType fileType,
 														  @RequestParam(required = false) String keyword,
 														  @RequestParam(required = false) SortField sortField,

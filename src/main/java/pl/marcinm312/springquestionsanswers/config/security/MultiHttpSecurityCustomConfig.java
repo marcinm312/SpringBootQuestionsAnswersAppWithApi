@@ -1,6 +1,7 @@
 package pl.marcinm312.springquestionsanswers.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -48,12 +49,18 @@ public class MultiHttpSecurityCustomConfig {
 		@Bean
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
-			http.antMatcher("/api/**")
-					.authorizeRequests().antMatchers(
-							"/api/login", "/api/registration", "/api/token"
-					).permitAll()
-					.antMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
+			http.securityMatcher("/api/**")
+					.authorizeHttpRequests()
+
+					.shouldFilterAllDispatcherTypes(true)
+
+					.requestMatchers(
+							"/api/login", "/api/registration", "/api/token")
+					.permitAll()
+
+					.requestMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated()
+
 					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and().addFilter(authenticationFilter())
 					.addFilter(new JwtAuthorizationFilter(authenticationManager(authenticationConfiguration), userDetailsService, environment))
@@ -85,20 +92,34 @@ public class MultiHttpSecurityCustomConfig {
 		@Bean
 		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 
-			http.antMatcher("/**")
-					.authorizeRequests().antMatchers(
+			http.securityMatcher("/**")
+					.authorizeHttpRequests()
+
+					.shouldFilterAllDispatcherTypes(true)
+
+					.requestMatchers(
 							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-							"/css/style.css", "/css/signin.css", "/favicon.ico",
-							"/js/clearPasswordsFieldsInRegistrationForm.js")
+							"/favicon.ico",
+							//CSS
+							"/css/style.css", "/css/signin.css",
+							//JS
+							"/js/clearPasswordsFieldsInRegistrationForm.js",
+							//SWAGGER
+							"/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
+							"/swagger-resources/**","/configuration/**","/v3/api-docs/**")
 					.permitAll()
+					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
-					.antMatchers("/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
-							"/swagger-resources/**","/configuration/**","/v3/api-docs/**").permitAll()
+					.requestMatchers(
+							"/app/**",
+							"/js/clearChangePasswordForm.js")
+					.authenticated()
+					.anyRequest().denyAll()
 
-					.anyRequest().authenticated()
-					.and().formLogin().loginPage("/loginPage").loginProcessingUrl("/authenticate").permitAll()
+					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
 					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage").sessionRegistry(sessionRegistry());
+					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry());
+
 			return http.build();
 		}
 

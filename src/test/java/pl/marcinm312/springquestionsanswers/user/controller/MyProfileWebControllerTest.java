@@ -98,9 +98,9 @@ class MyProfileWebControllerTest {
 	@Test
 	void myProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile"))
+						get("/app/myProfile/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -109,7 +109,7 @@ class MyProfileWebControllerTest {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
-						get("/app/myProfile")
+						get("/app/myProfile/")
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("myProfile"))
@@ -132,9 +132,9 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/update"))
+						get("/app/myProfile/update/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -143,7 +143,7 @@ class MyProfileWebControllerTest {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
-						get("/app/myProfile/update")
+						get("/app/myProfile/update/")
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("updateMyProfile"))
@@ -163,12 +163,12 @@ class MyProfileWebControllerTest {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -181,7 +181,7 @@ class MyProfileWebControllerTest {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.param("username", userToRequest.getUsername())
 								.param("email", userToRequest.getEmail()))
@@ -197,7 +197,7 @@ class MyProfileWebControllerTest {
 		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf().useInvalidToken())
 								.param("username", userToRequest.getUsername())
@@ -222,7 +222,7 @@ class MyProfileWebControllerTest {
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
 		mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -251,7 +251,7 @@ class MyProfileWebControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 
 		mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -274,7 +274,7 @@ class MyProfileWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -305,7 +305,7 @@ class MyProfileWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -337,7 +337,7 @@ class MyProfileWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -368,7 +368,7 @@ class MyProfileWebControllerTest {
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
 		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update")
+						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("username", userToRequest.getUsername())
@@ -397,16 +397,16 @@ class MyProfileWebControllerTest {
 	@Test
 	void updateMyPasswordView_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/updatePassword"))
+						get("/app/myProfile/updatePassword/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
 	@Test
 	void updateMyPasswordView_loggedCommonUser_success() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/updatePassword")
+						get("/app/myProfile/updatePassword/")
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("updateMyPassword"))
@@ -420,13 +420,13 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -439,7 +439,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.param("currentPassword", userToRequest.getCurrentPassword())
 								.param("password", userToRequest.getPassword())
@@ -456,7 +456,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf().useInvalidToken())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -476,7 +476,7 @@ class MyProfileWebControllerTest {
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -500,7 +500,7 @@ class MyProfileWebControllerTest {
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user3").password(" pass "))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -522,7 +522,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -546,7 +546,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -570,7 +570,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -594,7 +594,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -619,7 +619,7 @@ class MyProfileWebControllerTest {
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
 
 		mockMvc.perform(
-						post("/app/myProfile/updatePassword")
+						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
@@ -644,9 +644,9 @@ class MyProfileWebControllerTest {
 	@Test
 	void expireOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/expireOtherSessions"))
+						get("/app/myProfile/expireOtherSessions/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -660,7 +660,7 @@ class MyProfileWebControllerTest {
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
 		mockMvc.perform(
-						get("/app/myProfile/expireOtherSessions")
+						get("/app/myProfile/expireOtherSessions/")
 								.with(user("user").password("password")))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(view().name("redirect:.."))
@@ -675,9 +675,9 @@ class MyProfileWebControllerTest {
 	@Test
 	void deleteMyProfileConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						get("/app/myProfile/delete"))
+						get("/app/myProfile/delete/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -686,7 +686,7 @@ class MyProfileWebControllerTest {
 		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
-						get("/app/myProfile/delete")
+						get("/app/myProfile/delete/")
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("deleteMyProfile"))
@@ -710,10 +710,10 @@ class MyProfileWebControllerTest {
 	@Test
 	void deleteMyProfile_withAnonymousUser_redirectToLoginPage() throws Exception {
 		mockMvc.perform(
-						post("/app/myProfile/delete")
+						post("/app/myProfile/delete/")
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage"))
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never())
@@ -725,7 +725,7 @@ class MyProfileWebControllerTest {
 	@Test
 	void deleteMyProfile_withoutCsrfToken_forbidden() throws Exception {
 		mockMvc.perform(
-						post("/app/myProfile/delete")
+						post("/app/myProfile/delete/")
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
 
@@ -738,7 +738,7 @@ class MyProfileWebControllerTest {
 	@Test
 	void deleteMyProfile_withCsrfInvalidToken_forbidden() throws Exception {
 		mockMvc.perform(
-						post("/app/myProfile/delete")
+						post("/app/myProfile/delete/")
 								.with(csrf().useInvalidToken())
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
@@ -752,7 +752,7 @@ class MyProfileWebControllerTest {
 	@Test
 	void deleteMyProfile_simpleCase_success() throws Exception {
 		mockMvc.perform(
-						post("/app/myProfile/delete")
+						post("/app/myProfile/delete/")
 								.with(user("user").password("password"))
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
