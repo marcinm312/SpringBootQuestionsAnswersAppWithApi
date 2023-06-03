@@ -1,10 +1,10 @@
 package pl.marcinm312.springquestionsanswers.shared.model;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public interface CommonEntity {
 
 	Long getId();
-	Date getCreatedAt();
-	Date getUpdatedAt();
+	LocalDateTime getCreatedAt();
+	LocalDateTime getUpdatedAt();
 }

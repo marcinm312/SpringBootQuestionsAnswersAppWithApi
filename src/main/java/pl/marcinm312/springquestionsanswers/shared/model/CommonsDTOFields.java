@@ -6,9 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @NoArgsConstructor
@@ -18,13 +17,13 @@ public class CommonsDTOFields {
 	private Long id;
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Date createdAt;
+	private LocalDateTime createdAt;
 
 	@JsonInclude(JsonInclude.Include.NON_NULL)
-	private Date updatedAt;
+	private LocalDateTime updatedAt;
 
 	@JsonIgnore
-	private final Format dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 	@JsonIgnore
 	public String getCreatedAtAsString() {

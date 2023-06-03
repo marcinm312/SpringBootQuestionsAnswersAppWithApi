@@ -26,8 +26,8 @@ import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -132,7 +132,7 @@ public class QuestionManager {
 	public ResponseEntity<ByteArrayResource> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
 
 		List<QuestionGet> questionsList = searchPaginatedQuestions(filter).itemsList();
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String fileId = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS").format(LocalDateTime.now());
 		String fileName = "Pytania_" + fileId;
 
 		byte[] bytes = null;

@@ -23,7 +23,8 @@ import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.Date;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -60,7 +61,7 @@ public class UserManager {
 	@Transactional
 	public UserGet addUser(UserCreate userRequest) {
 
-		Date currentDate = new Date();
+		LocalDateTime currentDate = LocalDateTime.now();
 		UserEntity user = UserEntity.builder()
 				.username(userRequest.getUsername())
 				.password(passwordEncoder.encode(userRequest.getPassword()))
@@ -100,7 +101,7 @@ public class UserManager {
 	public UserGet updateUserPassword(UserPasswordUpdate userRequest, Authentication authentication) {
 
 		log.info("Updating user password");
-		Date currentDate = new Date();
+		LocalDateTime currentDate = LocalDateTime.now();
 		UserEntity loggedUser = getUserFromDB(authentication);
 		log.info("Old user = {}", loggedUser);
 		loggedUser.setPassword(passwordEncoder.encode(userRequest.getPassword()));

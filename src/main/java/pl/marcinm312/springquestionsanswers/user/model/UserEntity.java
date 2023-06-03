@@ -10,6 +10,8 @@ import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntity;
 
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 import java.util.*;
 
 @NoArgsConstructor
@@ -38,8 +40,8 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 
 	private String email;
 
-	private Date timeOfSessionExpiration;
-	private Date changePasswordDate;
+	private LocalDateTime timeOfSessionExpiration;
+	private LocalDateTime changePasswordDate;
 
 
 	@Override
@@ -62,8 +64,8 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 		return true;
 	}
 
-	public Date getDateToCompareInJwt() {
-		List<Date> dates = new ArrayList<>();
+	public LocalDateTime getDateToCompareInJwt() {
+		List<LocalDateTime> dates = new ArrayList<>();
 		dates.add(getTimeOfSessionExpiration());
 		dates.add(getChangePasswordDate());
 		return Collections.max(dates);

@@ -17,7 +17,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Date;
+import java.time.Instant;
+import java.time.ZoneId;
 
 @Slf4j
 public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
@@ -56,13 +57,13 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		String secret = environment.getProperty("jwt.secret");
 		if (secret != null && token != null && token.startsWith(TOKEN_PREFIX)) {
 			String userId = null;
-			Date issuedAt = null;
+			Instant issuedAt = null;
 			try {
 				DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secret.getBytes()))
 						.build()
 						.verify(token.replace(TOKEN_PREFIX, ""));
 				userId = decodedJWT.getSubject();
-				issuedAt = decodedJWT.getIssuedAt();
+				issuedAt = decodedJWT.getIssuedAtAsInstant();
 			} catch (Exception exc) {
 				log.error("Error while decoding JWT: {}", exc.getMessage());
 			}
@@ -74,7 +75,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 		return null;
 	}
 
-	private UsernamePasswordAuthenticationToken getAndVerifyUserAndReturnAuthenticationToken(String userId, Date issuedAt) {
+	private UsernamePasswordAuthenticationToken getAndVerifyUserAndReturnAuthenticationToken(String userId, Instant issuedAt) {
 
 		UserEntity user;
 		try {
@@ -84,7 +85,7 @@ public class JwtAuthorizationFilter extends BasicAuthenticationFilter {
 			log.error(errorMessage, exc);
 			return null;
 		}
-		if (issuedAt.after(user.getDateToCompareInJwt())) {
+		if (issuedAt.isAfter(user.getDateToCompareInJwt().atZone(ZoneId.systemDefault()).toInstant())) {
 			return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 		}
 		log.error("The token has expired due to logging out of the user or changing the password");
