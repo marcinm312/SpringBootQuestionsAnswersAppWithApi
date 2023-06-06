@@ -9,8 +9,8 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 
-import java.util.Calendar;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.Month;
 
 public class UserDataProvider {
 
@@ -23,10 +23,10 @@ public class UserDataProvider {
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
 				.email("admin@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
 	}
 
@@ -39,10 +39,10 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(true)
 				.email("test@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
 	}
 
@@ -55,10 +55,10 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(true)
 				.email("test2@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
 	}
 
@@ -71,10 +71,10 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(false)
 				.email("test@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
 	}
 
@@ -87,10 +87,10 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(false)
 				.email("test@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
 	}
 
@@ -103,16 +103,15 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(true)
 				.email("test3@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 25, 30))
-				.updatedAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
-				.changePasswordDate(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
-				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30))
 				.build();
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedAndChangedPassword() {
-		long currentTime = System.currentTimeMillis();
-		Date futureDate = new Date(currentTime + 10 * 60000);
+		LocalDateTime futureDate = LocalDateTime.now().plusMinutes(10);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
 		return UserEntity.builder()
@@ -122,7 +121,7 @@ public class UserDataProvider {
 				.role(Role.ROLE_USER)
 				.enabled(true)
 				.email("test4@abc.pl")
-				.createdAt(DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30))
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(futureDate)
 				.changePasswordDate(futureDate)
 				.timeOfSessionExpiration(futureDate)
