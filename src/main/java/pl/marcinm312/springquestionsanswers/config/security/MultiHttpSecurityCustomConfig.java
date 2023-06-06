@@ -12,6 +12,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -50,22 +51,20 @@ public class MultiHttpSecurityCustomConfig {
 		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/api/**")
-					.authorizeHttpRequests()
-
-					.shouldFilterAllDispatcherTypes(true)
+					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
 							"/api/login", "/api/registration", "/api/token")
 					.permitAll()
 
 					.requestMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
-					.anyRequest().authenticated()
+					.anyRequest().authenticated())
 
-					.and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-					.and().addFilter(authenticationFilter())
+					.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.addFilter(authenticationFilter())
 					.addFilter(new JwtAuthorizationFilter(authenticationManager(authenticationConfiguration), userDetailsService, environment))
-					.exceptionHandling().authenticationEntryPoint(new CustomAuthenticationEntryPoint())
-					.and().csrf().disable();
+					.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+					.csrf(AbstractHttpConfigurer::disable);
 			return http.build();
 		}
 
@@ -93,9 +92,7 @@ public class MultiHttpSecurityCustomConfig {
 		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/**")
-					.authorizeHttpRequests()
-
-					.shouldFilterAllDispatcherTypes(true)
+					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
 							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
@@ -114,11 +111,12 @@ public class MultiHttpSecurityCustomConfig {
 							"/app/**",
 							"/js/clearChangePasswordForm.js")
 					.authenticated()
-					.anyRequest().denyAll()
+					.anyRequest().denyAll())
 
-					.and().formLogin().loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll()
-					.and().logout().permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-					.and().sessionManagement().maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry());
+					.formLogin(formLogin -> formLogin.loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll())
+					.logout(logout -> logout.permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
+
+					.sessionManagement(sessionManagement -> sessionManagement.maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry()));
 
 			return http.build();
 		}
