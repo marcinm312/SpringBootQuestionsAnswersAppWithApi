@@ -11,7 +11,7 @@ import pl.marcinm312.springquestionsanswers.shared.enums.Role;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +30,7 @@ public class FirstUserCreator {
 		if (userRepo.findByUsername(login).isEmpty()) {
 			String password = environment.getProperty("admin.default.password");
 			String email = environment.getProperty("admin.default.email");
-			Date currentDate = new Date();
+			LocalDateTime currentDate = LocalDateTime.now();
 
 			UserEntity user = UserEntity.builder()
 					.username(login)

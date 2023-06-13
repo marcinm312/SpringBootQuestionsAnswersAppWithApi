@@ -30,8 +30,8 @@ import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -146,7 +146,7 @@ public class AnswerManager {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
 		List<AnswerGet> answersList = searchPaginatedAnswers(questionId, filter).itemsList();
-		String fileId = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss-SSS").format(new Date());
+		String fileId = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS").format(LocalDateTime.now());
 		String fileName = "Odpowiedzi_" + fileId;
 
 		byte[] bytes = null;

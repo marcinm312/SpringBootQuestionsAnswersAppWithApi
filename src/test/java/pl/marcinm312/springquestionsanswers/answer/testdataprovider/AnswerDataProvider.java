@@ -8,9 +8,9 @@ import pl.marcinm312.springquestionsanswers.shared.testdataprovider.DateProvider
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class AnswerDataProvider {
@@ -20,14 +20,14 @@ public class AnswerDataProvider {
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
 		answers.add(buildAnswerEntity(1002L, "answer3", question, user,
-				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.MARCH, 10, 10, 30, 30)));
+				DateProvider.prepareDate(2020, Month.MARCH, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.MARCH, 10, 10, 30, 30)));
 		answers.add(buildAnswerEntity(1001L, "answer2", question, user,
-				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 20, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.FEBRUARY, 21, 10, 30, 30)));
+				DateProvider.prepareDate(2020, Month.FEBRUARY, 20, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.FEBRUARY, 21, 10, 30, 30)));
 		answers.add(buildAnswerEntity(1000L, "answer1", question, user,
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
+				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30)));
 		return answers;
 	}
 
@@ -36,8 +36,8 @@ public class AnswerDataProvider {
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
 		answers.add(buildAnswerEntity(1000L, "answer1", question, user,
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30)));
+				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30)));
 		return answers;
 	}
 
@@ -45,11 +45,11 @@ public class AnswerDataProvider {
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		return buildAnswerEntity(1000L, "answer1", question, user,
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 10, 10, 25, 30),
-				DateProvider.prepareDate(2020, Calendar.JANUARY, 15, 10, 30, 30));
+				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30));
 	}
 
-	private static AnswerEntity buildAnswerEntity(Long id, String text, QuestionEntity question, UserEntity user, Date createdAt, Date updatedAt) {
+	private static AnswerEntity buildAnswerEntity(Long id, String text, QuestionEntity question, UserEntity user, LocalDateTime createdAt, LocalDateTime updatedAt) {
 		return AnswerEntity.builder()
 				.id(id)
 				.text(text)

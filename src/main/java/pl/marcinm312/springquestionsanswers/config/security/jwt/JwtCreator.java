@@ -5,18 +5,22 @@ import com.auth0.jwt.algorithms.Algorithm;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtCreator {
 
-	public static String createJWT(String subject, long expirationTime, byte[] secretBytes) {
+	public static String createJWT(String subject, long minutesToExpire, byte[] secretBytes) {
 
-		long currentTime = System.currentTimeMillis();
+		Instant currentDate = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
+		Instant expirationDate = LocalDateTime.now().plusMinutes(minutesToExpire).atZone(ZoneId.systemDefault()).toInstant();
+
 		return JWT.create()
 				.withSubject(subject)
-				.withExpiresAt(new Date(currentTime + expirationTime))
-				.withIssuedAt(new Date(currentTime))
+				.withExpiresAt(expirationDate)
+				.withIssuedAt(currentDate)
 				.sign(Algorithm.HMAC256(secretBytes));
 	}
 }

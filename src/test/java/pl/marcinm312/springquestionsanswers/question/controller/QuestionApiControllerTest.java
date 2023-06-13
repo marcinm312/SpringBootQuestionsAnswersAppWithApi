@@ -3,6 +3,7 @@ package pl.marcinm312.springquestionsanswers.question.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Node;
@@ -93,7 +94,7 @@ class QuestionApiControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private final ObjectMapper mapper = new ObjectMapper();
+	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 	private final XmlMapper xmlMapper = new XmlMapper();
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -36,7 +36,7 @@ public class SessionUtils {
 			}
 		}
 		if (!isDeletingUser) {
-			user.setTimeOfSessionExpiration(new Date());
+			user.setTimeOfSessionExpiration(LocalDateTime.now());
 			log.info("User sessions expired");
 		}
 		return user;

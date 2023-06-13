@@ -23,9 +23,9 @@ public class RestAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuc
 		String secret = environment.getProperty("jwt.secret");
 		String expirationTimeString = environment.getProperty("jwt.expirationTime");
 		if (secret != null && expirationTimeString != null) {
-			long expirationTime = Long.parseLong(expirationTimeString) * 60000;
+			long minutesToExpire = Long.parseLong(expirationTimeString);
 			UserEntity principal = (UserEntity) authentication.getPrincipal();
-			String token = JwtCreator.createJWT(principal.getId().toString(), expirationTime, secret.getBytes());
+			String token = JwtCreator.createJWT(principal.getId().toString(), minutesToExpire, secret.getBytes());
 			response.addHeader("Authorization", "Bearer " + token);
 		}
 	}
