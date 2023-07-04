@@ -22,8 +22,8 @@ import jakarta.validation.constraints.NotBlank;
 public class ActivationTokenEntity extends AuditModel implements CommonEntityWithUser {
 
 	@Id
-	@GeneratedValue(generator = "token_id_generator")
-	@SequenceGenerator(name = "token_id_generator", sequenceName = "activation_token_sequence", initialValue = 1000)
+	@GeneratedValue(generator = "activation_token_generator")
+	@SequenceGenerator(name = "activation_token_generator", sequenceName = "activation_token_sequence", initialValue = 1000)
 	private Long id;
 
 	@NotBlank
