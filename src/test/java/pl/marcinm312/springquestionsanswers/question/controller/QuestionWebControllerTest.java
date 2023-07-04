@@ -41,7 +41,7 @@ import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
-import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
@@ -74,7 +74,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
 		})
-@MockBeans({@MockBean(TokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
+@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailService.class), @MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class),
 		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})

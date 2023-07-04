@@ -18,12 +18,12 @@ import jakarta.validation.constraints.NotBlank;
 @Setter
 @SuperBuilder
 @Entity
-@Table(name = "tokens")
-public class TokenEntity extends AuditModel implements CommonEntityWithUser {
+@Table(name = "activation_tokens")
+public class ActivationTokenEntity extends AuditModel implements CommonEntityWithUser {
 
 	@Id
 	@GeneratedValue(generator = "token_id_generator")
-	@SequenceGenerator(name = "token_id_generator", sequenceName = "token_id_sequence", initialValue = 1000)
+	@SequenceGenerator(name = "token_id_generator", sequenceName = "activation_token_sequence", initialValue = 1000)
 	private Long id;
 
 	@NotBlank
@@ -32,13 +32,13 @@ public class TokenEntity extends AuditModel implements CommonEntityWithUser {
 	@OneToOne
 	private UserEntity user;
 
-	public TokenEntity(String value, UserEntity user) {
+	public ActivationTokenEntity(String value, UserEntity user) {
 		this.value = value;
 		this.user = user;
 	}
 
 	@Override
 	public String toString() {
-		return "TokenEntity [id=" + id + ", value=" + value + ", user=" + user + "]";
+		return "ActivationTokenEntity [id=" + id + ", value=" + value + ", user=" + user + "]";
 	}
 }

@@ -22,10 +22,10 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springquestionsanswers.user.model.TokenEntity;
+import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
-import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
@@ -70,7 +70,7 @@ class UserRegistrationWebControllerTest {
 	private MailService mailService;
 
 	@MockBean
-	private TokenRepo tokenRepo;
+	private ActivationTokenRepo activationTokenRepo;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -82,7 +82,7 @@ class UserRegistrationWebControllerTest {
 	@BeforeEach
 	void setup() {
 		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
-		doNothing().when(tokenRepo).delete(isA(TokenEntity.class));
+		doNothing().when(activationTokenRepo).delete(isA(ActivationTokenEntity.class));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -114,7 +114,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -133,7 +133,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -147,7 +147,7 @@ class UserRegistrationWebControllerTest {
 				.email(userToRequest.getEmail())
 				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
+		given(activationTokenRepo.save(any(ActivationTokenEntity.class))).willReturn(new ActivationTokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
@@ -164,7 +164,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
+		verify(activationTokenRepo, times(1)).save(any(ActivationTokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -178,7 +178,7 @@ class UserRegistrationWebControllerTest {
 				.email(userToRequest.getEmail())
 				.build();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(tokenRepo.save(any(TokenEntity.class))).willReturn(new TokenEntity("123456789", user));
+		given(activationTokenRepo.save(any(ActivationTokenEntity.class))).willReturn(new ActivationTokenEntity("123456789", user));
 		given(userRepo.save(any(UserEntity.class))).willReturn(user);
 
 		mockMvc.perform(
@@ -195,7 +195,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(tokenRepo, times(1)).save(any(TokenEntity.class));
+		verify(activationTokenRepo, times(1)).save(any(ActivationTokenEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -228,7 +228,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -261,7 +261,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -295,7 +295,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -331,7 +331,7 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
@@ -367,16 +367,16 @@ class UserRegistrationWebControllerTest {
 		Assertions.assertNull(userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(tokenRepo, never()).save(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	@Test
 	void activateUser_simpleCase_userActivated() throws Exception {
-		TokenEntity foundToken = TokenDataProvider.prepareExampleToken();
+		ActivationTokenEntity foundToken = TokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
-		given(tokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
+		given(activationTokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
 		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
 
 		mockMvc.perform(
@@ -385,14 +385,14 @@ class UserRegistrationWebControllerTest {
 				.andExpect(view().name("userActivation"))
 				.andExpect(unauthenticated());
 
-		verify(tokenRepo, times(1)).delete(foundToken);
+		verify(activationTokenRepo, times(1)).delete(foundToken);
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 	}
 
 	@Test
 	void activateUser_tokenNotFound_userNotActivated() throws Exception {
 		String exampleNotExistingTokenValue = "000-000-000";
-		given(tokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
+		given(activationTokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
 
 		mockMvc.perform(
 						get("/token/?value=" + exampleNotExistingTokenValue))
@@ -400,7 +400,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(view().name("tokenNotFound"))
 				.andExpect(unauthenticated());
 
-		verify(tokenRepo, never()).delete(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).delete(any(ActivationTokenEntity.class));
 		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 
@@ -410,7 +410,7 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isBadRequest())
 				.andExpect(unauthenticated());
 
-		verify(tokenRepo, never()).delete(any(TokenEntity.class));
+		verify(activationTokenRepo, never()).delete(any(ActivationTokenEntity.class));
 		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 }

@@ -12,14 +12,14 @@ import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.shared.enums.Role;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
-import pl.marcinm312.springquestionsanswers.user.model.TokenEntity;
+import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserMapper;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
-import pl.marcinm312.springquestionsanswers.user.repository.TokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ public class UserManager {
 
 	private final UserRepo userRepo;
 	private final PasswordEncoder passwordEncoder;
-	private final TokenRepo tokenRepo;
+	private final ActivationTokenRepo activationTokenRepo;
 	private final MailService mailService;
 	private final SessionUtils sessionUtils;
 
@@ -128,16 +128,16 @@ public class UserManager {
 	public UserGet activateUser(String tokenValue) {
 
 		log.info("Token value = {}", tokenValue);
-		Optional<TokenEntity> optionalToken = tokenRepo.findByValue(tokenValue);
+		Optional<ActivationTokenEntity> optionalToken = activationTokenRepo.findByValue(tokenValue);
 		if (optionalToken.isEmpty()) {
 			throw new TokenNotFoundException();
 		}
-		TokenEntity token = optionalToken.get();
+		ActivationTokenEntity token = optionalToken.get();
 		UserEntity user = token.getUser();
 		log.info("Activating user = {}", user);
 		user.setEnabled(true);
 		UserEntity savedUser = userRepo.save(user);
-		tokenRepo.delete(token);
+		activationTokenRepo.delete(token);
 		log.info("User activated");
 		return UserMapper.convertUserToUserGet(savedUser, true);
 	}
@@ -156,8 +156,8 @@ public class UserManager {
 	private void sendToken(UserEntity user, String activationUrl) {
 
 		String tokenValue = UUID.randomUUID().toString();
-		TokenEntity token = new TokenEntity(tokenValue, user);
-		tokenRepo.save(token);
+		ActivationTokenEntity token = new ActivationTokenEntity(tokenValue, user);
+		activationTokenRepo.save(token);
 		String emailContent = generateEmailContent(user, tokenValue, activationUrl);
 		mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
