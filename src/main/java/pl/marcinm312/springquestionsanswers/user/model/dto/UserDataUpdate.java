@@ -3,12 +3,14 @@ package pl.marcinm312.springquestionsanswers.user.model.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -23,6 +25,13 @@ public class UserDataUpdate {
 	@Email(message = "Niepoprawny adres email!")
 	private String email;
 
+	private String confirmUrl;
+
+
+	public UserDataUpdate(String username, String email) {
+		this.username = username;
+		this.email = email;
+	}
 
 	@Override
 	public String toString() {
