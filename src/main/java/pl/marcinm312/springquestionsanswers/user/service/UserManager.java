@@ -13,6 +13,7 @@ import pl.marcinm312.springquestionsanswers.shared.enums.Role;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
+import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserMapper;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
@@ -20,6 +21,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,9 +38,15 @@ public class UserManager {
 	private final UserRepo userRepo;
 	private final PasswordEncoder passwordEncoder;
 	private final ActivationTokenRepo activationTokenRepo;
+	private final MailChangeTokenRepo mailChangeTokenRepo;
 	private final MailService mailService;
 	private final SessionUtils sessionUtils;
 
+
+	enum MailType {
+		ACTIVATION,
+		MAIL_CHANGE
+	}
 
 	public UserEntity getUserFromDB(Authentication authentication) {
 
@@ -74,7 +82,7 @@ public class UserManager {
 
 		log.info("Creating user = {}", user);
 		UserEntity savedUser = userRepo.save(user);
-		sendToken(user, userRequest.getActivationUrl());
+		sendActivationToken(user, userRequest.getActivationUrl());
 		log.info("User created");
 		return UserMapper.convertUserToUserGet(savedUser, true);
 	}
@@ -85,12 +93,15 @@ public class UserManager {
 		log.info("Updating user");
 		UserEntity loggedUser = getUserFromDB(authentication);
 		log.info("Old user = {}", loggedUser);
-		String oldUserName = loggedUser.getUsername();
-		if (!oldUserName.equals(userRequest.getUsername())) {
+		if (!loggedUser.getUsername().equals(userRequest.getUsername())) {
+			log.info("Login change");
+			loggedUser.setUsername(userRequest.getUsername());
 			loggedUser = sessionUtils.expireUserSessions(loggedUser, true, false);
 		}
-		loggedUser.setUsername(userRequest.getUsername());
-		loggedUser.setEmail(userRequest.getEmail());
+		if (!loggedUser.getEmail().equals(userRequest.getEmail())) {
+			log.info("Mail change");
+			sendMailChangeToken(loggedUser, userRequest.getConfirmUrl(), userRequest.getEmail());
+		}
 		log.info("New user = {}", loggedUser);
 		UserEntity savedUser = userRepo.save(loggedUser);
 		log.info("User updated");
@@ -153,26 +164,26 @@ public class UserManager {
 		return UserMapper.convertUserToUserGet(savedUser, true);
 	}
 
-	private void sendToken(UserEntity user, String activationUrl) {
+	private void sendActivationToken(UserEntity user, String activationUrl) {
 
 		String tokenValue = UUID.randomUUID().toString();
 		ActivationTokenEntity token = new ActivationTokenEntity(tokenValue, user);
 		activationTokenRepo.save(token);
-		String emailContent = generateEmailContent(user, tokenValue, activationUrl);
+		String emailContent = generateActivationEmailContent(user, tokenValue, activationUrl);
 		mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
 
-	private String generateEmailContent(UserEntity user, String tokenValue, String activationUrl) {
+	private String generateActivationEmailContent(UserEntity user, String tokenValue, String activationUrl) {
 
 		String mailTemplate =
 				"""
 						Witaj %s,<br>
 						<br>Potwierdź swój adres email, klikając w poniższy link:
 						<br><a href="%s">Aktywuj konto</a>""";
-		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl) + tokenValue);
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl, MailType.ACTIVATION) + tokenValue);
 	}
 
-	private String getTokenUrl(String activationUrl) {
+	private String getTokenUrl(String activationUrl, MailType mailType) {
 
 		if (activationUrl != null && activationUrl.startsWith("http")) {
 			return activationUrl.trim();
@@ -180,6 +191,31 @@ public class UserManager {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		String requestURL = request.getRequestURL().toString();
 		String servletPath = request.getServletPath();
-		return requestURL.replace(servletPath, "") + "/token/?value=";
+		String tokenUrl;
+		switch(mailType) {
+			case ACTIVATION -> tokenUrl = requestURL.replace(servletPath, "") + "/token/?value=";
+			case MAIL_CHANGE -> tokenUrl = requestURL.replace(servletPath, "") + "/app/myProfile/update/confirm/?value=";
+			default -> tokenUrl = "";
+		}
+		return tokenUrl;
+	}
+
+	private void sendMailChangeToken(UserEntity user, String activationUrl, String newEmail) {
+
+		String tokenValue = UUID.randomUUID().toString();
+		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, newEmail, user);
+		mailChangeTokenRepo.save(token);
+		String emailContent = generateMailChangeEmailContent(user, tokenValue, activationUrl);
+		mailService.sendMail(newEmail, "Potwierdź swój nowy adres email", emailContent, true);
+	}
+
+	private String generateMailChangeEmailContent(UserEntity user, String tokenValue, String confirmUrl) {
+
+		String mailTemplate =
+				"""
+						Witaj %s,<br>
+						<br>Potwierdź swój nowy adres email, klikając w poniższy link:
+						<br><a href="%s">Potwierdzam zmianę adresu email</a>""";
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl(confirmUrl, MailType.MAIL_CHANGE) + tokenValue);
 	}
 }
