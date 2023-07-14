@@ -1,16 +1,11 @@
 package pl.marcinm312.springquestionsanswers.user.model;
 
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntityWithUser;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
 @NoArgsConstructor
@@ -29,7 +24,8 @@ public class ActivationTokenEntity extends AuditModel implements CommonEntityWit
 	@NotBlank
 	private String value;
 
-	@OneToOne
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	private UserEntity user;
 
 	public ActivationTokenEntity(String value, UserEntity user) {
