@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface MailChangeTokenRepo extends JpaRepository<MailChangeTokenEntity, Long> {
 
-	@Query("SELECT t FROM MailChangeTokenEntity t LEFT JOIN FETCH t.user WHERE t.value = :value")
-	Optional<MailChangeTokenEntity> findByValue(@Param("value") String value);
+	@Query("SELECT t FROM MailChangeTokenEntity t LEFT JOIN FETCH t.user WHERE t.value = :value AND t.user.username = :username")
+	Optional<MailChangeTokenEntity> findByValueAndUsername(@Param("value") String value, @Param("username") String username);
 }
