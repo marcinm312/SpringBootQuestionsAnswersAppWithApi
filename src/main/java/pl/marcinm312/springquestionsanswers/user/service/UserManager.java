@@ -154,6 +154,25 @@ public class UserManager {
 	}
 
 	@Transactional
+	public UserGet confirmMailChange(String tokenValue, Authentication authentication) {
+
+		String userName = authentication.getName();
+		log.info("Token value = {}, userName={}", tokenValue, userName);
+		Optional<MailChangeTokenEntity> optionalToken = mailChangeTokenRepo.findByValueAndUsername(tokenValue, userName);
+		if (optionalToken.isEmpty()) {
+			throw new TokenNotFoundException();
+		}
+		MailChangeTokenEntity token = optionalToken.get();
+		UserEntity user = token.getUser();
+		log.info("Changing mail for user = {}", user);
+		user.setEmail(token.getNewEmail());
+		UserEntity savedUser = userRepo.save(user);
+		mailChangeTokenRepo.deleteByUser(user);
+		log.info("Mail change confirmed");
+		return UserMapper.convertUserToUserGet(savedUser, true);
+	}
+
+	@Transactional
 	public UserGet expireOtherSessions(Authentication authentication) {
 
 		log.info("Expiring sessions for user = {}", authentication.getName());
