@@ -11,6 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.MockBeans;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
@@ -34,6 +35,7 @@ import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
@@ -63,6 +65,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = UserRegistrationApiController.class)
 		})
+@MockBeans({@MockBean(MailChangeTokenRepo.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserCreateValidator.class), @SpyBean(SessionUtils.class),
 		@SpyBean(UserDetailsServiceImpl.class), @SpyBean(PasswordEncoder.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
