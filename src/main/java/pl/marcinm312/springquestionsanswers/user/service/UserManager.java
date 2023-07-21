@@ -12,6 +12,7 @@ import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.shared.enums.Role;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
+import pl.marcinm312.springquestionsanswers.user.exception.UserNotExistsException;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
@@ -53,13 +54,13 @@ public class UserManager {
 		String userName = authentication.getName();
 		log.info("Loading user by authentication name = {}", userName);
 		Optional<UserEntity> optionalUser = userRepo.findByUsername(userName);
-		if (optionalUser.isPresent()) {
-			UserEntity user = optionalUser.get();
-			log.info("Loaded user = {}", user);
-			return user;
+		if (optionalUser.isEmpty()) {
+			log.error("User {} not found!", userName);
+			throw new UserNotExistsException();
 		}
-		log.error("User {} not found!", userName);
-		return null;
+		UserEntity user = optionalUser.get();
+		log.info("Loaded user = {}", user);
+		return user;
 	}
 
 	public UserEntity getUserFromAuthentication(Authentication authentication) {
