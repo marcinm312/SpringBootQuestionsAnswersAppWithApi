@@ -91,8 +91,6 @@ class UserRegistrationApiControllerTest {
 
 	@BeforeEach
 	void setup() {
-		doNothing().when(mailService).sendMail(isA(String.class), isA(String.class), isA(String.class), isA(boolean.class));
-		doNothing().when(activationTokenRepo).delete(isA(ActivationTokenEntity.class));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
