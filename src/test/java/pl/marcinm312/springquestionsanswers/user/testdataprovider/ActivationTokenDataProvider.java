@@ -3,7 +3,7 @@ package pl.marcinm312.springquestionsanswers.user.testdataprovider;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
-public class TokenDataProvider {
+public class ActivationTokenDataProvider {
 
 	public static ActivationTokenEntity prepareExampleToken() {
 		UserEntity user = UserDataProvider.prepareExampleDisabledUserWithEncodedPassword();

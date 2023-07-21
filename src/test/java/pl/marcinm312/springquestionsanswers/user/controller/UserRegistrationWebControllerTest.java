@@ -32,7 +32,7 @@ import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
-import pl.marcinm312.springquestionsanswers.user.testdataprovider.TokenDataProvider;
+import pl.marcinm312.springquestionsanswers.user.testdataprovider.ActivationTokenDataProvider;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.user.validator.UserCreateValidator;
@@ -377,7 +377,7 @@ class UserRegistrationWebControllerTest {
 
 	@Test
 	void activateUser_simpleCase_userActivated() throws Exception {
-		ActivationTokenEntity foundToken = TokenDataProvider.prepareExampleToken();
+		ActivationTokenEntity foundToken = ActivationTokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
 		given(activationTokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
 		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
