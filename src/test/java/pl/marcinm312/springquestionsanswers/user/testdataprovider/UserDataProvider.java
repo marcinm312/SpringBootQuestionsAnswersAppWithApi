@@ -160,12 +160,20 @@ public class UserDataProvider {
 		return new UserCreate("user", " pas ", " pas ", "test@abc.pl");
 	}
 
-	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
+	public static UserDataUpdate prepareGoodUserDataUpdateWithoutChangesToRequest() {
 		return new UserDataUpdate("user", "test@abc.pl");
 	}
 
 	public static UserDataUpdate prepareGoodUserDataUpdateWithLoginChangeToRequest() {
 		return new UserDataUpdate("user3", "test@abc.pl");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateWithEmailChangeToRequest() {
+		return new UserDataUpdate("user", "changed@abc.pl");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest() {
+		return new UserDataUpdate("user3", "changed@abc.pl");
 	}
 
 	public static UserDataUpdate prepareExistingUserDataUpdateToRequest() {

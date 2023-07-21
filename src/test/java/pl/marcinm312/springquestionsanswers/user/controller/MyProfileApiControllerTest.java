@@ -33,6 +33,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
@@ -60,7 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MyProfileApiController.class)
 		})
-@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailService.class)})
+@MockBeans({@MockBean(ActivationTokenRepo.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
@@ -71,6 +72,12 @@ class MyProfileApiControllerTest {
 
 	@MockBean
 	private UserRepo userRepo;
+
+	@MockBean
+	private MailChangeTokenRepo mailChangeTokenRepo;
+
+	@MockBean
+	private MailService mailService;
 
 	@MockBean
 	private SessionUtils sessionUtils;
@@ -159,7 +166,7 @@ class MyProfileApiControllerTest {
 
 	@Test
 	void updateMyProfile_withAnonymousUser_unauthorized() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
+		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest();
 		mockMvc.perform(
 						put("/api/myProfile")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -172,17 +179,18 @@ class MyProfileApiControllerTest {
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
-	@ParameterizedTest(name = "{index} ''{3}''")
+	@ParameterizedTest(name = "{index} ''{4}''")
 	@MethodSource("examplesOfGoodProfileUpdates")
-	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUser,
-										  int numberOfExpireSessionInvocations, String nameOfTestCase) throws Exception {
+	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUserWithTheSameLogin,
+										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations,
+										  String nameOfTestCase) throws Exception {
 
 		UserEntity savedUser = UserEntity.builder()
 				.username(userToRequest.getUsername())
-				.password("password")
-				.email(userToRequest.getEmail())
+				.password(commonUser.getPassword())
+				.email(commonUser.getEmail())
 				.build();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUserWithTheSameLogin);
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
@@ -200,20 +208,26 @@ class MyProfileApiControllerTest {
 
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
 		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
+		Assertions.assertEquals(commonUser.getEmail(), responseUser.getEmail());
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfGoodProfileUpdates() {
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), Optional.empty(), 1,
-						"updateMyProfile_goodUserWithLoginChange_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateToRequest(), Optional.of(existingUser), 0,
-						"updateMyProfile_goodUserWithoutLoginChange_success")
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(),
+						Optional.empty(), 1, 0, "updateMyProfile_goodUserWithLoginChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(),
+						Optional.of(existingUser), 0, 0, "updateMyProfile_goodUserWithoutLoginChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(),
+						Optional.of(existingUser), 0, 1, "updateMyProfile_goodUserWithEmailChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(),
+						Optional.empty(), 1, 1, "updateMyProfile_goodUserWithoutLoginChange_success")
 		);
 	}
 

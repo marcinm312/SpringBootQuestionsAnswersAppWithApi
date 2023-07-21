@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,6 +28,7 @@ import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
@@ -35,6 +39,7 @@ import pl.marcinm312.springquestionsanswers.user.validator.UserDataUpdateValidat
 import pl.marcinm312.springquestionsanswers.user.validator.UserPasswordUpdateValidator;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -57,7 +62,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MyProfileWebController.class)
 		})
-@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailService.class)})
+@MockBeans({@MockBean(ActivationTokenRepo.class)})
 @SpyBeans({@SpyBean(UserManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserDataUpdateValidator.class), @SpyBean(UserPasswordUpdateValidator.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class)})
@@ -68,6 +73,12 @@ class MyProfileWebControllerTest {
 
 	@MockBean
 	private UserRepo userRepo;
+
+	@MockBean
+	private MailChangeTokenRepo mailChangeTokenRepo;
+
+	@MockBean
+	private MailService mailService;
 
 	@MockBean
 	private SessionUtils sessionUtils;
@@ -209,15 +220,18 @@ class MyProfileWebControllerTest {
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
-	@Test
-	void updateMyProfile_goodUserWithLoginChange_success() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
+	@ParameterizedTest(name = "{index} ''{4}''")
+	@MethodSource("examplesOfGoodProfileUpdates")
+	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUserWithTheSameLogin,
+										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations,
+										  String nameOfTestCase) throws Exception {
+
 		UserEntity savedUser = UserEntity.builder()
 				.username(userToRequest.getUsername())
-				.password("password")
-				.email(userToRequest.getEmail())
+				.password(commonUser.getPassword())
+				.email(commonUser.getEmail())
 				.build();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUserWithTheSameLogin);
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
@@ -234,37 +248,24 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(sessionUtils, times(1))
+		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(any(String.class), any(String.class),
+				any(String.class), eq(true));
 	}
 
-	@Test
-	void updateMyProfile_goodUserWithoutLoginChange_success() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateToRequest();
-		UserEntity savedUser = UserEntity.builder()
-				.username(userToRequest.getUsername())
-				.password("password")
-				.email(userToRequest.getEmail())
-				.build();
+	private static Stream<Arguments> examplesOfGoodProfileUpdates() {
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
-		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
-
-		mockMvc.perform(
-						post("/app/myProfile/update/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(".."))
-				.andExpect(view().name("redirect:.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(),
+						Optional.empty(), 1, 0, "updateMyProfile_goodUserWithLoginChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(),
+						Optional.of(existingUser), 0, 0, "updateMyProfile_goodUserWithoutLoginChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(),
+						Optional.of(existingUser), 0, 1, "updateMyProfile_goodUserWithEmailChange_success"),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(),
+						Optional.empty(), 1, 1, "updateMyProfile_goodUserWithoutLoginChange_success")
+		);
 	}
 
 	@Test
