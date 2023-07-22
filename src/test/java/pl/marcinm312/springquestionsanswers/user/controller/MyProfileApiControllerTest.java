@@ -28,6 +28,7 @@ import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticati
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
@@ -37,6 +38,7 @@ import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
+import pl.marcinm312.springquestionsanswers.user.testdataprovider.MailChangeTokenDataProvider;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springquestionsanswers.user.validator.UserDataUpdateValidator;
 import pl.marcinm312.springquestionsanswers.user.validator.UserPasswordUpdateValidator;
@@ -473,6 +475,67 @@ class MyProfileApiControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+	}
+
+	@Test
+	void confirmMailChange_withAnonymousUser_unauthorized() throws Exception {
+
+		String exampleTokenValue = "123456-123-123-1234";
+		mockMvc.perform(
+						put("/api/myProfile/confirmMailChange?value=" + exampleTokenValue))
+				.andExpect(status().isUnauthorized());
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_simpleCase_changeConfirmed() throws Exception {
+
+		MailChangeTokenEntity foundToken = MailChangeTokenDataProvider.prepareExampleToken();
+		String exampleExistingTokenValue = "123456-123-123-1234";
+		given(mailChangeTokenRepo.findByValueAndUsername(exampleExistingTokenValue, "user"))
+				.willReturn(Optional.of(foundToken));
+		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
+
+		String token = prepareToken("user", "password");
+		mockMvc.perform(
+						put("/api/myProfile/confirmMailChange?value=" + exampleExistingTokenValue)
+								.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+		verify(mailChangeTokenRepo, times(1)).deleteByUser(foundToken.getUser());
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_tokenNotFound_changeNotConfirmed() throws Exception {
+
+		String exampleNotExistingTokenValue = "000-000-000";
+		given(mailChangeTokenRepo.findByValueAndUsername(exampleNotExistingTokenValue, "user"))
+				.willReturn(Optional.empty());
+
+		String token = prepareToken("user", "password");
+		mockMvc.perform(
+						put("/api/myProfile/confirmMailChange?value=" + exampleNotExistingTokenValue)
+								.header("Authorization", token))
+				.andExpect(status().isNotFound());
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
+	}
+
+	@Test
+	void activateUser_nullTokenValue_userNotActivated() throws Exception {
+
+		String token = prepareToken("user", "password");
+		mockMvc.perform(put("/api/myProfile/confirmMailChange?value=")
+						.header("Authorization", token))
+				.andExpect(status().isBadRequest());
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 
 	private String prepareToken(String username, String password) throws Exception {

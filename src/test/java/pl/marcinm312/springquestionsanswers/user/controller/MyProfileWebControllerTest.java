@@ -24,6 +24,7 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
@@ -33,6 +34,7 @@ import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
+import pl.marcinm312.springquestionsanswers.user.testdataprovider.MailChangeTokenDataProvider;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.user.validator.UserDataUpdateValidator;
@@ -765,5 +767,72 @@ class MyProfileWebControllerTest {
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
 		verify(userRepo, times(1))
 				.delete(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_withAnonymousUser_redirectToLoginPage() throws Exception {
+
+		String exampleTokenValue = "123456-123-123-1234";
+		mockMvc.perform(
+						get("/app/myProfile/update/confirm/?value=" + exampleTokenValue))
+				.andExpect(status().is3xxRedirection())
+				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(unauthenticated());
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_simpleCase_changeConfirmed() throws Exception {
+
+		MailChangeTokenEntity foundToken = MailChangeTokenDataProvider.prepareExampleToken();
+		String exampleExistingTokenValue = "123456-123-123-1234";
+		given(mailChangeTokenRepo.findByValueAndUsername(exampleExistingTokenValue, "user"))
+				.willReturn(Optional.of(foundToken));
+		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
+
+		mockMvc.perform(
+						get("/app/myProfile/update/confirm/?value=" + exampleExistingTokenValue)
+								.with(user("user").password("password")))
+				.andExpect(status().isOk())
+				.andExpect(view().name("confirmMailChange"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(model().attribute("newEmail", foundToken.getNewEmail()))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailChangeTokenRepo, times(1)).deleteByUser(foundToken.getUser());
+		verify(userRepo, times(1)).save(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_tokenNotFound_changeNotConfirmed() throws Exception {
+
+		String exampleNotExistingTokenValue = "000-000-000";
+		given(mailChangeTokenRepo.findByValueAndUsername(exampleNotExistingTokenValue, "user"))
+				.willReturn(Optional.empty());
+
+		mockMvc.perform(
+						get("/app/myProfile/update/confirm/?value=" + exampleNotExistingTokenValue)
+								.with(user("user").password("password")))
+				.andExpect(status().isNotFound())
+				.andExpect(view().name("confirmTokenNotFound"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
+	}
+
+	@Test
+	void confirmMailChange_nullTokenValue_changeNotConfirmed() throws Exception {
+
+		mockMvc.perform(get("/app/myProfile/update/confirm/?value=")
+						.with(user("user").password("password")))
+				.andExpect(status().isBadRequest())
+				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+
+		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
+		verify(userRepo, never()).save(any(UserEntity.class));
 	}
 }
