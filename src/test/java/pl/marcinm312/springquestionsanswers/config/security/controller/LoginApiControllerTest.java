@@ -60,10 +60,14 @@ class LoginApiControllerTest {
 
 	@BeforeEach
 	void setup() {
-		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
-		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
+
+		given(userRepo.findByUsername("user"))
+				.willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
+		given(userRepo.findByUsername("admin"))
+				.willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
-		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user3"))
+				.willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -72,10 +76,9 @@ class LoginApiControllerTest {
 				.build();
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfAuthorized")
-	void login_administratorWithGoodCredentials_success(String username, String password, String nameOfTestCase)
-			throws Exception {
+	void login_administratorWithGoodCredentials_success(String username, String password) throws Exception {
 
 		String token = mockMvc.perform(post("/api/login")
 						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
@@ -88,10 +91,10 @@ class LoginApiControllerTest {
 		Assertions.assertTrue(token.startsWith("Bearer "));
 	}
 
-	@ParameterizedTest(name = "{index} ''{3}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUnauthenticatedErrors")
-	void login_userWithBadCredentials_unauthenticated(String username, String password, String expectedErrorMessage,
-													  String nameOfTestCase) throws Exception {
+	void login_userWithBadCredentials_unauthenticated(String username, String password, String expectedErrorMessage)
+			throws Exception {
 
 		String receivedErrorMessage = mockMvc.perform(post("/api/login")
 						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
@@ -103,9 +106,9 @@ class LoginApiControllerTest {
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfBadRequests")
-	void login_incorrectRequestBody_badRequest(String requestBody, String nameOfTestCase) throws Exception {
+	void login_incorrectRequestBody_badRequest(String requestBody) throws Exception {
 
 		mockMvc.perform(post("/api/login")
 						.content(requestBody)
@@ -115,33 +118,32 @@ class LoginApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfAuthorized() {
+
 		return Stream.of(
-				Arguments.of("user", "password", "login_userWithGoodCredentials_success"),
-				Arguments.of("admin", "password", "login_administratorWithGoodCredentials_success")
+				Arguments.of("user", "password"),
+				Arguments.of("admin", "password")
 		);
 	}
 
 	private static Stream<Arguments> examplesOfUnauthenticatedErrors() {
+
 		return Stream.of(
-				Arguments.of("user", "invalid", "Niepoprawne dane uwierzytelniające",
-						"login_userWithBadCredentials_unauthenticated"),
-				Arguments.of("admin", "invalid", "Niepoprawne dane uwierzytelniające",
-						"login_administratorWithBadCredentials_unauthenticated"),
-				Arguments.of("lalala", "password", "Niepoprawne dane uwierzytelniające",
-						"login_notExistingUser_unauthenticated"),
-				Arguments.of("user3", "password", "Konto użytkownika jest wyłączone",
-						"login_disabledUser_unauthenticated")
+				Arguments.of("user", "invalid", "Niepoprawne dane uwierzytelniające"),
+				Arguments.of("admin", "invalid", "Niepoprawne dane uwierzytelniające"),
+				Arguments.of("lalala", "password", "Niepoprawne dane uwierzytelniające"),
+				Arguments.of("user3", "password", "Konto użytkownika jest wyłączone")
 		);
 	}
 
 	private static Stream<Arguments> examplesOfBadRequests() {
+
 		return Stream.of(
-			Arguments.of("aaa", "login_incorrectRequestBody_badRequest1"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\"", "login_incorrectRequestBody_badRequest2"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}", "login_incorrectRequestBody_badRequest3"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa", "login_incorrectRequestBody_badRequest4"),
-			Arguments.of("", "login_incorrectRequestBody_badRequest5"),
-			Arguments.of("{..}", "login_incorrectRequestBody_badRequest6")
+			Arguments.of("aaa"),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\""),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}"),
+			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa"),
+			Arguments.of(""),
+			Arguments.of("{..}")
 		);
 	}
 }

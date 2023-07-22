@@ -32,12 +32,13 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateQuestionsExcelFile_simpleCase_success() throws IOException, FileException {
+
 		List<QuestionEntity> oldQuestionsList = QuestionDataProvider.prepareExampleQuestionsList();
 		List<QuestionGet> questionsList = QuestionMapper.convertQuestionEntityListToQuestionGetList(oldQuestionsList);
 
 		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(questionsList);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
 
@@ -66,9 +67,10 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateQuestionsExcelFile_emptyQuestionsList_success() throws IOException, FileException {
-		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 
+		byte[] questionsExcelFile = excelGenerator.generateQuestionsExcelFile(new ArrayList<>());
+
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(questionsExcelFile);
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet = wb.getSheetAt(0);
 
@@ -81,6 +83,7 @@ class ExcelGeneratorTest {
 	}
 
 	private void checkCellStringValue(Sheet sheet, String stringCellRef, String expectedValue) {
+
 		CellReference cellReference = new CellReference(stringCellRef);
 		Row row = sheet.getRow(cellReference.getRow());
 		Cell cell = row.getCell(cellReference.getCol());
@@ -90,6 +93,7 @@ class ExcelGeneratorTest {
 	}
 
 	private void checkCellNumberValue(Sheet sheet, String stringCellRef, Long expectedValue) {
+
 		CellReference cellReference = new CellReference(stringCellRef);
 		Row row = sheet.getRow(cellReference.getRow());
 		Cell cell = row.getCell(cellReference.getCol());
@@ -100,14 +104,15 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateAnswersExcelFile_simpleCase_success() throws IOException, FileException {
+
 		List<AnswerEntity> oldAnswersList = AnswerDataProvider.prepareExampleAnswersList();
 		List<AnswerGet> answersList = AnswerMapper.convertAnswerEntityListToAnswerGetList(oldAnswersList);
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(answersList, questionGet);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet0 = wb.getSheetAt(0);
 
@@ -142,12 +147,13 @@ class ExcelGeneratorTest {
 
 	@Test
 	void generateAnswersExcelFile_emptyAnswersList_success() throws IOException, FileException {
+
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionGet = QuestionMapper.convertQuestionEntityToQuestionGet(question, false);
 
 		byte[] answersExcelFile = excelGenerator.generateAnswersExcelFile(new ArrayList<>(), questionGet);
-		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 
+		ByteArrayInputStream inputStream = new ByteArrayInputStream(answersExcelFile);
 		Workbook wb = new XSSFWorkbook(inputStream);
 		Sheet sheet0 = wb.getSheetAt(0);
 

@@ -57,6 +57,7 @@ class MainWebControllerTest {
 
 	@BeforeEach
 	void setUp() {
+
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
 				.apply(springSecurity())
@@ -66,6 +67,7 @@ class MainWebControllerTest {
 
 	@Test
 	void getMainPage_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 				get("/"))
 				.andExpect(status().isOk())
@@ -73,9 +75,10 @@ class MainWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfStaticResources")
-	void getStaticResource_simpleCase_success(String url, String contentType, String nameOfTestCase) throws Exception {
+	void getStaticResource_simpleCase_success(String url, String contentType) throws Exception {
+
 		mockMvc.perform(
 						get(url))
 				.andExpect(status().isOk())
@@ -84,17 +87,18 @@ class MainWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfStaticResources() {
+
 		return Stream.of(
-			Arguments.of("/css/style.css", "text/css", "getCss_simpleCase_success"),
-			Arguments.of("/css/signin.css", "text/css", "getSignInCss_simpleCase_success"),
-			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "application/javascript",
-					"getJsScriptInRegistrationForm_simpleCase_success")
+			Arguments.of("/css/style.css", "text/css"),
+			Arguments.of("/css/signin.css", "text/css"),
+			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "application/javascript")
 		);
 	}
 
 	@WithMockUser
 	@Test
 	void getSecuredStaticResource_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 						get("/js/clearChangePasswordForm.js"))
 				.andExpect(status().isOk())

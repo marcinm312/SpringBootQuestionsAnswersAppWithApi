@@ -94,11 +94,10 @@ class MyProfileWebControllerTest {
 
 	@BeforeEach
 	void setup() {
+
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
 		given(userRepo.findByUsername("user3")).willReturn(Optional.of(userWithSpacesInPass));
-
-		doNothing().when(userRepo).delete(isA(UserEntity.class));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -110,6 +109,7 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void myProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/"))
 				.andExpect(status().is3xxRedirection())
@@ -119,7 +119,6 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void myProfileView_loggedCommonUser_success() throws Exception {
-		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/myProfile/")
@@ -131,8 +130,8 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserEntity userFromModel = (UserEntity) modelAndView.getModel().get("user3");
+		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Assertions.assertEquals(expectedUser.getId(), userFromModel.getId());
 		Assertions.assertEquals(expectedUser.getCreatedAt(), userFromModel.getCreatedAt());
 		Assertions.assertEquals(expectedUser.getUpdatedAt(), userFromModel.getUpdatedAt());
@@ -144,6 +143,7 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyProfileView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/update/"))
 				.andExpect(status().is3xxRedirection())
@@ -153,7 +153,6 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyProfileView_loggedCommonUser_success() throws Exception {
-		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/myProfile/update/")
@@ -165,16 +164,16 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
+		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Assertions.assertEquals(expectedUser.getUsername(), userFromModel.getUsername());
 		Assertions.assertEquals(expectedUser.getEmail(), userFromModel.getEmail());
 	}
 
 	@Test
 	void updateMyProfile_withAnonymousUser_redirectToLoginPage() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
+		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/update/")
 								.with(csrf())
@@ -185,14 +184,13 @@ class MyProfileWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyProfile_withoutCsrfToken_forbidden() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
+		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
@@ -201,14 +199,13 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyProfile_withCsrfInvalidToken_forbidden() throws Exception {
-		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 
+		UserDataUpdate userToRequest = UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/update/")
 								.with(user("user").password("password"))
@@ -218,15 +215,14 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
-	@ParameterizedTest(name = "{index} ''{4}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfGoodProfileUpdates")
 	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUserWithTheSameLogin,
-										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations,
-										  String nameOfTestCase) throws Exception {
+										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations)
+			throws Exception {
 
 		UserEntity savedUser = UserEntity.builder()
 				.username(userToRequest.getUsername())
@@ -257,21 +253,19 @@ class MyProfileWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfGoodProfileUpdates() {
+
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(),
-						Optional.empty(), 1, 0, "updateMyProfile_goodUserWithLoginChange_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(),
-						Optional.of(existingUser), 0, 0, "updateMyProfile_goodUserWithoutLoginChange_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(),
-						Optional.of(existingUser), 0, 1, "updateMyProfile_goodUserWithEmailChange_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(),
-						Optional.empty(), 1, 1, "updateMyProfile_goodUserWithoutLoginChange_success")
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), Optional.empty(), 1, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(), Optional.of(existingUser), 0, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(), Optional.of(existingUser), 0, 1),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(), Optional.empty(), 1, 1)
 		);
 	}
 
 	@Test
 	void updateMyProfile_userAlreadyExists_validationError() throws Exception {
+
 		UserDataUpdate userToRequest = UserDataProvider.prepareExistingUserDataUpdateToRequest();
 		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
@@ -292,18 +286,16 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
 		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyProfile_incorrectValues_validationError() throws Exception {
+
 		UserDataUpdate userToRequest = UserDataProvider.prepareIncorrectUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
@@ -324,18 +316,16 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
 		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyProfile_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+
 		UserDataUpdate userToRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
@@ -355,18 +345,16 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
 		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyProfile_emptyValues_validationError() throws Exception {
+
 		UserDataUpdate userToRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
 
@@ -387,18 +375,16 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
 		Assertions.assertNull(userFromModel.getUsername());
 		Assertions.assertNull(userFromModel.getEmail());
-
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
 	@Test
 	void updateMyPasswordView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword/"))
 				.andExpect(status().is3xxRedirection())
@@ -408,6 +394,7 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyPasswordView_loggedCommonUser_success() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword/")
 								.with(user("user").password("password")))
@@ -420,8 +407,8 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyPassword_withAnonymousUser_redirectToLoginPage() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(csrf())
@@ -433,14 +420,13 @@ class MyProfileWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_withoutCsrfToken_forbidden() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -450,14 +436,13 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_withCsrfInvalidToken_forbidden() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -468,16 +453,16 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isForbidden());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_simpleCase_success() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
+
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -498,10 +483,11 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
+
 		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user3").password(" pass "))
@@ -522,8 +508,8 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void updateMyPassword_incorrectCurrentPassword_validationError() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -540,14 +526,13 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_differentPasswordInConfirmation_validationError() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -564,14 +549,13 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_theSamePasswordAsPrevious_validationError() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -588,14 +572,13 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_tooShortPassword_validationError() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -613,14 +596,13 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void updateMyPassword_emptyFields_validationError() throws Exception {
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
 
+		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -639,13 +621,13 @@ class MyProfileWebControllerTest {
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 
 	@Test
 	void expireOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/expireOtherSessions/"))
 				.andExpect(status().is3xxRedirection())
@@ -653,12 +635,12 @@ class MyProfileWebControllerTest {
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
 	@Test
 	void expireOtherSessions_simpleCase_success() throws Exception {
+
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
@@ -677,6 +659,7 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void deleteMyProfileConfirmation_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/myProfile/delete/"))
 				.andExpect(status().is3xxRedirection())
@@ -686,7 +669,6 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void deleteMyProfileConfirmation_loggedCommonUser_success() throws Exception {
-		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/myProfile/delete/")
@@ -699,8 +681,8 @@ class MyProfileWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		UserEntity userFromModel = (UserEntity) modelAndView.getModel().get("user3");
+		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		Assertions.assertEquals(expectedUser.getId(), userFromModel.getId());
 		Assertions.assertEquals(expectedUser.getCreatedAt(), userFromModel.getCreatedAt());
 		Assertions.assertEquals(expectedUser.getUpdatedAt(), userFromModel.getUpdatedAt());
@@ -712,6 +694,7 @@ class MyProfileWebControllerTest {
 
 	@Test
 	void deleteMyProfile_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						post("/app/myProfile/delete/")
 								.with(csrf()))
@@ -719,41 +702,38 @@ class MyProfileWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
-		verify(userRepo, never())
-				.delete(any(UserEntity.class));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(true));
+		verify(userRepo, never()).delete(any(UserEntity.class));
 	}
 
 	@Test
 	void deleteMyProfile_withoutCsrfToken_forbidden() throws Exception {
+
 		mockMvc.perform(
 						post("/app/myProfile/delete/")
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
 
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
-		verify(userRepo, never())
-				.delete(any(UserEntity.class));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(true));
+		verify(userRepo, never()).delete(any(UserEntity.class));
 	}
 
 	@Test
 	void deleteMyProfile_withCsrfInvalidToken_forbidden() throws Exception {
+
 		mockMvc.perform(
 						post("/app/myProfile/delete/")
 								.with(csrf().useInvalidToken())
 								.with(user("user").password("password")))
 				.andExpect(status().isForbidden());
 
-		verify(sessionUtils, never())
-				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
-		verify(userRepo, never())
-				.delete(any(UserEntity.class));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(true));
+		verify(userRepo, never()).delete(any(UserEntity.class));
 	}
 
 	@Test
 	void deleteMyProfile_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 						post("/app/myProfile/delete/")
 								.with(user("user").password("password"))
@@ -765,8 +745,7 @@ class MyProfileWebControllerTest {
 
 		verify(sessionUtils, times(1))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(true));
-		verify(userRepo, times(1))
-				.delete(any(UserEntity.class));
+		verify(userRepo, times(1)).delete(any(UserEntity.class));
 	}
 
 	@Test

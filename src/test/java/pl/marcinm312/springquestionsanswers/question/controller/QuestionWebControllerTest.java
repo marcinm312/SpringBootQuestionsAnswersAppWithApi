@@ -54,7 +54,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
@@ -101,7 +100,7 @@ class QuestionWebControllerTest {
 
 	@BeforeEach
 	void setup() {
-		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "id"))))
@@ -109,9 +108,9 @@ class QuestionWebControllerTest {
 		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.ASC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
-		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(1000L))
+				.willReturn(Optional.of(QuestionDataProvider.prepareExampleQuestion()));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
@@ -126,6 +125,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void questionsGet_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/"))
 				.andExpect(status().is3xxRedirection())
@@ -133,9 +133,10 @@ class QuestionWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfQuestionsGetUrls")
-	void questionsGet_parameterized_success(String url, int arrayExpectedSize, String nameOfTestCase) throws Exception {
+	void questionsGet_parameterized_success(String url, int arrayExpectedSize) throws Exception {
+
 		ModelAndView modelAndView = mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(view().name("questions"))
@@ -151,23 +152,16 @@ class QuestionWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
+
 		return Stream.of(
-				Arguments.of("/app/questions/", 3,
-						"questionsGet_simpleCase_success"),
-				Arguments.of("/app/questions/?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
-						"questionsGet_searchedQuestions_success"),
-				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
-						"questionsGet_searchedQuestions_success"),
-				Arguments.of("/app/questions/?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
-						"questionsGet_searchedQuestions_success"),
-				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
-						"questionsGet_searchedQuestions_success"),
-				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
-						"questionsGet_searchedQuestions_success"),
-				Arguments.of("/app/questions/?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
-						"questionsGet_paginatedQuestions_success"),
-				Arguments.of("/app/questions/?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3,
-						"questionsGet_paginatedQuestions_success")
+				Arguments.of("/app/questions/", 3),
+				Arguments.of("/app/questions/?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/app/questions/?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/app/questions/?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1),
+				Arguments.of("/app/questions/?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3),
+				Arguments.of("/app/questions/?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3)
 		);
 	}
 
@@ -184,16 +178,15 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		String receivedErrorMessage = (String) modelAndView.getModel().get("message");
 		int rowsLimit = Filter.ROWS_LIMIT;
 		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfTooLargePageSizeUrls")
-	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+	void limitExceeded_tooLargePageSize_badRequest(String url) throws Exception {
 
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).with(user("user").password("password")))
@@ -206,16 +199,16 @@ class QuestionWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+
 		return Stream.of(
-				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_tooLargePageSize_badRequest"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_tooLargePageSize_badRequest")
+				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 
 	@Test
 	void createQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/new/"))
 				.andExpect(status().is3xxRedirection())
@@ -225,6 +218,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestionView_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/new/")
 								.with(user("user").password("password")))
@@ -237,8 +231,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/new/")
 								.with(csrf())
@@ -253,8 +247,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_withoutCsrfToken_forbidden() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -267,8 +261,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_withCsrfInvalidToken_forbidden() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -282,6 +276,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_simpleCase_success() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
@@ -304,6 +299,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_emptyDescription_success() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
@@ -326,8 +322,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void createQuestion_tooShortTitle_validationErrors() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -347,14 +343,13 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void createQuestion_tooShortTitleAfterTrim_validationErrors() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -374,14 +369,13 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertEquals(questionToRequest.getTitle().trim(), questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void createQuestion_emptyTitle_validationErrors() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -401,12 +395,12 @@ class QuestionWebControllerTest {
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
 		Assertions.assertNull(questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void editQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/1000/edit/"))
 				.andExpect(status().is3xxRedirection())
@@ -416,7 +410,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestionView_simpleCase_success() throws Exception {
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/edit/")
 								.with(user("user").password("password")))
@@ -428,8 +422,8 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		Assertions.assertEquals(expectedQuestion.getId(), oldQuestionFromModel.getId());
 		Assertions.assertEquals(expectedQuestion.getTitle(), oldQuestionFromModel.getTitle());
 		Assertions.assertEquals(expectedQuestion.getDescription(), oldQuestionFromModel.getDescription());
@@ -444,6 +438,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestionView_questionNotExists_notFoundMessage() throws Exception {
+
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/edit/")
 								.with(user("user").password("password")))
@@ -455,7 +450,6 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
@@ -463,8 +457,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(csrf())
@@ -479,8 +473,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_withoutCsrfToken_forbidden() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(user("user").password("password"))
@@ -493,9 +487,10 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_withCsrfInvalidToken_forbidden() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
+
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(user("user").password("password"))
@@ -509,6 +504,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
@@ -531,6 +527,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_emptyDescription_success() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
@@ -553,8 +550,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_tooShortTitle_validationErrors() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(user("user").password("password"))
@@ -587,8 +584,8 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_emptyTitle_validationErrors() throws Exception {
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 
+		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(user("user").password("password"))
@@ -621,6 +618,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), adminUser));
@@ -643,6 +641,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_userUpdatesAnotherUsersQuestion_changeNotAllowed() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
@@ -665,6 +664,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void editQuestion_questionNotExists_notFoundMessage() throws Exception {
+
 		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), secondUser));
@@ -683,18 +683,16 @@ class QuestionWebControllerTest {
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
 				.andReturn().getModelAndView();
 
-
 		assert modelAndView != null;
-
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void removeQuestionView_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/1000/delete/"))
 				.andExpect(status().is3xxRedirection())
@@ -704,7 +702,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestionView_simpleCase_success() throws Exception {
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
+
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/1000/delete/")
 								.with(user("user").password("password")))
@@ -716,8 +714,8 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		QuestionGet questionFromModel2 = (QuestionGet) modelAndView.getModel().get("question");
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel2.getId());
 		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel2.getTitle());
 		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel2.getDescription());
@@ -726,6 +724,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestionView_questionNotExists_notFoundMessage() throws Exception {
+
 		ModelAndView modelAndView = mockMvc.perform(
 						get("/app/questions/2000/delete/")
 								.with(user("user").password("password")))
@@ -737,7 +736,6 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
@@ -745,6 +743,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(csrf()))
@@ -757,6 +756,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_withoutCsrfToken_forbidden() throws Exception {
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(user("user").password("password")))
@@ -767,6 +767,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_withCsrfInvalidToken_forbidden() throws Exception {
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(user("user").password("password"))
@@ -778,7 +779,9 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(user("user").password("password"))
@@ -794,7 +797,9 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
+
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(user("admin").password("password").roles("ADMIN"))
@@ -810,7 +815,9 @@ class QuestionWebControllerTest {
 
 	@Test
 	void removeQuestion_questionNotExists_notFoundMessage() throws Exception {
+
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/2000/delete/")
 								.with(user("user2").password("password"))
@@ -823,17 +830,17 @@ class QuestionWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
-
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
 	void removeQuestion_userDeletesAnotherUsersQuestion_changeNotAllowed() throws Exception {
+
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
 								.with(user("user2").password("password"))
@@ -849,6 +856,7 @@ class QuestionWebControllerTest {
 
 	@Test
 	void downloadPdf_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/file-export/?fileType=PDF"))
 				.andExpect(status().is3xxRedirection())
@@ -856,9 +864,9 @@ class QuestionWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfDownloadPdfUrls")
-	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
+	void downloadPdf_parameterized_success(String url) throws Exception {
 
 		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
@@ -869,28 +877,22 @@ class QuestionWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+
 		return Stream.of(
-				Arguments.of("/app/questions/file-export/?fileType=PDF",
-						"downloadPdf_simpleCase_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_paginatedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_paginatedQuestions_success")
+				Arguments.of("/app/questions/file-export/?fileType=PDF"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/app/questions/file-export/?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 
 	@Test
 	void downloadExcel_withAnonymousUser_redirectToLoginPage() throws Exception {
+
 		mockMvc.perform(
 						get("/app/questions/file-export/?fileType=EXCEL"))
 				.andExpect(status().is3xxRedirection())
@@ -898,9 +900,10 @@ class QuestionWebControllerTest {
 				.andExpect(unauthenticated());
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfDownloadExcelUrls")
-	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
+	void downloadExcel_parameterized_success(String url) throws Exception {
+
 		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -910,23 +913,16 @@ class QuestionWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+
 		return Stream.of(
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL",
-						"downloadExcel_simpleCase_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_paginatedQuestions_success"),
-				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_paginatedQuestions_success")
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/app/questions/file-export/?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 }

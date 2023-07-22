@@ -61,7 +61,6 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
@@ -109,7 +108,7 @@ class QuestionApiControllerTest {
 
 	@BeforeEach
 	void setup() {
-		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleQuestionsList()));
 		given(questionRepository.getPaginatedQuestions(PageRequest.of(0, 5000, Sort.by(Sort.Direction.DESC, "id"))))
@@ -117,9 +116,9 @@ class QuestionApiControllerTest {
 		given(questionRepository.searchPaginatedQuestions("aaaa", PageRequest.of(0, 5,
 				Sort.by(Sort.Direction.ASC, "id"))))
 				.willReturn(new PageImpl<>(QuestionDataProvider.prepareExampleSearchedQuestionsList()));
-		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(1000L))
+				.willReturn(Optional.of(QuestionDataProvider.prepareExampleQuestion()));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
-		doNothing().when(questionRepository).delete(isA(QuestionEntity.class));
 
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(secondUser.getId())).willReturn(Optional.of(secondUser));
@@ -143,6 +142,7 @@ class QuestionApiControllerTest {
 
 	@Test
 	void getQuestions_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						get("/api/questions"))
 				.andExpect(status().isUnauthorized());
@@ -152,7 +152,6 @@ class QuestionApiControllerTest {
 	void getQuestions_expiredToken_unauthorized() throws Exception {
 
 		String token = prepareExpiredToken("user");
-
 		mockMvc.perform(
 						get("/api/questions")
 								.header("Authorization", token))
@@ -163,7 +162,6 @@ class QuestionApiControllerTest {
 	void getQuestions_tokenBeforePasswordChange_unauthorized() throws Exception {
 
 		String token = prepareToken("user4", "password");
-
 		mockMvc.perform(
 						get("/api/questions")
 								.header("Authorization", token))
@@ -174,7 +172,6 @@ class QuestionApiControllerTest {
 	void getQuestions_tokenForNotExistingUser_unauthorized() throws Exception {
 
 		String token = prepareTokenForNotExistingUser();
-
 		mockMvc.perform(
 						get("/api/questions")
 								.header("Authorization", token))
@@ -185,7 +182,6 @@ class QuestionApiControllerTest {
 	void getQuestions_tokenWithoutBearer_unauthorized() throws Exception {
 
 		String token = prepareToken("user", "password").replace("Bearer ", "");
-
 		mockMvc.perform(
 						get("/api/questions")
 								.header("Authorization", token))
@@ -210,12 +206,11 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfQuestionsGetUrls")
-	void getQuestions_jsonParameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
+	void getQuestions_jsonParameterized_success(String url, int expectedElements) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		String response = mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -226,12 +221,11 @@ class QuestionApiControllerTest {
 		Assertions.assertEquals(expectedElements, amountOfElements);
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfQuestionsGetUrls")
-	void getQuestions_xmlParameterized_success(String url, int expectedElements, String nameOfTestCase) throws Exception {
+	void getQuestions_xmlParameterized_success(String url, int expectedElements) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		String response = mockMvc.perform(get(url).header("Authorization", token).accept(MediaType.APPLICATION_XML))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType("application/xml;charset=UTF-8"))
@@ -244,32 +238,24 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfQuestionsGetUrls() {
+
 		return Stream.of(
-				Arguments.of("/api/questions", 3,
-						"getQuestions_simpleCase_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
-						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1,
-						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
-						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1,
-						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1,
-						"getQuestions_searchedQuestions_success"),
-				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3,
-						"getQuestions_paginatedQuestions_success"),
-				Arguments.of("/api/questions?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3,
-						"getQuestions_paginatedQuestions_success")
+				Arguments.of("/api/questions", 3),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC", 1),
+				Arguments.of("/api/questions?keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC", 1),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC", 3),
+				Arguments.of("/api/questions?pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC", 3)
 		);
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfTooLargePageSizeUrls")
-	void limitExceeded_tooLargePageSize_badRequest(String url, String nameOfTestCase) throws Exception {
+	void limitExceeded_tooLargePageSize_badRequest(String url) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isBadRequest())
@@ -281,18 +267,17 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfTooLargePageSizeUrls() {
+
 		return Stream.of(
-				Arguments.of("/api/questions?pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
-						"getQuestions_tooLargePageSize_badRequest"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_tooLargePageSize_badRequest"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_tooLargePageSize_badRequest")
+				Arguments.of("/api/questions?pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5001&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 
 	@Test
 	void getQuestion_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						get("/api/questions/1000"))
 				.andExpect(status().isUnauthorized());
@@ -302,8 +287,6 @@ class QuestionApiControllerTest {
 	void getQuestion_simpleCase_success() throws Exception {
 
 		String token = prepareToken("user", "password");
-
-		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		String response = mockMvc.perform(
 						get("/api/questions/1000")
 								.header("Authorization", token))
@@ -312,7 +295,7 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-
+		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		Assertions.assertEquals(question.getId(), responseQuestion.getId());
 		Assertions.assertEquals(question.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(question.getDescription(), responseQuestion.getDescription());
@@ -323,7 +306,6 @@ class QuestionApiControllerTest {
 	void getQuestion_questionNotExists_notFound() throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get("/api/questions/2000")
 								.header("Authorization", token))
@@ -336,6 +318,7 @@ class QuestionApiControllerTest {
 
 	@Test
 	void createQuestion_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						post("/api/questions")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -346,16 +329,15 @@ class QuestionApiControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfCreateQuestionGoodRequests")
-	void createQuestion_goodRequestBody_success(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
-			throws Exception {
-
-		String token = prepareToken("user", "password");
+	void createQuestion_goodRequestBody_success(QuestionCreateUpdate questionToRequest) throws Exception {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -369,20 +351,18 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
-
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfCreateQuestionGoodRequests")
-	void createQuestion_goodXmlRequestBody_success(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
-			throws Exception {
-
-		String token = prepareToken("user", "password");
+	void createQuestion_goodXmlRequestBody_success(QuestionCreateUpdate questionToRequest) throws Exception {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
 		String response = mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -395,33 +375,28 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		QuestionGet responseQuestion = xmlMapper.readValue(response, QuestionGet.class);
-
 		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
 		if (questionToRequest.getDescription() == null) {
 			Assertions.assertEquals("", responseQuestion.getDescription());
 		} else {
 			Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
 		}
-
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	private static Stream<Arguments> examplesOfCreateQuestionGoodRequests() {
+
 		return Stream.of(
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(),
-						"createQuestion_simpleCase_success"),
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(),
-						"createQuestion_nullDescription_success")
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest()),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest())
 		);
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfCreateQuestionBadRequests")
-	void createQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
-			throws Exception {
+	void createQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -434,13 +409,11 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfCreateQuestionBadRequests() {
+
 		return Stream.of(
-				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest(),
-						"createQuestion_tooShortTitle_badRequest"),
-				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest(),
-						"createQuestion_tooShortTitleAfterTrim_badRequest"),
-				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest(),
-						"createQuestion_nullTitle_badRequest")
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest()),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest()),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest())
 		);
 	}
 
@@ -448,7 +421,6 @@ class QuestionApiControllerTest {
 	void createQuestion_nullBody_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(
 						post("/api/questions")
 								.header("Authorization", token)
@@ -462,6 +434,7 @@ class QuestionApiControllerTest {
 
 	@Test
 	void updateQuestion_withAnonymousUser_unauthorized() throws Exception {
+
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		mockMvc.perform(
 						put("/api/questions/1000")
@@ -473,16 +446,15 @@ class QuestionApiControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUpdateAnswerGoodRequests")
-	void updateQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
-			throws Exception {
-
-		String token = prepareToken("user", "password");
+	void updateQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest) throws Exception {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -496,26 +468,22 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequest.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), responseQuestion.getDescription());
-
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
+
 		return Stream.of(
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(),
-						"updateQuestion_userUpdatesHisOwnQuestion_success"),
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(),
-						"updateQuestion_nullDescription_success")
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest()),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest())
 		);
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUpdateQuestionBadRequests")
-	void updateQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest, String nameOfTestCase)
-			throws Exception {
+	void updateQuestion_incorrectQuestion_badRequest(QuestionCreateUpdate questionToRequest) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -528,13 +496,11 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfUpdateQuestionBadRequests() {
+
 		return Stream.of(
-				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest(),
-						"updateQuestion_tooShortTitle_badRequest"),
-				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest(),
-						"updateQuestion_tooShortTitleAfterTrim_badRequest"),
-				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest(),
-						"updateQuestion_nullTitle_badRequest")
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest()),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest()),
+				Arguments.of(QuestionDataProvider.prepareQuestionWithNullTitleToRequest())
 		);
 	}
 
@@ -542,7 +508,6 @@ class QuestionApiControllerTest {
 	void updateQuestion_nullBody_badRequest() throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -557,12 +522,12 @@ class QuestionApiControllerTest {
 	@Test
 	void updateQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("admin", "password");
-
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), adminUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
+
+		String token = prepareToken("admin", "password");
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -576,19 +541,18 @@ class QuestionApiControllerTest {
 		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
 		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
 		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
-
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void updateQuestion_userUpdatesAnotherUsersQuestion_forbidden() throws Exception {
 
-		String token = prepareToken("user2", "password");
-
 		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), secondUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+
+		String token = prepareToken("user2", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -600,17 +564,16 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void updateQuestion_questionNotExists_notFound() throws Exception {
 
-		String token = prepareToken("user", "password");
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+
+		String token = prepareToken("user", "password");
+		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/2000")
 								.header("Authorization", token)
@@ -622,12 +585,12 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
 	@Test
 	void deleteQuestion_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						delete("/api/questions/1000"))
 				.andExpect(status().isUnauthorized());
@@ -638,9 +601,9 @@ class QuestionApiControllerTest {
 	@Test
 	void deleteQuestion_userDeletesHisOwnQuestion_success() throws Exception {
 
-		String token = prepareToken("user", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
+		String token = prepareToken("user", "password");
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
 								.header("Authorization", token))
@@ -655,9 +618,9 @@ class QuestionApiControllerTest {
 	@Test
 	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
 
-		String token = prepareToken("admin", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
 
+		String token = prepareToken("admin", "password");
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
 								.header("Authorization", token))
@@ -665,16 +628,15 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
-
 		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
 	@Test
 	void deleteQuestion_userDeletesAnotherUsersQuestion_forbidden() throws Exception {
 
-		String token = prepareToken("user2", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
+		String token = prepareToken("user2", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000")
 								.header("Authorization", token))
@@ -683,16 +645,15 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
 	void deleteQuestion_questionNotExists_notFound() throws Exception {
 
-		String token = prepareToken("user", "password");
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
+		String token = prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/2000")
 								.header("Authorization", token))
@@ -701,23 +662,22 @@ class QuestionApiControllerTest {
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
 	@Test
 	void downloadPdf_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						get("/api/questions/file-export?fileType=PDF"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfDownloadPdfUrls")
-	void downloadPdf_parameterized_success(String url, String nameOfTestCase) throws Exception {
+	void downloadPdf_parameterized_success(String url) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -726,39 +686,32 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfDownloadPdfUrls() {
+
 		return Stream.of(
-				Arguments.of("/api/questions/file-export?fileType=PDF",
-						"downloadPdf_simpleCase_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
-						"downloadPdf_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_paginatedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
-						"downloadPdf_paginatedQuestions_success")
+				Arguments.of("/api/questions/file-export?fileType=PDF"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/api/questions/file-export?fileType=PDF&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 
 	@Test
 	void downloadExcel_withAnonymousUser_unauthorized() throws Exception {
+
 		mockMvc.perform(
 						get("/api/questions/file-export?fileType=EXCEL"))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfDownloadExcelUrls")
-	void downloadExcel_parameterized_success(String url, String nameOfTestCase) throws Exception {
+	void downloadExcel_parameterized_success(String url) throws Exception {
 
 		String token = prepareToken("user", "password");
-
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -767,27 +720,21 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfDownloadExcelUrls() {
+
 		return Stream.of(
-				Arguments.of("/api/questions/file-export?fileType=EXCEL",
-						"downloadExcel_simpleCase_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC",
-						"downloadExcel_searchedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_paginatedQuestions_success"),
-				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC",
-						"downloadExcel_paginatedQuestions_success")
+				Arguments.of("/api/questions/file-export?fileType=EXCEL"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=-1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=0&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=0&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&keyword=aaaa&pageNo=1&pageSize=5&sortField=ID&sortDirection=ASC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5&sortField=TEXT&sortDirection=DESC"),
+				Arguments.of("/api/questions/file-export?fileType=EXCEL&pageNo=1&pageSize=5000&sortField=TEXT&sortDirection=DESC")
 		);
 	}
 
 	private String prepareToken(String username, String password) throws Exception {
+
 		return mockMvc.perform(post("/api/login")
 						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
 						.characterEncoding("utf-8"))

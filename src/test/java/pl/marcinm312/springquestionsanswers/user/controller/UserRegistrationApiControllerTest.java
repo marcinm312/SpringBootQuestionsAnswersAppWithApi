@@ -98,9 +98,10 @@ class UserRegistrationApiControllerTest {
 				.build();
 	}
 
-	@ParameterizedTest(name = "{index} ''{1}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUserRegistrationGoodRequests")
-	void createUser_goodUser_success(UserCreate userToRequest, String nameOfTestCase) throws Exception {
+	void createUser_goodUser_success(UserCreate userToRequest) throws Exception {
+
 		UserEntity user = UserEntity.builder()
 				.username(userToRequest.getUsername())
 				.password(userToRequest.getPassword())
@@ -122,29 +123,26 @@ class UserRegistrationApiControllerTest {
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
 		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
-
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationGoodRequests() {
+
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareGoodUserToRequest(),
-						"createUser_simpleCase_success"),
-				Arguments.of(UserDataProvider.prepareUserWithSpacesInPasswordToRequest(),
-						"createUser_spacesInPassword_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserWithActivationUrlToRequest(),
-						"createUser_userWithActivationUrl_success"),
-				Arguments.of(UserDataProvider.prepareGoodUserWithIncorrectActivationUrlToRequest(),
-						"createUser_userWithIncorrectActivationUrl_success")
+				Arguments.of(UserDataProvider.prepareGoodUserToRequest()),
+				Arguments.of(UserDataProvider.prepareUserWithSpacesInPasswordToRequest()),
+				Arguments.of(UserDataProvider.prepareGoodUserWithActivationUrlToRequest()),
+				Arguments.of(UserDataProvider.prepareGoodUserWithIncorrectActivationUrlToRequest())
 		);
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUserRegistrationBadRequests")
-	void createUser_incorrectUser_validationError(UserCreate userToRequest, Optional<UserEntity> foundUser,
-												  String nameOfTestCase) throws Exception {
+	void createUser_incorrectUser_validationError(UserCreate userToRequest, Optional<UserEntity> foundUser)
+			throws Exception {
+
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
 
 		mockMvc.perform(
@@ -156,28 +154,24 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {
+
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest(), Optional.empty(),
-						"createUser_incorrectConfirmPasswordValue_validationError"),
-				Arguments.of(UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest(), Optional.empty(),
-						"createUser_userWithTooShortLoginAfterTrim_validationError"),
-				Arguments.of(UserDataProvider.prepareGoodUserToRequest(), Optional.of(existingUser),
-						"createUser_userAlreadyExists_validationError"),
-				Arguments.of(UserDataProvider.prepareIncorrectUserToRequest(), Optional.empty(),
-						"createUser_incorrectValues_validationError"),
-				Arguments.of(UserDataProvider.prepareEmptyUserToRequest(), Optional.empty(),
-						"createUser_emptyValues_validationError"
-				));
+				Arguments.of(UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest(), Optional.empty()),
+				Arguments.of(UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest(), Optional.empty()),
+				Arguments.of(UserDataProvider.prepareGoodUserToRequest(), Optional.of(existingUser)),
+				Arguments.of(UserDataProvider.prepareIncorrectUserToRequest(), Optional.empty()),
+				Arguments.of(UserDataProvider.prepareEmptyUserToRequest(), Optional.empty())
+		);
 	}
 
 	@Test
 	void createUser_nullBody_validationError() throws Exception {
+
 		mockMvc.perform(
 						post("/api/registration")
 								.contentType(MediaType.APPLICATION_JSON)
@@ -187,12 +181,12 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
+		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@Test
 	void activateUser_simpleCase_userActivated() throws Exception {
+
 		ActivationTokenEntity foundToken = ActivationTokenDataProvider.prepareExampleToken();
 		String exampleExistingTokenValue = "123456-123-123-1234";
 		given(activationTokenRepo.findByValue(exampleExistingTokenValue)).willReturn(Optional.of(foundToken));
@@ -210,6 +204,7 @@ class UserRegistrationApiControllerTest {
 
 	@Test
 	void activateUser_tokenNotFound_userNotActivated() throws Exception {
+
 		String exampleNotExistingTokenValue = "000-000-000";
 		given(activationTokenRepo.findByValue(exampleNotExistingTokenValue)).willReturn(Optional.empty());
 
@@ -224,6 +219,7 @@ class UserRegistrationApiControllerTest {
 
 	@Test
 	void activateUser_nullTokenValue_userNotActivated() throws Exception {
+		
 		mockMvc.perform(put("/api/token"))
 				.andExpect(status().isBadRequest())
 				.andExpect(unauthenticated());

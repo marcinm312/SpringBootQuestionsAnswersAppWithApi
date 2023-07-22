@@ -15,6 +15,7 @@ import java.time.Month;
 public class UserDataProvider {
 
 	public static UserEntity prepareExampleGoodAdministratorWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1000L)
@@ -31,6 +32,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1001L)
@@ -47,6 +49,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleSecondGoodUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1002L)
@@ -63,6 +66,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleDisabledUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1001L)
@@ -79,6 +83,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleSecondDisabledUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1003L)
@@ -95,6 +100,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1003L)
@@ -111,6 +117,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedAndChangedPassword() {
+
 		LocalDateTime futureDate = LocalDateTime.now().plusMinutes(10);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 

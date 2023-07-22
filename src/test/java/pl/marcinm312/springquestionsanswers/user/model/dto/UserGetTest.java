@@ -8,6 +8,7 @@ class UserGetTest {
 
 	@Test
 	void equalsHashCode_differentCases() {
+
 		EqualsVerifier.forClass(UserGet.class)
 				.suppress(Warning.NONFINAL_FIELDS)
 				.withIgnoredFields("createdAt", "updatedAt", "dateFormat")

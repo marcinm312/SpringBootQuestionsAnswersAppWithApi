@@ -8,6 +8,7 @@ class UserEntityTest {
 
 	@Test
 	void equalsHashCode_differentCases() {
+
 		EqualsVerifier.forClass(UserEntity.class)
 				.suppress(Warning.NONFINAL_FIELDS)
 				.suppress(Warning.ALL_FIELDS_SHOULD_BE_USED)
