@@ -99,9 +99,9 @@ class AnswerApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
-	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private static final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private static final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private static final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
@@ -396,15 +396,16 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void updateAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyUpdateOrDeleteAnswer")
+	void updateAnswer_userDeletesAnswer_success(UserEntity loggedUser) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = prepareToken("user2", "password");
+		String token = prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -468,32 +469,6 @@ class AnswerApiControllerTest {
 	}
 
 	@Test
-	void updateAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		String token = prepareToken("admin", "password");
-		String response = mockMvc.perform(
-						put("/api/questions/1000/answers/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
-		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
-	}
-
-	@Test
 	void updateAnswer_userUpdatesAnotherUsersAnswer_forbidden() throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
@@ -549,12 +524,13 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
-	@Test
-	void deleteAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyUpdateOrDeleteAnswer")
+	void deleteAnswer_userDeletesAnswer_success(UserEntity loggedUser) throws Exception {
 
-		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = prepareToken("user2", "password");
+		String token = prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
@@ -565,20 +541,11 @@ class AnswerApiControllerTest {
 		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
 
-	@Test
-	void deleteAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
-
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		String token = prepareToken("admin", "password");
-		String response = mockMvc.perform(
-						delete("/api/questions/1000/answers/1000")
-								.header("Authorization", token))
-				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-
-		Assertions.assertEquals("true", response);
-		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
+	private static Stream<Arguments> examplesOfSuccessfullyUpdateOrDeleteAnswer() {
+		return Stream.of(
+				Arguments.of(secondUser),
+				Arguments.of(adminUser)
+		);
 	}
 
 	@Test

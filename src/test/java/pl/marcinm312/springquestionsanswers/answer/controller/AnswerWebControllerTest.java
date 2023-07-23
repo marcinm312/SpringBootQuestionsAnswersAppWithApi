@@ -102,9 +102,9 @@ class AnswerWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private static final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private static final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private static final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
@@ -213,7 +213,7 @@ class AnswerWebControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfTooLargePageSizeUrls")
-	void limitExceeded_tooLargePageSize_badRequest(String url) throws Exception {
+	void fileExport_tooLargePageSize_badRequest(String url) throws Exception {
 
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).with(user("user").password("password")))
@@ -350,10 +350,10 @@ class AnswerWebControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void createAnswer_tooShortText_validationErrors() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfCreateUpdateAnswerBadRequests")
+	void createAnswer_incorrectAnswer_validationErrors(AnswerCreateUpdate answerToRequest, String expectedText) throws Exception {
 
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/answers/new/")
 								.with(user("user2").password("password"))
@@ -369,87 +369,31 @@ class AnswerWebControllerTest {
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
+		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
 		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
 		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
 		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
 		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+		Assertions.assertEquals(expectedText, answerFromModel.getText());
 
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void createAnswer_tooShortTextAfterTrim_validationErrors() throws Exception {
+	private static Stream<Arguments> examplesOfCreateUpdateAnswerBadRequests() {
 
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/1000/answers/new/")
-								.with(user("user2").password("password"))
-								.with(csrf())
-								.param("text", answerToRequest.getText()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("createAnswer"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("answer", "text"))
-				.andExpect(model().attributeExists("question", "userLogin", "answer"))
-				.andExpect(model().attribute("userLogin", "user2"))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
-		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
-		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
-		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
-		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
-
-		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertEquals(answerToRequest.getText().trim(), answerFromModel.getText());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void createAnswer_emptyText_validationErrors() throws Exception {
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/1000/answers/new/")
-								.with(user("user2").password("password"))
-								.with(csrf())
-								.param("text", answerToRequest.getText()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("createAnswer"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("answer", "text"))
-				.andExpect(model().attributeExists("question", "userLogin", "answer"))
-				.andExpect(model().attribute("userLogin", "user2"))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
-		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
-		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
-		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
-		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
-
-		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertNull(answerFromModel.getText());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
+		AnswerCreateUpdate answerWithTooShortText = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
+		AnswerCreateUpdate answerWithTooShortTextAfterTrim = AnswerDataProvider.prepareAnswerWithTooShortTextAfterTrimToRequest();
+		AnswerCreateUpdate answerWithEmptyText = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
+		return Stream.of(
+				Arguments.of(answerWithTooShortText, answerWithTooShortText.getText()),
+				Arguments.of(answerWithTooShortTextAfterTrim, answerWithTooShortTextAfterTrim.getText().trim()),
+				Arguments.of(answerWithEmptyText, null)
+		);
 	}
 
 	@Test
@@ -551,34 +495,43 @@ class AnswerWebControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void editAnswer_userUpdatesHisOwnAnswer_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyUpdateOrDeleteAnswer")
+	void editAnswer_userUpdatesAnswer_success(UserEntity loggedUser) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
+		String role = loggedUser.getRole().name().replace("ROLE_", "");
 		mockMvc.perform(
 						post("/app/questions/1000/answers/1000/edit/")
-								.with(user("user2").password("password"))
+								.with(user(loggedUser.getUsername()).password("password").roles(role))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
+				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles(role));
 
 		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void editAnswer_tooShortText_validationErrors() throws Exception {
+	private static Stream<Arguments> examplesOfSuccessfullyUpdateOrDeleteAnswer() {
+		return Stream.of(
+				Arguments.of(secondUser),
+				Arguments.of(adminUser)
+		);
+	}
 
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithTooShortTextToRequest();
+	@ParameterizedTest
+	@MethodSource("examplesOfCreateUpdateAnswerBadRequests")
+	void editAnswer_incorrectAnswer_validationErrors(AnswerCreateUpdate answerToRequest, String expectedText) throws Exception {
+
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 
@@ -605,7 +558,7 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
 
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertEquals(answerToRequest.getText(), answerFromModel.getText());
+		Assertions.assertEquals(expectedText, answerFromModel.getText());
 
 		AnswerEntity expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
 		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");
@@ -616,74 +569,6 @@ class AnswerWebControllerTest {
 		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void editAnswer_emptyText_validationErrors() throws Exception {
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareAnswerWithEmptyTextToRequest();
-		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/1000/answers/1000/edit/")
-								.with(user("user2").password("password"))
-								.with(csrf())
-								.param("text", answerToRequest.getText()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("editAnswer"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("answer", "text"))
-				.andExpect(model().attributeExists("question", "userLogin", "answer", "oldAnswer"))
-				.andExpect(model().attribute("userLogin", "user2"))
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-
-		QuestionGet questionFromModel = (QuestionGet) modelAndView.getModel().get("question");
-		QuestionEntity expectedQuestion = QuestionDataProvider.prepareExampleQuestion();
-		Assertions.assertEquals(expectedQuestion.getId(), questionFromModel.getId());
-		Assertions.assertEquals(expectedQuestion.getTitle(), questionFromModel.getTitle());
-		Assertions.assertEquals(expectedQuestion.getDescription(), questionFromModel.getDescription());
-		Assertions.assertEquals(expectedQuestion.getUser().getUsername(), questionFromModel.getUser());
-
-		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
-		Assertions.assertNull(answerFromModel.getText());
-
-		AnswerEntity expectedOldAnswer = AnswerDataProvider.prepareExampleAnswer();
-		AnswerGet oldAnswerFromModel = (AnswerGet) modelAndView.getModel().get("oldAnswer");
-		Assertions.assertEquals(expectedOldAnswer.getId(), oldAnswerFromModel.getId());
-		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
-		Assertions.assertEquals(expectedOldAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
-
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, never()).save(any(AnswerEntity.class));
-	}
-
-	@Test
-	void editAnswer_administratorUpdatesAnotherUsersAnswer_success() throws Exception {
-
-		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
-		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		mockMvc.perform(
-						post("/app/questions/1000/answers/1000/edit/")
-								.with(user("admin").password("password").roles("ADMIN"))
-								.with(csrf())
-								.param("text", answerToRequest.getText()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("../.."))
-				.andExpect(view().name("redirect:../.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
-
-		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
-		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
 	@Test
@@ -832,38 +717,22 @@ class AnswerWebControllerTest {
 		verify(answerRepository, never()).delete(any(AnswerEntity.class));
 	}
 
-	@Test
-	void removeAnswer_userDeletesHisOwnAnswer_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyUpdateOrDeleteAnswer")
+	void removeAnswer_userDeletesAnswer_success(UserEntity loggedUser) throws Exception {
 
-		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
+		String role = loggedUser.getRole().name().replace("ROLE_", "");
 		mockMvc.perform(
 			post("/app/questions/1000/answers/1000/delete/")
-					.with(user("user2").password("password"))
+					.with(user(loggedUser.getUsername()).password("password").roles(role))
 					.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
-
-		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
-	}
-
-	@Test
-	void removeAnswer_administratorDeletesAnotherUsersAnswer_success() throws Exception {
-
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		mockMvc.perform(
-						post("/app/questions/1000/answers/1000/delete/")
-								.with(user("admin").password("password").roles("ADMIN"))
-								.with(csrf()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("../.."))
-				.andExpect(view().name("redirect:../.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
+				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles(role));
 
 		verify(answerRepository, times(1)).delete(any(AnswerEntity.class));
 	}
