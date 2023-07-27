@@ -45,6 +45,7 @@ import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
@@ -157,7 +158,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfAnswersGetUrls")
 	void getAnswers_parameterized_success(String url, int expectedElements) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -186,7 +187,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfTooLargePageSizeUrls")
 	void limitExceeded_tooLargePageSize_badRequest(String url) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).header("Authorization", token))
 						.andExpect(status().isBadRequest())
@@ -209,7 +210,7 @@ class AnswerApiControllerTest {
 	@Test
 	void getAnswers_questionNotExists_notFound() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get("/api/questions/2000/answers")
 								.header("Authorization", token))
@@ -231,7 +232,7 @@ class AnswerApiControllerTest {
 	@Test
 	void getAnswerByQuestionIdAndAnswerId_simpleCase_success() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						get("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
@@ -251,7 +252,7 @@ class AnswerApiControllerTest {
 	void getAnswerByQuestionIdAndAnswerId_questionOrAnswerNotExists_notFound(String url, String expectedErrorMessage)
 			throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get(url)
 								.header("Authorization", token))
@@ -292,7 +293,7 @@ class AnswerApiControllerTest {
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						post("/api/questions/2000/answers")
 								.header("Authorization", token)
@@ -317,7 +318,7 @@ class AnswerApiControllerTest {
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						post("/api/questions/1000/answers")
 								.header("Authorization", token)
@@ -339,7 +340,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfAddAnswerBadRequests")
 	void addAnswer_incorrectAnswer_badRequest(AnswerCreateUpdate answerToRequest) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
 								.header("Authorization", token)
@@ -366,7 +367,7 @@ class AnswerApiControllerTest {
 	@Test
 	void addAnswer_emptyBody_badRequest() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						post("/api/questions/1000/answers")
 								.header("Authorization", token)
@@ -405,7 +406,7 @@ class AnswerApiControllerTest {
 		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = prepareToken(loggedUser.getUsername(), "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -427,7 +428,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfUpdateAnswerBadRequests")
 	void updateAnswer_incorrectAnswer_badRequest(AnswerCreateUpdate answerToRequest) throws Exception {
 
-		String token = prepareToken("user2", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user2", "password");
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -454,7 +455,7 @@ class AnswerApiControllerTest {
 	@Test
 	void updateAnswer_emptyBody_badRequest() throws Exception {
 
-		String token = prepareToken("user2", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user2", "password");
 		mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -474,7 +475,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put("/api/questions/1000/answers/1000")
 								.header("Authorization", token)
@@ -498,7 +499,7 @@ class AnswerApiControllerTest {
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
-		String token = prepareToken("user2", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user2", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						put(url)
 								.header("Authorization", token)
@@ -530,7 +531,7 @@ class AnswerApiControllerTest {
 
 		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = prepareToken(loggedUser.getUsername(), "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
@@ -553,7 +554,7 @@ class AnswerApiControllerTest {
 
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete("/api/questions/1000/answers/1000")
 								.header("Authorization", token))
@@ -571,7 +572,7 @@ class AnswerApiControllerTest {
 
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
-		String token = prepareToken("user2", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user2", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						delete(url)
 								.header("Authorization", token))
@@ -594,7 +595,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfDownloadPdfUrls")
 	void downloadPdf_parameterized_success(String url) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -628,7 +629,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfDownloadExcelUrls")
 	void downloadExcel_parameterized_success(String url) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
@@ -654,7 +655,7 @@ class AnswerApiControllerTest {
 	@MethodSource("examplesOfQuestionNotFoundUrls")
 	void downloadFile_questionNotExists_notFound(String url) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
 						get(url)
 								.header("Authorization", token))
@@ -671,15 +672,5 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/2000/answers/file-export?fileType=PDF"),
 				Arguments.of("/api/questions/2000/answers/file-export?fileType=EXCEL")
 		);
-	}
-
-	private String prepareToken(String username, String password) throws Exception {
-
-		return mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
-						.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(header().exists("Authorization"))
-				.andReturn().getResponse().getHeader("Authorization");
 	}
 }

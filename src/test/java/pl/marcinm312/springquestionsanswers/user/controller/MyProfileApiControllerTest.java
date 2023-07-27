@@ -28,6 +28,7 @@ import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticati
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
@@ -115,7 +116,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void getMyProfile_loggedCommonUser_success() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						get("/api/myProfile")
 								.header("Authorization", token))
@@ -131,7 +132,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void getMyProfile_loggedAdminUser_success() throws Exception {
 
-		String token = prepareToken("admin", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
 		String response = mockMvc.perform(
 						get("/api/myProfile")
 								.header("Authorization", token))
@@ -193,7 +194,7 @@ class MyProfileApiControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						put("/api/myProfile")
 								.header("Authorization", token)
@@ -232,7 +233,7 @@ class MyProfileApiControllerTest {
 
 		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile")
 								.header("Authorization", token)
@@ -259,7 +260,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void updateMyProfile_nullBody_badRequest() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile")
 								.header("Authorization", token)
@@ -294,7 +295,7 @@ class MyProfileApiControllerTest {
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						put("/api/myProfile/updatePassword")
 								.header("Authorization", token)
@@ -319,7 +320,7 @@ class MyProfileApiControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
 
-		String token = prepareToken("user3", " pas ");
+		String token = new JwtProvider(mockMvc).prepareToken("user3", " pas ");
 		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
 		String response = mockMvc.perform(
 						put("/api/myProfile/updatePassword")
@@ -343,7 +344,7 @@ class MyProfileApiControllerTest {
 	@MethodSource("examplesOfUpdateMyPasswordBadRequests")
 	void updateMyPassword_incorrectData_badRequest(UserPasswordUpdate userToRequest) throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile/updatePassword")
 								.header("Authorization", token)
@@ -370,7 +371,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void updateMyPassword_nullBody_badRequest() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile/updatePassword")
 								.header("Authorization", token)
@@ -397,7 +398,7 @@ class MyProfileApiControllerTest {
 	@Test
 	void deleteMyProfile_simpleCase_success() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						delete("/api/myProfile")
 								.header("Authorization", token))
@@ -427,7 +428,7 @@ class MyProfileApiControllerTest {
 		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
 						put("/api/myProfile/expireOtherSessions")
 								.header("Authorization", token))
@@ -464,7 +465,7 @@ class MyProfileApiControllerTest {
 				.willReturn(Optional.of(foundToken));
 		given(userRepo.save(any(UserEntity.class))).willReturn(foundToken.getUser());
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile/confirmMailChange?value=" + exampleExistingTokenValue)
 								.header("Authorization", token))
@@ -482,7 +483,7 @@ class MyProfileApiControllerTest {
 		given(mailChangeTokenRepo.findByValueAndUsername(exampleNotExistingTokenValue, "user"))
 				.willReturn(Optional.empty());
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
 						put("/api/myProfile/confirmMailChange?value=" + exampleNotExistingTokenValue)
 								.header("Authorization", token))
@@ -495,22 +496,12 @@ class MyProfileApiControllerTest {
 	@Test
 	void activateUser_nullTokenValue_userNotActivated() throws Exception {
 
-		String token = prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(put("/api/myProfile/confirmMailChange?value=")
 						.header("Authorization", token))
 				.andExpect(status().isBadRequest());
 
 		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
 		verify(userRepo, never()).save(any(UserEntity.class));
-	}
-
-	private String prepareToken(String username, String password) throws Exception {
-
-		return mockMvc.perform(post("/api/login")
-						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
-						.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(header().exists("Authorization"))
-				.andReturn().getResponse().getHeader("Authorization");
 	}
 }
