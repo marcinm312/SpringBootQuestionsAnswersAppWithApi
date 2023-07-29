@@ -99,10 +99,10 @@ class QuestionApiControllerTest {
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 	private final XmlMapper xmlMapper = new XmlMapper();
 
-	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
-	private final UserEntity userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
+	private final static UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final static UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final static UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final static UserEntity userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
 
 	@Value("${jwt.secret}")
 	private String secret;
@@ -189,22 +189,24 @@ class QuestionApiControllerTest {
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void getQuestions_incorrectBearerToken_unauthorized() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfIncorrectBearerTokens")
+	void getQuestions_incorrectBearerToken_unauthorized(String token) throws Exception {
 
 		mockMvc.perform(
 						get("/api/questions")
-								.header("Authorization", "Bearer aaaaaaaaaaaaa"))
+								.header("Authorization", token))
 				.andExpect(status().isUnauthorized());
 	}
 
-	@Test
-	void getQuestions_incorrectBearerToken2_unauthorized() throws Exception {
+	private static Stream<Arguments> examplesOfIncorrectBearerTokens() {
 
-		mockMvc.perform(
-						get("/api/questions")
-								.header("Authorization", "Bearer aaaaaaaaaaaaa.bbbbb.ccccc"))
-				.andExpect(status().isUnauthorized());
+		return Stream.of(
+				Arguments.of("Bearer aaaaaaaaaaaaa"),
+				Arguments.of("Bearer aaaaaaaaaaaaa.bbbbb.ccccc"),
+				Arguments.of("Bearer"),
+				Arguments.of("")
+		);
 	}
 
 	@ParameterizedTest
@@ -449,13 +451,14 @@ class QuestionApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUpdateAnswerGoodRequests")
-	void updateQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest) throws Exception {
+	void updateQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest, UserEntity loggedUser)
+			throws Exception {
 
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), loggedUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						put("/api/questions/1000")
 								.header("Authorization", token)
@@ -475,8 +478,10 @@ class QuestionApiControllerTest {
 	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
 
 		return Stream.of(
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest()),
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest())
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), commonUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), commonUser)
 		);
 	}
 
@@ -518,31 +523,6 @@ class QuestionApiControllerTest {
 				.andExpect(status().isBadRequest());
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
-	}
-
-	@Test
-	void updateQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
-
-		QuestionCreateUpdate questionToRequestBody = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequestBody.getTitle(), questionToRequestBody.getDescription(), adminUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
-		String response = mockMvc.perform(
-						put("/api/questions/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(questionToRequestBody))
-								.characterEncoding("utf-8"))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		QuestionGet responseQuestion = mapper.readValue(response, QuestionGet.class);
-		Assertions.assertEquals(questionToRequestBody.getTitle(), responseQuestion.getTitle());
-		Assertions.assertEquals(questionToRequestBody.getDescription(), responseQuestion.getDescription());
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -599,12 +579,13 @@ class QuestionApiControllerTest {
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
-	@Test
-	void deleteQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyDeleteQuestion")
+	void deleteQuestion_userDeletesQuestion_success(UserEntity loggedUser) throws Exception {
 
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
-		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						delete("/api/questions/1000")
 								.header("Authorization", token))
@@ -612,24 +593,14 @@ class QuestionApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		Assertions.assertEquals("true", response);
-
 		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
-	@Test
-	void deleteQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
-
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
-		String response = mockMvc.perform(
-						delete("/api/questions/1000")
-								.header("Authorization", token))
-				.andExpect(status().isOk())
-				.andReturn().getResponse().getContentAsString();
-
-		Assertions.assertEquals("true", response);
-		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfSuccessfullyDeleteQuestion() {
+		return Stream.of(
+				Arguments.of(commonUser),
+				Arguments.of(adminUser)
+		);
 	}
 
 	@Test

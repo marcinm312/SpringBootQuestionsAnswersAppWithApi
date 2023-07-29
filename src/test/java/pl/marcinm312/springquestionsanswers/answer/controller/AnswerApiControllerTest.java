@@ -399,7 +399,7 @@ class AnswerApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfSuccessfullyUpdateOrDeleteAnswer")
-	void updateAnswer_userDeletesAnswer_success(UserEntity loggedUser) throws Exception {
+	void updateAnswer_userUpdatesAnswer_success(UserEntity loggedUser) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
