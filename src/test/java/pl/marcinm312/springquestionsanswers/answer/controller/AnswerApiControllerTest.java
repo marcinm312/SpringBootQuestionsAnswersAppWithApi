@@ -100,9 +100,9 @@ class AnswerApiControllerTest {
 
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
-	private static final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private static final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private static final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 
@@ -543,9 +543,10 @@ class AnswerApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfSuccessfullyUpdateOrDeleteAnswer() {
+
 		return Stream.of(
-				Arguments.of(secondUser),
-				Arguments.of(adminUser)
+				Arguments.of(UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword()),
+				Arguments.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword())
 		);
 	}
 

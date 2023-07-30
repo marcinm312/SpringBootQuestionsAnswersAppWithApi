@@ -113,10 +113,11 @@ class MyProfileApiControllerTest {
 						.build();
 	}
 
-	@Test
-	void getMyProfile_loggedCommonUser_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfGetMyProfileSuccess")
+	void getMyProfile_adminOrCommonUser_success(UserEntity loggedUser) throws Exception {
 
-		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), "password");
 		String response = mockMvc.perform(
 						get("/api/myProfile")
 								.header("Authorization", token))
@@ -125,24 +126,15 @@ class MyProfileApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
-		UserEntity expectedUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		assertUser(expectedUser, responseUser);
+		assertUser(loggedUser, responseUser);
 	}
 
-	@Test
-	void getMyProfile_loggedAdminUser_success() throws Exception {
+	private static Stream<Arguments> examplesOfGetMyProfileSuccess() {
 
-		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
-		String response = mockMvc.perform(
-						get("/api/myProfile")
-								.header("Authorization", token))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		UserGet responseUser = mapper.readValue(response, UserGet.class);
-		UserEntity expectedUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
-		assertUser(expectedUser, responseUser);
+		return Stream.of(
+			Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()),
+			Arguments.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword())
+		);
 	}
 
 	@Test
@@ -181,7 +173,7 @@ class MyProfileApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfGoodProfileUpdates")
-	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUserWithTheSameLogin,
+	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, UserEntity foundUserWithTheSameLogin,
 										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations)
 			throws Exception {
 
@@ -190,7 +182,7 @@ class MyProfileApiControllerTest {
 				.password(commonUser.getPassword())
 				.email(commonUser.getEmail())
 				.build();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUserWithTheSameLogin);
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUserWithTheSameLogin));
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
@@ -217,21 +209,22 @@ class MyProfileApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfGoodProfileUpdates() {
+
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), Optional.empty(), 1, 0),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(), Optional.of(existingUser), 0, 0),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(), Optional.of(existingUser), 0, 1),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(), Optional.empty(), 1, 1)
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), null, 1, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(), existingUser, 0, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(), existingUser, 0, 1),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(), null, 1, 1)
 		);
 	}
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUpdateMyProfileBadRequests")
-	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, Optional<UserEntity> foundUser)
+	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, UserEntity foundUser)
 			throws Exception {
 
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUser));
 
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(
@@ -250,10 +243,10 @@ class MyProfileApiControllerTest {
 
 		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareExistingUserDataUpdateToRequest(), Optional.of(existingUser)),
-				Arguments.of(UserDataProvider.prepareIncorrectUserDataUpdateToRequest(), Optional.empty()),
-				Arguments.of(UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest(), Optional.empty()),
-				Arguments.of(UserDataProvider.prepareEmptyUserDataUpdateToRequest(), Optional.empty())
+				Arguments.of(UserDataProvider.prepareExistingUserDataUpdateToRequest(), existingUser),
+				Arguments.of(UserDataProvider.prepareIncorrectUserDataUpdateToRequest(), null),
+				Arguments.of(UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest(), null),
+				Arguments.of(UserDataProvider.prepareEmptyUserDataUpdateToRequest(), null)
 		);
 	}
 
@@ -288,14 +281,15 @@ class MyProfileApiControllerTest {
 		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
 	}
 
-	@Test
-	void updateMyPassword_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUpdateMyPasswordGoodRequests")
+	void updateMyPassword_goodRequest_success(UserEntity loggedUser, String password, UserPasswordUpdate userToRequest)
+			throws Exception {
 
-		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
-		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
+		given(userRepo.save(any(UserEntity.class))).willReturn(loggedUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(loggedUser);
 
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
-		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		String token = new JwtProvider(mockMvc).prepareToken(loggedUser.getUsername(), password);
 		String response = mockMvc.perform(
 						put("/api/myProfile/updatePassword")
 								.header("Authorization", token)
@@ -307,37 +301,21 @@ class MyProfileApiControllerTest {
 				.andReturn().getResponse().getContentAsString();
 
 		UserGet responseUser = mapper.readValue(response, UserGet.class);
-		Assertions.assertEquals(commonUser.getUsername(), responseUser.getUsername());
-		Assertions.assertEquals(commonUser.getEmail(), responseUser.getEmail());
+		Assertions.assertEquals(loggedUser.getUsername(), responseUser.getUsername());
+		Assertions.assertEquals(loggedUser.getEmail(), responseUser.getEmail());
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
-	@Test
-	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
+	private static Stream<Arguments> examplesOfUpdateMyPasswordGoodRequests() {
 
-		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
-		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
-
-		String token = new JwtProvider(mockMvc).prepareToken("user3", " pas ");
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
-		String response = mockMvc.perform(
-						put("/api/myProfile/updatePassword")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.characterEncoding("utf-8")
-								.content(mapper.writeValueAsString(userToRequest)))
-				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
-				.andReturn().getResponse().getContentAsString();
-
-		UserGet responseUser = mapper.readValue(response, UserGet.class);
-		Assertions.assertEquals(userWithSpacesInPass.getUsername(), responseUser.getUsername());
-		Assertions.assertEquals(userWithSpacesInPass.getEmail(), responseUser.getEmail());
-		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(sessionUtils, times(1))
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		return Stream.of(
+			Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword(), "password",
+					UserDataProvider.prepareGoodUserPasswordUpdateToRequest()),
+			Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces(), " pas ",
+					UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest())
+		);
 	}
 
 	@ParameterizedTest

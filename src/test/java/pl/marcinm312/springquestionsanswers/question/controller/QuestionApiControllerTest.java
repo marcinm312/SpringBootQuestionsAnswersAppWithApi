@@ -99,10 +99,10 @@ class QuestionApiControllerTest {
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 	private final XmlMapper xmlMapper = new XmlMapper();
 
-	private final static UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final static UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final static UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
-	private final static UserEntity userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity userWithChangedPassword = UserDataProvider.prepareExampleGoodUserWithEncodedAndChangedPassword();
 
 	@Value("${jwt.secret}")
 	private String secret;
@@ -478,6 +478,8 @@ class QuestionApiControllerTest {
 
 	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
 
+		UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+		UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), adminUser),
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), adminUser),
@@ -600,6 +602,9 @@ class QuestionApiControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfSuccessfullyDeleteQuestion() {
+
+		UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+		UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
 				Arguments.of(commonUser),
 				Arguments.of(adminUser)

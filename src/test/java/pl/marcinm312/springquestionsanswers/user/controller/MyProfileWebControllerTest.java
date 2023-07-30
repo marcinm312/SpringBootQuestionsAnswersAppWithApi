@@ -220,7 +220,7 @@ class MyProfileWebControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfGoodProfileUpdates")
-	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, Optional<UserEntity> foundUserWithTheSameLogin,
+	void updateMyProfile_goodUser_success(UserDataUpdate userToRequest, UserEntity foundUserWithTheSameLogin,
 										  int numberOfExpireSessionInvocations, int numberOfSendEmailInvocations)
 			throws Exception {
 
@@ -229,7 +229,7 @@ class MyProfileWebControllerTest {
 				.password(commonUser.getPassword())
 				.email(commonUser.getEmail())
 				.build();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUserWithTheSameLogin);
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUserWithTheSameLogin));
 		given(userRepo.save(any(UserEntity.class))).willReturn(savedUser);
 		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(true), eq(false))).willReturn(savedUser);
 
@@ -256,130 +256,61 @@ class MyProfileWebControllerTest {
 
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), Optional.empty(), 1, 0),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(), Optional.of(existingUser), 0, 0),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(), Optional.of(existingUser), 0, 1),
-				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(), Optional.empty(), 1, 1)
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginChangeToRequest(), null, 1, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithoutChangesToRequest(), existingUser, 0, 0),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithEmailChangeToRequest(), existingUser, 0, 1),
+				Arguments.of(UserDataProvider.prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest(), null, 1, 1)
 		);
 	}
 
-	@Test
-	void updateMyProfile_userAlreadyExists_validationError() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUpdateMyProfileBadRequests")
+	void updateMyProfile_incorrectUser_validationError(UserDataUpdate userToRequest, UserEntity existingUser,
+														   String expectedLogin, String[] errorFields) throws Exception {
 
-		UserDataUpdate userToRequest = UserDataProvider.prepareExistingUserDataUpdateToRequest();
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(existingUser));
+
+		ModelAndView modelAndView = mockMvc.perform(
+						post("/app/myProfile/update/")
+								.with(user("user").password("password"))
+								.with(csrf())
+								.param("username", userToRequest.getUsername())
+								.param("email", userToRequest.getEmail()))
+				.andExpect(status().isBadRequest())
+				.andExpect(view().name("updateMyProfile"))
+				.andExpect(model().hasErrors())
+				.andExpect(model().attributeHasFieldErrors("user", errorFields))
+				.andExpect(model().attributeExists("user", "userLogin"))
+				.andExpect(model().attribute("userLogin", "user"))
+				.andExpect(authenticated().withUsername("user").withRoles("USER"))
+				.andReturn().getModelAndView();
+
+		assert modelAndView != null;
+		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
+		Assertions.assertEquals(expectedLogin, userFromModel.getUsername());
+		verify(userRepo, never()).save(any(UserEntity.class));
+		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+	}
+
+	private static Stream<Arguments> examplesOfUpdateMyProfileBadRequests() {
+
 		UserEntity existingUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyProfile"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeExists("user", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
+		UserDataUpdate existingUserRequest = UserDataProvider.prepareExistingUserDataUpdateToRequest();
+		UserDataUpdate incorrectUserRequest = UserDataProvider.prepareIncorrectUserDataUpdateToRequest();
+		UserDataUpdate tooShortLoginAfterTrimUserRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
+		UserDataUpdate emptyUserRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
 
-		assert modelAndView != null;
-		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-	}
-
-	@Test
-	void updateMyProfile_incorrectValues_validationError() throws Exception {
-
-		UserDataUpdate userToRequest = UserDataProvider.prepareIncorrectUserDataUpdateToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyProfile"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeHasFieldErrors("user", "email"))
-				.andExpect(model().attributeExists("user", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-	}
-
-	@Test
-	void updateMyProfile_userWithTooShortLoginAfterTrim_validationError() throws Exception {
-
-		UserDataUpdate userToRequest = UserDataProvider.prepareUserDataUpdateWithTooShortLoginAfterTrimToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyProfile"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeExists("user", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-	}
-
-	@Test
-	void updateMyProfile_emptyValues_validationError() throws Exception {
-
-		UserDataUpdate userToRequest = UserDataProvider.prepareEmptyUserDataUpdateToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/myProfile/update/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyProfile"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeHasFieldErrors("user", "email"))
-				.andExpect(model().attributeExists("user", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserDataUpdate userFromModel = (UserDataUpdate) modelAndView.getModel().get("user");
-		Assertions.assertNull(userFromModel.getUsername());
-		Assertions.assertNull(userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(false));
+		return Stream.of(
+				Arguments.of(existingUserRequest, existingUser, existingUserRequest.getUsername(),
+						new String[]{"username"}),
+				Arguments.of(incorrectUserRequest, null, incorrectUserRequest.getUsername(),
+						new String[]{"username", "email"}),
+				Arguments.of(tooShortLoginAfterTrimUserRequest, null, tooShortLoginAfterTrimUserRequest.getUsername().trim(),
+						new String[]{"username"}),
+				Arguments.of(emptyUserRequest, null, null,
+						new String[]{"username", "email"})
+		);
 	}
 
 	@Test
@@ -456,16 +387,17 @@ class MyProfileWebControllerTest {
 		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
-	@Test
-	void updateMyPassword_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUpdateMyPasswordGoodRequests")
+	void updateMyPassword_goodRequest_success(UserEntity loggedUser, String password, UserPasswordUpdate userToRequest)
+			throws Exception {
 
-		given(userRepo.save(any(UserEntity.class))).willReturn(commonUser);
-		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(commonUser);
+		given(userRepo.save(any(UserEntity.class))).willReturn(loggedUser);
+		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(loggedUser);
 
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareGoodUserPasswordUpdateToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
-								.with(user("user").password("password"))
+								.with(user(loggedUser.getUsername()).password(password))
 								.with(csrf())
 								.param("currentPassword", userToRequest.getCurrentPassword())
 								.param("password", userToRequest.getPassword())
@@ -474,42 +406,28 @@ class MyProfileWebControllerTest {
 				.andExpect(redirectedUrl(".."))
 				.andExpect(view().name("redirect:.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles("USER"));
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(1))
 				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
-	@Test
-	void updateMyPassword_userWithSpacesInPassword_success() throws Exception {
+	private static Stream<Arguments> examplesOfUpdateMyPasswordGoodRequests() {
 
-		given(userRepo.save(any(UserEntity.class))).willReturn(userWithSpacesInPass);
-		given(sessionUtils.expireUserSessions(any(UserEntity.class), eq(false), eq(false))).willReturn(userWithSpacesInPass);
-
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest();
-		mockMvc.perform(
-						post("/app/myProfile/updatePassword/")
-								.with(user("user3").password(" pass "))
-								.with(csrf())
-								.param("currentPassword", userToRequest.getCurrentPassword())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(".."))
-				.andExpect(view().name("redirect:.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user3").withRoles("USER"));
-
-		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(sessionUtils, times(1))
-				.expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword(), "password",
+						UserDataProvider.prepareGoodUserPasswordUpdateToRequest()),
+				Arguments.of(UserDataProvider.prepareExampleGoodUserWithEncodedPasswordWithSpaces(), " pas ",
+						UserDataProvider.prepareUserPasswordUpdateWithSpacesInPassToRequest())
+		);
 	}
 
-	@Test
-	void updateMyPassword_incorrectCurrentPassword_validationError() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUpdateMyPasswordBadRequests")
+	void updateMyPassword_incorrectData_validationErrors(UserPasswordUpdate userToRequest, String[] errorFields)
+			throws Exception {
 
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest();
 		mockMvc.perform(
 						post("/app/myProfile/updatePassword/")
 								.with(user("user").password("password"))
@@ -520,7 +438,7 @@ class MyProfileWebControllerTest {
 				.andExpect(status().isBadRequest())
 				.andExpect(view().name("updateMyPassword"))
 				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user2", "currentPassword"))
+				.andExpect(model().attributeHasFieldErrors("user2", errorFields))
 				.andExpect(model().attributeExists("userLogin", "user2"))
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
@@ -529,101 +447,21 @@ class MyProfileWebControllerTest {
 		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
 	}
 
-	@Test
-	void updateMyPassword_differentPasswordInConfirmation_validationError() throws Exception {
+	private static Stream<Arguments> examplesOfUpdateMyPasswordBadRequests() {
 
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest();
-		mockMvc.perform(
-						post("/app/myProfile/updatePassword/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("currentPassword", userToRequest.getCurrentPassword())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyPassword"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
-				.andExpect(model().attributeExists("userLogin", "user2"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithIncorrectCurrentPasswordToRequest(),
+						new String[]{"currentPassword"}),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithConfirmationErrorToRequest(),
+						new String[]{"confirmPassword"}),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest(),
+						new String[]{"password"}),
+				Arguments.of(UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest(),
+						new String[]{"password", "confirmPassword"}),
+				Arguments.of(UserDataProvider.prepareEmptyUserPasswordUpdateToRequest(),
+						new String[]{"currentPassword", "password", "confirmPassword"})
+		);
 	}
-
-	@Test
-	void updateMyPassword_theSamePasswordAsPrevious_validationError() throws Exception {
-
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTheSamePasswordAsPreviousToRequest();
-		mockMvc.perform(
-						post("/app/myProfile/updatePassword/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("currentPassword", userToRequest.getCurrentPassword())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyPassword"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user2", "password"))
-				.andExpect(model().attributeExists("userLogin", "user2"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
-	}
-
-	@Test
-	void updateMyPassword_tooShortPassword_validationError() throws Exception {
-
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareUserPasswordUpdateWithTooShortPasswordToRequest();
-		mockMvc.perform(
-						post("/app/myProfile/updatePassword/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("currentPassword", userToRequest.getCurrentPassword())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyPassword"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user2", "password"))
-				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
-				.andExpect(model().attributeExists("userLogin", "user2"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
-	}
-
-	@Test
-	void updateMyPassword_emptyFields_validationError() throws Exception {
-
-		UserPasswordUpdate userToRequest = UserDataProvider.prepareEmptyUserPasswordUpdateToRequest();
-		mockMvc.perform(
-						post("/app/myProfile/updatePassword/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("currentPassword", userToRequest.getCurrentPassword())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("updateMyPassword"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user2", "currentPassword"))
-				.andExpect(model().attributeHasFieldErrors("user2", "password"))
-				.andExpect(model().attributeHasFieldErrors("user2", "confirmPassword"))
-				.andExpect(model().attributeExists("userLogin", "user2"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(false), eq(false));
-	}
-
 
 	@Test
 	void expireOtherSessions_withAnonymousUser_redirectToLoginPage() throws Exception {

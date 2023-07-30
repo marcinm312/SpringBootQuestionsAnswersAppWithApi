@@ -94,9 +94,9 @@ class QuestionWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private final static UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final static UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final static UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
@@ -475,6 +475,8 @@ class QuestionWebControllerTest {
 
 	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
 
+		UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+		UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), adminUser),
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), adminUser),
@@ -679,6 +681,9 @@ class QuestionWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfSuccessfullyDeleteQuestion() {
+
+		UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+		UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
 				Arguments.of(commonUser),
 				Arguments.of(adminUser)
