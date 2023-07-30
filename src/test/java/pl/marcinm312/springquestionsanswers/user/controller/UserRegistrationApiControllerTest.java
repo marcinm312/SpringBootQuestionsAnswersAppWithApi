@@ -140,10 +140,10 @@ class UserRegistrationApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUserRegistrationBadRequests")
-	void createUser_incorrectUser_validationError(UserCreate userToRequest, Optional<UserEntity> foundUser)
+	void createUser_incorrectUser_validationError(UserCreate userToRequest, UserEntity foundUser)
 			throws Exception {
 
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(foundUser);
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUser));
 
 		mockMvc.perform(
 						post("/api/registration")
@@ -161,11 +161,11 @@ class UserRegistrationApiControllerTest {
 
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return Stream.of(
-				Arguments.of(UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest(), Optional.empty()),
-				Arguments.of(UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest(), Optional.empty()),
-				Arguments.of(UserDataProvider.prepareGoodUserToRequest(), Optional.of(existingUser)),
-				Arguments.of(UserDataProvider.prepareIncorrectUserToRequest(), Optional.empty()),
-				Arguments.of(UserDataProvider.prepareEmptyUserToRequest(), Optional.empty())
+				Arguments.of(UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest(), null),
+				Arguments.of(UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest(), null),
+				Arguments.of(UserDataProvider.prepareGoodUserToRequest(), existingUser),
+				Arguments.of(UserDataProvider.prepareIncorrectUserToRequest(), null),
+				Arguments.of(UserDataProvider.prepareEmptyUserToRequest(), null)
 		);
 	}
 
