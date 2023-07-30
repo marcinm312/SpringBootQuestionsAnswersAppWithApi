@@ -221,10 +221,10 @@ class MyProfileApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUpdateMyProfileBadRequests")
-	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, UserEntity foundUser)
+	void updateMyProfile_incorrectUser_badRequest(UserDataUpdate userToRequest, UserEntity foundUserWithTheSameLogin)
 			throws Exception {
 
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUser));
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUserWithTheSameLogin));
 
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(

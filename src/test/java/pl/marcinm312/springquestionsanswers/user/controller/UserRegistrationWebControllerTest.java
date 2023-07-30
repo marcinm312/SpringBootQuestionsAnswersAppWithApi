@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,6 +41,7 @@ import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.user.validator.UserCreateValidator;
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -137,10 +141,10 @@ class UserRegistrationWebControllerTest {
 		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
-	@Test
-	void createUser_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUserRegistrationGoodRequests")
+	void createUser_goodUser_success(UserCreate userToRequest) throws Exception {
 
-		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		UserEntity user = UserEntity.builder()
 				.username(userToRequest.getUsername())
 				.password(userToRequest.getPassword())
@@ -169,43 +173,20 @@ class UserRegistrationWebControllerTest {
 				any(String.class), eq(true));
 	}
 
-	@Test
-	void createUser_spacesInPassword_success() throws Exception {
+	private static Stream<Arguments> examplesOfUserRegistrationGoodRequests() {
 
-		UserCreate userToRequest = UserDataProvider.prepareUserWithSpacesInPasswordToRequest();
-		UserEntity user = UserEntity.builder()
-				.username(userToRequest.getUsername())
-				.password(userToRequest.getPassword())
-				.email(userToRequest.getEmail())
-				.build();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-		given(activationTokenRepo.save(any(ActivationTokenEntity.class))).willReturn(new ActivationTokenEntity("123456789", user));
-		given(userRepo.save(any(UserEntity.class))).willReturn(user);
-
-		mockMvc.perform(
-						post("/register/")
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(".."))
-				.andExpect(view().name("redirect:.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(unauthenticated());
-
-		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(activationTokenRepo, times(1)).save(any(ActivationTokenEntity.class));
-		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
+		return Stream.of(
+				Arguments.of(UserDataProvider.prepareGoodUserToRequest()),
+				Arguments.of(UserDataProvider.prepareUserWithSpacesInPasswordToRequest())
+		);
 	}
 
-	@Test
-	void createUser_incorrectConfirmPasswordValue_validationError() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUserRegistrationBadRequests")
+	void createUser_incorrectUser_validationError(UserCreate userToRequest, UserEntity existingUser, String expectedLogin,
+												  String[] errorFields) throws Exception {
 
-		UserCreate userToRequest = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(existingUser));
 
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/register/")
@@ -217,161 +198,44 @@ class UserRegistrationWebControllerTest {
 				.andExpect(status().isBadRequest())
 				.andExpect(view().name("register"))
 				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"))
+				.andExpect(model().attributeHasFieldErrors("user", errorFields))
 				.andExpect(model().attributeExists("user"))
 				.andExpect(unauthenticated())
 				.andReturn().getModelAndView();
 
 		assert modelAndView != null;
 		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
+		Assertions.assertEquals(expectedLogin, userFromModel.getUsername());
 		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
 		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
 		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
-	@Test
-	void createUser_userWithTooShortLoginAfterTrim_validationError() throws Exception {
+	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {
 
-		UserCreate userToRequest = UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/register/")
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("register"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeExists("user"))
-				.andExpect(unauthenticated())
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername().trim(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
-		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
-	}
-
-	@Test
-	void createUser_userAlreadyExists_validationError() throws Exception {
-
-		UserCreate userToRequest = UserDataProvider.prepareGoodUserToRequest();
 		UserEntity existingUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.of(existingUser));
 
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/register/")
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("register"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeExists("user"))
-				.andExpect(unauthenticated())
-				.andReturn().getModelAndView();
+		UserCreate userWithConfirmPasswordError = UserDataProvider.prepareUserWithConfirmPasswordErrorToRequest();
+		UserCreate userWithTooShortLoginAfterTrim = UserDataProvider.prepareUserWithTooShortLoginAfterTrimToRequest();
+		UserCreate goodUser = UserDataProvider.prepareGoodUserToRequest();
+		UserCreate incorrectUser = UserDataProvider.prepareIncorrectUserToRequest();
+		UserCreate emptyUser = UserDataProvider.prepareEmptyUserToRequest();
 
-		assert modelAndView != null;
-		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
-		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
-	}
-
-	@Test
-	void createUser_incorrectValues_validationError() throws Exception {
-
-		UserCreate userToRequest = UserDataProvider.prepareIncorrectUserToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/register/")
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("register"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeHasFieldErrors("user", "password"))
-				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"))
-				.andExpect(model().attributeHasFieldErrors("user", "email"))
-				.andExpect(model().attributeExists("user"))
-				.andExpect(unauthenticated())
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertEquals(userToRequest.getUsername(), userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
-		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertEquals(userToRequest.getEmail(), userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
-	}
-
-	@Test
-	void createUser_emptyValues_validationError() throws Exception {
-
-		UserCreate userToRequest = UserDataProvider.prepareEmptyUserToRequest();
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.empty());
-
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/register/")
-								.with(csrf())
-								.param("username", userToRequest.getUsername())
-								.param("password", userToRequest.getPassword())
-								.param("confirmPassword", userToRequest.getConfirmPassword())
-								.param("email", userToRequest.getEmail()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("register"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("user", "username"))
-				.andExpect(model().attributeHasFieldErrors("user", "password"))
-				.andExpect(model().attributeHasFieldErrors("user", "confirmPassword"))
-				.andExpect(model().attributeHasFieldErrors("user", "email"))
-				.andExpect(model().attributeExists("user"))
-				.andExpect(unauthenticated())
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		UserCreate userFromModel = (UserCreate) modelAndView.getModel().get("user");
-		Assertions.assertNull(userFromModel.getUsername());
-		Assertions.assertEquals(userToRequest.getPassword(), userFromModel.getPassword());
-		Assertions.assertEquals(userToRequest.getConfirmPassword(), userFromModel.getConfirmPassword());
-		Assertions.assertNull(userFromModel.getEmail());
-		verify(userRepo, never()).save(any(UserEntity.class));
-		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class),
-				any(String.class), eq(true));
+		return Stream.of(
+				Arguments.of(userWithConfirmPasswordError, null, userWithConfirmPasswordError.getUsername(),
+						new String[]{"confirmPassword"}),
+				Arguments.of(userWithTooShortLoginAfterTrim, null, userWithTooShortLoginAfterTrim.getUsername().trim(),
+						new String[]{"username"}),
+				Arguments.of(goodUser, existingUser, goodUser.getUsername(),
+						new String[]{"username"}),
+				Arguments.of(incorrectUser, null, incorrectUser.getUsername(),
+						new String[]{"username", "password", "confirmPassword", "email"}),
+				Arguments.of(emptyUser, null, null,
+						new String[]{"username", "password", "confirmPassword", "email"})
+		);
 	}
 
 	@Test

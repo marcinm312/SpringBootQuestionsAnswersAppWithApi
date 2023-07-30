@@ -140,10 +140,10 @@ class UserRegistrationApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUserRegistrationBadRequests")
-	void createUser_incorrectUser_validationError(UserCreate userToRequest, UserEntity foundUser)
+	void createUser_incorrectUser_validationError(UserCreate userToRequest, UserEntity foundUserWithTheSameLogin)
 			throws Exception {
 
-		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUser));
+		given(userRepo.findByUsername(userToRequest.getUsername())).willReturn(Optional.ofNullable(foundUserWithTheSameLogin));
 
 		mockMvc.perform(
 						post("/api/registration")
