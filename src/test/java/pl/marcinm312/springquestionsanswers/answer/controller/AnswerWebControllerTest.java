@@ -213,7 +213,7 @@ class AnswerWebControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfTooLargePageSizeUrls")
-	void fileExport_tooLargePageSize_badRequest(String url) throws Exception {
+	void downloadFile_tooLargePageSize_badRequest(String url) throws Exception {
 
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).with(user("user").password("password")))

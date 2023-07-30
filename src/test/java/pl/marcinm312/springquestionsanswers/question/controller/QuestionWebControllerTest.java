@@ -94,9 +94,9 @@ class QuestionWebControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
-	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
+	private final static UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final static UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
+	private final static UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setup() {
@@ -186,7 +186,7 @@ class QuestionWebControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfTooLargePageSizeUrls")
-	void limitExceeded_tooLargePageSize_badRequest(String url) throws Exception {
+	void downloadFile_tooLargePageSize_badRequest(String url) throws Exception {
 
 		String receivedErrorMessage = Objects.requireNonNull(
 				mockMvc.perform(get(url).with(user("user").password("password")))
@@ -274,10 +274,10 @@ class QuestionWebControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfGoodQuestions")
+	void createQuestion_goodQuestion_success(QuestionCreateUpdate questionToRequest) throws Exception {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
 				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
@@ -297,59 +297,20 @@ class QuestionWebControllerTest {
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_emptyDescription_success() throws Exception {
+	private static Stream<Arguments> examplesOfGoodQuestions() {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
-
-		mockMvc.perform(
-						post("/app/questions/new/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl(".."))
-				.andExpect(view().name("redirect:.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
+		return Stream.of(
+			Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest()),
+			Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest()),
+			Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest())
+		);
 	}
 
-	@Test
-	void createQuestion_tooShortTitle_validationErrors() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfCreateUpdateQuestionBadRequests")
+	void createQuestion_incorrectQuestion_validationErrors(QuestionCreateUpdate questionToRequest, String expectedTitle)
+			throws Exception {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/new/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(view().name("createQuestion"))
-				.andExpect(status().isBadRequest())
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("question", "title"))
-				.andExpect(model().attributeExists("question", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
-		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
-	}
-
-	@Test
-	void createQuestion_tooShortTitleAfterTrim_validationErrors() throws Exception {
-
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/new/")
 								.with(user("user").password("password"))
@@ -367,35 +328,21 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertEquals(questionToRequest.getTitle().trim(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedTitle, questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void createQuestion_emptyTitle_validationErrors() throws Exception {
+	private static Stream<Arguments> examplesOfCreateUpdateQuestionBadRequests() {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/new/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("createQuestion"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeHasFieldErrors("question", "title"))
-				.andExpect(model().attributeExists("question", "userLogin"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertNull(questionFromModel.getTitle());
-		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
+		QuestionCreateUpdate questionWithTooShortTitle = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
+		QuestionCreateUpdate questionWithTooShortTitleAfterTrim = QuestionDataProvider.prepareQuestionWithTooShortTitleAfterTrimToRequest();
+		QuestionCreateUpdate questionWithEmptyTitle = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
+		return Stream.of(
+			Arguments.of(questionWithTooShortTitle, questionWithTooShortTitle.getTitle()),
+			Arguments.of(questionWithTooShortTitleAfterTrim, questionWithTooShortTitleAfterTrim.getTitle().trim()),
+			Arguments.of(questionWithEmptyTitle, null)
+		);
 	}
 
 	@Test
@@ -502,17 +449,18 @@ class QuestionWebControllerTest {
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void editQuestion_userUpdatesHisOwnQuestion_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfUpdateAnswerGoodRequests")
+	void editQuestion_userUpdatesQuestion_success(QuestionCreateUpdate questionToRequest, UserEntity loggedUser) throws Exception {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
 		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), loggedUser));
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
+		String role = loggedUser.getRole().name().replace("ROLE_", "");
 		mockMvc.perform(
 						post("/app/questions/1000/edit/")
-								.with(user("user").password("password"))
+								.with(user(loggedUser.getUsername()).password("password").roles(role))
 								.with(csrf())
 								.param("title", questionToRequest.getTitle())
 								.param("description", questionToRequest.getDescription()))
@@ -520,38 +468,28 @@ class QuestionWebControllerTest {
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles(role));
 
 		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
-	@Test
-	void editQuestion_emptyDescription_success() throws Exception {
+	private static Stream<Arguments> examplesOfUpdateAnswerGoodRequests() {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), commonUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
-
-		mockMvc.perform(
-						post("/app/questions/1000/edit/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("../.."))
-				.andExpect(view().name("redirect:../.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
-
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), commonUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), commonUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest(), commonUser)
+		);
 	}
 
-	@Test
-	void editQuestion_tooShortTitle_validationErrors() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfCreateUpdateQuestionBadRequests")
+	void editQuestion_incorrectQuestion_validationErrors(QuestionCreateUpdate questionToRequest, String expectedTitle)
+			throws Exception {
 
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithTooShortTitleToRequest();
 		ModelAndView modelAndView = mockMvc.perform(
 						post("/app/questions/1000/edit/")
 								.with(user("user").password("password"))
@@ -569,7 +507,7 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertEquals(questionToRequest.getTitle(), questionFromModel.getTitle());
+		Assertions.assertEquals(expectedTitle, questionFromModel.getTitle());
 		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
 
 		QuestionEntity expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
@@ -580,63 +518,6 @@ class QuestionWebControllerTest {
 		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
 
 		verify(questionRepository, never()).save(any(QuestionEntity.class));
-	}
-
-	@Test
-	void editQuestion_emptyTitle_validationErrors() throws Exception {
-
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareQuestionWithEmptyTitleToRequest();
-		ModelAndView modelAndView = mockMvc.perform(
-						post("/app/questions/1000/edit/")
-								.with(user("user").password("password"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().isBadRequest())
-				.andExpect(view().name("editQuestion"))
-				.andExpect(model().hasErrors())
-				.andExpect(model().attributeExists("userLogin", "question", "oldQuestion"))
-				.andExpect(model().attributeHasFieldErrors("question", "title"))
-				.andExpect(model().attribute("userLogin", "user"))
-				.andExpect(authenticated().withUsername("user").withRoles("USER"))
-				.andReturn().getModelAndView();
-
-		assert modelAndView != null;
-		QuestionCreateUpdate questionFromModel = (QuestionCreateUpdate) modelAndView.getModel().get("question");
-		Assertions.assertNull(questionFromModel.getTitle());
-		Assertions.assertEquals(questionToRequest.getDescription(), questionFromModel.getDescription());
-
-		QuestionEntity expectedOldQuestion = QuestionDataProvider.prepareExampleQuestion();
-		QuestionGet oldQuestionFromModel = (QuestionGet) modelAndView.getModel().get("oldQuestion");
-		Assertions.assertEquals(expectedOldQuestion.getId(), oldQuestionFromModel.getId());
-		Assertions.assertEquals(expectedOldQuestion.getTitle(), oldQuestionFromModel.getTitle());
-		Assertions.assertEquals(expectedOldQuestion.getDescription(), oldQuestionFromModel.getDescription());
-		Assertions.assertEquals(expectedOldQuestion.getUser().getUsername(), oldQuestionFromModel.getUser());
-
-		verify(questionRepository, never()).save(any(QuestionEntity.class));
-	}
-
-	@Test
-	void editQuestion_administratorUpdatesAnotherUsersQuestion_success() throws Exception {
-
-		QuestionCreateUpdate questionToRequest = QuestionDataProvider.prepareGoodQuestionToRequest();
-		given(questionRepository.save(any(QuestionEntity.class)))
-				.willReturn(new QuestionEntity(questionToRequest.getTitle(), questionToRequest.getDescription(), adminUser));
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		mockMvc.perform(
-						post("/app/questions/1000/edit/")
-								.with(user("admin").password("password").roles("ADMIN"))
-								.with(csrf())
-								.param("title", questionToRequest.getTitle())
-								.param("description", questionToRequest.getDescription()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("../.."))
-				.andExpect(view().name("redirect:../.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
-
-		verify(questionRepository, times(1)).save(any(QuestionEntity.class));
 	}
 
 	@Test
@@ -777,40 +658,31 @@ class QuestionWebControllerTest {
 		verify(questionRepository, never()).delete(any(QuestionEntity.class));
 	}
 
-	@Test
-	void removeQuestion_userDeletesHisOwnQuestion_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfSuccessfullyDeleteQuestion")
+	void removeQuestion_userDeletesQuestion_success(UserEntity loggedUser) throws Exception {
 
-		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
+		given(userRepo.getUserFromAuthentication(any())).willReturn(loggedUser);
 
+		String role = loggedUser.getRole().name().replace("ROLE_", "");
 		mockMvc.perform(
 						post("/app/questions/1000/delete/")
-								.with(user("user").password("password"))
+								.with(user(loggedUser.getUsername()).password("password").roles(role))
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("../.."))
 				.andExpect(view().name("redirect:../.."))
 				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("user").withRoles("USER"));
+				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles(role));
 
 		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
 	}
 
-	@Test
-	void removeQuestion_administratorDeletesAnotherUsersQuestion_success() throws Exception {
-
-		given(userRepo.getUserFromAuthentication(any())).willReturn(adminUser);
-
-		mockMvc.perform(
-						post("/app/questions/1000/delete/")
-								.with(user("admin").password("password").roles("ADMIN"))
-								.with(csrf()))
-				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("../.."))
-				.andExpect(view().name("redirect:../.."))
-				.andExpect(model().hasNoErrors())
-				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
-
-		verify(questionRepository, times(1)).delete(any(QuestionEntity.class));
+	private static Stream<Arguments> examplesOfSuccessfullyDeleteQuestion() {
+		return Stream.of(
+				Arguments.of(commonUser),
+				Arguments.of(adminUser)
+		);
 	}
 
 	@Test

@@ -391,6 +391,7 @@ class QuestionApiControllerTest {
 
 		return Stream.of(
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest()),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest()),
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest())
 		);
 	}
@@ -480,8 +481,10 @@ class QuestionApiControllerTest {
 		return Stream.of(
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), adminUser),
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), adminUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest(), adminUser),
 				Arguments.of(QuestionDataProvider.prepareGoodQuestionToRequest(), commonUser),
-				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), commonUser)
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithNullDescriptionToRequest(), commonUser),
+				Arguments.of(QuestionDataProvider.prepareGoodQuestionWithEmptyDescriptionToRequest(), commonUser)
 		);
 	}
 
