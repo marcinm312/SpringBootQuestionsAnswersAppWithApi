@@ -1,7 +1,6 @@
 package pl.marcinm312.springquestionsanswers.user.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,10 +23,7 @@ public class MailChangeTokenEntity extends AuditModel implements CommonEntityWit
 	@SequenceGenerator(name = "mail_change_token_generator", sequenceName = "mail_change_token_sequence", initialValue = 1000)
 	private Long id;
 
-	@NotBlank
 	private String value;
-
-	@NotBlank
 	private String newEmail;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)

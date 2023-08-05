@@ -6,8 +6,6 @@ import lombok.experimental.SuperBuilder;
 import pl.marcinm312.springquestionsanswers.shared.model.AuditModel;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntityWithUser;
 
-import jakarta.validation.constraints.NotBlank;
-
 @NoArgsConstructor
 @Getter
 @Setter
@@ -21,7 +19,6 @@ public class ActivationTokenEntity extends AuditModel implements CommonEntityWit
 	@SequenceGenerator(name = "activation_token_generator", sequenceName = "activation_token_sequence", initialValue = 1000)
 	private Long id;
 
-	@NotBlank
 	private String value;
 
 	@OneToOne(fetch = FetchType.LAZY, optional = false)
