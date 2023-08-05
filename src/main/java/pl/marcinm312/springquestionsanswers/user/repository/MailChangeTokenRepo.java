@@ -18,5 +18,5 @@ public interface MailChangeTokenRepo extends JpaRepository<MailChangeTokenEntity
 
 	@Modifying
 	@Query("DELETE FROM MailChangeTokenEntity t WHERE t.user = :user")
-	void deleteByUser(@Param("user")UserEntity user);
+	void deleteByUser(@Param("user") UserEntity user);
 }
