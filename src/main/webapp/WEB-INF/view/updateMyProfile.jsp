@@ -46,7 +46,7 @@
         </div>
         <div class="form-group">
             <label>Email</label>
-            <form:input path="email" type="text" class="form-control"/>
+            <form:input path="email" type="email" class="form-control"/>
             <form:errors path="email" class="form-text"/>
         </div>
         <div class="formbuttons">
