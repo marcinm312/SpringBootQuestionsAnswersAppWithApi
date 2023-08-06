@@ -2,7 +2,7 @@ package pl.marcinm312.springquestionsanswers.user.testdataprovider;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.marcinm312.springquestionsanswers.shared.enums.Role;
+import pl.marcinm312.springquestionsanswers.user.model.Role;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.DateProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;

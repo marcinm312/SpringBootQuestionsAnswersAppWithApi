@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.service.AnswerManager;
-import pl.marcinm312.springquestionsanswers.shared.enums.FileType;
+import pl.marcinm312.springquestionsanswers.shared.file.FileType;
 import pl.marcinm312.springquestionsanswers.shared.exception.FileException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;

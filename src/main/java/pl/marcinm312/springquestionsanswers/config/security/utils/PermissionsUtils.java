@@ -3,7 +3,7 @@ package pl.marcinm312.springquestionsanswers.config.security.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import pl.marcinm312.springquestionsanswers.shared.enums.Role;
+import pl.marcinm312.springquestionsanswers.user.model.Role;
 import pl.marcinm312.springquestionsanswers.shared.model.CommonEntityWithUser;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 

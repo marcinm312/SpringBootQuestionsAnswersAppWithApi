@@ -15,7 +15,7 @@ import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.service.AnswerManager;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionGet;
 import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
-import pl.marcinm312.springquestionsanswers.shared.enums.FileType;
+import pl.marcinm312.springquestionsanswers.shared.file.FileType;
 import pl.marcinm312.springquestionsanswers.shared.exception.ChangeNotAllowedException;
 import pl.marcinm312.springquestionsanswers.shared.exception.FileException;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;

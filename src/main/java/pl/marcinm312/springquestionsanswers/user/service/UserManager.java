@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
-import pl.marcinm312.springquestionsanswers.shared.enums.Role;
+import pl.marcinm312.springquestionsanswers.user.model.Role;
 import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
 import pl.marcinm312.springquestionsanswers.user.exception.UserNotExistsException;
