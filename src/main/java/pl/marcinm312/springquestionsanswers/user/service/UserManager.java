@@ -200,10 +200,10 @@ public class UserManager {
 						Witaj %s,<br>
 						<br>Potwierdź swój adres email, klikając w poniższy link:
 						<br><a href="%s">Aktywuj konto</a>""";
-		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl, MailType.ACTIVATION) + tokenValue);
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl, MailType.ACTIVATION, tokenValue));
 	}
 
-	private String getTokenUrl(String activationUrl, MailType mailType) {
+	private String getTokenUrl(String activationUrl, MailType mailType, String tokenValue) {
 
 		if (activationUrl != null && activationUrl.startsWith("http")) {
 			return activationUrl.trim();
@@ -211,21 +211,22 @@ public class UserManager {
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		String requestURL = request.getRequestURL().toString();
 		String servletPath = request.getServletPath();
+		String applicationUrl = requestURL.replace(servletPath, "");
 		String tokenUrl;
 		switch(mailType) {
-			case ACTIVATION -> tokenUrl = requestURL.replace(servletPath, "") + "/token/?value=";
-			case MAIL_CHANGE -> tokenUrl = requestURL.replace(servletPath, "") + "/app/myProfile/update/confirm/?value=";
+			case ACTIVATION -> tokenUrl = applicationUrl + "/token/?value=" + tokenValue;
+			case MAIL_CHANGE -> tokenUrl = applicationUrl + "/app/myProfile/update/confirm/?value=" + tokenValue;
 			default -> tokenUrl = "";
 		}
 		return tokenUrl;
 	}
 
-	private void sendMailChangeToken(UserEntity user, String activationUrl, String newEmail) {
+	private void sendMailChangeToken(UserEntity user, String confirmUrl, String newEmail) {
 
 		String tokenValue = UUID.randomUUID().toString();
 		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, newEmail, user);
 		mailChangeTokenRepo.save(token);
-		String emailContent = generateMailChangeEmailContent(user, tokenValue, activationUrl);
+		String emailContent = generateMailChangeEmailContent(user, tokenValue, confirmUrl);
 		mailService.sendMail(newEmail, "Potwierdź swój nowy adres email", emailContent, true);
 	}
 
@@ -236,6 +237,6 @@ public class UserManager {
 						Witaj %s,<br>
 						<br>Potwierdź swój nowy adres email, klikając w poniższy link:
 						<br><a href="%s">Potwierdzam zmianę adresu email</a>""";
-		return String.format(mailTemplate, user.getUsername(), getTokenUrl(confirmUrl, MailType.MAIL_CHANGE) + tokenValue);
+		return String.format(mailTemplate, user.getUsername(), getTokenUrl(confirmUrl, MailType.MAIL_CHANGE, tokenValue));
 	}
 }
