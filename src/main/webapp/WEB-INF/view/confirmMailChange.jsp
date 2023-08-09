@@ -34,9 +34,6 @@
     <h1>Twój email został zmieniony</h1>
     <p class="message">Twój nowy adres email: ${newEmail}</p>
     <div class="messagebuttons">
-        <button class="btn btn-primary" onclick="window.location.href = '../../../..'">Przejdź
-            do strony głównej
-        </button>
         <button class="btn btn-primary"
              onclick="window.location.href = '../../../questions/'">Przejdź do listy pytań
         </button>
