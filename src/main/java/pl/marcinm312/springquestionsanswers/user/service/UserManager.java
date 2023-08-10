@@ -203,10 +203,10 @@ public class UserManager {
 		return String.format(mailTemplate, user.getUsername(), getTokenUrl(activationUrl, MailType.ACTIVATION, tokenValue));
 	}
 
-	private String getTokenUrl(String activationUrl, MailType mailType, String tokenValue) {
+	private String getTokenUrl(String urlFromRequest, MailType mailType, String tokenValue) {
 
-		if (activationUrl != null && activationUrl.startsWith("http")) {
-			return activationUrl.trim();
+		if (urlFromRequest != null && urlFromRequest.startsWith("http")) {
+			return urlFromRequest.trim() + tokenValue;
 		}
 		HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes()).getRequest();
 		String requestURL = request.getRequestURL().toString();
