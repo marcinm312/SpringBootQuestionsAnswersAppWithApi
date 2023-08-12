@@ -472,7 +472,7 @@ class MyProfileApiControllerTest {
 	}
 
 	@Test
-	void activateUser_nullTokenValue_userNotActivated() throws Exception {
+	void confirmMailChange_nullTokenValue_changeNotConfirmed() throws Exception {
 
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(put("/api/myProfile/confirmMailChange?value=")
