@@ -19,8 +19,10 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.*;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 
@@ -48,16 +50,19 @@ public class MultiHttpSecurityCustomConfig {
 		private static final String ADMIN_ROLE = "ADMIN";
 
 		@Bean
-		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain jwtFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
 			http.securityMatcher("/api/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
-							"/api/login", "/api/registration", "/api/token")
+							new MvcRequestMatcher(introspector, "/api/login"),
+							new MvcRequestMatcher(introspector,"/api/registration"),
+							new MvcRequestMatcher(introspector,"/api/token")
+					)
 					.permitAll()
 
-					.requestMatchers("/api/actuator/**").hasRole(ADMIN_ROLE)
+					.requestMatchers(new MvcRequestMatcher(introspector,"/api/actuator/**")).hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated())
 
 					.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -89,27 +94,41 @@ public class MultiHttpSecurityCustomConfig {
 	public static class FormLoginWebSecurityConfigurationAdapter {
 
 		@Bean
-		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain formLoginFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
 
 			http.securityMatcher("/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
-							"/", "/register", "/register/", "/token", "/token/", "/error", "error/",
-							"/favicon.ico",
+							new MvcRequestMatcher(introspector, "/"),
+							new MvcRequestMatcher(introspector, "/register"),
+							new MvcRequestMatcher(introspector, "/register/"),
+							new MvcRequestMatcher(introspector, "/token"),
+							new MvcRequestMatcher(introspector, "/token/"),
+							new MvcRequestMatcher(introspector, "/error"),
+							new MvcRequestMatcher(introspector, "error/"),
+							new MvcRequestMatcher(introspector, "/favicon.ico"),
 							//CSS
-							"/css/style.css", "/css/signin.css",
+							new MvcRequestMatcher(introspector, "/css/style.css"),
+							new MvcRequestMatcher(introspector, "/css/signin.css"),
 							//JS
-							"/js/clearPasswordsFieldsInRegistrationForm.js",
+							new MvcRequestMatcher(introspector, "/js/clearPasswordsFieldsInRegistrationForm.js"),
 							//SWAGGER
-							"/swagger/**","/swagger-ui/**","/swagger-ui.html","/webjars/**",
-							"/swagger-resources/**","/configuration/**","/v3/api-docs/**")
+							new MvcRequestMatcher(introspector, "/swagger/**"),
+							new MvcRequestMatcher(introspector, "/swagger-ui/**"),
+							new MvcRequestMatcher(introspector, "/swagger-ui.html"),
+							new MvcRequestMatcher(introspector, "/webjars/**"),
+							new MvcRequestMatcher(introspector, "/swagger-resources/**"),
+							new MvcRequestMatcher(introspector, "/configuration/**"),
+							new MvcRequestMatcher(introspector, "/v3/api-docs/**")
+					)
 					.permitAll()
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
 					.requestMatchers(
-							"/app/**",
-							"/js/clearChangePasswordForm.js")
+							new MvcRequestMatcher(introspector,"/app/**"),
+							new MvcRequestMatcher(introspector,"/js/clearChangePasswordForm.js")
+					)
 					.authenticated()
 					.anyRequest().denyAll())
 
