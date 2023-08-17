@@ -63,6 +63,7 @@ class LoginWebControllerTest {
 
 	@BeforeEach
 	void setup() {
+
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
 		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
@@ -77,6 +78,7 @@ class LoginWebControllerTest {
 
 	@Test
 	void getLoginPage_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 						get("/loginPage/"))
 				.andExpect(status().isOk())
@@ -86,6 +88,7 @@ class LoginWebControllerTest {
 
 	@Test
 	void formLogin_userWithGoodCredentials_success() throws Exception {
+
 		mockMvc.perform(
 						formLogin("/authenticate/").user("user").password("password"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
@@ -93,15 +96,16 @@ class LoginWebControllerTest {
 
 	@Test
 	void formLogin_administratorWithGoodCredentials_success() throws Exception {
+
 		mockMvc.perform(
 						formLogin("/authenticate/").user("admin").password("password"))
 				.andExpect(authenticated().withUsername("admin").withRoles("ADMIN"));
 	}
 
-	@ParameterizedTest(name = "{index} ''{2}''")
+	@ParameterizedTest
 	@MethodSource("examplesOfUnauthenticatedErrors")
-	void formLogin_badCredentials_unauthenticated(String username, String password, String nameOfTestCase)
-			throws Exception {
+	void formLogin_badCredentials_unauthenticated(String username, String password) throws Exception {
+
 		mockMvc.perform(
 						formLogin("/authenticate/").user(username).password(password))
 				.andExpect(redirectedUrl("/loginPage/?error"))
@@ -109,16 +113,18 @@ class LoginWebControllerTest {
 	}
 
 	private static Stream<Arguments> examplesOfUnauthenticatedErrors() {
+
 		return Stream.of(
-				Arguments.of("user", "invalid", "formLogin_userWithBadCredentials_unauthenticated"),
-				Arguments.of("admin", "invalid", "formLogin_administratorWithBadCredentials_unauthenticated"),
-				Arguments.of("lalala", "password", "formLogin_notExistingUser_unauthenticated"),
-				Arguments.of("user3", "password", "formLogin_disabledUser_unauthenticated")
+				Arguments.of("user", "invalid"),
+				Arguments.of("admin", "invalid"),
+				Arguments.of("lalala", "password"),
+				Arguments.of("user3", "password")
 		);
 	}
 
 	@Test
 	void logout_simpleCase_success() throws Exception {
+
 		mockMvc.perform(
 						logout())
 				.andExpect(status().is3xxRedirection())

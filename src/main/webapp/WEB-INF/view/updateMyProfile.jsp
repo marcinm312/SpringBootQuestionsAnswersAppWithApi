@@ -33,8 +33,10 @@
     </div>
     <h1>Edycja profilu</h1>
     <p class="message">
-			<span class="bold">Zmiana loginu spowoduje wylogowanie
-				użytkownika!</span>
+			<span class="bold">Po zmianie loginu, konieczne będzie ponowne zalogowanie się.</span>
+			<br><br>
+			<span class="bold">Po zmianie adresu email, otrzymasz email na nowy adres mailowy.
+			Zmiana emaila nastąpi dopiero po kliknięciu w link w otrzymanym mailu.</span>
     </p>
     <form:form method="post" modelAttribute="user">
         <div class="form-group">
@@ -44,7 +46,7 @@
         </div>
         <div class="form-group">
             <label>Email</label>
-            <form:input path="email" type="text" class="form-control"/>
+            <form:input path="email" type="email" class="form-control"/>
             <form:errors path="email" class="form-text"/>
         </div>
         <div class="formbuttons">

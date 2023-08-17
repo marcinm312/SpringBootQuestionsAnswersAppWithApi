@@ -7,7 +7,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springquestionsanswers.shared.enums.Role;
+import org.springframework.transaction.annotation.Transactional;
+import pl.marcinm312.springquestionsanswers.user.model.Role;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 
@@ -24,6 +25,7 @@ public class FirstUserCreator {
 
 
 	@EventListener(ApplicationReadyEvent.class)
+	@Transactional
 	public UserEntity addFirstUser() {
 
 		String login = "admin";

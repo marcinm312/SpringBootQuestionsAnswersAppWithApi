@@ -16,6 +16,7 @@ import java.util.List;
 public class AnswerDataProvider {
 
 	public static List<AnswerEntity> prepareExampleAnswersList() {
+
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
@@ -32,6 +33,7 @@ public class AnswerDataProvider {
 	}
 
 	public static List<AnswerEntity> prepareExampleSearchedAnswersList() {
+
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		List<AnswerEntity> answers = new ArrayList<>();
@@ -42,6 +44,7 @@ public class AnswerDataProvider {
 	}
 
 	public static AnswerEntity prepareExampleAnswer() {
+
 		QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
 		UserEntity user = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
 		return buildAnswerEntity(1000L, "answer1", question, user,
@@ -49,7 +52,9 @@ public class AnswerDataProvider {
 				DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30));
 	}
 
-	private static AnswerEntity buildAnswerEntity(Long id, String text, QuestionEntity question, UserEntity user, LocalDateTime createdAt, LocalDateTime updatedAt) {
+	private static AnswerEntity buildAnswerEntity(Long id, String text, QuestionEntity question, UserEntity user,
+												  LocalDateTime createdAt, LocalDateTime updatedAt) {
+
 		return AnswerEntity.builder()
 				.id(id)
 				.text(text)

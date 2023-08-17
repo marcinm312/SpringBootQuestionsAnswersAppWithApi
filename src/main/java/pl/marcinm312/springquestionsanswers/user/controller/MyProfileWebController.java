@@ -8,8 +8,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
+import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.validator.UserDataUpdateValidator;
@@ -31,6 +33,8 @@ public class MyProfileWebController {
 	private static final String UPDATE_MY_PASSWORD_VIEW = "updateMyPassword";
 	private static final String DELETE_MY_PROFILE_VIEW = "deleteMyProfile";
 	private static final String COMMON_REDIRECT = "redirect:..";
+	private static final String TOKEN_NOT_FOUND_VIEW = "confirmTokenNotFound";
+	private static final String CONFIRM_MAIL_CHANGE = "confirmMailChange";
 
 	private final UserManager userManager;
 	private final UserDataUpdateValidator userDataUpdateValidator;
@@ -70,6 +74,21 @@ public class MyProfileWebController {
 		}
 		userManager.updateUserData(user, authentication);
 		return COMMON_REDIRECT;
+	}
+
+	@GetMapping("/update/confirm/")
+	public String confirmMailChange(@RequestParam String value, Model model, Authentication authentication,
+							   HttpServletResponse response) {
+
+		model.addAttribute(USER_LOGIN, authentication.getName());
+		try {
+			UserGet updatedUser = userManager.confirmMailChange(value, authentication);
+			model.addAttribute("newEmail", updatedUser.getEmail());
+		} catch (TokenNotFoundException e) {
+			response.setStatus(e.getHttpStatus());
+			return TOKEN_NOT_FOUND_VIEW;
+		}
+		return CONFIRM_MAIL_CHANGE;
 	}
 
 	@GetMapping("/update/")

@@ -2,7 +2,7 @@ package pl.marcinm312.springquestionsanswers.user.testdataprovider;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import pl.marcinm312.springquestionsanswers.shared.enums.Role;
+import pl.marcinm312.springquestionsanswers.user.model.Role;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.DateProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
@@ -15,6 +15,7 @@ import java.time.Month;
 public class UserDataProvider {
 
 	public static UserEntity prepareExampleGoodAdministratorWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1000L)
@@ -31,6 +32,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1001L)
@@ -47,6 +49,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleSecondGoodUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1002L)
@@ -63,6 +66,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleDisabledUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1001L)
@@ -79,6 +83,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleSecondDisabledUserWithEncodedPassword() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1003L)
@@ -95,6 +100,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedPasswordWithSpaces() {
+
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 		return UserEntity.builder()
 				.id(1003L)
@@ -111,6 +117,7 @@ public class UserDataProvider {
 	}
 
 	public static UserEntity prepareExampleGoodUserWithEncodedAndChangedPassword() {
+
 		LocalDateTime futureDate = LocalDateTime.now().plusMinutes(10);
 		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -160,12 +167,20 @@ public class UserDataProvider {
 		return new UserCreate("user", " pas ", " pas ", "test@abc.pl");
 	}
 
-	public static UserDataUpdate prepareGoodUserDataUpdateToRequest() {
+	public static UserDataUpdate prepareGoodUserDataUpdateWithoutChangesToRequest() {
 		return new UserDataUpdate("user", "test@abc.pl");
 	}
 
 	public static UserDataUpdate prepareGoodUserDataUpdateWithLoginChangeToRequest() {
 		return new UserDataUpdate("user3", "test@abc.pl");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateWithEmailChangeToRequest() {
+		return new UserDataUpdate("user", "changed@abc.pl");
+	}
+
+	public static UserDataUpdate prepareGoodUserDataUpdateWithLoginAndEmailChangeToRequest() {
+		return new UserDataUpdate("user3", "changed@abc.pl");
 	}
 
 	public static UserDataUpdate prepareExistingUserDataUpdateToRequest() {

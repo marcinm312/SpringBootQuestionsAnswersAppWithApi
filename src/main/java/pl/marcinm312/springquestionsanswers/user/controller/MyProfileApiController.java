@@ -53,6 +53,11 @@ public class MyProfileApiController {
 		return userManager.updateUserData(user, authentication);
 	}
 
+	@PutMapping("/confirmMailChange")
+	public UserGet confirmMailChange(@RequestParam String value, Authentication authentication) {
+		return userManager.confirmMailChange(value, authentication);
+	}
+
 	@PutMapping("/updatePassword")
 	public UserGet updateMyPassword(@Validated @RequestBody UserPasswordUpdate user, BindingResult bindingResult,
 									Authentication authentication) throws BindException {
