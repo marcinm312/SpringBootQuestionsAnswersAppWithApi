@@ -35,7 +35,7 @@
     <p class="message">
 			<span class="bold">Po zmianie loginu, konieczne będzie ponowne zalogowanie się.</span>
 			<br><br>
-			<span class="bold">Po zmianie adresu email, otrzymasz email na nowy adres mailowy.
+			<span class="bold">Po zmianie adresu email, otrzymasz email na stary adres mailowy.
 			Zmiana emaila nastąpi dopiero po kliknięciu w link w otrzymanym mailu.</span>
     </p>
     <form:form method="post" modelAttribute="user">

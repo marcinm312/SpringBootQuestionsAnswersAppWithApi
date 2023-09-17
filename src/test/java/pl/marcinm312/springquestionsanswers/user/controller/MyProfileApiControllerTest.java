@@ -204,7 +204,7 @@ class MyProfileApiControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(any(String.class), any(String.class),
+		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
 				any(String.class), eq(true));
 	}
 

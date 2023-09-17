@@ -101,7 +101,7 @@ public class UserManager {
 		}
 		if (!loggedUser.getEmail().equals(userRequest.getEmail())) {
 			log.info("Mail change");
-			sendMailChangeToken(loggedUser, userRequest.getConfirmUrl(), userRequest.getEmail());
+			sendMailChangeToken(loggedUser, userRequest);
 		}
 		log.info("New user = {}", loggedUser);
 		UserEntity savedUser = userRepo.save(loggedUser);
@@ -221,22 +221,24 @@ public class UserManager {
 		return tokenUrl;
 	}
 
-	private void sendMailChangeToken(UserEntity user, String confirmUrl, String newEmail) {
+	private void sendMailChangeToken(UserEntity loggedUser, UserDataUpdate userRequest) {
 
 		String tokenValue = UUID.randomUUID().toString();
-		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, newEmail, user);
+		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, userRequest.getEmail(), loggedUser);
 		mailChangeTokenRepo.save(token);
-		String emailContent = generateMailChangeEmailContent(user, tokenValue, confirmUrl);
-		mailService.sendMail(newEmail, "Potwierdź swój nowy adres email", emailContent, true);
+		String emailContent = generateMailChangeEmailContent(loggedUser, tokenValue, userRequest);
+		mailService.sendMail(loggedUser.getEmail(), "Potwierdź swój nowy adres email", emailContent, true);
 	}
 
-	private String generateMailChangeEmailContent(UserEntity user, String tokenValue, String confirmUrl) {
+	private String generateMailChangeEmailContent(UserEntity user, String tokenValue, UserDataUpdate userRequest) {
 
 		String mailTemplate =
 				"""
 						Witaj %s,<br>
+						<br>Twój nowy adres email: <b>%s</b><br>
 						<br>Potwierdź swój nowy adres email, klikając w poniższy link:
 						<br><a href="%s">Potwierdzam zmianę adresu email</a>""";
-		return String.format(mailTemplate, user.getUsername(), getTokenUrl(confirmUrl, MailType.MAIL_CHANGE, tokenValue));
+		return String.format(mailTemplate, user.getUsername(), userRequest.getEmail(),
+				getTokenUrl(userRequest.getConfirmUrl(), MailType.MAIL_CHANGE, tokenValue));
 	}
 }
