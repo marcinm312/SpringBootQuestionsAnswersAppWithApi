@@ -135,20 +135,19 @@ public class QuestionManager {
 		String fileId = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS").format(LocalDateTime.now());
 		String fileName = "Pytania_" + fileId;
 
-		byte[] bytes = null;
 		if (filetype == FileType.EXCEL) {
 			fileName += ".xlsx";
-			bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
+			byte[] bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
+			return FileResponseGenerator.generateResponseWithFile(bytes, fileName,
+					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 		} else if (filetype == FileType.PDF) {
 			fileName += ".pdf";
-			bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
-		}
-
-		if (bytes == null) {
+			byte[] bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
+			return FileResponseGenerator.generateResponseWithFile(bytes, fileName, "application/pdf");
+		} else {
 			String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
 			log.error(errorMessage);
 			throw new FileException(errorMessage);
 		}
-		return FileResponseGenerator.generateResponseWithFile(bytes, fileName);
 	}
 }
