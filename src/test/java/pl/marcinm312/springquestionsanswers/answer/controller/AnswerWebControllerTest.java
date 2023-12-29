@@ -860,7 +860,7 @@ class AnswerWebControllerTest {
 
 		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(content().contentType(MediaType.APPLICATION_PDF))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
@@ -896,7 +896,7 @@ class AnswerWebControllerTest {
 
 		mockMvc.perform(get(url).with(user("user").password("password")))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(content().contentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet")))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));

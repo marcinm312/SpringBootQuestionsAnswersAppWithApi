@@ -599,7 +599,7 @@ class AnswerApiControllerTest {
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(content().contentType(MediaType.APPLICATION_PDF))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
@@ -633,7 +633,7 @@ class AnswerApiControllerTest {
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		mockMvc.perform(get(url).header("Authorization", token))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+				.andExpect(content().contentType(new MediaType("application", "vnd.openxmlformats-officedocument.spreadsheetml.sheet")))
 				.andExpect(header().exists("Content-Disposition"))
 				.andExpect(header().string("Accept-Ranges", "bytes"));
 	}
