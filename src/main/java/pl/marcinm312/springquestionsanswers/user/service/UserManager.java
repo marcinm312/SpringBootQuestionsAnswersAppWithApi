@@ -96,8 +96,8 @@ public class UserManager {
 		log.info("Old user = {}", loggedUser);
 		if (!loggedUser.getUsername().equals(userRequest.getUsername())) {
 			log.info("Login change");
-			loggedUser.setUsername(userRequest.getUsername());
 			loggedUser = sessionUtils.expireUserSessions(loggedUser, true, false);
+			loggedUser.setUsername(userRequest.getUsername());
 		}
 		if (!loggedUser.getEmail().equals(userRequest.getEmail())) {
 			log.info("Mail change");
