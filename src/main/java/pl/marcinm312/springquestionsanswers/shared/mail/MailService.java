@@ -22,7 +22,7 @@ public class MailService {
 	@Value("${spring.mail.username}")
 	private String emailFrom;
 
-	@Async
+	@Async(value = "mailExecutor")
 	public void sendMail(String to, String subject, String text, boolean isHtmlContent) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();

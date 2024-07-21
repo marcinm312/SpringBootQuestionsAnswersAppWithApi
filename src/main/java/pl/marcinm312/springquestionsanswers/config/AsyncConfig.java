@@ -11,12 +11,12 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 @EnableAsync
 public class AsyncConfig implements AsyncConfigurer {
 
-	@Override
-	@Bean
-	public TaskExecutor getAsyncExecutor() {
+	@Bean(name = "mailExecutor")
+	public TaskExecutor getMailExecutor() {
 
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 		executor.setMaxPoolSize(5);  // Maximum number of threads in the pool
+		executor.setThreadNamePrefix("MailExecutor-");  // Prefix for thread names
 		executor.setWaitForTasksToCompleteOnShutdown(true);  // Ensures tasks complete on shutdown
 		executor.setAwaitTerminationSeconds(60);  // Timeout for waiting for tasks to complete
 		executor.initialize();  // Initializes the thread pool
