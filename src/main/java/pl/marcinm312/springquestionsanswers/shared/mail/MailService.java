@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import pl.marcinm312.springquestionsanswers.shared.exception.RuntimeMailException;
@@ -23,6 +25,7 @@ public class MailService {
 	private String emailFrom;
 
 	@Async(value = "mailExecutor")
+	@Retryable(maxAttempts = 10, backoff = @Backoff(delay = 10000))
 	public void sendMail(String to, String subject, String text, boolean isHtmlContent) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
