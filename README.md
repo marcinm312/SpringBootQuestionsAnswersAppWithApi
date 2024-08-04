@@ -42,6 +42,7 @@ This application is a bit similar to the discussion forum. After registration of
 11. **MAIL_USERNAME** - The username (login) of the mail server. Value example: `example.user@abcde.com`.
 12. **MAIL_PASSWORD** - Mail server user password. Value example: `yourPassword`.
 13. **TIME_ZONE** - Time zone, for instance `Europe/Warsaw`.
+14. **DATA_ROWS_LIMIT** - Maximum number of items per page.
 
 ## Steps to Setup
 
