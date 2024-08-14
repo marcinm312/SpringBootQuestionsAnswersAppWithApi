@@ -25,7 +25,7 @@ public class MailService {
 	private String emailFrom;
 
 	@Async(value = "mailExecutor")
-	@Retryable(maxAttempts = 10, backoff = @Backoff(delay = 10000))
+	@Retryable(maxAttemptsExpression = "${mail.max-attempts}", backoff = @Backoff(delayExpression = "${mail.delay} * 1000"))
 	public void sendMail(String to, String subject, String text, boolean isHtmlContent) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
