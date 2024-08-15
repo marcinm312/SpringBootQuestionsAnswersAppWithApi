@@ -1,4 +1,4 @@
-package pl.marcinm312.springquestionsanswers.config;
+package pl.marcinm312.springquestionsanswers.config.async;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
