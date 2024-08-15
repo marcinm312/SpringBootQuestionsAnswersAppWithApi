@@ -16,7 +16,8 @@ public class ActivationTokenEntity extends AuditModel implements CommonEntityWit
 
 	@Id
 	@GeneratedValue(generator = "activation_token_generator")
-	@SequenceGenerator(name = "activation_token_generator", sequenceName = "activation_token_sequence", initialValue = 1000)
+	@SequenceGenerator(name = "activation_token_generator", sequenceName = "activation_token_sequence",
+			initialValue = 1000, allocationSize = 1)
 	private Long id;
 
 	private String value;

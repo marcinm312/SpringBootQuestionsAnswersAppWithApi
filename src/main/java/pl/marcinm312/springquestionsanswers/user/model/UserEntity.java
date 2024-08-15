@@ -23,7 +23,7 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 
 	@Id
 	@GeneratedValue(generator = "user_generator")
-	@SequenceGenerator(name = "user_generator", sequenceName = "user_sequence", initialValue = 1000)
+	@SequenceGenerator(name = "user_generator", sequenceName = "user_sequence", initialValue = 1000, allocationSize = 1)
 	private Long id;
 
 	@Column(unique = true)
