@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 
+import java.util.List;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
 
@@ -23,5 +25,9 @@ public class UserMapper {
 		}
 
 		return builder.build();
+	}
+
+	public static List<UserGet> convertUserEntityListToUserGetList(List<UserEntity> users) {
+		return users.stream().map(user -> convertUserToUserGet(user, false)).toList();
 	}
 }

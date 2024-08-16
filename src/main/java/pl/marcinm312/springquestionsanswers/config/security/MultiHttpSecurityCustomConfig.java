@@ -62,7 +62,10 @@ public class MultiHttpSecurityCustomConfig {
 					)
 					.permitAll()
 
-					.requestMatchers(new MvcRequestMatcher(introspector,"/api/actuator/**")).hasRole(ADMIN_ROLE)
+					.requestMatchers(
+							new MvcRequestMatcher(introspector,"/api/actuator/**"),
+							new MvcRequestMatcher(introspector,"/api/admin/**")
+					).hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated())
 
 					.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
