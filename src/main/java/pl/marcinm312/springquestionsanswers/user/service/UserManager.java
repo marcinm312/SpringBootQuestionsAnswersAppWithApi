@@ -76,6 +76,7 @@ public class UserManager {
 				.password(passwordEncoder.encode(userRequest.getPassword()))
 				.email(userRequest.getEmail())
 				.enabled(false)
+				.accountNonLocked(true)
 				.role(Role.ROLE_USER)
 				.timeOfSessionExpiration(currentDate)
 				.changePasswordDate(currentDate)

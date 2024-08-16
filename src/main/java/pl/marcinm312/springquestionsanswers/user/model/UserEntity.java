@@ -37,6 +37,9 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 	@Column(name = "is_enabled")
 	private boolean enabled;
 
+	@Column(name = "is_account_non_locked")
+	private boolean accountNonLocked;
+
 	private String email;
 
 	private LocalDateTime timeOfSessionExpiration;
@@ -46,21 +49,6 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return Collections.singleton(new SimpleGrantedAuthority(role.name()));
-	}
-
-	@Override
-	public boolean isAccountNonExpired() {
-		return true;
-	}
-
-	@Override
-	public boolean isAccountNonLocked() {
-		return true;
-	}
-
-	@Override
-	public boolean isCredentialsNonExpired() {
-		return true;
 	}
 
 	public LocalDateTime getDateToCompareInJwt() {
@@ -77,6 +65,7 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 				", username='" + username + '\'' +
 				", role='" + role + '\'' +
 				", enabled=" + enabled +
+				", accountNonLocked=" + accountNonLocked +
 				", timeOfSessionExpiration=" + timeOfSessionExpiration +
 				", changePasswordDate=" + changePasswordDate +
 				'}';
