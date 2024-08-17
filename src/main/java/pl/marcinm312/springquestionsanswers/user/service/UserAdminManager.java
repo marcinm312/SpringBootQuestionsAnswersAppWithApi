@@ -3,6 +3,7 @@ package pl.marcinm312.springquestionsanswers.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserMapper;
@@ -30,6 +31,7 @@ public class UserAdminManager {
 		return UserMapper.convertUserEntityListToUserGetList(users);
 	}
 
+	@Scheduled(cron = "${user.expiration.cron}", zone = "${spring.jackson.time-zone}")
 	public void deleteNonEnabledOldUsers() {
 
 		log.info("Deleting expired users. userExpirationDays={}", userExpirationDays);
