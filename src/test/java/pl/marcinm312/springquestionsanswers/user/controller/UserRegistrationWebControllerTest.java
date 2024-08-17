@@ -32,7 +32,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.ActivationTokenDataProvider;
@@ -73,7 +73,7 @@ class UserRegistrationWebControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	private MailService mailService;
+	private MailSender mailSender;
 
 	@MockBean
 	private ActivationTokenRepo activationTokenRepo;
@@ -120,7 +120,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailSender, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@Test
@@ -138,7 +138,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailSender, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@ParameterizedTest
@@ -169,7 +169,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(activationTokenRepo, times(1)).save(any(ActivationTokenEntity.class));
-		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
+		verify(mailSender, times(1)).sendMail(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
@@ -211,7 +211,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailSender, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {

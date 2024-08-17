@@ -1,4 +1,4 @@
-package pl.marcinm312.springquestionsanswers.shared.exception;
+package pl.marcinm312.springquestionsanswers.mail.exception;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

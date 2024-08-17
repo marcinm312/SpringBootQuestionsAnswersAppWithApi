@@ -40,7 +40,7 @@ import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDa
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
@@ -75,7 +75,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		includeFilters = {
 				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
 		})
-@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailChangeTokenRepo.class), @MockBean(MailService.class),
+@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailChangeTokenRepo.class), @MockBean(MailSender.class),
 		@MockBean(SessionUtils.class)})
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
 		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class),

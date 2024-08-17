@@ -31,7 +31,7 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.MailChangeTokenDataProvider;
@@ -80,7 +80,7 @@ class MyProfileWebControllerTest {
 	private MailChangeTokenRepo mailChangeTokenRepo;
 
 	@MockBean
-	private MailService mailService;
+	private MailSender mailSender;
 
 	@MockBean
 	private SessionUtils sessionUtils;
@@ -248,7 +248,7 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
+		verify(mailSender, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
 				any(String.class), eq(true));
 	}
 

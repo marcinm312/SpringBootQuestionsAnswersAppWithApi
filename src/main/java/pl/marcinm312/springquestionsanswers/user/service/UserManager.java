@@ -10,7 +10,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.user.model.Role;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.user.exception.TokenNotFoundException;
 import pl.marcinm312.springquestionsanswers.user.exception.UserNotExistsException;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
@@ -40,7 +40,7 @@ public class UserManager {
 	private final PasswordEncoder passwordEncoder;
 	private final ActivationTokenRepo activationTokenRepo;
 	private final MailChangeTokenRepo mailChangeTokenRepo;
-	private final MailService mailService;
+	private final MailSender mailSender;
 	private final SessionUtils sessionUtils;
 
 
@@ -191,7 +191,7 @@ public class UserManager {
 		ActivationTokenEntity token = new ActivationTokenEntity(tokenValue, user);
 		activationTokenRepo.save(token);
 		String emailContent = generateActivationEmailContent(user, tokenValue, activationUrl);
-		mailService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
+		mailSender.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
 
 	private String generateActivationEmailContent(UserEntity user, String tokenValue, String activationUrl) {
@@ -228,7 +228,7 @@ public class UserManager {
 		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, userRequest.getEmail(), loggedUser);
 		mailChangeTokenRepo.save(token);
 		String emailContent = generateMailChangeEmailContent(loggedUser, tokenValue, userRequest);
-		mailService.sendMail(loggedUser.getEmail(), "Potwierdź swój nowy adres email", emailContent, true);
+		mailSender.sendMail(loggedUser.getEmail(), "Potwierdź swój nowy adres email", emailContent, true);
 	}
 
 	private String generateMailChangeEmailContent(UserEntity user, String tokenValue, UserDataUpdate userRequest) {

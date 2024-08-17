@@ -1,4 +1,4 @@
-package pl.marcinm312.springquestionsanswers.shared.mail;
+package pl.marcinm312.springquestionsanswers.mail.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,15 +9,15 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import pl.marcinm312.springquestionsanswers.shared.exception.RuntimeMailException;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import pl.marcinm312.springquestionsanswers.mail.exception.RuntimeMailException;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class MailService {
+public class MailSender {
 
 	private final JavaMailSender javaMailSender;
 

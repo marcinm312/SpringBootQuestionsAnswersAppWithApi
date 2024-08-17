@@ -26,7 +26,7 @@ import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.FileResponseGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.shared.model.ListPage;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 
@@ -45,7 +45,7 @@ public class AnswerManager {
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
-	private final MailService mailService;
+	private final MailSender mailSender;
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
@@ -121,7 +121,7 @@ public class AnswerManager {
 		String email = question.getUser().getEmail();
 		subject = subject + question.getId();
 		String content = generateEmailContent(question, savedAnswer, isNewAnswer);
-		mailService.sendMail(email, subject, content, true);
+		mailSender.sendMail(email, subject, content, true);
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
