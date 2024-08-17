@@ -24,6 +24,7 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springquestionsanswers.mail.service.MailSendService;
 import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
@@ -31,7 +32,6 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.mail.service.MailSender;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.MailChangeTokenDataProvider;
@@ -80,7 +80,7 @@ class MyProfileWebControllerTest {
 	private MailChangeTokenRepo mailChangeTokenRepo;
 
 	@MockBean
-	private MailSender mailSender;
+	private MailSendService mailSendService;
 
 	@MockBean
 	private SessionUtils sessionUtils;
@@ -248,7 +248,7 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-		verify(mailSender, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
+		verify(mailSendService, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
 				any(String.class), eq(true));
 	}
 

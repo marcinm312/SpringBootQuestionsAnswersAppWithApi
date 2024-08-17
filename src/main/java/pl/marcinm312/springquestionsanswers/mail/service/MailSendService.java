@@ -17,7 +17,7 @@ import pl.marcinm312.springquestionsanswers.mail.exception.RuntimeMailException;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class MailSender {
+public class MailSendService {
 
 	private final JavaMailSender javaMailSender;
 
