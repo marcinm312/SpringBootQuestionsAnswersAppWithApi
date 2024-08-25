@@ -26,6 +26,14 @@ public class MailRetryService {
 	}
 
 	public List<MailGet> getMailsToRetry() {
-		return MailMapper.convertMailEntityListToMailGetList(mailRepository.findAll());
+		return MailMapper.convertMailEntityListToMailGetList(getMailEntitiesToRetry());
+	}
+
+	private List<MailEntity> getMailEntitiesToRetry() {
+
+		log.info("Loading mails");
+		List<MailEntity> mails = mailRepository.findAll();
+		log.info("{} mails returned for retry", mails.size());
+		return mails;
 	}
 }

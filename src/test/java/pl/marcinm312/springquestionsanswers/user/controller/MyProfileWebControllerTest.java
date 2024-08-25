@@ -248,7 +248,7 @@ class MyProfileWebControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-		verify(mailSendService, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
+		verify(mailSendService, times(numberOfSendEmailInvocations)).sendMailAsync(eq(commonUser.getEmail()), any(String.class),
 				any(String.class), eq(true));
 	}
 

@@ -191,7 +191,7 @@ public class UserManager {
 		ActivationTokenEntity token = new ActivationTokenEntity(tokenValue, user);
 		activationTokenRepo.save(token);
 		String emailContent = generateActivationEmailContent(user, tokenValue, activationUrl);
-		mailSendService.sendMail(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
+		mailSendService.sendMailAsync(user.getEmail(), "Potwierdź swój adres email", emailContent, true);
 	}
 
 	private String generateActivationEmailContent(UserEntity user, String tokenValue, String activationUrl) {
@@ -228,7 +228,7 @@ public class UserManager {
 		MailChangeTokenEntity token = new MailChangeTokenEntity(tokenValue, userRequest.getEmail(), loggedUser);
 		mailChangeTokenRepo.save(token);
 		String emailContent = generateMailChangeEmailContent(loggedUser, tokenValue, userRequest);
-		mailSendService.sendMail(loggedUser.getEmail(), "Potwierdź swój nowy adres email", emailContent, true);
+		mailSendService.sendMailAsync(loggedUser.getEmail(), "Potwierdź swój nowy adres email", emailContent, true);
 	}
 
 	private String generateMailChangeEmailContent(UserEntity user, String tokenValue, UserDataUpdate userRequest) {

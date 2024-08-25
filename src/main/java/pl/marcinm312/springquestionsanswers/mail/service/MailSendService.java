@@ -28,16 +28,20 @@ public class MailSendService {
 	@Async(value = "mailExecutor")
 	@Retryable(retryFor = RuntimeMailException.class, maxAttemptsExpression = "${mail.max-attempts}",
 			backoff = @Backoff(delayExpression = "${mail.delay} * 1000"))
-	public void sendMail(String to, String subject, String text, boolean isHtmlContent) {
+	public void sendMailAsync(String to, String subject, String text, boolean isHtmlContent) {
+		sendMail(to, subject, text, isHtmlContent);
+	}
+
+	void sendMail(String to, String subject, String text, boolean isHtmlContent) {
 
 		MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 		try {
+			log.info("Sending email: to = {}, subject = {}, isHtmlContent = {}", to, subject, isHtmlContent);
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
 			mimeMessageHelper.setFrom(emailFrom);
 			mimeMessageHelper.setTo(to);
 			mimeMessageHelper.setSubject(subject);
 			mimeMessageHelper.setText(text, isHtmlContent);
-			log.info("Sending email: to = {}, subject = {}, isHtmlContent = {}", to, subject, isHtmlContent);
 			javaMailSender.send(mimeMessage);
 			log.info("Email sent: to = {}, subject = {}, isHtmlContent = {}", to, subject, isHtmlContent);
 		} catch (Exception e) {

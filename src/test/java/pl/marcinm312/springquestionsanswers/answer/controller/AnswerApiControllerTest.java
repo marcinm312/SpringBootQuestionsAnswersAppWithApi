@@ -283,7 +283,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -306,7 +306,7 @@ class AnswerApiControllerTest {
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -332,7 +332,7 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailSendService, times(1)).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -350,7 +350,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -377,7 +377,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -393,7 +393,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -420,7 +420,7 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailSendService, times(1)).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -438,7 +438,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -465,7 +465,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -488,7 +488,7 @@ class AnswerApiControllerTest {
 
 		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -511,7 +511,7 @@ class AnswerApiControllerTest {
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailSendService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}

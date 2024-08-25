@@ -121,7 +121,7 @@ public class AnswerManager {
 		String email = question.getUser().getEmail();
 		subject = subject + question.getId();
 		String content = generateEmailContent(question, savedAnswer, isNewAnswer);
-		mailSendService.sendMail(email, subject, content, true);
+		mailSendService.sendMailAsync(email, subject, content, true);
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {

@@ -124,7 +124,7 @@ class UserRegistrationApiControllerTest {
 		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
 		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(mailSendService, times(1)).sendMail(any(String.class), any(String.class),
+		verify(mailSendService, times(1)).sendMailAsync(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
@@ -154,7 +154,7 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailSendService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {
@@ -181,7 +181,7 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailSendService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@Test
