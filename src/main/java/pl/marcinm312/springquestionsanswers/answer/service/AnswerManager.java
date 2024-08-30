@@ -15,7 +15,7 @@ import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.config.security.utils.PermissionsUtils;
-import pl.marcinm312.springquestionsanswers.mail.service.MailSendService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionGet;
 import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
@@ -45,7 +45,7 @@ public class AnswerManager {
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
-	private final MailSendService mailSendService;
+	private final MailService mailService;
 	private final ExcelGenerator excelGenerator;
 	private final PdfGenerator pdfGenerator;
 
@@ -121,7 +121,7 @@ public class AnswerManager {
 		String email = question.getUser().getEmail();
 		subject = subject + question.getId();
 		String content = generateEmailContent(question, savedAnswer, isNewAnswer);
-		mailSendService.sendMailAsync(email, subject, content, true);
+		mailService.sendMailAsync(email, subject, content, true);
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {

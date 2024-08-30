@@ -26,7 +26,7 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springquestionsanswers.mail.service.MailSendService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
@@ -73,7 +73,7 @@ class UserRegistrationWebControllerTest {
 	private MockMvc mockMvc;
 
 	@MockBean
-	private MailSendService mailSendService;
+	private MailService mailService;
 
 	@MockBean
 	private ActivationTokenRepo activationTokenRepo;
@@ -120,7 +120,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@Test
@@ -138,7 +138,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@ParameterizedTest
@@ -169,7 +169,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(activationTokenRepo, times(1)).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, times(1)).sendMailAsync(any(String.class), any(String.class),
+		verify(mailService, times(1)).sendMailAsync(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
@@ -211,7 +211,7 @@ class UserRegistrationWebControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailSendService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {

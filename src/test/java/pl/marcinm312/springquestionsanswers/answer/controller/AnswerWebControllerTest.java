@@ -36,7 +36,7 @@ import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConf
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
-import pl.marcinm312.springquestionsanswers.mail.service.MailSendService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionGet;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
@@ -98,7 +98,7 @@ class AnswerWebControllerTest {
 	private UserRepo userRepo;
 
 	@MockBean
-	private MailSendService mailSendService;
+	private MailService mailService;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
@@ -264,7 +264,7 @@ class AnswerWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -279,7 +279,7 @@ class AnswerWebControllerTest {
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -295,7 +295,7 @@ class AnswerWebControllerTest {
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -319,7 +319,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 
-		verify(mailSendService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -346,7 +346,7 @@ class AnswerWebControllerTest {
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -380,7 +380,7 @@ class AnswerWebControllerTest {
 		AnswerCreateUpdate answerFromModel = (AnswerCreateUpdate) modelAndView.getModel().get("answer");
 		Assertions.assertEquals(expectedText, answerFromModel.getText());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -460,7 +460,7 @@ class AnswerWebControllerTest {
 				.andExpect(redirectedUrl("http://localhost/loginPage/"))
 				.andExpect(unauthenticated());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -475,7 +475,7 @@ class AnswerWebControllerTest {
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -491,7 +491,7 @@ class AnswerWebControllerTest {
 								.param("text", answerToRequest.getText()))
 				.andExpect(status().isForbidden());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -517,7 +517,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername(loggedUser.getUsername()).withRoles(role));
 
-		verify(mailSendService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -567,7 +567,7 @@ class AnswerWebControllerTest {
 		Assertions.assertEquals(expectedOldAnswer.getText(), oldAnswerFromModel.getText());
 		Assertions.assertEquals(expectedOldAnswer.getUser().getUsername(), oldAnswerFromModel.getUser());
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -589,7 +589,7 @@ class AnswerWebControllerTest {
 				.andExpect(model().attribute("userLogin", "user"))
 				.andExpect(authenticated().withUsername("user").withRoles("USER"));
 
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -616,7 +616,7 @@ class AnswerWebControllerTest {
 		assert modelAndView != null;
 		String messageFromModel = (String) modelAndView.getModel().get("message");
 		Assertions.assertEquals(expectedErrorMessage, messageFromModel);
-		verify(mailSendService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
