@@ -18,6 +18,7 @@ import pl.marcinm312.springquestionsanswers.mail.model.MailMapper;
 import pl.marcinm312.springquestionsanswers.mail.model.dto.MailGet;
 import pl.marcinm312.springquestionsanswers.mail.model.dto.MailRetryResult;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
+import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class MailService {
+
+	private static final String MAIL_NOT_FOUND = "No email found for id: ";
 
 	private final JavaMailSender javaMailSender;
 	private final MailRepository mailRepository;
@@ -60,7 +63,7 @@ public class MailService {
 
 	@Recover
 	private void handleMailException(RuntimeMailException e, String to, String subject, String text,
-									boolean isHtmlContent) {
+									 boolean isHtmlContent) {
 
 		log.error("Max attempts reached. Failed to send email. Error message: {}", e.getMessage());
 		saveMail(to, subject, text, isHtmlContent);
@@ -84,26 +87,52 @@ public class MailService {
 		int processedWithErrors = 0;
 
 		for (MailEntity mail : mailsToRetry) {
-			if (retryOneMail(mail)) {
+			if (processOneMail(mail)) {
 				processedSuccessfully++;
 			} else {
 				processedWithErrors++;
 			}
 		}
 
+		log.info("All mails processed");
 		return new MailRetryResult(mailsToRetry.size(), processedSuccessfully, processedWithErrors);
 	}
 
-	private boolean retryOneMail(MailEntity mailEntity) {
+	public MailGet getOneMailToRetry(Long mailId) {
+
+		MailEntity mailEntity = getOneMailEntity(mailId);
+		return MailMapper.convertMailEntityToMailGet(mailEntity);
+	}
+
+	public boolean retryOneMail(Long mailId) {
+
+		MailEntity mailEntity = getOneMailEntity(mailId);
+		resendMail(mailEntity);
+		return true;
+	}
+
+	public boolean deleteOneMail(Long mailId) {
+
+		MailEntity mailEntity = getOneMailEntity(mailId);
+		mailRepository.delete(mailEntity);
+		return true;
+	}
+
+	private boolean processOneMail(MailEntity mailEntity) {
 
 		try {
-			sendMail(mailEntity.getEmailRecipient(), mailEntity.getSubject(), mailEntity.getText(),
-					mailEntity.isHtmlContent());
-			mailRepository.delete(mailEntity);
+			resendMail(mailEntity);
 			return true;
 		} catch (Exception e) {
 			return false;
 		}
+	}
+
+	private void resendMail(MailEntity mailEntity) {
+
+		sendMail(mailEntity.getEmailRecipient(), mailEntity.getSubject(), mailEntity.getText(),
+				mailEntity.isHtmlContent());
+		mailRepository.delete(mailEntity);
 	}
 
 	private List<MailEntity> getMailEntitiesToRetry() {
@@ -112,5 +141,12 @@ public class MailService {
 		List<MailEntity> mails = mailRepository.findAll();
 		log.info("{} mails returned for retry", mails.size());
 		return mails;
+	}
+
+	private MailEntity getOneMailEntity(Long mailId) {
+
+		return mailRepository.findById(mailId).orElseThrow(
+				() -> new ResourceNotFoundException(MAIL_NOT_FOUND + mailId)
+		);
 	}
 }
