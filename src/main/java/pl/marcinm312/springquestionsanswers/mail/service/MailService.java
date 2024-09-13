@@ -48,7 +48,9 @@ public class MailService {
 		try {
 			log.info("Sending email: to = {}, subject = {}, isHtmlContent = {}", to, subject, isHtmlContent);
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-			mimeMessageHelper.setFrom(emailFrom);
+			if (emailFrom != null && emailFrom.contains("@")) {
+				mimeMessageHelper.setFrom(emailFrom);
+			}
 			mimeMessageHelper.setTo(to);
 			mimeMessageHelper.setSubject(subject);
 			mimeMessageHelper.setText(text, isHtmlContent);
