@@ -37,7 +37,7 @@ public class MailGet extends CommonsDTOFields {
 	}
 
 	@Override
-	public int hashCode() {
+	public final int hashCode() {
 
 		int result = Objects.hashCode(getTo());
 		result = 31 * result + Objects.hashCode(getSubject());
