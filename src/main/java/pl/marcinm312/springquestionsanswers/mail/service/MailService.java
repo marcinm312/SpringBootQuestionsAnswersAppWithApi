@@ -21,6 +21,8 @@ import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.shared.exception.ResourceNotFoundException;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -38,8 +40,11 @@ public class MailService {
 	@Async(value = "mailExecutor")
 	@Retryable(retryFor = RuntimeMailException.class, maxAttemptsExpression = "${mail.max-attempts}",
 			backoff = @Backoff(delayExpression = "${mail.delay} * 1000"))
-	public void sendMailAsync(String to, String subject, String text, boolean isHtmlContent) {
+	public Future<Boolean> sendMailAsync(String to, String subject, String text, boolean isHtmlContent) {
 		sendMail(to, subject, text, isHtmlContent);
+		CompletableFuture<Boolean> future = new CompletableFuture<>();
+		future.complete(true);
+		return future;
 	}
 
 	private void sendMail(String to, String subject, String text, boolean isHtmlContent) {

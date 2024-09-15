@@ -212,6 +212,8 @@
                     <environmentVariables>
                         <LOGGING_FILE_NAME/>
                         <JWT_SECRET>secret</JWT_SECRET>
+                        <MAIL_DELAY_SECONDS>1</MAIL_DELAY_SECONDS>
+                        <MAIL_USERNAME>aaa@abc.com</MAIL_USERNAME>
                     </environmentVariables>
                 </configuration>
             </plugin>
