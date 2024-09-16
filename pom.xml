@@ -214,6 +214,7 @@
                         <JWT_SECRET>secret</JWT_SECRET>
                         <MAIL_DELAY_SECONDS>1</MAIL_DELAY_SECONDS>
                         <MAIL_USERNAME>aaa@abc.com</MAIL_USERNAME>
+                        <USER_EXPIRATION_CRON>*/3 * * * * *</USER_EXPIRATION_CRON>
                     </environmentVariables>
                 </configuration>
             </plugin>

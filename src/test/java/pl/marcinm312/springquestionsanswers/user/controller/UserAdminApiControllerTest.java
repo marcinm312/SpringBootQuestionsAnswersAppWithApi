@@ -1,8 +1,5 @@
-package pl.marcinm312.springquestionsanswers.mail.model.controller;
+package pl.marcinm312.springquestionsanswers.user.controller;
 
-import jakarta.mail.Session;
-import jakarta.mail.internet.MimeMessage;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,7 +10,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -23,59 +19,44 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
-import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
+import pl.marcinm312.springquestionsanswers.user.service.UserAdminManager;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
 
-import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(MailRetryApiController.class)
-@ComponentScan(basePackageClasses = MailRetryApiController.class,
+@WebMvcTest(UserAdminApiController.class)
+@ComponentScan(basePackageClasses = UserAdminApiController.class,
 		useDefaultFilters = false,
 		includeFilters = {
-				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = MailRetryApiController.class)
+				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = UserAdminApiController.class)
 		})
 @SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(RestAuthenticationSuccessHandler.class),
 		@SpyBean(RestAuthenticationFailureHandler.class)})
 @Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class, AsyncConfig.class})
-class MailRetryApiControllerTest {
+class UserAdminApiControllerTest {
 
 	private MockMvc mockMvc;
-
-	@MockBean
-	private JavaMailSender javaMailSender;
-
-	@MockBean
-	private MailRepository mailRepository;
 
 	@MockBean
 	private UserRepo userRepo;
 
 	@SpyBean
-	private MailService mailService;
+	private UserAdminManager userAdminManager;
 
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private MimeMessage mimeMessage;
-
 	@BeforeEach
 	void setUp() {
-
-		mimeMessage = new MimeMessage((Session) null);
-		given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -86,25 +67,9 @@ class MailRetryApiControllerTest {
 	}
 
 	@Test
-	void sendMailAsync_simpleCase_success() throws ExecutionException, InterruptedException {
+	void deleteNonEnabledOldUsers_simpleCase_success() throws InterruptedException {
 
-		Future<Boolean> resultFuture = mailService
-				.sendMailAsync("aaa@abc.com", "Test maila", "Test maila", false);
-		await().atMost(1, TimeUnit.SECONDS).until(() -> (resultFuture.isDone() || resultFuture.isCancelled()));
-		Assertions.assertTrue(resultFuture.isDone());
-		Assertions.assertTrue(resultFuture.get());
-		verify(javaMailSender, times(1)).send(any(MimeMessage.class));
-	}
-
-	@Test
-	void sendMailAsync_errorWhileSendingEmail_try3TimesAndThrowError() {
-
-		doThrow(new RuntimeException("Mail Exception")).when(javaMailSender).send(any(MimeMessage.class));
-		Future<Boolean> resultFuture = mailService
-				.sendMailAsync("aaa@abc.com", "Test maila", "Test maila", false);
-		await().atMost(5, TimeUnit.SECONDS).until(() -> (resultFuture.isDone() || resultFuture.isCancelled()));
-		Assertions.assertTrue(resultFuture.isDone());
-		Assertions.assertThrows(ExecutionException.class, resultFuture::get);
-		verify(javaMailSender, times(3)).send(any(MimeMessage.class));
+		Thread.sleep(4000);
+		verify(userRepo, atLeastOnce()).getNonEnabledOldUsers(any(LocalDate.class));
 	}
 }
