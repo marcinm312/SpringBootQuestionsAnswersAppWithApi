@@ -26,8 +26,7 @@ public class UserAdminManager {
 	public List<UserGet> getNonEnabledOldUsers() {
 
 		log.info("Checking expired users. userExpirationDays={}", userExpirationDays);
-		List<UserEntity> users = userRepo.getNonEnabledOldUsers(LocalDate.now().minusDays(userExpirationDays));
-		log.info("Returned expired users: {}", users.size());
+		List<UserEntity> users = getNonEnabledOldUsersEntities();
 		return UserMapper.convertUserEntityListToUserGetList(users);
 	}
 
@@ -35,8 +34,7 @@ public class UserAdminManager {
 	public void deleteNonEnabledOldUsers() {
 
 		log.info("Deleting expired users. userExpirationDays={}", userExpirationDays);
-		List<UserEntity> users = userRepo.getNonEnabledOldUsers(LocalDate.now().minusDays(userExpirationDays));
-		log.info("Returned expired users: {}", users.size());
+		List<UserEntity> users = getNonEnabledOldUsersEntities();
 		for (UserEntity userEntity : users) {
 			try {
 				userRepo.delete(userEntity);
@@ -47,5 +45,12 @@ public class UserAdminManager {
 			}
 		}
 		log.info("Expired users deleted");
+	}
+
+	private List<UserEntity> getNonEnabledOldUsersEntities() {
+
+		List<UserEntity> users = userRepo.getNonEnabledOldUsers(LocalDate.now().minusDays(userExpirationDays));
+		log.info("Returned expired users: {}", users.size());
+		return users;
 	}
 }
