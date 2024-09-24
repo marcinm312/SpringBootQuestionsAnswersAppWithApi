@@ -34,7 +34,7 @@ public class MailService {
 	private final JavaMailSender javaMailSender;
 	private final MailRepository mailRepository;
 
-	@Value("${spring.mail.username}")
+	@Value("${mail.from}")
 	private String emailFrom;
 
 	@Async(value = "mailExecutor")
@@ -53,9 +53,7 @@ public class MailService {
 		try {
 			log.info("Sending email: to = {}, subject = {}, isHtmlContent = {}", to, subject, isHtmlContent);
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
-			if (emailFrom != null && emailFrom.contains("@")) {
-				mimeMessageHelper.setFrom(emailFrom);
-			}
+			mimeMessageHelper.setFrom(emailFrom);
 			mimeMessageHelper.setTo(to);
 			mimeMessageHelper.setSubject(subject);
 			mimeMessageHelper.setText(text, isHtmlContent);
