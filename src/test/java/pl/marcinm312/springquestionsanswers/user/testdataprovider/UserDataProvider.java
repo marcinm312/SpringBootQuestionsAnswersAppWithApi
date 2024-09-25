@@ -142,6 +142,42 @@ public class UserDataProvider {
 				.build();
 	}
 
+	public static UserEntity prepareExampleLockedUserWithEncodedPassword() {
+
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return UserEntity.builder()
+				.id(1005L)
+				.username("user5")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.accountNonLocked(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.build();
+	}
+
+	public static UserEntity prepareExampleDisabledAndLockedUserWithEncodedPassword() {
+
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return UserEntity.builder()
+				.id(1006L)
+				.username("user6")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(false)
+				.accountNonLocked(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.build();
+	}
+
 	public static UserCreate prepareGoodUserToRequest() {
 		return new UserCreate("user", "password", "password", "test@abc.pl");
 	}

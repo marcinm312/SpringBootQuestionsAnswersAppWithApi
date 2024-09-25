@@ -61,13 +61,17 @@ class LoginApiControllerTest {
 	@BeforeEach
 	void setup() {
 
-		given(userRepo.findByUsername("user"))
-				.willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
-		given(userRepo.findByUsername("admin"))
-				.willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
+		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleGoodUserWithEncodedPassword()));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
-		given(userRepo.findByUsername("user3"))
-				.willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleSecondDisabledUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user5")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleLockedUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user6")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleDisabledAndLockedUserWithEncodedPassword()));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -131,7 +135,9 @@ class LoginApiControllerTest {
 				Arguments.of("user", "invalid", "Niepoprawne dane uwierzytelniające"),
 				Arguments.of("admin", "invalid", "Niepoprawne dane uwierzytelniające"),
 				Arguments.of("lalala", "password", "Niepoprawne dane uwierzytelniające"),
-				Arguments.of("user3", "password", "Konto użytkownika jest wyłączone")
+				Arguments.of("user3", "password", "Konto użytkownika jest wyłączone"),
+				Arguments.of("user5", "password", "Konto użytkownika jest zablokowane"),
+				Arguments.of("user6", "password", "Konto użytkownika jest zablokowane")
 		);
 	}
 

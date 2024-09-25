@@ -64,10 +64,17 @@ class LoginWebControllerTest {
 	@BeforeEach
 	void setup() {
 
-		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodUserWithEncodedPassword()));
-		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword()));
+		given(userRepo.findByUsername("user")).willReturn(Optional.of(UserDataProvider
+				.prepareExampleGoodUserWithEncodedPassword()));
+		given(userRepo.findByUsername("admin")).willReturn(Optional.of(UserDataProvider
+				.prepareExampleGoodAdministratorWithEncodedPassword()));
 		given(userRepo.findByUsername("lalala")).willReturn(Optional.empty());
-		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider.prepareExampleSecondDisabledUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user3")).willReturn(Optional.of(UserDataProvider
+				.prepareExampleSecondDisabledUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user5")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleLockedUserWithEncodedPassword()));
+		given(userRepo.findByUsername("user6")).willReturn(Optional.of(UserDataProvider.
+				prepareExampleDisabledAndLockedUserWithEncodedPassword()));
 
 		this.mockMvc = MockMvcBuilders
 				.webAppContextSetup(this.webApplicationContext)
@@ -118,7 +125,9 @@ class LoginWebControllerTest {
 				Arguments.of("user", "invalid"),
 				Arguments.of("admin", "invalid"),
 				Arguments.of("lalala", "password"),
-				Arguments.of("user3", "password")
+				Arguments.of("user3", "password"),
+				Arguments.of("user5", "password"),
+				Arguments.of("user6", "password")
 		);
 	}
 
