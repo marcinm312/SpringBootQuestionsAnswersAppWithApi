@@ -41,6 +41,7 @@ public class MailService {
 	@Retryable(retryFor = RuntimeMailException.class, maxAttemptsExpression = "${mail.max-attempts}",
 			backoff = @Backoff(delayExpression = "${mail.delay} * 1000"))
 	public Future<Boolean> sendMailAsync(String to, String subject, String text, boolean isHtmlContent) {
+
 		sendMail(to, subject, text, isHtmlContent);
 		CompletableFuture<Boolean> future = new CompletableFuture<>();
 		future.complete(true);
@@ -67,11 +68,12 @@ public class MailService {
 	}
 
 	@Recover
-	private void handleMailException(RuntimeMailException e, String to, String subject, String text,
+	private Future<Boolean> handleMailException(RuntimeMailException e, String to, String subject, String text,
 									 boolean isHtmlContent) {
 
 		log.error("Max attempts reached. Failed to send email. Error message: {}", e.getMessage());
 		saveMail(to, subject, text, isHtmlContent);
+		return null;
 	}
 
 	private void saveMail(String to, String subject, String text, boolean isHtmlContent) {
