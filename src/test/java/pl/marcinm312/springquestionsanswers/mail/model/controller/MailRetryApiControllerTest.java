@@ -23,6 +23,7 @@ import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCus
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springquestionsanswers.mail.model.MailEntity;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
@@ -94,6 +95,7 @@ class MailRetryApiControllerTest {
 		Assertions.assertTrue(resultFuture.isDone());
 		Assertions.assertTrue(resultFuture.get());
 		verify(javaMailSender, times(1)).send(any(MimeMessage.class));
+		verify(mailRepository, never()).save(any(MailEntity.class));
 	}
 
 	@Test
@@ -104,7 +106,7 @@ class MailRetryApiControllerTest {
 				.sendMailAsync("aaa@abc.com", "Test maila", "Test maila", false);
 		await().atMost(5, TimeUnit.SECONDS).until(() -> (resultFuture.isDone() || resultFuture.isCancelled()));
 		Assertions.assertTrue(resultFuture.isDone());
-		Assertions.assertThrows(ExecutionException.class, resultFuture::get);
 		verify(javaMailSender, times(3)).send(any(MimeMessage.class));
+		verify(mailRepository, times(1)).save(any(MailEntity.class));
 	}
 }
