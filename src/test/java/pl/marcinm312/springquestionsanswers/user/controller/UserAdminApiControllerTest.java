@@ -26,8 +26,7 @@ import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -67,9 +66,8 @@ class UserAdminApiControllerTest {
 	}
 
 	@Test
-	void deleteNonEnabledOldUsers_simpleCase_success() throws InterruptedException {
+	void deleteNonEnabledOldUsers_simpleCase_success() {
 
-		Thread.sleep(4000);
-		verify(userRepo, atLeastOnce()).getNonEnabledOldUsers(any(LocalDate.class));
+		verify(userRepo, timeout(4000).atLeastOnce()).getNonEnabledOldUsers(any(LocalDate.class));
 	}
 }
