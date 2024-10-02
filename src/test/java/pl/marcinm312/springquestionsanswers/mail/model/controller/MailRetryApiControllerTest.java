@@ -106,6 +106,7 @@ class MailRetryApiControllerTest {
 				.sendMailAsync("aaa@abc.com", "Test maila", "Test maila", false);
 		await().atMost(5, TimeUnit.SECONDS).until(() -> (resultFuture.isDone() || resultFuture.isCancelled()));
 		Assertions.assertTrue(resultFuture.isDone());
+		Assertions.assertThrows(ExecutionException.class, resultFuture::get);
 		verify(javaMailSender, times(3)).send(any(MimeMessage.class));
 		verify(mailRepository, times(1)).save(any(MailEntity.class));
 	}

@@ -73,7 +73,9 @@ public class MailService {
 
 		log.error("Max attempts reached. Failed to send email. Error message: {}", e.getMessage());
 		saveMail(to, subject, text, isHtmlContent);
-		return null;
+		CompletableFuture<Boolean> future = new CompletableFuture<>();
+		future.completeExceptionally(e);
+		return future;
 	}
 
 	private void saveMail(String to, String subject, String text, boolean isHtmlContent) {
