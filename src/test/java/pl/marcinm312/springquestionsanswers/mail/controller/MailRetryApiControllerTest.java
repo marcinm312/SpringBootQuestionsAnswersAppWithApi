@@ -1,5 +1,8 @@
 package pl.marcinm312.springquestionsanswers.mail.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +16,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.boot.test.mock.mockito.SpyBeans;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,9 +30,14 @@ import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticati
 import pl.marcinm312.springquestionsanswers.mail.model.MailEntity;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
+import pl.marcinm312.springquestionsanswers.mail.testdataprovider.MailDataProvider;
+import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
+import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
+import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -39,7 +48,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(MailRetryApiController.class)
@@ -70,13 +82,24 @@ class MailRetryApiControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
-	private MimeMessage mimeMessage;
+	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	@BeforeEach
 	void setUp() {
 
-		mimeMessage = new MimeMessage((Session) null);
+		MimeMessage mimeMessage = new MimeMessage((Session) null);
 		given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
+
+		given(mailRepository.findAll()).willReturn(MailDataProvider.prepareExampleMailsList());
+
+		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
+		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
+
+		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
+		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
 
 		this.mockMvc =
 				MockMvcBuilders
@@ -109,5 +132,36 @@ class MailRetryApiControllerTest {
 		Assertions.assertThrows(ExecutionException.class, resultFuture::get);
 		verify(javaMailSender, times(3)).send(any(MimeMessage.class));
 		verify(mailRepository, times(1)).save(any(MailEntity.class));
+	}
+
+	@Test
+	void getMailsToRetry_withAnonymousUser_unauthorized() throws Exception {
+
+		mockMvc.perform(get("/api/admin/mailsToRetry"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getMailsToRetry_withCommonUser_forbidden() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		mockMvc.perform(get("/api/admin/mailsToRetry")
+						.header("Authorization", token))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void getMailsToRetry_simpleCase_success() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
+		String response = mockMvc.perform(get("/api/admin/mailsToRetry")
+				.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		JsonNode root = mapper.readTree(response);
+		int amountOfElements = root.size();
+		Assertions.assertEquals(3, amountOfElements);
 	}
 }
