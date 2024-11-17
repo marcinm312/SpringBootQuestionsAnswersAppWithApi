@@ -1,4 +1,4 @@
-package pl.marcinm312.springquestionsanswers.mail.model.controller;
+package pl.marcinm312.springquestionsanswers.mail.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

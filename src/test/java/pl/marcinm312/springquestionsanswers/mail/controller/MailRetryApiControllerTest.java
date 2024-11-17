@@ -1,4 +1,4 @@
-package pl.marcinm312.springquestionsanswers.mail.model.controller;
+package pl.marcinm312.springquestionsanswers.mail.controller;
 
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
