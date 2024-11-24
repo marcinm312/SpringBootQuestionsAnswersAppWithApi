@@ -28,6 +28,7 @@ import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConf
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.mail.model.MailEntity;
+import pl.marcinm312.springquestionsanswers.mail.model.dto.MailRetryResult;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.mail.testdataprovider.MailDataProvider;
@@ -163,5 +164,37 @@ class MailRetryApiControllerTest {
 		JsonNode root = mapper.readTree(response);
 		int amountOfElements = root.size();
 		Assertions.assertEquals(3, amountOfElements);
+	}
+
+	@Test
+	void retryAllMails_withAnonymousUser_unauthorized() throws Exception {
+
+		mockMvc.perform(post("/api/admin/mailsToRetry"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void retryAllMails_withCommonUser_forbidden() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		mockMvc.perform(post("/api/admin/mailsToRetry")
+						.header("Authorization", token))
+				.andExpect(status().isForbidden());
+	}
+	
+	@Test
+	void retryAllMails_2goodMailsAnd1NullMail_2ProcessedSuccessfullyAnd1Error() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
+		String response = mockMvc.perform(post("/api/admin/mailsToRetry")
+						.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+		MailRetryResult mailRetryResult = mapper.readValue(response, MailRetryResult.class);
+
+		Assertions.assertEquals(2, mailRetryResult.getProcessedSuccessfully());
+		Assertions.assertEquals(1, mailRetryResult.getProcessedWithErrors());
+		Assertions.assertEquals(3, mailRetryResult.getMailsToProcess());
 	}
 }

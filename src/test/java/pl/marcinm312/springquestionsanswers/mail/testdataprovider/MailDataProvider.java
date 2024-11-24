@@ -17,7 +17,7 @@ public class MailDataProvider {
 				DateProvider.prepareDate(2024, Month.OCTOBER, 1, 14, 0, 0)));
 		mails.add(buildMailEntity(1001L, "test2@abc.pl", "Test subject 2", "Test content 2",
 				DateProvider.prepareDate(2024, Month.OCTOBER, 1, 14, 5, 0)));
-		mails.add(buildMailEntity(1002L, "incorrectEmail", "Test subject", "Test content",
+		mails.add(buildMailEntity(1002L, null, "Test subject", "Test content",
 				DateProvider.prepareDate(2024, Month.OCTOBER, 1, 14, 10, 0)));
 		return mails;
 	}
