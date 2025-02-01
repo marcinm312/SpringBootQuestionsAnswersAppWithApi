@@ -28,6 +28,7 @@ import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConf
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.mail.model.MailEntity;
+import pl.marcinm312.springquestionsanswers.mail.model.dto.MailGet;
 import pl.marcinm312.springquestionsanswers.mail.model.dto.MailRetryResult;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
@@ -38,6 +39,7 @@ import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -95,6 +97,8 @@ class MailRetryApiControllerTest {
 		given(javaMailSender.createMimeMessage()).willReturn(mimeMessage);
 
 		given(mailRepository.findAll()).willReturn(MailDataProvider.prepareExampleMailsList());
+		given(mailRepository.findById(1000L)).willReturn(Optional.of(MailDataProvider.prepareExampleMail()));
+		given(mailRepository.findById(5000L)).willReturn(Optional.empty());
 
 		given(userRepo.findById(commonUser.getId())).willReturn(Optional.of(commonUser));
 		given(userRepo.findById(adminUser.getId())).willReturn(Optional.of(adminUser));
@@ -156,7 +160,7 @@ class MailRetryApiControllerTest {
 
 		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
 		String response = mockMvc.perform(get("/api/admin/mailsToRetry")
-				.header("Authorization", token))
+						.header("Authorization", token))
 				.andExpect(status().isOk())
 				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
 				.andReturn().getResponse().getContentAsString();
@@ -164,6 +168,54 @@ class MailRetryApiControllerTest {
 		JsonNode root = mapper.readTree(response);
 		int amountOfElements = root.size();
 		Assertions.assertEquals(3, amountOfElements);
+	}
+
+	@Test
+	void getOneMailToRetry_withAnonymousUser_unauthorized() throws Exception {
+
+		mockMvc.perform(post("/api/admin/mailsToRetry/1000"))
+				.andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	void getOneMailToRetry_withCommonUser_forbidden() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
+		mockMvc.perform(post("/api/admin/mailsToRetry/1000")
+						.header("Authorization", token))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	void getOneMailToRetry_simpleCase_success() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
+		String response = mockMvc.perform(get("/api/admin/mailsToRetry/1000")
+						.header("Authorization", token))
+				.andExpect(status().isOk())
+				.andExpect(content().contentType(MediaType.APPLICATION_JSON))
+				.andReturn().getResponse().getContentAsString();
+
+		MailGet responseMail = mapper.readValue(response, MailGet.class);
+		MailEntity expectedMail = MailDataProvider.prepareExampleMail();
+		Assertions.assertEquals(expectedMail.getId(), responseMail.getId());
+		Assertions.assertEquals(expectedMail.getSubject(), responseMail.getSubject());
+		Assertions.assertEquals(expectedMail.getEmailRecipient(), responseMail.getTo());
+		Assertions.assertEquals(expectedMail.isHtmlContent(), responseMail.isHtmlContent());
+	}
+
+	@Test
+	void getOneMailToRetry_mailNotExists_notFound() throws Exception {
+
+		String token = new JwtProvider(mockMvc).prepareToken("admin", "password");
+		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
+						get("/api/admin/mailsToRetry/5000")
+								.header("Authorization", token))
+				.andExpect(status().isNotFound())
+				.andReturn().getResolvedException()).getMessage();
+
+		String expectedErrorMessage = "No email found for id: 5000";
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
 	@Test
@@ -181,7 +233,7 @@ class MailRetryApiControllerTest {
 						.header("Authorization", token))
 				.andExpect(status().isForbidden());
 	}
-	
+
 	@Test
 	void retryAllMails_2goodMailsAnd1NullMail_2ProcessedSuccessfullyAnd1Error() throws Exception {
 

@@ -15,14 +15,14 @@ public class MailGet extends CommonsDTOFields {
 
 	private String to;
 	private String subject;
-	private boolean isHtmlContent;
+	private boolean htmlContent;
 
 	@Override
 	public String toString() {
 		return "MailGet{" +
 				"to='" + to + '\'' +
 				", subject='" + subject + '\'' +
-				", isHtmlContent=" + isHtmlContent +
+				", htmlContent=" + htmlContent +
 				"} " + super.toString();
 	}
 

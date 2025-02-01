@@ -27,14 +27,15 @@ public class MailEntity extends AuditModel {
 	@Column(columnDefinition = "text")
 	private String text;
 
-	private boolean isHtmlContent;
+	@Column(name = "is_html_content")
+	private boolean htmlContent;
 
 
-	public MailEntity(String emailRecipient, String subject, String text, boolean isHtmlContent) {
+	public MailEntity(String emailRecipient, String subject, String text, boolean htmlContent) {
 		this.emailRecipient = emailRecipient;
 		this.subject = subject;
 		this.text = text;
-		this.isHtmlContent = isHtmlContent;
+		this.htmlContent = htmlContent;
 	}
 
 	@Override
@@ -42,7 +43,7 @@ public class MailEntity extends AuditModel {
 		return "MailEntity{" +
 				"emailRecipient='" + emailRecipient + '\'' +
 				", subject='" + subject + '\'' +
-				", isHtmlContent=" + isHtmlContent +
+				", htmlContent=" + htmlContent +
 				'}';
 	}
 }

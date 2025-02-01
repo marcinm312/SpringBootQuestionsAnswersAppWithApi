@@ -15,7 +15,7 @@ public class MailMapper {
 				.id(mail.getId())
 				.to(mail.getEmailRecipient())
 				.subject(mail.getSubject())
-				.isHtmlContent(mail.isHtmlContent())
+				.htmlContent(mail.isHtmlContent())
 				.createdAt(mail.getCreatedAt());
 
 		return builder.build();
