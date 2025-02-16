@@ -22,10 +22,16 @@ public class MailDataProvider {
 		return mails;
 	}
 
-	public static MailEntity prepareExampleMail() {
+	public static MailEntity prepareExampleGoodMail() {
 
 		return buildMailEntity(1000L, "test@abc.pl", "Test subject", "Test content",
 				DateProvider.prepareDate(2024, Month.OCTOBER, 1, 14, 0, 0));
+	}
+
+	public static MailEntity prepareExampleMailWithError() {
+
+		return buildMailEntity(1002L, null, "Test subject", "Test content",
+				DateProvider.prepareDate(2024, Month.OCTOBER, 1, 14, 10, 0));
 	}
 
 	private static MailEntity buildMailEntity(Long id, String emailRecipient, String subject, String text,
