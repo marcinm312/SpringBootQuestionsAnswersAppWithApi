@@ -66,8 +66,8 @@ class UserAdminApiControllerTest {
 	}
 
 	@Test
-	void deleteNonEnabledOldUsers_simpleCase_success() {
+	void deleteNonEnabledOldUsers_startingFromCron_runAtLeastOnce() {
 
-		verify(userRepo, timeout(4000).atLeastOnce()).getNonEnabledOldUsers(any(LocalDate.class));
+		verify(userAdminManager, timeout(4000).atLeastOnce()).deleteNonEnabledOldUsers();
 	}
 }
