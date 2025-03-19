@@ -6,7 +6,7 @@ import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 public class MailChangeTokenDataProvider {
 
 	public static MailChangeTokenEntity prepareExampleToken() {
-		UserEntity user = UserDataProvider.prepareExampleDisabledUserWithEncodedPassword();
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 		return buildTokenEntity(1000L, "123456-123-123-1234", "changed@abc.pl", user);
 	}
 

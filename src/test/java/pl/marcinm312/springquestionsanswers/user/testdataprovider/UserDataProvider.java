@@ -11,6 +11,8 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDataProvider {
 
@@ -176,6 +178,15 @@ public class UserDataProvider {
 				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
 				.build();
+	}
+
+	public static List<UserEntity> prepareExampleDisabledUsersList() {
+
+		List<UserEntity> users = new ArrayList<>();
+		users.add(prepareExampleDisabledUserWithEncodedPassword());
+		users.add(prepareExampleSecondDisabledUserWithEncodedPassword());
+		users.add(prepareExampleDisabledAndLockedUserWithEncodedPassword());
+		return users;
 	}
 
 	public static UserCreate prepareGoodUserToRequest() {
