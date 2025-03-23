@@ -91,7 +91,7 @@ class MainWebControllerTest {
 		return Stream.of(
 			Arguments.of("/css/style.css", "text/css"),
 			Arguments.of("/css/signin.css", "text/css"),
-			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "text/javascript")
+			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "application/javascript")
 		);
 	}
 
@@ -102,6 +102,6 @@ class MainWebControllerTest {
 		mockMvc.perform(
 						get("/js/clearChangePasswordForm.js"))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType("text/javascript"));
+				.andExpect(content().contentType("application/javascript"));
 	}
 }
