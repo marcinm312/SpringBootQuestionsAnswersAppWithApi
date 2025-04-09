@@ -55,6 +55,7 @@ public class ExcelGenerator {
 
 			for (int i = 0; i < columns.length; i++) {
 				answersSheet.autoSizeColumn(i);
+				answersSheet.setColumnWidth(i, (int) (answersSheet.getColumnWidth(i) * 1.1));
 			}
 
 			Sheet questionSheet = workbook.createSheet("Pytanie");
@@ -77,8 +78,10 @@ public class ExcelGenerator {
 			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 5, USER_COLUMN,
 					question.getUser(), false);
 
-			questionSheet.autoSizeColumn(0);
-			questionSheet.autoSizeColumn(1);
+			for (int i = 0; i <= 2; i++) {
+				questionSheet.autoSizeColumn(i);
+				questionSheet.setColumnWidth(i, (int) (questionSheet.getColumnWidth(i) * 1.1));
+			}
 
 			workbook.write(outputStream);
 
@@ -131,6 +134,7 @@ public class ExcelGenerator {
 
 			for (int i = 0; i < columns.length; i++) {
 				sheet.autoSizeColumn(i);
+				sheet.setColumnWidth(i, (int) (sheet.getColumnWidth(i) * 1.1));
 			}
 
 			workbook.write(outputStream);
