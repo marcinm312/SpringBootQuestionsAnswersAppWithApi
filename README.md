@@ -2,7 +2,7 @@
 
 This application is a bit similar to the discussion forum. After registration of the user in the application and logging in, the user can ask a new question to all website users or browse the existing questions of other users. Then, users can answer existing questions. Questions and answers can be exported to PDF or Excel files.
 
-## Functions:
+## Functionalities:
 1. Registration and activation of the user via the link in the received e-mail;
 2. Viewing questions and answers - the ability to search, sort entries by various attributes, pagination;
 3. Adding questions and answers;
