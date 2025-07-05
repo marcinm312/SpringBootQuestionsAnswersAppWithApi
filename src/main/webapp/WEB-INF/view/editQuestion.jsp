@@ -41,14 +41,13 @@
         mailowo.</p>
     <form:form method="post" modelAttribute="question">
         <div class="form-group">
-            <label>Tytuł pytania:</label>
-            <form:input path="title" type="text" class="form-control"/>
+            <label for="questionTitle">Tytuł pytania:</label>
+            <form:input id="questionTitle" path="title" type="text" class="form-control"/>
             <form:errors path="title" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Opis pytania:</label>
-            <form:textarea path="description" type="text" class="form-control"
-                           rows="3"/>
+            <label for="questionText">Opis pytania:</label>
+            <form:textarea id="questionText" path="description" type="text" class="form-control" rows="3"/>
         </div>
         <div class="formbuttons">
             <form:button type="submit" class="btn btn-success">Zapisz</form:button>

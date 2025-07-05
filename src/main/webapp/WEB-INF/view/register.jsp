@@ -23,24 +23,23 @@
         się na nowe konto nie jest możliwe.</p>
     <form:form method="post" modelAttribute="user">
         <div class="form-group">
-            <label>Login</label>
-            <form:input path="username" type="text" class="form-control"/>
+            <label for="userLogin">Login</label>
+            <form:input id="userLogin" path="username" type="text" class="form-control"/>
             <form:errors path="username" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Hasło</label>
-            <form:input path="password" type="password" class="form-control"/>
+            <label for="userPassword">Hasło</label>
+            <form:input id="userPassword" path="password" type="password" class="form-control"/>
             <form:errors path="password" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Potwierdź hasło</label>
-            <form:input path="confirmPassword" type="password"
-                        class="form-control"/>
+            <label for="userConfirmPassword">Potwierdź hasło</label>
+            <form:input id="userConfirmPassword" path="confirmPassword" type="password" class="form-control"/>
             <form:errors path="confirmPassword" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Email</label>
-            <form:input path="email" type="email" class="form-control"/>
+            <label for="userEmail">Email</label>
+            <form:input id="userEmail" path="email" type="email" class="form-control"/>
             <form:errors path="email" class="form-text"/>
         </div>
         <div class="formbuttons">

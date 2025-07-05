@@ -53,8 +53,8 @@
         każdej Twojej zaktualizowanej odpowiedzi.</p>
     <form:form method="post" modelAttribute="answer">
         <div class="form-group">
-            <label>Odpowiedź:</label>
-            <form:textarea path="text" type="text" class="form-control" rows="3"/>
+            <label for="answerText">Odpowiedź:</label>
+            <form:textarea id="answerText" path="text" type="text" class="form-control" rows="3"/>
             <form:errors path="text" class="form-text"/>
         </div>
         <div class="formbuttons">

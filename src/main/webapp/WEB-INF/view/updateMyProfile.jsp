@@ -40,19 +40,18 @@
     </p>
     <form:form method="post" modelAttribute="user">
         <div class="form-group">
-            <label>Login</label>
-            <form:input path="username" type="text" class="form-control"/>
+            <label for="userLogin">Login</label>
+            <form:input id="userLogin" path="username" type="text" class="form-control"/>
             <form:errors path="username" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Email</label>
-            <form:input path="email" type="email" class="form-control"/>
+            <label for="userEmail">Email</label>
+            <form:input id="userEmail" path="email" type="email" class="form-control"/>
             <form:errors path="email" class="form-text"/>
         </div>
         <div class="formbuttons">
             <form:button type="submit" class="btn btn-success">Zapisz</form:button>
-            <button type="button" class="btn btn-danger"
-                    onclick="window.location.href = '..'">Anuluj
+            <button type="button" class="btn btn-danger" onclick="window.location.href = '..'">Anuluj
             </button>
         </div>
     </form:form>

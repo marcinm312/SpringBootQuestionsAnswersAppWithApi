@@ -34,19 +34,19 @@
     <h1>Zmiana hasła</h1>
     <form:form method="post" modelAttribute="user2">
         <div class="form-group">
-            <label>Obecne hasło</label>
+            <label for="currentPassword">Obecne hasło</label>
             <form:input id="currentPassword" path="currentPassword"
                         type="password" class="form-control"/>
             <form:errors path="currentPassword" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Hasło</label>
+            <label for="password">Hasło</label>
             <form:input id="password" path="password" type="password"
                         class="form-control" value=""/>
             <form:errors path="password" class="form-text"/>
         </div>
         <div class="form-group">
-            <label>Potwierdź hasło</label>
+            <label for="confirmPassword">Potwierdź hasło</label>
             <form:input id="confirmPassword" path="confirmPassword"
                         type="password" class="form-control"/>
             <form:errors path="confirmPassword" class="form-text"/>
