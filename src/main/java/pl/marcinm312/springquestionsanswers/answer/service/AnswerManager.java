@@ -41,7 +41,6 @@ public class AnswerManager {
 
 	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
 	private static final String ANSWER_NOT_FOUND = "Nie znaleziono odpowiedzi o id: %d na pytanie o id: %d";
-	private static final String LOADING_ANSWER_MESSAGE = "Loading answer by: question.id={}, answer.id={}";
 
 	private final AnswerRepository answerRepository;
 	private final QuestionManager questionManager;
@@ -72,7 +71,7 @@ public class AnswerManager {
 
 	public AnswerGet getAnswerByQuestionIdAndAnswerId(Long questionId, Long answerId) {
 
-		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
+		log.info("Loading answer by: question.id={}, answer.id={}", questionId, answerId);
 		AnswerEntity answerFromDB = answerRepository.findByQuestionIdAndId(questionId, answerId)
 				.orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 		return AnswerMapper.convertAnswerEntityToAnswerGet(answerFromDB, false);
@@ -82,6 +81,7 @@ public class AnswerManager {
 	public AnswerGet addAnswer(Long questionId, AnswerCreateUpdate answerRequest, UserEntity user) {
 
 		return questionManager.getQuestionEntity(questionId).map(question -> {
+
 			AnswerEntity answer = new AnswerEntity(answerRequest.getText(), question, user);
 			log.info("Adding answer = {}", answer);
 			AnswerEntity savedAnswer = answerRepository.save(answer);
@@ -94,17 +94,13 @@ public class AnswerManager {
 	@Transactional
 	public AnswerGet updateAnswer(Long questionId, Long answerId, AnswerCreateUpdate answerRequest, UserEntity user) {
 
-		log.info("Updating answer");
-		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
+		log.info("Updating answer. Loading answer by: question.id={}, answer.id={}", questionId, answerId);
+
 		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
 
-			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
-			log.info("isUserPermitted = {}", isUserPermitted);
-
-			if (!isUserPermitted) {
+			if (!PermissionsUtils.checkIfUserIsPermitted(answer, user)) {
 				throw new ChangeNotAllowedException();
 			}
-
 			log.info("Old answer = {}", answer);
 			answer.setText(answerRequest.getText());
 			log.info("New answer = {}", answer);
@@ -125,23 +121,21 @@ public class AnswerManager {
 	}
 
 	public boolean deleteAnswer(Long questionId, Long answerId, UserEntity user) {
-		log.info("Deleting answer.id = {}", answerId);
-		log.info(LOADING_ANSWER_MESSAGE, questionId, answerId);
-		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
-			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(answer, user);
-			log.info("isUserPermitted = {}", isUserPermitted);
 
-			if (!isUserPermitted) {
+		log.info("Deleting answer. Loading answer by: question.id={}, answer.id={}", questionId, answerId);
+
+		return answerRepository.findByQuestionIdAndId(questionId, answerId).map(answer -> {
+
+			if (!PermissionsUtils.checkIfUserIsPermitted(answer, user)) {
 				throw new ChangeNotAllowedException();
 			}
-
 			answerRepository.delete(answer);
 			return true;
 
 		}).orElseThrow(() -> new ResourceNotFoundException(String.format(ANSWER_NOT_FOUND, answerId, questionId)));
 	}
 
-	public ResponseEntity<ByteArrayResource> generateAnswersFile(Long questionId, FileType filetype, Filter filter)
+	public ResponseEntity<ByteArrayResource> generateAnswersFile(Long questionId, FileType fileType, Filter filter)
 			throws FileException {
 
 		QuestionGet question = questionManager.getQuestion(questionId);
@@ -149,19 +143,24 @@ public class AnswerManager {
 		String fileId = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS").format(LocalDateTime.now());
 		String fileName = "Odpowiedzi_" + fileId;
 
-		if (filetype == FileType.EXCEL) {
-			fileName += ".xlsx";
-			byte[] bytes = excelGenerator.generateAnswersExcelFile(answersList, question);
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName,
-					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		} else if (filetype == FileType.PDF) {
-			fileName += ".pdf";
-			byte[] bytes = pdfGenerator.generateAnswersPdfFile(answersList, question);
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName, "application/pdf");
-		} else {
-			String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
-			log.error(errorMessage);
-			throw new FileException(errorMessage);
+		switch (fileType) {
+
+			case EXCEL:
+				fileName += ".xlsx";
+				return FileResponseGenerator.generateResponseWithFile(
+						excelGenerator.generateAnswersExcelFile(answersList, question), fileName,
+						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+			case PDF:
+				fileName += ".pdf";
+				return FileResponseGenerator.generateResponseWithFile(
+						pdfGenerator.generateAnswersPdfFile(answersList, question), fileName,
+						"application/pdf");
+
+			default:
+				String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
+				log.error(errorMessage);
+				throw new FileException(errorMessage);
 		}
 	}
 
