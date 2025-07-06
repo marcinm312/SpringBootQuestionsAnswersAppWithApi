@@ -50,7 +50,7 @@
         </p>
     </div>
     <h1 id="header">Lista odpowiedzi:</h1>
-    <div id="toolbar">
+    <div id="toolbar" class="clearfix">
         <button class="btn btn-primary"
                 onclick="window.location.href = '../..'">Wróć do listy pytań
         </button>
@@ -68,7 +68,7 @@
                         Eksportuj do Excel
         </button>
         <form:form action="" method="GET" class="float-end">
-            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
+            <input id="search-input" class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
             <input type="hidden" name="pageNo" value="1" />
             <input type="hidden" name="pageSize" value="${filter.pageSize}" />
             <input type="hidden" name="sortField" value="${filter.sortField}" />
