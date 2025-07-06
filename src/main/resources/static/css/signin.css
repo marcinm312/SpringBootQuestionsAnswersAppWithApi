@@ -46,6 +46,11 @@ button.back {
     left: 30px;
 }
 
+button.btn-block {
+    display: block;
+    width: 100%;
+}
+
 @media (orientation: portrait) and (max-width: 414px) {
     button.back {
         top: 15px;

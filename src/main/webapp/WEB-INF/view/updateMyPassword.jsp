@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-            integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Zmiana hasła</title>
 </head>
@@ -25,28 +25,27 @@
 
             <div class="group">
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../logout'">Wyloguj
-                    się
+                        onclick="window.location.href = '../../../logout'">Wyloguj się
                 </button>
             </div>
         </div>
     </div>
     <h1>Zmiana hasła</h1>
     <form:form method="post" modelAttribute="user2">
-        <div class="form-group">
-            <label for="currentPassword">Obecne hasło</label>
+        <div class="mb-3">
+            <label for="currentPassword" class="form-label">Obecne hasło</label>
             <form:input id="currentPassword" path="currentPassword"
                         type="password" class="form-control"/>
             <form:errors path="currentPassword" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label for="password">Hasło</label>
+        <div class="mb-3">
+            <label for="password" class="form-label">Hasło</label>
             <form:input id="password" path="password" type="password"
                         class="form-control" value=""/>
             <form:errors path="password" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label for="confirmPassword">Potwierdź hasło</label>
+        <div class="mb-3">
+            <label for="confirmPassword" class="form-label">Potwierdź hasło</label>
             <form:input id="confirmPassword" path="confirmPassword"
                         type="password" class="form-control"/>
             <form:errors path="confirmPassword" class="form-text"/>

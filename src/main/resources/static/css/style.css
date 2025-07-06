@@ -28,6 +28,10 @@ body {
     line-height: 1.25;
 }
 
+select.form-select {
+    display: inline;
+}
+
 p.message {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -72,16 +76,13 @@ table.table tbody tr td {
     vertical-align: middle;
 }
 
-table.table tbody tr:hover {
-    background-color: rgba(0, 0, 0, 0.075);
-}
-
 table.table tbody tr td:last-child {
     width: 95px;
 }
 
 .sortablelink {
     color: white;
+    text-decoration: none;
 }
 
 .sortablelink:hover {
