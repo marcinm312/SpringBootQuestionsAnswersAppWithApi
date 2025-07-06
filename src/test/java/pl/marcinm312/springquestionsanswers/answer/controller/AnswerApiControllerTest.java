@@ -32,11 +32,13 @@ import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.answer.service.AnswerManager;
 import pl.marcinm312.springquestionsanswers.answer.testdataprovider.AnswerDataProvider;
+import pl.marcinm312.springquestionsanswers.config.PropertiesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
 import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
@@ -44,7 +46,6 @@ import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDa
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
@@ -78,7 +79,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
 		@SpyBean(RestAuthenticationFailureHandler.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class, PropertiesConfig.class})
 class AnswerApiControllerTest {
 
 	private MockMvc mockMvc;
@@ -282,7 +283,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -305,7 +306,7 @@ class AnswerApiControllerTest {
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -331,7 +332,7 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -349,7 +350,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -376,7 +377,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -392,7 +393,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -419,7 +420,7 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
@@ -437,7 +438,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -464,7 +465,7 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -487,7 +488,7 @@ class AnswerApiControllerTest {
 
 		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
@@ -510,7 +511,7 @@ class AnswerApiControllerTest {
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMail(eq(question.getUser().getEmail()),
+		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}

@@ -11,11 +11,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-        integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Odpowiedzi na pytanie o id: ${question.id}</title>
 </head>
@@ -29,12 +29,10 @@
 
             <div class="group">
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../myProfile/'">Mój
-                    profil
+                        onclick="window.location.href = '../../../myProfile/'">Mój profil
                 </button>
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../../logout'">Wyloguj
-                    się
+                        onclick="window.location.href = '../../../../logout'">Wyloguj się
                 </button>
             </div>
         </div>
@@ -48,15 +46,13 @@
             <span class="bold">Opis:</span><br> ${question.description}
         </p>
         <p>
-            <span class="bold">Użytkownik:</span><br>
-            ${question.user}
+            <span class="bold">Użytkownik:</span><br> ${question.user}
         </p>
     </div>
     <h1 id="header">Lista odpowiedzi:</h1>
-    <div id="toolbar">
+    <div id="toolbar" class="clearfix">
         <button class="btn btn-primary"
-                onclick="window.location.href = '../..'">Wróć do listy
-            pytań
+                onclick="window.location.href = '../..'">Wróć do listy pytań
         </button>
         <button class="btn btn-primary"
                 onclick="window.location.href = 'new/'">Dodaj odpowiedź
@@ -71,8 +67,8 @@
                         'file-export/?fileType=EXCEL&keyword=${filter.keyword}&sortField=${filter.sortField}&sortDirection=${filter.sortDirection}&pageNo=${filter.pageNo}&pageSize=${filter.pageSize}'">
                         Eksportuj do Excel
         </button>
-        <form:form action="" method="GET" class="float-right">
-            <input class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
+        <form:form action="" method="GET" class="float-end">
+            <input id="search-input" class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
             <input type="hidden" name="pageNo" value="1" />
             <input type="hidden" name="pageSize" value="${filter.pageSize}" />
             <input type="hidden" name="sortField" value="${filter.sortField}" />
@@ -84,9 +80,9 @@
             <p class="empty">Brak odpowiedzi na pytanie</p>
         </c:when>
         <c:otherwise>
-            <table class="table table-bordered" aria-describedby="header">
+            <table class="table table-bordered table-hover" aria-describedby="header">
 
-                <thead class="thead-dark">
+                <thead class="table-dark">
                 <tr>
 
                     <c:url var="sortLinkId" value="/app/questions/${questionId}/answers/">
@@ -126,7 +122,7 @@
                     </c:url>
 
                     <th scope="col"><a class="sortablelink" href="${sortLinkId}">Id <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
-                    <th scope="col"><a class="sortablelink" href="${sortLinkText}">Treść odpowiedzi <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
+                    <th class="content-column" scope="col"><a class="sortablelink" href="${sortLinkText}">Treść odpowiedzi <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkCreatedAt}">Data utworzenia <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkUpdatedAt}">Data modyfikacji <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkUser}">Użytkownik <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
@@ -157,7 +153,7 @@
             </table>
 
             <div class="paginationtoolbar clearfix">
-                <div class="float-left pagination-detail">
+                <div class="float-start pagination-detail">
                     Liczba rekordów: <span class="bold"> ${totalItems}</span>. Strona
                         <span class="bold">${filter.pageNo} z ${totalPages}</span>.
                     <div class="page-list">
@@ -167,7 +163,8 @@
                             <input type="hidden" name="sortField" value="${filter.sortField}" />
                             <input type="hidden" name="sortDirection" value="${filter.sortDirection}" />
                         </form:form>
-                        <select class="custom-select" name="pageSize" form="pageSizeSelectForm" onchange="this.form.submit()">
+                        <select class="form-select" name="pageSize" form="pageSizeSelectForm" onchange="this.form.submit()"
+                                aria-label="Page size">
                             <option selected hidden value="${filter.pageSize}">${filter.pageSize}</option>
                             <option value="3">3</option>
                             <option value="5">5</option>
@@ -182,7 +179,7 @@
                         rekordów na stronę
                     </div>
                 </div>
-                <div class="float-right pagination">
+                <div class="float-end pagination">
                     <c:url var="searchUri" value="/app/questions/${questionId}/answers/">
                         <c:param name="keyword" value="${filter.keyword}" />
                         <c:param name="pageNo" value="xxx" />

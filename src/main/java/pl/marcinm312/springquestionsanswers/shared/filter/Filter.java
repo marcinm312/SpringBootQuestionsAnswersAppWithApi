@@ -12,7 +12,7 @@ public class Filter {
 	private final SortField sortField;
 	private final Sort.Direction sortDirection;
 
-	public static final int ROWS_LIMIT = 5000;
+	public static final int ROWS_LIMIT = Integer.parseInt(System.getProperty("data.rows.limit"));
 
 	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection) {
 		if (pageSize != null && pageSize > ROWS_LIMIT) {

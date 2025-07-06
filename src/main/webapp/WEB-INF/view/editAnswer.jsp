@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-            integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Edytowanie odpowiedzi o id: ${oldAnswer.id}</title>
 </head>
@@ -25,12 +25,10 @@
 
             <div class="group">
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../../../myProfile/'">Mój
-                    profil
+                        onclick="window.location.href = '../../../../../myProfile/'">Mój profil
                 </button>
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../../../../logout'">Wyloguj
-                    się
+                        onclick="window.location.href = '../../../../../../logout'">Wyloguj się
                 </button>
             </div>
         </div>
@@ -44,17 +42,16 @@
             <span class="bold">Opis:</span><br> ${question.description}
         </p>
         <p>
-            <span class="bold">Użytkownik:</span><br>
-            ${question.user}
+            <span class="bold">Użytkownik:</span><br> ${question.user}
         </p>
     </div>
     <h1>Edytowanie odpowiedzi o id: ${oldAnswer.id}</h1>
     <p class="message">Autor pytania otrzyma powiadomienie mailowe o
         każdej Twojej zaktualizowanej odpowiedzi.</p>
     <form:form method="post" modelAttribute="answer">
-        <div class="form-group">
-            <label>Odpowiedź:</label>
-            <form:textarea path="text" type="text" class="form-control" rows="3"/>
+        <div class="mb-3">
+            <label for="answerText" class="form-label">Odpowiedź:</label>
+            <form:textarea id="answerText" path="text" type="text" class="form-control" rows="3"/>
             <form:errors path="text" class="form-text"/>
         </div>
         <div class="formbuttons">

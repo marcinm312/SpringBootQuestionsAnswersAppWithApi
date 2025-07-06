@@ -11,6 +11,8 @@ import pl.marcinm312.springquestionsanswers.user.model.dto.UserPasswordUpdate;
 
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserDataProvider {
 
@@ -23,6 +25,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_ADMIN)
 				.enabled(true)
+				.accountNonLocked(true)
 				.email("admin@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
@@ -40,6 +43,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_USER)
 				.enabled(true)
+				.accountNonLocked(true)
 				.email("test@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
@@ -57,6 +61,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_USER)
 				.enabled(true)
+				.accountNonLocked(true)
 				.email("test2@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
@@ -74,6 +79,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_USER)
 				.enabled(false)
+				.accountNonLocked(true)
 				.email("test@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
@@ -91,6 +97,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_USER)
 				.enabled(false)
+				.accountNonLocked(true)
 				.email("test@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
@@ -108,6 +115,7 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode(" pas "))
 				.role(Role.ROLE_USER)
 				.enabled(true)
+				.accountNonLocked(true)
 				.email("test3@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 25, 30))
 				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 15, 10, 30, 30))
@@ -127,12 +135,58 @@ public class UserDataProvider {
 				.password(passwordEncoder.encode("password"))
 				.role(Role.ROLE_USER)
 				.enabled(true)
+				.accountNonLocked(true)
 				.email("test4@abc.pl")
 				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
 				.updatedAt(futureDate)
 				.changePasswordDate(futureDate)
 				.timeOfSessionExpiration(futureDate)
 				.build();
+	}
+
+	public static UserEntity prepareExampleLockedUserWithEncodedPassword() {
+
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return UserEntity.builder()
+				.id(1005L)
+				.username("user5")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(true)
+				.accountNonLocked(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.build();
+	}
+
+	public static UserEntity prepareExampleDisabledAndLockedUserWithEncodedPassword() {
+
+		PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+		return UserEntity.builder()
+				.id(1006L)
+				.username("user6")
+				.password(passwordEncoder.encode("password"))
+				.role(Role.ROLE_USER)
+				.enabled(false)
+				.accountNonLocked(false)
+				.email("test@abc.pl")
+				.createdAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30))
+				.updatedAt(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.changePasswordDate(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.timeOfSessionExpiration(DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30))
+				.build();
+	}
+
+	public static List<UserEntity> prepareExampleDisabledUsersList() {
+
+		List<UserEntity> users = new ArrayList<>();
+		users.add(prepareExampleDisabledUserWithEncodedPassword());
+		users.add(prepareExampleSecondDisabledUserWithEncodedPassword());
+		users.add(prepareExampleDisabledAndLockedUserWithEncodedPassword());
+		return users;
 	}
 
 	public static UserCreate prepareGoodUserToRequest() {

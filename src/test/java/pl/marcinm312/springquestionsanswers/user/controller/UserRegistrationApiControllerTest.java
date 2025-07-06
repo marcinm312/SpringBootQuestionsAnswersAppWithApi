@@ -29,7 +29,7 @@ import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConf
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.user.model.ActivationTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
@@ -124,7 +124,7 @@ class UserRegistrationApiControllerTest {
 		Assertions.assertEquals(userToRequest.getUsername(), responseUser.getUsername());
 		Assertions.assertEquals(userToRequest.getEmail(), responseUser.getEmail());
 		verify(userRepo, times(1)).save(any(UserEntity.class));
-		verify(mailService, times(1)).sendMail(any(String.class), any(String.class),
+		verify(mailService, times(1)).sendMailAsync(any(String.class), any(String.class),
 				any(String.class), eq(true));
 	}
 
@@ -154,7 +154,7 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	private static Stream<Arguments> examplesOfUserRegistrationBadRequests() {
@@ -181,7 +181,7 @@ class UserRegistrationApiControllerTest {
 
 		verify(userRepo, never()).save(any(UserEntity.class));
 		verify(activationTokenRepo, never()).save(any(ActivationTokenEntity.class));
-		verify(mailService, never()).sendMail(any(String.class), any(String.class), any(String.class), eq(true));
+		verify(mailService, never()).sendMailAsync(any(String.class), any(String.class), any(String.class), eq(true));
 	}
 
 	@Test

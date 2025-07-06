@@ -27,7 +27,7 @@ import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConf
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
-import pl.marcinm312.springquestionsanswers.shared.mail.MailService;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.MailChangeTokenEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
@@ -204,7 +204,7 @@ class MyProfileApiControllerTest {
 		verify(userRepo, times(1)).save(any(UserEntity.class));
 		verify(sessionUtils, times(numberOfExpireSessionInvocations))
 				.expireUserSessions(any(UserEntity.class), eq(true), eq(false));
-		verify(mailService, times(numberOfSendEmailInvocations)).sendMail(eq(commonUser.getEmail()), any(String.class),
+		verify(mailService, times(numberOfSendEmailInvocations)).sendMailAsync(eq(commonUser.getEmail()), any(String.class),
 				any(String.class), eq(true));
 	}
 

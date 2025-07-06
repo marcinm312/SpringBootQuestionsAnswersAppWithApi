@@ -20,7 +20,8 @@ public class MailChangeTokenEntity extends AuditModel implements CommonEntityWit
 
 	@Id
 	@GeneratedValue(generator = "mail_change_token_generator")
-	@SequenceGenerator(name = "mail_change_token_generator", sequenceName = "mail_change_token_sequence", initialValue = 1000)
+	@SequenceGenerator(name = "mail_change_token_generator", sequenceName = "mail_change_token_sequence",
+			initialValue = 1000, allocationSize = 1)
 	private Long id;
 
 	private String value;

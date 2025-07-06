@@ -13,6 +13,7 @@ public class SwaggerConfig {
 
 	@Bean
 	public OpenAPI customizeOpenAPI() {
+
 		final String securitySchemeName = "Bearer Authentication";
 		return new OpenAPI()
 				.addSecurityItem(new SecurityRequirement()
@@ -45,6 +46,7 @@ public class SwaggerConfig {
 
 	@Bean
 	public GroupedOpenApi actuatorApi() {
+
 		return GroupedOpenApi.builder()
 				.group("2. actuators")
 				.pathsToMatch("/api/actuator/**")

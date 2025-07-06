@@ -17,6 +17,11 @@ public class Paginator extends SimpleTagSupport {
 	private int totalPages;
 	private int maxLinks = 10;
 
+	private static final String PAGE_ITEM = "page-item";
+	private static final String PAGE_ITEM_PRE = "page-item page-pre";
+	private static final String PAGE_ITEM_NEXT = "page-item page-next";
+	private static final String PAGE_ITEM_ACTIVE = "page-item active";
+
 	private Writer getWriter() {
 		return getJspContext().getOut();
 	}
@@ -41,13 +46,13 @@ public class Paginator extends SimpleTagSupport {
 			out.write("<ul class=\"pagination\">");
 
 			if (currPage > 1) {
-				out.write(constructLink(1, "&lt;&lt;", "page-item page-pre"));
-				out.write(constructLink(currPage - 1, "&lt;", "page-item"));
+				out.write(constructLink(1, "&lt;&lt;", PAGE_ITEM_PRE));
+				out.write(constructLink(currPage - 1, "&lt;", PAGE_ITEM));
 			}
 
 			for (int i = pgStart; i < pgEnd; i++) {
 				if (i == currPage) {
-					out.write("<li class=\"page-item active" + (lastPage && i == totalPages ? " page-item page-next" : "") +
+					out.write("<li class=\"" + PAGE_ITEM_ACTIVE + (lastPage && i == totalPages ? " " + PAGE_ITEM_NEXT : "") +
 							"\">" + "<a class=\"page-link\" href=\"javascript:void(0)\">" + currPage + "</a>" + "</li>");
 				}
 				else {
@@ -56,8 +61,8 @@ public class Paginator extends SimpleTagSupport {
 			}
 
 			if (!lastPage) {
-				out.write(constructLink(currPage + 1, "&gt;", "page-item"));
-				out.write(constructLink(totalPages, "&gt;&gt;", "page-item page-next"));
+				out.write(constructLink(currPage + 1, "&gt;", PAGE_ITEM));
+				out.write(constructLink(totalPages, "&gt;&gt;", PAGE_ITEM_NEXT));
 			}
 
 			out.write("</ul>");
@@ -70,7 +75,7 @@ public class Paginator extends SimpleTagSupport {
 	}
 
 	private String constructLink(int page) {
-		return constructLink(page, String.valueOf(page), null);
+		return constructLink(page, String.valueOf(page), PAGE_ITEM);
 	}
 
 	private String constructLink(int page, String text, String className) {

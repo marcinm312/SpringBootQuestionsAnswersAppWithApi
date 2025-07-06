@@ -37,7 +37,6 @@ import java.util.Optional;
 public class QuestionManager {
 
 	private static final String QUESTION_NOT_FOUND = "Nie znaleziono pytania o id: ";
-	private static final String LOADING_QUESTION_MESSAGE = "Loading question with id: {}";
 
 	private final QuestionRepository questionRepository;
 	private final ExcelGenerator excelGenerator;
@@ -65,19 +64,21 @@ public class QuestionManager {
 	}
 
 	public Optional<QuestionEntity> getQuestionEntity(Long questionId) {
-		log.info(LOADING_QUESTION_MESSAGE, questionId);
+
+		log.info("Loading question entity with id: {}", questionId);
 		return questionRepository.findById(questionId);
 	}
 
 	public QuestionGet getQuestion(Long questionId) {
 
-		log.info(LOADING_QUESTION_MESSAGE, questionId);
+		log.info("Loading question with id: {}", questionId);
 		QuestionEntity questionFromDB = questionRepository.findById(questionId)
 				.orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 		return QuestionMapper.convertQuestionEntityToQuestionGet(questionFromDB, false);
 	}
 
 	public void checkIfQuestionExists(Long questionId) {
+
 		if (!questionRepository.existsById(questionId)) {
 			throw new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId);
 		}
@@ -93,16 +94,13 @@ public class QuestionManager {
 	@Transactional
 	public QuestionGet updateQuestion(Long questionId, QuestionCreateUpdate questionRequest, UserEntity user) {
 
-		log.info("Updating question");
-		log.info(LOADING_QUESTION_MESSAGE, questionId);
-		return questionRepository.findById(questionId).map(question -> {
-			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
-			log.info("isUserPermitted = {}", isUserPermitted);
+		log.info("Updating question with id: {}", questionId);
 
-			if (!isUserPermitted) {
+		return questionRepository.findById(questionId).map(question -> {
+
+			if (!PermissionsUtils.checkIfUserIsPermitted(question, user)) {
 				throw new ChangeNotAllowedException();
 			}
-
 			log.info("Old question = {}", question);
 			question.setTitle(questionRequest.getTitle());
 			question.setDescription(questionRequest.getDescription());
@@ -114,40 +112,43 @@ public class QuestionManager {
 
 	public boolean deleteQuestion(Long questionId, UserEntity user) {
 
-		log.info("Deleting question.id = {}", questionId);
-		return questionRepository.findById(questionId).map(question -> {
-			boolean isUserPermitted = PermissionsUtils.checkIfUserIsPermitted(question, user);
-			log.info("isUserPermitted = {}", isUserPermitted);
+		log.info("Deleting question with id: {}", questionId);
 
-			if (!isUserPermitted) {
+		return questionRepository.findById(questionId).map(question -> {
+
+			if (!PermissionsUtils.checkIfUserIsPermitted(question, user)) {
 				throw new ChangeNotAllowedException();
 			}
-
 			questionRepository.delete(question);
 			return true;
 
 		}).orElseThrow(() -> new ResourceNotFoundException(QUESTION_NOT_FOUND + questionId));
 	}
 
-	public ResponseEntity<ByteArrayResource> generateQuestionsFile(FileType filetype, Filter filter) throws FileException {
+	public ResponseEntity<ByteArrayResource> generateQuestionsFile(FileType fileType, Filter filter) throws FileException {
 
 		List<QuestionGet> questionsList = searchPaginatedQuestions(filter).itemsList();
 		String fileId = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss-SSS").format(LocalDateTime.now());
 		String fileName = "Pytania_" + fileId;
 
-		if (filetype == FileType.EXCEL) {
-			fileName += ".xlsx";
-			byte[] bytes = excelGenerator.generateQuestionsExcelFile(questionsList);
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName,
-					"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-		} else if (filetype == FileType.PDF) {
-			fileName += ".pdf";
-			byte[] bytes = pdfGenerator.generateQuestionsPdfFile(questionsList);
-			return FileResponseGenerator.generateResponseWithFile(bytes, fileName, "application/pdf");
-		} else {
-			String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
-			log.error(errorMessage);
-			throw new FileException(errorMessage);
+		switch (fileType) {
+
+			case EXCEL:
+				fileName += ".xlsx";
+				return FileResponseGenerator.generateResponseWithFile(
+						excelGenerator.generateQuestionsExcelFile(questionsList), fileName,
+						"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+			case PDF:
+				fileName += ".pdf";
+				return FileResponseGenerator.generateResponseWithFile(
+						pdfGenerator.generateQuestionsPdfFile(questionsList), fileName,
+						"application/pdf");
+
+			default:
+				String errorMessage = "Wspierane są tylko następujące typy plików: EXCEL, PDF";
+				log.error(errorMessage);
+				throw new FileException(errorMessage);
 		}
 	}
 }

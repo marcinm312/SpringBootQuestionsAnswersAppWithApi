@@ -39,6 +39,7 @@ public class FirstUserCreator {
 					.password(passwordEncoder.encode(password))
 					.role(Role.ROLE_ADMIN)
 					.enabled(true)
+					.accountNonLocked(true)
 					.email(email)
 					.timeOfSessionExpiration(currentDate)
 					.changePasswordDate(currentDate)

@@ -11,9 +11,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import pl.marcinm312.springquestionsanswers.config.PropertiesConfig;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionGet;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
@@ -31,6 +33,7 @@ import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.given;
 
+@Import({PropertiesConfig.class})
 class QuestionManagerTest {
 
 	@Mock

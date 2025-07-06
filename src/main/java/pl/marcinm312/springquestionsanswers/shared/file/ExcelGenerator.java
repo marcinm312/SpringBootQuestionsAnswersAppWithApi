@@ -17,6 +17,8 @@ import static pl.marcinm312.springquestionsanswers.shared.file.Columns.*;
 @Component
 public class ExcelGenerator {
 
+	private static final double MARGIN = 1.15;
+
 	public byte[] generateAnswersExcelFile(List<AnswerGet> answersList, QuestionGet question) throws FileException {
 
 		log.info("Starting generating answers Excel file for question = {}", question);
@@ -55,6 +57,7 @@ public class ExcelGenerator {
 
 			for (int i = 0; i < columns.length; i++) {
 				answersSheet.autoSizeColumn(i);
+				answersSheet.setColumnWidth(i, (int) (answersSheet.getColumnWidth(i) * MARGIN));
 			}
 
 			Sheet questionSheet = workbook.createSheet("Pytanie");
@@ -77,8 +80,10 @@ public class ExcelGenerator {
 			createRowWithTwoColumns(headerCellStyle, dateCellStyle, questionSheet, 5, USER_COLUMN,
 					question.getUser(), false);
 
-			questionSheet.autoSizeColumn(0);
-			questionSheet.autoSizeColumn(1);
+			for (int i = 0; i <= 2; i++) {
+				questionSheet.autoSizeColumn(i);
+				questionSheet.setColumnWidth(i, (int) (questionSheet.getColumnWidth(i) * MARGIN));
+			}
 
 			workbook.write(outputStream);
 
@@ -131,6 +136,7 @@ public class ExcelGenerator {
 
 			for (int i = 0; i < columns.length; i++) {
 				sheet.autoSizeColumn(i);
+				sheet.setColumnWidth(i, (int) (sheet.getColumnWidth(i) * MARGIN));
 			}
 
 			workbook.write(outputStream);

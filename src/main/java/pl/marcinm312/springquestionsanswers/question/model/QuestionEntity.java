@@ -21,7 +21,8 @@ public class QuestionEntity extends AuditModel implements CommonEntityWithUser {
 
     @Id
     @GeneratedValue(generator = "question_generator")
-    @SequenceGenerator(name = "question_generator", sequenceName = "question_sequence", initialValue = 1000)
+    @SequenceGenerator(name = "question_generator", sequenceName = "question_sequence", initialValue = 1000,
+            allocationSize = 1)
     private Long id;
 
     private String title;

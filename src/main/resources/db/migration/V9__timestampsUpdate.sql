@@ -1,0 +1,12 @@
+ALTER TABLE public.activation_tokens ALTER COLUMN created_at TYPE timestamp without time zone;
+ALTER TABLE public.activation_tokens ALTER COLUMN updated_at TYPE timestamp without time zone;
+ALTER TABLE public.answers ALTER COLUMN created_at TYPE timestamp without time zone;
+ALTER TABLE public.answers ALTER COLUMN updated_at TYPE timestamp without time zone;
+ALTER TABLE public.mail_change_tokens ALTER COLUMN created_at TYPE timestamp without time zone;
+ALTER TABLE public.mail_change_tokens ALTER COLUMN updated_at TYPE timestamp without time zone;
+ALTER TABLE public.questions ALTER COLUMN created_at TYPE timestamp without time zone;
+ALTER TABLE public.questions ALTER COLUMN updated_at TYPE timestamp without time zone;
+ALTER TABLE public.users ALTER COLUMN created_at TYPE timestamp without time zone;
+ALTER TABLE public.users ALTER COLUMN updated_at TYPE timestamp without time zone;
+ALTER TABLE public.users ALTER COLUMN time_of_session_expiration TYPE timestamp without time zone;
+ALTER TABLE public.users ALTER COLUMN change_password_date TYPE timestamp without time zone;

@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-            integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Tworzenie nowego pytania</title>
 </head>
@@ -25,12 +25,10 @@
 
             <div class="group">
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../myProfile/'">Mój
-                    profil
+                        onclick="window.location.href = '../../myProfile/'">Mój profil
                 </button>
                 <button class="btn btn-primary"
-                        onclick="window.location.href = '../../../logout'">Wyloguj
-                    się
+                        onclick="window.location.href = '../../../logout'">Wyloguj się
                 </button>
             </div>
         </div>
@@ -40,15 +38,14 @@
         zmieni odpowiedź na Twoje pytanie, zostaniesz powiadomiony o tym
         mailowo.</p>
     <form:form method="post" modelAttribute="question">
-        <div class="form-group">
-            <label>Tytuł pytania:</label>
-            <form:input path="title" type="text" class="form-control"/>
+        <div class="mb-3">
+            <label for="questionTitle" class="form-label">Tytuł pytania:</label>
+            <form:input id="questionTitle" path="title" type="text" class="form-control"/>
             <form:errors path="title" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label>Opis pytania:</label>
-            <form:textarea path="description" type="text" class="form-control"
-                           rows="3"/>
+        <div class="mb-3">
+            <label for="questionText" class="form-label">Opis pytania:</label>
+            <form:textarea id="questionText" path="description" type="text" class="form-control" rows="3"/>
         </div>
         <div class="formbuttons">
             <form:button type="submit" class="btn btn-success">Utwórz</form:button>

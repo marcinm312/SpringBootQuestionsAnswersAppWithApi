@@ -15,6 +15,7 @@ public class UserGet extends CommonsDTOFields {
 	private String username;
 	private Role role;
 	private boolean enabled;
+	private boolean accountNonLocked;
 	private String email;
 
 
@@ -23,7 +24,8 @@ public class UserGet extends CommonsDTOFields {
 		return "UserGet{" +
 				"username='" + username + '\'' +
 				", role='" + role + '\'' +
-				", enabled=" + enabled +
+				", enabled='" + enabled + '\'' +
+				", accountNonLocked=" + accountNonLocked +
 				"} " + super.toString();
 	}
 
@@ -33,6 +35,7 @@ public class UserGet extends CommonsDTOFields {
 		if (!(o instanceof UserGet userGet)) return false;
 
 		if (isEnabled() != userGet.isEnabled()) return false;
+		if (isAccountNonLocked() != userGet.isAccountNonLocked()) return false;
 		if (getUsername() != null ? !getUsername().equals(userGet.getUsername()) : userGet.getUsername() != null)
 			return false;
 		if (getRole() != null ? !getRole().equals(userGet.getRole()) : userGet.getRole() != null) return false;
@@ -45,6 +48,7 @@ public class UserGet extends CommonsDTOFields {
 		int result = getUsername() != null ? getUsername().hashCode() : 0;
 		result = 31 * result + (getRole() != null ? getRole().hashCode() : 0);
 		result = 31 * result + (isEnabled() ? 1 : 0);
+		result = 31 * result + (isAccountNonLocked() ? 1 : 0);
 		result = 31 * result + (getEmail() != null ? getEmail().hashCode() : 0);
 		result = 31 * result + (getId() != null ? getId().hashCode() : 0);
 		return result;

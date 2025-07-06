@@ -10,8 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
-            integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Rejestracja użytkownika</title>
 </head>
@@ -22,25 +22,24 @@
         będziesz mógł aktywować swoje konto. Bez aktywacji konta, zalogowanie
         się na nowe konto nie jest możliwe.</p>
     <form:form method="post" modelAttribute="user">
-        <div class="form-group">
-            <label>Login</label>
-            <form:input path="username" type="text" class="form-control"/>
+        <div class="mb-3">
+            <label for="userLogin" class="form-label">Login</label>
+            <form:input id="userLogin" path="username" type="text" class="form-control"/>
             <form:errors path="username" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label>Hasło</label>
-            <form:input path="password" type="password" class="form-control"/>
+        <div class="mb-3">
+            <label for="userPassword" class="form-label">Hasło</label>
+            <form:input id="userPassword" path="password" type="password" class="form-control"/>
             <form:errors path="password" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label>Potwierdź hasło</label>
-            <form:input path="confirmPassword" type="password"
-                        class="form-control"/>
+        <div class="mb-3">
+            <label for="userConfirmPassword" class="form-label">Potwierdź hasło</label>
+            <form:input id="userConfirmPassword" path="confirmPassword" type="password" class="form-control"/>
             <form:errors path="confirmPassword" class="form-text"/>
         </div>
-        <div class="form-group">
-            <label>Email</label>
-            <form:input path="email" type="email" class="form-control"/>
+        <div class="mb-3">
+            <label for="userEmail" class="form-label">Email</label>
+            <form:input id="userEmail" path="email" type="email" class="form-control"/>
             <form:errors path="email" class="form-text"/>
         </div>
         <div class="formbuttons">
