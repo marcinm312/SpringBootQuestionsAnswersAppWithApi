@@ -114,8 +114,8 @@
                     </c:url>
 
                     <th scope="col"><a class="sortablelink" href="${sortLinkId}">Id <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
-                    <th scope="col"><a class="sortablelink" href="${sortLinkTitle}">Tytuł <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
-                    <th scope="col"><a class="sortablelink" href="${sortLinkDescription}">Opis <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
+                    <th class="content-column" scope="col"><a class="sortablelink" href="${sortLinkTitle}">Tytuł <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
+                    <th class="content-column" scope="col"><a class="sortablelink" href="${sortLinkDescription}">Opis <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkCreatedAt}">Data utworzenia <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkUpdatedAt}">Data modyfikacji <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
                     <th scope="col"><a class="sortablelink" href="${sortLinkUser}">Użytkownik <i class="fa fa-fw fa-sort" aria-hidden="true"></i></a></th>
@@ -160,7 +160,8 @@
                             <input type="hidden" name="sortField" value="${filter.sortField}" />
                             <input type="hidden" name="sortDirection" value="${filter.sortDirection}" />
                         </form:form>
-                        <select class="form-select" name="pageSize" form="pageSizeSelectForm" onchange="this.form.submit()">
+                        <select class="form-select" name="pageSize" form="pageSizeSelectForm" onchange="this.form.submit()"
+                                aria-label="Page size">
                             <option selected hidden value="${filter.pageSize}">${filter.pageSize}</option>
                             <option value="3">3</option>
                             <option value="5">5</option>
