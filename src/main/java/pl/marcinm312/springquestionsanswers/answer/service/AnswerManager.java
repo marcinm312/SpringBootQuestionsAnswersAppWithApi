@@ -174,7 +174,9 @@ public class AnswerManager {
 		} else {
 			mailMessage = "zaktualizował odpowiedź na Twoje pytanie:";
 		}
-		String questionDescription = question.getDescription().replace("\n", "<br>");
+		String questionDescription = question.getDescription() != null
+				? question.getDescription().replace("\n", "<br>")
+				: "";
 		String answerText = answer.getText().replace("\n", "<br>");
 		String mailTemplate = """
 				Witaj %s,<br>
