@@ -20,7 +20,7 @@ public class QuestionDataProvider {
 		questions.add(buildQuestionEntity(1002L, "bbbb", "bbbb", user,
 				DateProvider.prepareDate(2019, Month.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Month.SEPTEMBER, 10, 10, 25, 30)));
-		questions.add(buildQuestionEntity(1001L, "aaaa", "", user,
+		questions.add(buildQuestionEntity(1001L, "aaaa", null, user,
 				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30),
 				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30)));
 		questions.add(buildQuestionEntity(1000L, "cccc", "cccc", user,
@@ -42,9 +42,17 @@ public class QuestionDataProvider {
 	public static QuestionEntity prepareExampleQuestion() {
 
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		return buildQuestionEntity(1000L, "bbbb", "bbbb",user,
+		return buildQuestionEntity(1000L, "bbbb", "bbbb", user,
 				DateProvider.prepareDate(2019, Month.DECEMBER, 1, 13, 20, 0),
 				DateProvider.prepareDate(2020, Month.SEPTEMBER, 10, 10, 25, 30));
+	}
+
+	public static QuestionEntity prepareExampleQuestionWithNullDescription() {
+
+		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
+		return buildQuestionEntity(1001L, "aaaa", null, user,
+				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 25, 30),
+				DateProvider.prepareDate(2020, Month.JANUARY, 10, 10, 30, 30));
 	}
 
 	private static QuestionEntity buildQuestionEntity(Long id, String title, String description, UserEntity user,

@@ -57,7 +57,7 @@ class ExcelGeneratorTest {
 
 			checkCellNumberValue(sheet, "A3", questionsList.get(1).getId());
 			checkCellStringValue(sheet, "B3", questionsList.get(1).getTitle());
-			checkCellStringValue(sheet, "C3", questionsList.get(1).getDescription());
+			checkCellStringValue(sheet, "C3", "");
 			checkCellStringValue(sheet, "F3", questionsList.get(1).getUser());
 
 			checkCellNumberValue(sheet, "A4", questionsList.get(2).getId());

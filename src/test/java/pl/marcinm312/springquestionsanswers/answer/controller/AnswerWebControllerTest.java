@@ -108,6 +108,7 @@ class AnswerWebControllerTest {
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+	private final QuestionEntity questionWithNullDescription = QuestionDataProvider.prepareExampleQuestionWithNullDescription();
 
 	@BeforeEach
 	void setup() {
@@ -116,6 +117,7 @@ class AnswerWebControllerTest {
 		given(questionRepository.existsById(2000L)).willReturn(false);
 
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(1001L)).willReturn(Optional.of(questionWithNullDescription));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
@@ -300,16 +302,17 @@ class AnswerWebControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void createAnswer_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfQuestions")
+	void createAnswer_simpleCase_success(QuestionEntity questionEntity) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), questionEntity, user));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(secondUser);
 
 		mockMvc.perform(
-						post("/app/questions/1000/answers/new/")
+						post("/app/questions/" + questionEntity.getId() + "/answers/new/")
 								.with(user("user2").password("password"))
 								.with(csrf())
 								.param("text", answerToRequest.getText()))
@@ -319,9 +322,17 @@ class AnswerWebControllerTest {
 				.andExpect(model().hasNoErrors())
 				.andExpect(authenticated().withUsername("user2").withRoles("USER"));
 
-		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(questionEntity.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
+	}
+
+	private static Stream<Arguments> examplesOfQuestions() {
+
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareExampleQuestion()),
+				Arguments.of(QuestionDataProvider.prepareExampleQuestionWithNullDescription())
+		);
 	}
 
 	@Test

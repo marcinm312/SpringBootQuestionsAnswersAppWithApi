@@ -106,6 +106,7 @@ class AnswerApiControllerTest {
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
 
 	private final QuestionEntity question = QuestionDataProvider.prepareExampleQuestion();
+	private final QuestionEntity questionWithNullDescription = QuestionDataProvider.prepareExampleQuestionWithNullDescription();
 
 	@BeforeEach
 	void setup() {
@@ -114,6 +115,7 @@ class AnswerApiControllerTest {
 		given(questionRepository.existsById(2000L)).willReturn(false);
 
 		given(questionRepository.findById(1000L)).willReturn(Optional.of(question));
+		given(questionRepository.findById(1001L)).willReturn(Optional.of(questionWithNullDescription));
 		given(questionRepository.findById(2000L)).willReturn(Optional.empty());
 		
 		given(answerRepository.getPaginatedAnswers(1000L, PageRequest.of(0, 5,
@@ -311,17 +313,18 @@ class AnswerApiControllerTest {
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
-	@Test
-	void addAnswer_simpleCase_success() throws Exception {
+	@ParameterizedTest
+	@MethodSource("examplesOfQuestions")
+	void addAnswer_simpleCase_success(QuestionEntity questionEntity) throws Exception {
 
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		UserEntity user = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
-		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), question, user));
+		given(answerRepository.save(any(AnswerEntity.class))).willReturn(new AnswerEntity(answerToRequest.getText(), questionEntity, user));
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String response = mockMvc.perform(
-						post("/api/questions/1000/answers")
+						post("/api/questions/" + questionEntity.getId() + "/answers")
 								.header("Authorization", token)
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(answerToRequest))
@@ -332,9 +335,17 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
+		verify(mailService, times(1)).sendMailAsync(eq(questionEntity.getUser().getEmail()),
 				any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
+	}
+
+	private static Stream<Arguments> examplesOfQuestions() {
+
+		return Stream.of(
+				Arguments.of(QuestionDataProvider.prepareExampleQuestion()),
+				Arguments.of(QuestionDataProvider.prepareExampleQuestionWithNullDescription())
+		);
 	}
 
 	@ParameterizedTest
