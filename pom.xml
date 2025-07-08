@@ -124,6 +124,13 @@
             <version>${jasperreports.version}</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-jdt -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-jdt</artifactId>
+            <version>${jasperreports.version}</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/org.apache.poi/poi-ooxml -->
         <dependency>
             <groupId>org.apache.poi</groupId>
