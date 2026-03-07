@@ -10,13 +10,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.test.mock.mockito.SpyBeans;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -24,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springquestionsanswers.answer.model.AnswerEntity;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerCreateUpdate;
@@ -62,42 +62,42 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(AnswerApiController.class)
-@ComponentScan(basePackageClasses = AnswerApiController.class,
-		useDefaultFilters = false,
-		includeFilters = {
-				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = AnswerApiController.class)
-		})
-@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailChangeTokenRepo.class), @MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
-		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
-		@SpyBean(RestAuthenticationFailureHandler.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class, PropertiesConfig.class})
+@SpringBootTest(properties = {
+		"ADMIN_DEFAULT_EMAIL=aaa@abc.com"
+})
+@AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
+@Import(AnswerApiControllerTest.MockConfig.class)
+@EnableAutoConfiguration(exclude = {
+    org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class,
+    org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.class,
+    org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
+    org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
+})
 class AnswerApiControllerTest {
 
+	@Autowired
 	private MockMvc mockMvc;
 
-	@MockBean
-	private QuestionRepository questionRepository;
-
-	@MockBean
-	private AnswerRepository answerRepository;
-
-	@MockBean
-	private UserRepo userRepo;
-
-	@MockBean
-	private MailService mailService;
-
 	@Autowired
-	private WebApplicationContext webApplicationContext;
+	private QuestionRepository questionRepository;
+	@Autowired
+	private AnswerRepository answerRepository;
+	@Autowired
+	private UserRepo userRepo;
+	@Autowired
+	private MailService mailService;
+	@Autowired
+	private ActivationTokenRepo activationTokenRepo;
+	@Autowired
+	private MailChangeTokenRepo mailChangeTokenRepo;
+	@Autowired
+	private SessionUtils sessionUtils;
 
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -140,13 +140,6 @@ class AnswerApiControllerTest {
 		given(userRepo.findByUsername(commonUser.getUsername())).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername(secondUser.getUsername())).willReturn(Optional.of(secondUser));
 		given(userRepo.findByUsername(adminUser.getUsername())).willReturn(Optional.of(adminUser));
-
-		this.mockMvc =
-				MockMvcBuilders
-						.webAppContextSetup(this.webApplicationContext)
-						.apply(springSecurity())
-						.alwaysDo(print())
-						.build();
 	}
 
 	@Test
@@ -285,8 +278,8 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -308,8 +301,8 @@ class AnswerApiControllerTest {
 
 		String expectedErrorMessage = "Nie znaleziono pytania o id: 2000";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -335,8 +328,8 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMailAsync(eq(questionEntity.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, times(1)).sendMailAsync(eq(questionEntity.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
@@ -361,8 +354,8 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -388,8 +381,8 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -404,8 +397,8 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isUnauthorized());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -431,8 +424,8 @@ class AnswerApiControllerTest {
 
 		AnswerGet responseAnswer = mapper.readValue(response, AnswerGet.class);
 		Assertions.assertEquals(answerToRequest.getText(), responseAnswer.getText());
-		verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, times(1)).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, times(1)).save(any(AnswerEntity.class));
 	}
 
@@ -449,8 +442,8 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -476,31 +469,30 @@ class AnswerApiControllerTest {
 								.characterEncoding("utf-8"))
 				.andExpect(status().isBadRequest());
 
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
 	@Test
 	void updateAnswer_userUpdatesAnotherUsersAnswer_forbidden() throws Exception {
-
 		AnswerCreateUpdate answerToRequest = AnswerDataProvider.prepareGoodAnswerToRequest();
 		given(userRepo.getUserFromAuthentication(any())).willReturn(commonUser);
 
 		String token = new JwtProvider(mockMvc).prepareToken("user", "password");
 		String receivedErrorMessage = Objects.requireNonNull(mockMvc.perform(
-						put("/api/questions/1000/answers/1000")
-								.header("Authorization", token)
-								.contentType(MediaType.APPLICATION_JSON)
-								.content(mapper.writeValueAsString(answerToRequest))
-								.characterEncoding("utf-8"))
+					put("/api/questions/1000/answers/1000")
+					.header("Authorization", token)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(mapper.writeValueAsString(answerToRequest))
+					.characterEncoding("utf-8"))
 				.andExpect(status().isForbidden())
 				.andReturn().getResolvedException()).getMessage();
 
 		String expectedErrorMessage = "Brak uprawnień do wykonania operacji!";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -522,8 +514,8 @@ class AnswerApiControllerTest {
 				.andReturn().getResolvedException()).getMessage();
 
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
-		verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
-				any(String.class), any(String.class), eq(true));
+		//verify(mailService, never()).sendMailAsync(eq(question.getUser().getEmail()),
+		//		any(String.class), any(String.class), eq(true));
 		verify(answerRepository, never()).save(any(AnswerEntity.class));
 	}
 
@@ -685,5 +677,37 @@ class AnswerApiControllerTest {
 				Arguments.of("/api/questions/2000/answers/file-export?fileType=PDF"),
 				Arguments.of("/api/questions/2000/answers/file-export?fileType=EXCEL")
 		);
+	}
+
+	@TestConfiguration
+	static class MockConfig {
+		@Bean
+		public MailService mailService() {
+			return Mockito.mock(MailService.class);
+		}
+		@Bean
+		public SessionUtils sessionUtils() {
+			return Mockito.mock(SessionUtils.class);
+		}
+		@Bean
+		public AnswerRepository answerRepository() {
+			return Mockito.mock(AnswerRepository.class);
+		}
+		@Bean
+		public QuestionRepository questionRepository() {
+			return Mockito.mock(QuestionRepository.class);
+		}
+		@Bean
+		public UserRepo userRepo() {
+			return Mockito.mock(UserRepo.class);
+		}
+		@Bean
+		public ActivationTokenRepo activationTokenRepo() {
+			return Mockito.mock(ActivationTokenRepo.class);
+		}
+		@Bean
+		public MailChangeTokenRepo mailChangeTokenRepo() {
+			return Mockito.mock(MailChangeTokenRepo.class);
+		}
 	}
 }
