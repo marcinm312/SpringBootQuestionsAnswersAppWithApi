@@ -68,9 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(properties = {
-		"ADMIN_DEFAULT_EMAIL=aaa@abc.com"
-})
+@SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
 @Import(AnswerApiControllerTest.MockConfig.class)
 @EnableAutoConfiguration(exclude = {

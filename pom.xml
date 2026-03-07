@@ -229,6 +229,7 @@
                         <MAIL_DELAY_SECONDS>1</MAIL_DELAY_SECONDS>
                         <MAIL_USERNAME>aaa@abc.com</MAIL_USERNAME>
                         <MAIL_FROM>aaa@abc.com</MAIL_FROM>
+                        <ADMIN_DEFAULT_EMAIL>aaa@abc.com</ADMIN_DEFAULT_EMAIL>
                         <USER_EXPIRATION_CRON>*/3 * * * * *</USER_EXPIRATION_CRON>
                     </environmentVariables>
                 </configuration>
