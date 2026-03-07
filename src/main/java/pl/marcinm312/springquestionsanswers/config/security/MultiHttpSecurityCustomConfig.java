@@ -112,7 +112,7 @@ public class MultiHttpSecurityCustomConfig {
 							"/token",
 							"/token/",
 							"/error",
-							"error/",
+							"/error/",
 							"/favicon.ico",
 							//CSS
 							"/css/style.css",
