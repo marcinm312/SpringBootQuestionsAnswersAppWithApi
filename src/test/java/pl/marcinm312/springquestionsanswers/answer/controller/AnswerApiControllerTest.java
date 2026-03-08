@@ -10,15 +10,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -26,34 +22,22 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 import pl.marcinm312.springquestionsanswers.answer.model.AnswerEntity;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
-import pl.marcinm312.springquestionsanswers.answer.service.AnswerManager;
 import pl.marcinm312.springquestionsanswers.answer.testdataprovider.AnswerDataProvider;
-import pl.marcinm312.springquestionsanswers.config.PropertiesConfig;
-import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCustomConfig;
-import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
-import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
-import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
-import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
 import java.util.Objects;
@@ -63,9 +47,7 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
@@ -82,31 +64,24 @@ class AnswerApiControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
-	//@Autowired
 	@MockitoBean
 	private QuestionRepository questionRepository;
 
-	//@Autowired
 	@MockitoBean
 	private AnswerRepository answerRepository;
 
-	//@Autowired
 	@MockitoBean
 	private UserRepo userRepo;
 
-	//@Autowired
 	@MockitoBean
 	private MailService mailService;
 
-	//@Autowired
 	@MockitoBean
 	private ActivationTokenRepo activationTokenRepo;
 
-	//@Autowired
 	@MockitoBean
 	private MailChangeTokenRepo mailChangeTokenRepo;
 
-	//@Autowired
 	@MockitoBean
 	private SessionUtils sessionUtils;
 
