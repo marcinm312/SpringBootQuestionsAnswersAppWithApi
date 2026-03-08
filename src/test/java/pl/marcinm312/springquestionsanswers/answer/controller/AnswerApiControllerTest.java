@@ -27,7 +27,6 @@ import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerCreateUpdate;
 import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.answer.testdataprovider.AnswerDataProvider;
-import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
@@ -81,9 +80,6 @@ class AnswerApiControllerTest {
 
 	@MockitoBean
 	private MailChangeTokenRepo mailChangeTokenRepo;
-
-	@MockitoBean
-	private SessionUtils sessionUtils;
 
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
