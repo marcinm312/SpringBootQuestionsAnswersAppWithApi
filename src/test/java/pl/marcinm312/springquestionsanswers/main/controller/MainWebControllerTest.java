@@ -100,7 +100,7 @@ class MainWebControllerTest {
 		return Stream.of(
 			Arguments.of("/css/style.css", "text/css"),
 			Arguments.of("/css/signin.css", "text/css"),
-			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "application/javascript")
+			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "text/javascript")
 		);
 	}
 
@@ -121,6 +121,6 @@ class MainWebControllerTest {
 						get("/js/clearChangePasswordForm.js")
 								.with(user("user").password("password")))
 				.andExpect(status().isOk())
-				.andExpect(content().contentType("application/javascript"));
+				.andExpect(content().contentType("text/javascript"));
 	}
 }

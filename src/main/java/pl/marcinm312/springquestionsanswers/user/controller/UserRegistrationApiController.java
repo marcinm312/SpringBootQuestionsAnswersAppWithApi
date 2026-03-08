@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springquestionsanswers.shared.exception.BindValidationException;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserCreate;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserGet;
 import pl.marcinm312.springquestionsanswers.user.service.UserManager;
@@ -31,7 +32,7 @@ public class UserRegistrationApiController {
 	public UserGet createUser(@Validated @RequestBody UserCreate user, BindingResult bindingResult) throws BindException {
 
 		if (bindingResult.hasErrors()) {
-			throw new BindException(bindingResult);
+			throw new BindValidationException(bindingResult);
 		}
 		return userManager.addUser(user);
 	}

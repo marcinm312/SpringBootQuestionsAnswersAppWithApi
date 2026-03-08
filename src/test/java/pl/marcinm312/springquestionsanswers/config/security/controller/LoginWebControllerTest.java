@@ -135,7 +135,7 @@ class LoginWebControllerTest {
 	void logout_simpleCase_success() throws Exception {
 
 		mockMvc.perform(
-						logout())
+						get("/logout"))
 				.andExpect(status().is3xxRedirection())
 				.andExpect(redirectedUrl("/"))
 				.andExpect(unauthenticated());
