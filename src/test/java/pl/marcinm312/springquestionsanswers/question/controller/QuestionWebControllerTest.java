@@ -40,7 +40,6 @@ import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
 import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
 import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
-import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
@@ -180,7 +179,7 @@ class QuestionWebControllerTest {
 
 		assert modelAndView != null;
 		String receivedErrorMessage = (String) modelAndView.getModel().get("message");
-		int rowsLimit = Filter.ROWS_LIMIT;
+		int rowsLimit = 5000;
 		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
@@ -194,7 +193,7 @@ class QuestionWebControllerTest {
 				.andExpect(status().isBadRequest())
 				.andReturn().getResolvedException()).getMessage();
 
-		int rowsLimit = Filter.ROWS_LIMIT;
+		int rowsLimit = 5000;
 		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
