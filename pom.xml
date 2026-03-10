@@ -28,7 +28,7 @@
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.language>java</sonar.language>
         <sonar.java.source>${java.version}</sonar.java.source>
-        <jasperreports.version>7.0.3</jasperreports.version>
+        <jasperreports.version>7.0.4</jasperreports.version>
     </properties>
 
     <dependencies>

@@ -12,11 +12,11 @@ public class Filter {
 	private final SortField sortField;
 	private final Sort.Direction sortDirection;
 
-	public static final int ROWS_LIMIT = Integer.parseInt(System.getProperty("data.rows.limit"));
+	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection,
+				  int rowsLimit) {
 
-	public Filter(String keyword, Integer pageNo, Integer pageSize, SortField sortField, Sort.Direction sortDirection) {
-		if (pageSize != null && pageSize > ROWS_LIMIT) {
-			throw new LimitExceededException(ROWS_LIMIT);
+		if (pageSize != null && pageSize > rowsLimit) {
+			throw new LimitExceededException(rowsLimit);
 		}
 		this.pageSize = pageSize;
 		this.keyword = keyword;
