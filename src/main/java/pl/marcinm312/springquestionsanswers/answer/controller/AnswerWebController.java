@@ -1,6 +1,7 @@
 package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,9 @@ public class AnswerWebController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
+	@Value("${data.rows.limit}")
+	private int rowsLimit;
+
 
 	@GetMapping
 	public String answersGet(Model model, @PathVariable Long questionId, Authentication authentication,
@@ -63,7 +67,7 @@ public class AnswerWebController {
 		QuestionGet question;
 		Filter filter;
 		try {
-			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 			paginatedAnswers = answerManager.searchPaginatedAnswers(questionId, filter);
 			question = questionManager.getQuestion(questionId);
 		} catch (ResourceNotFoundException e) {
@@ -192,7 +196,7 @@ public class AnswerWebController {
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 

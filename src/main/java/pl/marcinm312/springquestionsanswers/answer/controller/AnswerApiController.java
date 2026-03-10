@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.answer.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,9 @@ public class AnswerApiController {
 	private final AnswerManager answerManager;
 	private final UserManager userManager;
 
+	@Value("${data.rows.limit}")
+	private int rowsLimit;
+
 	@GetMapping
 	public ListPage<AnswerGet> getAnswers(@PathVariable Long questionId,
 										  @RequestParam(required = false) String keyword,
@@ -38,7 +42,7 @@ public class AnswerApiController {
 										  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection) {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return answerManager.searchPaginatedAnswers(questionId, filter);
 	}
 
@@ -82,7 +86,7 @@ public class AnswerApiController {
 			throws ResourceNotFoundException, FileException {
 
 		sortField = Filter.checkAnswersSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return answerManager.generateAnswersFile(questionId, fileType, filter);
 	}
 }
