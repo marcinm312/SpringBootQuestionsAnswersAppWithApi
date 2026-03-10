@@ -30,7 +30,6 @@ import pl.marcinm312.springquestionsanswers.answer.model.dto.AnswerGet;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.answer.service.AnswerManager;
 import pl.marcinm312.springquestionsanswers.answer.testdataprovider.AnswerDataProvider;
-import pl.marcinm312.springquestionsanswers.config.PropertiesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCustomConfig;
 import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
@@ -82,7 +81,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(AnswerManager.class), @SpyBean(UserDetailsServiceImpl.class),
 		@SpyBean(UserManager.class), @SpyBean(RestAuthenticationSuccessHandler.class),
 		@SpyBean(RestAuthenticationFailureHandler.class), @SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class, PropertiesConfig.class})
+@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
 class AnswerWebControllerTest {
 
 	private MockMvc mockMvc;

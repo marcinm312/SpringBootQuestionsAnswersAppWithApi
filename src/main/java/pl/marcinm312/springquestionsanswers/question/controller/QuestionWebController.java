@@ -1,6 +1,7 @@
 package pl.marcinm312.springquestionsanswers.question.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,9 @@ public class QuestionWebController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
+	@Value("${data.rows.limit}")
+	private int rowsLimit;
+
 
 	@GetMapping
 	public String questionsGet(Model model, Authentication authentication, HttpServletResponse response,
@@ -57,7 +61,7 @@ public class QuestionWebController {
 		ListPage<QuestionGet> paginatedQuestions;
 		Filter filter;
 		try {
-			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+			filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 			paginatedQuestions = questionManager.searchPaginatedQuestions(filter);
 		} catch (LimitExceededException e) {
 			return ControllerUtils.getLimitExceededView(model, userName, e, response);
@@ -163,7 +167,7 @@ public class QuestionWebController {
 			throws FileException {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 

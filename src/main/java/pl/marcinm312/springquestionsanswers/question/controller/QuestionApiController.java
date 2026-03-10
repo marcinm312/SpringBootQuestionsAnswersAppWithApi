@@ -2,6 +2,7 @@ package pl.marcinm312.springquestionsanswers.question.controller;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,9 @@ public class QuestionApiController {
 	private final QuestionManager questionManager;
 	private final UserManager userManager;
 
+	@Value("${data.rows.limit}")
+	private int rowsLimit;
+
 
 	@GetMapping
 	public ListPage<QuestionGet> getQuestions(@RequestParam(required = false) String keyword,
@@ -37,7 +41,7 @@ public class QuestionApiController {
 											  @RequestParam(required = false) @Parameter(description = "Default value: `DESC`") Sort.Direction sortDirection) {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return questionManager.searchPaginatedQuestions(filter);
 	}
 
@@ -78,7 +82,7 @@ public class QuestionApiController {
 			throws FileException {
 
 		sortField = Filter.checkQuestionsSortField(sortField);
-		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection);
+		Filter filter = new Filter(keyword, pageNo, pageSize, sortField, sortDirection, rowsLimit);
 		return questionManager.generateQuestionsFile(fileType, filter);
 	}
 }
