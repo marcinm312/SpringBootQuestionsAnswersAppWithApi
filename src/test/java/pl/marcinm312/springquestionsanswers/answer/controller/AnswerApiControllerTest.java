@@ -31,7 +31,6 @@ import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springquestionsanswers.shared.filter.Filter;
 import pl.marcinm312.springquestionsanswers.shared.testdataprovider.JwtProvider;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
@@ -171,7 +170,7 @@ class AnswerApiControllerTest {
 						.andExpect(status().isBadRequest())
 						.andReturn().getResolvedException()).getMessage();
 
-		int rowsLimit = Filter.ROWS_LIMIT;
+		int rowsLimit = 5000;
 		String expectedErrorMessage = "Strona nie może zawierać więcej niż " + rowsLimit + " rekordów";
 		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
