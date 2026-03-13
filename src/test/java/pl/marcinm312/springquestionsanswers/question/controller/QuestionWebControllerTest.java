@@ -8,43 +8,30 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.MockBeans;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.test.mock.mockito.SpyBeans;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
-import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCustomConfig;
-import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
-import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
-import pl.marcinm312.springquestionsanswers.mail.service.MailService;
+import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
+import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.question.model.QuestionEntity;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionCreateUpdate;
 import pl.marcinm312.springquestionsanswers.question.model.dto.QuestionGet;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
-import pl.marcinm312.springquestionsanswers.question.service.QuestionManager;
 import pl.marcinm312.springquestionsanswers.question.testdataprovider.QuestionDataProvider;
-import pl.marcinm312.springquestionsanswers.shared.file.ExcelGenerator;
-import pl.marcinm312.springquestionsanswers.shared.file.PdfGenerator;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
-import pl.marcinm312.springquestionsanswers.user.service.UserManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
 import java.util.List;
@@ -55,43 +42,49 @@ import java.util.stream.Stream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
-import static org.springframework.context.annotation.FilterType.ASSIGNABLE_TYPE;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = QuestionWebController.class)
-@ComponentScan(basePackageClasses = QuestionWebController.class,
-		useDefaultFilters = false,
-		includeFilters = {
-				@ComponentScan.Filter(type = ASSIGNABLE_TYPE, value = QuestionWebController.class)
-		})
-@MockBeans({@MockBean(ActivationTokenRepo.class), @MockBean(MailChangeTokenRepo.class), @MockBean(MailService.class),
-		@MockBean(SessionUtils.class)})
-@SpyBeans({@SpyBean(QuestionManager.class), @SpyBean(UserDetailsServiceImpl.class), @SpyBean(UserManager.class),
-		@SpyBean(RestAuthenticationSuccessHandler.class), @SpyBean(RestAuthenticationFailureHandler.class),
-		@SpyBean(ExcelGenerator.class), @SpyBean(PdfGenerator.class)})
-@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
-@WebAppConfiguration
+@SpringBootTest
+@AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
+@EnableAutoConfiguration(exclude = {
+		org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
+})
 class QuestionWebControllerTest {
 
+	@Autowired
 	private MockMvc mockMvc;
 
-	@MockBean
+	@MockitoBean
 	private QuestionRepository questionRepository;
 
-	@MockBean
+	@MockitoBean
 	private UserRepo userRepo;
 
-	@Autowired
-	private WebApplicationContext webApplicationContext;
+	@MockitoBean
+	private AnswerRepository answerRepository;
+
+	@MockitoBean
+	private JavaMailSender javaMailSender;
+
+	@MockitoBean
+	private MailRepository mailRepository;
+
+	@MockitoBean
+	private ActivationTokenRepo activationTokenRepo;
+
+	@MockitoBean
+	private MailChangeTokenRepo mailChangeTokenRepo;
+
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
@@ -114,12 +107,6 @@ class QuestionWebControllerTest {
 		given(userRepo.findByUsername("user")).willReturn(Optional.of(commonUser));
 		given(userRepo.findByUsername("user2")).willReturn(Optional.of(secondUser));
 		given(userRepo.findByUsername("admin")).willReturn(Optional.of(adminUser));
-
-		this.mockMvc = MockMvcBuilders
-				.webAppContextSetup(this.webApplicationContext)
-				.apply(springSecurity())
-				.alwaysDo(print())
-				.build();
 	}
 
 	@Test
