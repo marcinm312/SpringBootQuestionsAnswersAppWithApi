@@ -23,6 +23,7 @@ import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
 import pl.marcinm312.springquestionsanswers.user.service.UserAdminManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -100,18 +101,18 @@ class LoginApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUnauthenticatedErrors")
-	void login_userWithBadCredentials_unauthenticated(String username, String password/*, String expectedErrorMessage*/)
+	void login_userWithBadCredentials_unauthenticated(String username, String password, String expectedErrorMessage)
 			throws Exception {
 
-		/*MvcResult mvcResult =*/ mockMvc.perform(post("/api/login")
-					.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
-					.characterEncoding("UTF8"))
+		String receivedErrorMessage = mockMvc.perform(post("/api/login")
+						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
+						.characterEncoding("UTF8")
+						.locale(Locale.of("pl", "PL")))
 				.andExpect(status().isUnauthorized())
 				.andExpect(header().doesNotExist("Authorization"))
-				.andReturn();
+				.andReturn().getResponse().getErrorMessage();
 
-		//String receivedErrorMessage = mvcResult.getResponse().getErrorMessage();
-		//Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
+		Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
 	@ParameterizedTest
@@ -148,12 +149,12 @@ class LoginApiControllerTest {
 	private static Stream<Arguments> examplesOfBadRequests() {
 
 		return Stream.of(
-			Arguments.of("aaa"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\""),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa"),
-			Arguments.of(""),
-			Arguments.of("{..}")
+				Arguments.of("aaa"),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\""),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}"),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa"),
+				Arguments.of(""),
+				Arguments.of("{..}")
 		);
 	}
 }
