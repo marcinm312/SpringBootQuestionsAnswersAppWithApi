@@ -66,6 +66,7 @@ class LoginApiControllerTest {
 	@MockitoBean
 	private UserAdminManager userAdminManager;
 
+
 	@BeforeEach
 	void setup() {
 
@@ -99,14 +100,18 @@ class LoginApiControllerTest {
 
 	@ParameterizedTest
 	@MethodSource("examplesOfUnauthenticatedErrors")
-	void login_userWithBadCredentials_unauthenticated(String username, String password)
+	void login_userWithBadCredentials_unauthenticated(String username, String password/*, String expectedErrorMessage*/)
 			throws Exception {
 
-		mockMvc.perform(post("/api/login")
+		/*MvcResult mvcResult =*/ mockMvc.perform(post("/api/login")
 					.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
 					.characterEncoding("UTF8"))
 				.andExpect(status().isUnauthorized())
-				.andExpect(header().doesNotExist("Authorization"));
+				.andExpect(header().doesNotExist("Authorization"))
+				.andReturn();
+
+		//String receivedErrorMessage = mvcResult.getResponse().getErrorMessage();
+		//Assertions.assertEquals(expectedErrorMessage, receivedErrorMessage);
 	}
 
 	@ParameterizedTest
