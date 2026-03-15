@@ -54,6 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
 		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
 })
+@MockitoBean(types = {AnswerRepository.class, QuestionRepository.class, ActivationTokenRepo.class,
+		FirstUserCreator.class})
 class MyProfileWebControllerTest {
 
 	@Autowired
@@ -70,18 +72,6 @@ class MyProfileWebControllerTest {
 
 	@MockitoBean
 	private SessionUtils sessionUtils;
-
-	@MockitoBean
-	private AnswerRepository answerRepository;
-
-	@MockitoBean
-	private QuestionRepository questionRepository;
-
-	@MockitoBean
-	private ActivationTokenRepo activationTokenRepo;
-
-	@MockitoBean
-	private FirstUserCreator firstUserCreator;
 
 
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();

@@ -63,6 +63,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
 		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
 })
+@MockitoBean(types = {AnswerRepository.class, JavaMailSender.class, MailRepository.class, ActivationTokenRepo.class,
+		MailChangeTokenRepo.class})
 class QuestionApiControllerTest {
 
 	@Autowired
@@ -73,21 +75,6 @@ class QuestionApiControllerTest {
 
 	@MockitoBean
 	private UserRepo userRepo;
-
-	@MockitoBean
-	private AnswerRepository answerRepository;
-
-	@MockitoBean
-	private JavaMailSender javaMailSender;
-
-	@MockitoBean
-	private MailRepository mailRepository;
-
-	@MockitoBean
-	private ActivationTokenRepo activationTokenRepo;
-
-	@MockitoBean
-	private MailChangeTokenRepo mailChangeTokenRepo;
 
 
 	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());

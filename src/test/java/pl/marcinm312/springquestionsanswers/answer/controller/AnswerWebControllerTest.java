@@ -61,6 +61,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
 		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
 })
+@MockitoBean(types = {ActivationTokenRepo.class, MailChangeTokenRepo.class})
 class AnswerWebControllerTest {
 
 	@Autowired
@@ -78,11 +79,6 @@ class AnswerWebControllerTest {
 	@MockitoBean
 	private MailService mailService;
 
-	@MockitoBean
-	private ActivationTokenRepo activationTokenRepo;
-
-	@MockitoBean
-	private MailChangeTokenRepo mailChangeTokenRepo;
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity secondUser = UserDataProvider.prepareExampleSecondGoodUserWithEncodedPassword();
