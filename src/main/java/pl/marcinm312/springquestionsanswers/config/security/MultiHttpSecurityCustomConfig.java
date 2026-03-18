@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,10 +20,8 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import pl.marcinm312.springquestionsanswers.config.security.jwt.*;
 import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
 
@@ -50,28 +49,32 @@ public class MultiHttpSecurityCustomConfig {
 		private static final String ADMIN_ROLE = "ADMIN";
 
 		@Bean
-		public SecurityFilterChain jwtFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/api/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
-							new MvcRequestMatcher(introspector, "/api/login"),
-							new MvcRequestMatcher(introspector,"/api/registration"),
-							new MvcRequestMatcher(introspector,"/api/token")
+							"/api/login",
+							"/api/registration",
+							"/api/token"
 					)
 					.permitAll()
 
 					.requestMatchers(
-							new MvcRequestMatcher(introspector,"/api/actuator/**"),
-							new MvcRequestMatcher(introspector,"/api/admin/**")
+							"/api/actuator/**",
+							"/api/admin/**"
 					).hasRole(ADMIN_ROLE)
 					.anyRequest().authenticated())
 
-					.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+					.sessionManagement(sessionManagement -> sessionManagement
+							.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+					)
 					.addFilter(authenticationFilter())
 					.addFilter(new JwtAuthorizationFilter(authenticationManager(authenticationConfiguration), userDetailsService, environment))
-					.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+					.exceptionHandling(exceptionHandling -> exceptionHandling
+							.authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+					)
 					.csrf(AbstractHttpConfigurer::disable);
 			return http.build();
 		}
@@ -97,48 +100,60 @@ public class MultiHttpSecurityCustomConfig {
 	public static class FormLoginWebSecurityConfigurationAdapter {
 
 		@Bean
-		public SecurityFilterChain formLoginFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
 
 			http.securityMatcher("/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
 
 					.requestMatchers(
-							new MvcRequestMatcher(introspector, "/"),
-							new MvcRequestMatcher(introspector, "/register"),
-							new MvcRequestMatcher(introspector, "/register/"),
-							new MvcRequestMatcher(introspector, "/token"),
-							new MvcRequestMatcher(introspector, "/token/"),
-							new MvcRequestMatcher(introspector, "/error"),
-							new MvcRequestMatcher(introspector, "error/"),
-							new MvcRequestMatcher(introspector, "/favicon.ico"),
+							"/",
+							"/register",
+							"/register/",
+							"/token",
+							"/token/",
+							"/error",
+							"/error/",
+							"/favicon.ico",
 							//CSS
-							new MvcRequestMatcher(introspector, "/css/style.css"),
-							new MvcRequestMatcher(introspector, "/css/signin.css"),
+							"/css/style.css",
+							"/css/signin.css",
 							//JS
-							new MvcRequestMatcher(introspector, "/js/clearPasswordsFieldsInRegistrationForm.js"),
+							"/js/clearPasswordsFieldsInRegistrationForm.js",
 							//SWAGGER
-							new MvcRequestMatcher(introspector, "/swagger/**"),
-							new MvcRequestMatcher(introspector, "/swagger-ui/**"),
-							new MvcRequestMatcher(introspector, "/swagger-ui.html"),
-							new MvcRequestMatcher(introspector, "/webjars/**"),
-							new MvcRequestMatcher(introspector, "/swagger-resources/**"),
-							new MvcRequestMatcher(introspector, "/configuration/**"),
-							new MvcRequestMatcher(introspector, "/v3/api-docs/**")
+							"/swagger/**",
+							"/swagger-ui/**",
+							"/swagger-ui.html",
+							"/webjars/**",
+							"/swagger-resources/**",
+							"/configuration/**",
+							"/v3/api-docs/**"
 					)
 					.permitAll()
 					.dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
 
 					.requestMatchers(
-							new MvcRequestMatcher(introspector,"/app/**"),
-							new MvcRequestMatcher(introspector,"/js/clearChangePasswordForm.js")
+							"/app/**",
+							"/js/clearChangePasswordForm.js"
 					)
 					.authenticated()
 					.anyRequest().denyAll())
 
-					.formLogin(formLogin -> formLogin.loginPage("/loginPage/").loginProcessingUrl("/authenticate/").permitAll())
-					.logout(logout -> logout.permitAll().logoutSuccessUrl("/").logoutRequestMatcher(new AntPathRequestMatcher("/logout")))
-
-					.sessionManagement(sessionManagement -> sessionManagement.maximumSessions(10000).maxSessionsPreventsLogin(false).expiredUrl("/loginPage/").sessionRegistry(sessionRegistry()));
+					.formLogin(formLogin -> formLogin
+							.loginPage("/loginPage/")
+							.loginProcessingUrl("/authenticate/")
+							.permitAll()
+					)
+					.logout(logout -> logout
+							.permitAll()
+							.logoutSuccessUrl("/")
+							.logoutRequestMatcher(PathPatternRequestMatcher.withDefaults().matcher(HttpMethod.GET, "/logout"))
+					)
+					.sessionManagement(sessionManagement -> sessionManagement
+							.maximumSessions(10000)
+							.maxSessionsPreventsLogin(false)
+							.expiredUrl("/loginPage/")
+							.sessionRegistry(sessionRegistry())
+					);
 
 			return http.build();
 		}

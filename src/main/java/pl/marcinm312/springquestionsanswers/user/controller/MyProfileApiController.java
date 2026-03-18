@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import pl.marcinm312.springquestionsanswers.shared.exception.BindValidationException;
 import pl.marcinm312.springquestionsanswers.user.model.UserEntity;
 import pl.marcinm312.springquestionsanswers.user.model.UserMapper;
 import pl.marcinm312.springquestionsanswers.user.model.dto.UserDataUpdate;
@@ -48,7 +49,7 @@ public class MyProfileApiController {
 								   Authentication authentication) throws BindException {
 
 		if (bindingResult.hasErrors()) {
-			throw new BindException(bindingResult);
+			throw new BindValidationException(bindingResult);
 		}
 		return userManager.updateUserData(user, authentication);
 	}
@@ -63,7 +64,7 @@ public class MyProfileApiController {
 									Authentication authentication) throws BindException {
 
 		if (bindingResult.hasErrors()) {
-			throw new BindException(bindingResult);
+			throw new BindValidationException(bindingResult);
 		}
 		return userManager.updateUserPassword(user, authentication);
 	}

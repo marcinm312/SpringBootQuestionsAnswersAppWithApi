@@ -50,10 +50,10 @@ class ExcelGeneratorTest {
 			checkCellStringValue(sheet, "E1", "Data modyfikacji");
 			checkCellStringValue(sheet, "F1", "Użytkownik");
 
-			checkCellNumberValue(sheet, "A2", questionsList.get(0).getId());
-			checkCellStringValue(sheet, "B2", questionsList.get(0).getTitle());
-			checkCellStringValue(sheet, "C2", questionsList.get(0).getDescription());
-			checkCellStringValue(sheet, "F2", questionsList.get(0).getUser());
+			checkCellNumberValue(sheet, "A2", questionsList.getFirst().getId());
+			checkCellStringValue(sheet, "B2", questionsList.getFirst().getTitle());
+			checkCellStringValue(sheet, "C2", questionsList.getFirst().getDescription());
+			checkCellStringValue(sheet, "F2", questionsList.getFirst().getUser());
 
 			checkCellNumberValue(sheet, "A3", questionsList.get(1).getId());
 			checkCellStringValue(sheet, "B3", questionsList.get(1).getTitle());
@@ -127,9 +127,9 @@ class ExcelGeneratorTest {
 			checkCellStringValue(sheet0, "D1", "Data modyfikacji");
 			checkCellStringValue(sheet0, "E1", "Użytkownik");
 
-			checkCellNumberValue(sheet0, "A2", answersList.get(0).getId());
-			checkCellStringValue(sheet0, "B2", answersList.get(0).getText());
-			checkCellStringValue(sheet0, "E2", answersList.get(0).getUser());
+			checkCellNumberValue(sheet0, "A2", answersList.getFirst().getId());
+			checkCellStringValue(sheet0, "B2", answersList.getFirst().getText());
+			checkCellStringValue(sheet0, "E2", answersList.getFirst().getUser());
 
 			checkCellNumberValue(sheet0, "A4", answersList.get(2).getId());
 			checkCellStringValue(sheet0, "B4", answersList.get(2).getText());

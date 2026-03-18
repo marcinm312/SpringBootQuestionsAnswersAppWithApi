@@ -7,56 +7,50 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.boot.test.mock.mockito.SpyBeans;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
-import pl.marcinm312.springquestionsanswers.config.security.MultiHttpSecurityCustomConfig;
-import pl.marcinm312.springquestionsanswers.config.security.SecurityMessagesConfig;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationFailureHandler;
-import pl.marcinm312.springquestionsanswers.config.security.jwt.RestAuthenticationSuccessHandler;
+import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
+import pl.marcinm312.springquestionsanswers.mail.service.MailService;
+import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
+import pl.marcinm312.springquestionsanswers.user.repository.ActivationTokenRepo;
+import pl.marcinm312.springquestionsanswers.user.repository.MailChangeTokenRepo;
 import pl.marcinm312.springquestionsanswers.user.repository.UserRepo;
-import pl.marcinm312.springquestionsanswers.user.service.UserDetailsServiceImpl;
+import pl.marcinm312.springquestionsanswers.user.service.UserAdminManager;
 import pl.marcinm312.springquestionsanswers.user.testdataprovider.UserDataProvider;
 
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.mockito.BDDMockito.given;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
-@WebMvcTest(controllers = LoginApiController.class)
-@ComponentScan(basePackageClasses = LoginApiController.class,
-			useDefaultFilters = false,
-			includeFilters = {
-				@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = LoginApiController.class)
-			})
-@Import({MultiHttpSecurityCustomConfig.class, SecurityMessagesConfig.class})
-@SpyBeans({@SpyBean(UserDetailsServiceImpl.class), @SpyBean(RestAuthenticationSuccessHandler.class),
-		@SpyBean(RestAuthenticationFailureHandler.class)})
-@WebAppConfiguration
+@SpringBootTest
+@AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
+@EnableAutoConfiguration(exclude = {
+		org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
+		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
+})
+@MockitoBean(types = {AnswerRepository.class, QuestionRepository.class, ActivationTokenRepo.class,
+		MailChangeTokenRepo.class, MailService.class, UserAdminManager.class})
 class LoginApiControllerTest {
 
+	@Autowired
 	private MockMvc mockMvc;
 
-	@Autowired
-	private WebApplicationContext webApplicationContext;
-
-	@MockBean
+	@MockitoBean
 	private UserRepo userRepo;
+
 
 	@BeforeEach
 	void setup() {
@@ -72,12 +66,6 @@ class LoginApiControllerTest {
 				prepareExampleLockedUserWithEncodedPassword()));
 		given(userRepo.findByUsername("user6")).willReturn(Optional.of(UserDataProvider.
 				prepareExampleDisabledAndLockedUserWithEncodedPassword()));
-
-		this.mockMvc = MockMvcBuilders
-				.webAppContextSetup(this.webApplicationContext)
-				.apply(springSecurity())
-				.alwaysDo(print())
-				.build();
 	}
 
 	@ParameterizedTest
@@ -102,7 +90,8 @@ class LoginApiControllerTest {
 
 		String receivedErrorMessage = mockMvc.perform(post("/api/login")
 						.content("{\"username\": \"" + username + "\", \"password\": \"" + password + "\"}")
-						.characterEncoding("UTF8"))
+						.characterEncoding("UTF8")
+						.locale(Locale.of("pl", "PL")))
 				.andExpect(status().isUnauthorized())
 				.andExpect(header().doesNotExist("Authorization"))
 				.andReturn().getResponse().getErrorMessage();
@@ -144,12 +133,12 @@ class LoginApiControllerTest {
 	private static Stream<Arguments> examplesOfBadRequests() {
 
 		return Stream.of(
-			Arguments.of("aaa"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\""),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}"),
-			Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa"),
-			Arguments.of(""),
-			Arguments.of("{..}")
+				Arguments.of("aaa"),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa\""),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa}"),
+				Arguments.of("{\"username\": \"aaa\", \"password\": \"aaa"),
+				Arguments.of(""),
+				Arguments.of("{..}")
 		);
 	}
 }
