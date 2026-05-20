@@ -132,7 +132,7 @@ public class MailService {
 		try {
 			resendMail(mailEntity);
 			return true;
-		} catch (Exception e) {
+		} catch (Exception _) {
 			return false;
 		}
 	}

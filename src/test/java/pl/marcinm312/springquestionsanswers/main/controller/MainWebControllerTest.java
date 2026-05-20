@@ -87,6 +87,8 @@ class MainWebControllerTest {
 		return Stream.of(
 			Arguments.of("/css/style.css", "text/css"),
 			Arguments.of("/css/signin.css", "text/css"),
+			Arguments.of("/webjars/font-awesome/css/all.min.css", "text/css"),
+			Arguments.of("/webjars/bootstrap/css/bootstrap.min.css", "text/css"),
 			Arguments.of("/js/clearPasswordsFieldsInRegistrationForm.js", "text/javascript")
 		);
 	}
