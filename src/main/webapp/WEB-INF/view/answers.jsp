@@ -65,6 +65,7 @@
                         Eksportuj do Excel
         </button>
         <form:form action="" method="GET" class="float-end">
+            <label for="search-input" class="visually-hidden">Szukaj</label>
             <input id="search-input" class="form-control search-input" type="search" placeholder="Szukaj" name="keyword" value="${filter.keyword}" />
             <input type="hidden" name="pageNo" value="1" />
             <input type="hidden" name="pageSize" value="${filter.pageSize}" />
