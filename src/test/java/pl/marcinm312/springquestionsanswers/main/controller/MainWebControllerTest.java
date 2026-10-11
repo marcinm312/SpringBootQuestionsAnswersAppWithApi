@@ -99,7 +99,7 @@ class MainWebControllerTest {
 		mockMvc.perform(
 						get("/js/clearChangePasswordForm.js"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 

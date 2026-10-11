@@ -92,7 +92,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -126,7 +126,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/update/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -159,7 +159,7 @@ class MyProfileWebControllerTest {
 								.param("username", userToRequest.getUsername())
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -298,7 +298,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -326,7 +326,7 @@ class MyProfileWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -448,7 +448,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/expireOtherSessions/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -480,7 +480,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/delete/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -516,7 +516,7 @@ class MyProfileWebControllerTest {
 						post("/app/myProfile/delete/")
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(true));
@@ -572,7 +572,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/update/confirm/?value=" + exampleTokenValue))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));
