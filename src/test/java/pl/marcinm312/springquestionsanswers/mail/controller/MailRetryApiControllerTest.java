@@ -1,8 +1,5 @@
 package pl.marcinm312.springquestionsanswers.mail.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.mail.Session;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +17,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.mail.exception.RuntimeMailException;
 import pl.marcinm312.springquestionsanswers.mail.model.MailEntity;
@@ -66,6 +65,9 @@ class MailRetryApiControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@Autowired
+	private ObjectMapper mapper;
+
 	@MockitoBean
 	private JavaMailSender javaMailSender;
 
@@ -78,8 +80,6 @@ class MailRetryApiControllerTest {
 	@MockitoSpyBean
 	private MailService mailService;
 
-
-	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();

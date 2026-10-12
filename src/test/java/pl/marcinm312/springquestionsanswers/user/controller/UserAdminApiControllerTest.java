@@ -1,8 +1,5 @@
 package pl.marcinm312.springquestionsanswers.user.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +15,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.mail.repository.MailRepository;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
@@ -54,14 +53,15 @@ class UserAdminApiControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@Autowired
+	private ObjectMapper mapper;
+
 	@MockitoBean
 	private UserRepo userRepo;
 
 	@MockitoSpyBean
 	private UserAdminManager userAdminManager;
 
-
-	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();

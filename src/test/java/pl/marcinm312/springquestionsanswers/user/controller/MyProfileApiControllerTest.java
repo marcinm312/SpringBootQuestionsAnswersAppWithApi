@@ -1,7 +1,5 @@
 package pl.marcinm312.springquestionsanswers.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.config.security.utils.SessionUtils;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
@@ -61,6 +60,9 @@ class MyProfileApiControllerTest {
 	@Autowired
 	private MockMvc mockMvc;
 
+	@Autowired
+	private ObjectMapper mapper;
+
 	@MockitoBean
 	private UserRepo userRepo;
 
@@ -73,8 +75,6 @@ class MyProfileApiControllerTest {
 	@MockitoBean
 	private SessionUtils sessionUtils;
 
-
-	private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
 	private final UserEntity commonUser = UserDataProvider.prepareExampleGoodUserWithEncodedPassword();
 	private final UserEntity adminUser = UserDataProvider.prepareExampleGoodAdministratorWithEncodedPassword();
