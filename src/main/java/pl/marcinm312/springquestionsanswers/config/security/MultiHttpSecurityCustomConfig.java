@@ -49,7 +49,7 @@ public class MultiHttpSecurityCustomConfig {
 		private static final String ADMIN_ROLE = "ADMIN";
 
 		@Bean
-		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain jwtFilterChain(HttpSecurity http) {
 
 			http.securityMatcher("/api/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
@@ -80,11 +80,11 @@ public class MultiHttpSecurityCustomConfig {
 		}
 
 		@Bean
-		public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
 			return authenticationConfiguration.getAuthenticationManager();
 		}
 
-		public JsonObjectAuthenticationFilter authenticationFilter() throws Exception {
+		public JsonObjectAuthenticationFilter authenticationFilter() {
 
 			JsonObjectAuthenticationFilter authenticationFilter = new JsonObjectAuthenticationFilter(objectMapper);
 			authenticationFilter.setFilterProcessesUrl("/api/login");
@@ -100,7 +100,7 @@ public class MultiHttpSecurityCustomConfig {
 	public static class FormLoginWebSecurityConfigurationAdapter {
 
 		@Bean
-		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) {
 
 			http.securityMatcher("/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
