@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>pl.marcinm312</groupId>
@@ -22,13 +22,13 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
         <!-- https://mvnrepository.com/artifact/org.jacoco/jacoco-maven-plugin -->
-        <jacoco.version>0.8.15</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
         <sonar.java.source>${java.version}</sonar.java.source>
 
         <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
-        <jasperreports.version>7.0.8</jasperreports.version>
+        <jasperreports.version>7.1.0</jasperreports.version>
     </properties>
 
     <dependencies>
@@ -125,14 +125,12 @@
             </exclusions>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-pdf -->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-pdf</artifactId>
             <version>${jasperreports.version}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-jdt -->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-jdt</artifactId>
@@ -143,7 +141,7 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>5.5.1</version>
+            <version>6.0.0</version>
         </dependency>
 
         <dependency>
@@ -177,7 +175,7 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-            <version>4.6.1</version>
+            <version>4.6.2</version>
         </dependency>
 
         <dependency>
@@ -216,7 +214,7 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>3.1.1</version>
+            <version>3.2.0</version>
         </dependency>
 
         <!-- Source: https://mvnrepository.com/artifact/org.webjars/webjars-locator-core -->
