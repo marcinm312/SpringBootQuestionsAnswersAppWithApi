@@ -28,7 +28,7 @@
         <sonar.java.source>${java.version}</sonar.java.source>
 
         <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports -->
-        <jasperreports.version>7.1.0</jasperreports.version>
+        <jasperreports.version>7.1.1</jasperreports.version>
     </properties>
 
     <dependencies>
