@@ -76,11 +76,11 @@ public class UserEntity extends AuditModel implements UserDetails, CommonEntity 
 		if (this == o) return true;
 		if (!(o instanceof UserEntity user)) return false;
 
-		return getUsername() != null ? getUsername().equals(user.getUsername()) : user.getUsername() == null;
+		return Objects.equals(getUsername(), user.getUsername());
 	}
 
 	@Override
 	public int hashCode() {
-		return getUsername() != null ? getUsername().hashCode() : 0;
+		return Objects.hash(getUsername());
 	}
 }

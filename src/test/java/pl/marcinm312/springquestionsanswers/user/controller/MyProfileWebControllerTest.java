@@ -9,8 +9,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -49,10 +49,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
 @EnableAutoConfiguration(exclude = {
-		org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
+		org.springframework.boot.mail.autoconfigure.MailSenderAutoConfiguration.class,
+		org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration.class,
+		org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration.class,
+		org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration.class
 })
 @MockitoBean(types = {AnswerRepository.class, QuestionRepository.class, ActivationTokenRepo.class,
 		FirstUserCreator.class})
@@ -92,7 +92,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -126,7 +126,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/update/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -159,7 +159,7 @@ class MyProfileWebControllerTest {
 								.param("username", userToRequest.getUsername())
 								.param("email", userToRequest.getEmail()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -298,7 +298,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/updatePassword/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -326,7 +326,7 @@ class MyProfileWebControllerTest {
 								.param("password", userToRequest.getPassword())
 								.param("confirmPassword", userToRequest.getConfirmPassword()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -448,7 +448,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/expireOtherSessions/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(userRepo, never()).save(any(UserEntity.class));
@@ -480,7 +480,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/delete/"))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 	}
 
@@ -516,7 +516,7 @@ class MyProfileWebControllerTest {
 						post("/app/myProfile/delete/")
 								.with(csrf()))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(sessionUtils, never()).expireUserSessions(any(UserEntity.class), eq(true), eq(true));
@@ -572,7 +572,7 @@ class MyProfileWebControllerTest {
 		mockMvc.perform(
 						get("/app/myProfile/update/confirm/?value=" + exampleTokenValue))
 				.andExpect(status().is3xxRedirection())
-				.andExpect(redirectedUrl("http://localhost/loginPage/"))
+				.andExpect(redirectedUrl("/loginPage/"))
 				.andExpect(unauthenticated());
 
 		verify(mailChangeTokenRepo, never()).deleteByUser(any(UserEntity.class));

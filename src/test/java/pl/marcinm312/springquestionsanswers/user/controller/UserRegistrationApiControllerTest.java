@@ -1,6 +1,5 @@
 package pl.marcinm312.springquestionsanswers.user.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,13 +8,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 import pl.marcinm312.springquestionsanswers.answer.repository.AnswerRepository;
 import pl.marcinm312.springquestionsanswers.mail.service.MailService;
 import pl.marcinm312.springquestionsanswers.question.repository.QuestionRepository;
@@ -46,10 +46,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc(print = MockMvcPrint.SYSTEM_OUT, printOnlyOnFailure = false)
 @EnableAutoConfiguration(exclude = {
-		org.springframework.boot.autoconfigure.mail.MailSenderAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration.class,
-		org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration.class
+		org.springframework.boot.mail.autoconfigure.MailSenderAutoConfiguration.class,
+		org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration.class,
+		org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration.class,
+		org.springframework.boot.hibernate.autoconfigure.HibernateJpaAutoConfiguration.class
 })
 @MockitoBean(types = {AnswerRepository.class, QuestionRepository.class, MailChangeTokenRepo.class,
 		FirstUserCreator.class})
@@ -57,6 +57,9 @@ class UserRegistrationApiControllerTest {
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Autowired
+	private ObjectMapper mapper;
 
 	@MockitoBean
 	private MailService mailService;
@@ -66,9 +69,6 @@ class UserRegistrationApiControllerTest {
 
 	@MockitoBean
 	private ActivationTokenRepo activationTokenRepo;
-
-
-	private final ObjectMapper mapper = new ObjectMapper();
 
 
 	@ParameterizedTest
