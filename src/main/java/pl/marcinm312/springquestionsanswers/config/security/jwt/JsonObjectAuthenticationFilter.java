@@ -1,6 +1,5 @@
 package pl.marcinm312.springquestionsanswers.config.security.jwt;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import pl.marcinm312.springquestionsanswers.config.security.model.LoginCredentials;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +38,7 @@ public class JsonObjectAuthenticationFilter extends UsernamePasswordAuthenticati
 			);
 			setDetails(request, token);
 			return this.getAuthenticationManager().authenticate(token);
-		} catch (IOException e) {
+		} catch (IOException | JacksonException e) {
 			log.error("Error while authenticating user: {}", e.getClass().getName());
 			try {
 				response.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());

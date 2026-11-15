@@ -14,7 +14,7 @@
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Zmiana hasła</title>
 </head>
-<body onload="clearChangePasswordForm()">
+<body>
 <div class="wrapper">
     <div class="usertoolbar clearfix">
         <div class="right">
@@ -57,6 +57,6 @@
         </div>
     </form:form>
 </div>
+<script src="${pageContext.request.contextPath}/js/clearChangePasswordForm.js"></script>
 </body>
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/clearChangePasswordForm.js"></script>
 </html>

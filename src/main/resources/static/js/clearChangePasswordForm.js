@@ -6,3 +6,5 @@ function clearChangePasswordForm() {
     password.value = "";
     confirmPassword.value = "";
 }
+
+document.addEventListener("DOMContentLoaded", clearChangePasswordForm);

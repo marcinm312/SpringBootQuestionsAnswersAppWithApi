@@ -1,6 +1,5 @@
 package pl.marcinm312.springquestionsanswers.config.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.web.servlet.ServletListenerRegistrationBean;
@@ -9,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpMethod;
+import tools.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,7 +49,7 @@ public class MultiHttpSecurityCustomConfig {
 		private static final String ADMIN_ROLE = "ADMIN";
 
 		@Bean
-		public SecurityFilterChain jwtFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain jwtFilterChain(HttpSecurity http) {
 
 			http.securityMatcher("/api/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests
@@ -80,11 +80,11 @@ public class MultiHttpSecurityCustomConfig {
 		}
 
 		@Bean
-		public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+		public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
 			return authenticationConfiguration.getAuthenticationManager();
 		}
 
-		public JsonObjectAuthenticationFilter authenticationFilter() throws Exception {
+		public JsonObjectAuthenticationFilter authenticationFilter() {
 
 			JsonObjectAuthenticationFilter authenticationFilter = new JsonObjectAuthenticationFilter(objectMapper);
 			authenticationFilter.setFilterProcessesUrl("/api/login");
@@ -100,7 +100,7 @@ public class MultiHttpSecurityCustomConfig {
 	public static class FormLoginWebSecurityConfigurationAdapter {
 
 		@Bean
-		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+		public SecurityFilterChain formLoginFilterChain(HttpSecurity http) {
 
 			http.securityMatcher("/**")
 					.authorizeHttpRequests(authorizeRequests -> authorizeRequests

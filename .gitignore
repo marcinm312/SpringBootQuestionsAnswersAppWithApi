@@ -36,3 +36,4 @@ build/
 /logs/
 
 /.jpb/
+/.sonar/
