@@ -1,6 +1,6 @@
 function clearPasswordsFieldsInRegistrationForm() {
-    const password = document.getElementById("password");
-    const confirmPassword = document.getElementById("confirmPassword");
+    const password = document.getElementById("userPassword");
+    const confirmPassword = document.getElementById("userConfirmPassword");
     password.value = "";
     confirmPassword.value = "";
 }
