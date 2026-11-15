@@ -14,7 +14,7 @@
     <link href="${pageContext.request.contextPath}/css/style.css" rel="stylesheet">
     <title>Rejestracja użytkownika</title>
 </head>
-<body onload="clearPasswordsFieldsInRegistrationForm()">
+<body>
 <div class="wrapper">
     <h1>Rejestracja użytkownika</h1>
     <p class="message">Po rejestracji, otrzymasz maila, dzięki któremu
@@ -49,6 +49,6 @@
         </div>
     </form:form>
 </div>
+<script src="${pageContext.request.contextPath}/js/clearPasswordsFieldsInRegistrationForm.js"></script>
 </body>
-<script type="text/javascript" src="${pageContext.request.contextPath}/js/clearPasswordsFieldsInRegistrationForm.js"></script>
 </html>

@@ -4,3 +4,5 @@ function clearPasswordsFieldsInRegistrationForm() {
     password.value = "";
     confirmPassword.value = "";
 }
+
+document.addEventListener("DOMContentLoaded", clearPasswordsFieldsInRegistrationForm);
